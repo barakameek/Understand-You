@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Persona Map MVP - Dual Setup</title>
+    <title>Persona Map MVP - Territories</title>
     <link rel="stylesheet" href="style.css">
     <!-- Vis.js Network CSS -->
     <link href="https://unpkg.com/vis-network/styles/vis-network.min.css" rel="stylesheet" type="text/css" />
@@ -14,89 +14,72 @@
         <!-- === Welcome Screen === -->
         <div id="welcomeScreen" class="screen current">
             <h1>Welcome to Persona Map</h1>
-            <p>Explore your unique sexual persona based on 6 core elements.</p>
-            <button id="continueToChoiceButton" class="button">Get Started</button>
+            <p>Define your core sexual elements and explore the landscape of desire.</p>
+            <p>(Territory Exploration Demo)</p>
+            <button id="startGuidedButton" class="button">Start Guided Exploration</button>
         </div>
 
-        <!-- === Flow Choice Screen === -->
-        <div id="flowChoiceScreen" class="screen hidden">
-            <h1>Choose Your Setup Method</h1>
-            <div class="flow-choice-container">
-                <div class="flow-option">
-                    <h3>Define Directly</h3>
-                    <p>Quick setup if you have a strong sense of your core preferences. Set each element score with 1-2 focused inputs.</p>
-                    <button id="chooseDirectFlowButton" class="button" data-flow="direct">Choose Direct</button>
-                </div>
-                <div class="flow-option">
-                    <h3>Guided Exploration</h3>
-                    <p>Explore each element with several questions for a more nuanced profile. See the element score update as you answer.</p>
-                    <button id="chooseGuidedFlowButton" class="button" data-flow="guided">Choose Guided</button>
-                </div>
-            </div>
-        </div>
-
-
-        <!-- === Questionnaire Screen (Common Structure) === -->
+        <!-- === Questionnaire Screen (Element Focused) === -->
         <div id="questionnaireScreen" class="screen hidden">
             <header>
-                <p id="progressText">Element 1 / 6: [Element Name]</p>
-                <!-- Dynamic Score Feedback Area (for Guided Flow) -->
-                <div id="dynamicScoreFeedback" class="hidden">
+                 <!-- Element Progress Header (Can be built dynamically) -->
+                <div id="elementProgressHeader" class="element-progress-header">
+                    <!-- Populated by JS -->
+                </div>
+                 <p id="progressText">Element 1 / 6: [Element Name]</p>
+                <div id="dynamicScoreFeedback">
                     Current <span id="feedbackElement">Element</span> Score: <span id="feedbackScore">5.0</span>
                     <div class="score-bar-container"><div id="feedbackScoreBar" style="width: 50%;"></div></div>
                 </div>
             </header>
             <main id="questionContent">
-                <!-- Questions for the current element loaded here -->
+                <!-- Element Title, Explanation, and Questions Loaded Here -->
             </main>
             <footer>
                 <button id="prevElementButton" class="button back-button hidden">Previous Element</button>
-                <button id="nextElementButton" class="button next-button">Next Element</button>
+                <button id="nextElementButton" class="button next-button">Next Element / View Map</button>
             </footer>
         </div>
 
-        <!-- === Profile & Map Screen (Same as before) === -->
-        <div id="profileAndMapScreen" class="screen hidden">
-            <div class="profile-map-container">
-                <div class="profile-display">
-                    <h2>Your Persona Profile</h2>
-                    <p class="interactive-hint">Click element names to highlight. Use 'Refine'.</p>
-                    <div id="profileScores"></div>
-                    <hr>
-                    <div class="what-if-controls">
-                        <button id="toggleWhatIfButton" class="button small-button what-if-toggle">Enable 'What If?'</button>
-                        <div id="whatIfSliders" class="hidden"></div>
-                        <button id="resetWhatIfButton" class="button small-button back-button hidden">Reset to My Profile</button>
+        <!-- === Main Exploration Screen (Profile + Map + Quests) === -->
+        <div id="explorationScreen" class="screen hidden">
+            <div class="main-layout-container">
+                <!-- Left Panel: Profile & Quests -->
+                <div class="left-panel">
+                    <div class="profile-display">
+                        <h2>Your Profile</h2>
+                        <p class="interactive-hint">Click element names to highlight territory.</p>
+                        <div id="profileScores">
+                            <!-- Scores Loaded Here -->
+                        </div>
                     </div>
-                     <hr>
-                     <button id="restartButton" class="button small-button back-button">Start Over</button>
+                    <hr>
+                    <div class="quest-panel">
+                        <h2>Discovery Quests</h2>
+                        <p>Start a guided exploration:</p>
+                        <button class="button quest-button" data-quest="exploreSensory">Explore Sensory</button>
+                        <button class="button quest-button" data-quest="exploreInteraction" disabled>Explore Interaction (Soon)</button>
+                        </div>
+                         <hr>
+                         <button id="restartButton" class="button small-button back-button">Start Over</button>
                 </div>
+
+                <!-- Right Panel: Map Display -->
                 <div class="map-display">
-                    <h2>Your Persona Constellation</h2>
-                    <p>Click concepts for details. Zoom/Pan.</p>
+                    <h2>Persona Constellation</h2>
+                    <p>Explore the territories. Click nodes/hubs to reveal connections.</p>
                     <div id="network"></div>
                 </div>
             </div>
         </div>
 
-        <!-- === Popups & Overlay (Same as before) === -->
-         <div id="conceptDetailPopup" class="popup hidden"> /* ... Content unchanged ... */
-             <button id="closePopupButton" class="close-button">×</button>
-             <h3 id="popupConceptName"></h3><p id="popupConceptType"></p>
-             <div class="profile-comparison"><div class="profile-column"><h4>Concept Profile</h4><div id="popupConceptProfile"></div></div><div class="profile-column"><h4>Your Profile</h4><div id="popupUserComparisonProfile"></div></div></div>
-             <button id="findSimilarButton" class="button small-button">Find Similar Concepts</button>
-         </div>
-         <div id="refinementModal" class="popup hidden"> /* ... Content unchanged ... */
-              <button id="closeRefinementButton" class="close-button">×</button>
-              <h3 id="refinementTitle"></h3><div id="refinementQuestionContent"></div>
-              <button id="submitRefinementButton" class="button small-button">Update Profile</button>
-         </div>
-         <div id="popupOverlay" class="overlay hidden"></div>
-
     </div>
 
+    <!-- Vis.js Network JS -->
     <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+    <!-- Data File -->
     <script src="data.js"></script>
+    <!-- Main Application Logic -->
     <script src="script.js"></script>
 </body>
 </html>
