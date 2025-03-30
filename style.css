@@ -141,20 +141,6 @@ p {
     width: 150px; /* Align scores */
 }
 
-#mapResultsList {
-    list-style: none;
-    padding: 0;
-    max-height: 400px; /* Scroll if too many results */
-    overflow-y: auto;
-}
-#mapResultsList li {
-    background-color: #f9f9f9;
-    padding: 10px 15px;
-    margin-bottom: 8px;
-    border-radius: 4px;
-    border: 1px solid #eee;
-    font-size: 1.05em;
-}
 #mapResultsList li span {
     font-size: 0.8em;
     color: #777;
@@ -163,3 +149,80 @@ p {
 #mapResultsList li strong {
     font-weight: 600;
 }
+/* === Add styles for the Network Graph Container === */
+#network {
+    width: 100%;
+    height: 500px; /* Or adjust as needed */
+    border: 1px solid #ccc;
+    margin: 20px 0;
+    background-color: #fdfdfd; /* Slightly off-white background */
+}
+
+/* Ensure Map screen layout works with the graph */
+#mapScreen {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Center the graph container */
+}
+
+/* === Existing styles remain the same === */
+/* Basic Reset & Body Styling */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    margin: 0;
+    background-color: #f4f7f6;
+    color: #333;
+    line-height: 1.6;
+}
+
+.app-container {
+    max-width: 800px; /* Maybe slightly wider for graph */
+    margin: 20px auto;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+/* Screen Management */
+.screen {
+    padding: 30px 40px;
+    border-bottom: 1px solid #eee;
+}
+.screen:last-child {
+    border-bottom: none;
+}
+.hidden { display: none; }
+.current { display: flex; flex-direction: column; } /* Use flex for layout */
+
+/* Headings and Text */
+h1 { color: #8A2BE2; text-align: center; margin-bottom: 15px; }
+p { text-align: center; margin-bottom: 25px; color: #555; }
+
+/* Questionnaire Specific */
+#questionnaireScreen header { text-align: right; color: #888; margin-bottom: 30px; font-size: 0.9em; }
+#questionnaireScreen main { min-height: 150px; margin-bottom: 30px; }
+#questionnaireScreen footer { text-align: center; }
+.question-title { font-size: 1.3em; font-weight: 600; margin-bottom: 25px; text-align: center; }
+.input-container { margin: 20px 0; }
+.slider-container { width: 100%; max-width: 400px; margin: 20px auto; }
+.slider { width: 100%; cursor: pointer; appearance: none; height: 8px; background: #d3d3d3; border-radius: 5px; outline: none; }
+.slider::-webkit-slider-thumb { appearance: none; width: 20px; height: 20px; background: #8A2BE2; border-radius: 50%; cursor: pointer; }
+.slider::-moz-range-thumb { width: 20px; height: 20px; background: #8A2BE2; border-radius: 50%; cursor: pointer; border: none; }
+.label-container { display: flex; justify-content: space-between; margin-top: 8px; padding: 0 5px; }
+.label-text { font-size: 0.8em; color: #555; }
+.value-text { margin-top: 15px; text-align: center; font-size: 1em; font-weight: 500; }
+.radio-options label, .checkbox-options label { display: block; background-color: #f9f9f9; padding: 12px 15px; margin-bottom: 10px; border-radius: 5px; border: 1px solid #eee; cursor: pointer; transition: background-color 0.2s ease; }
+.radio-options input[type="radio"]:checked + label, .checkbox-options input[type="checkbox"]:checked + label { background-color: #e8d4ff; border-color: #8A2BE2; }
+.radio-options input[type="radio"], .checkbox-options input[type="checkbox"] { margin-right: 10px; display: none; }
+
+/* Buttons */
+.button { display: inline-block; padding: 12px 30px; border: none; border-radius: 25px; font-size: 1.1em; font-weight: bold; cursor: pointer; transition: background-color 0.2s ease, transform 0.1s ease; color: #ffffff; background-color: #8A2BE2; text-align: center; margin: 10px 5px; }
+.button:hover { background-color: #7a1fd0; }
+.button:active { transform: scale(0.98); }
+.back-button { background-color: #aaa; }
+.back-button:hover { background-color: #888; }
+
+/* Results */
+#profileScores div { margin: 8px 0; font-size: 1.1em; }
+#profileScores strong { color: #8A2BE2; display: inline-block; width: 150px; }
