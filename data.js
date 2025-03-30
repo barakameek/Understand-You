@@ -15,8 +15,8 @@ const elementDetails = {
     },
     examples: "Asexuality, Demisexuality, Heterosexuality, Homosexuality, Bisexuality, Pansexuality, Sapiosexuality, Fetishes (e.g., latex, feet, uniforms), attraction to specific body types, attraction based on D/s roles.", // <-- Text in quotes
     personaConnection: "Defines the fundamental 'object' or condition of your sexual desire." // <-- Text in quotes
-}, // <-- Comma separating from the next element
-
+} // <-- Comma separating from the next element
+};
 // --- Concepts Data (Card Structure) ---
 const concepts = [
     {
