@@ -1,174 +1,305 @@
-/* Basic Reset & Body */
-body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; background-color: #e8e4d8; color: #4a3e33; line-height: 1.5; }
-.app-container { max-width: 1300px; margin: 20px auto; background-color: #f5f0e1; border-radius: 8px; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2); border: 1px solid #d3c0a0; }
-/* Screen Management */
-.screen { padding: 20px 30px; box-sizing: border-box; min-height: calc(100vh - 40px - 50px); }
-.hidden { display: none !important; }
-.current { display: block; }
-/* Headings and Text */
-h1 { color: #5a3a22; text-align: center; margin-top: 0; margin-bottom: 20px; font-family: 'Times New Roman', Times, serif; font-weight: bold; font-size: 1.8em; text-shadow: 1px 1px 1px rgba(0,0,0,0.1); }
-h2 { text-align: center; color: #7a5230; margin-bottom: 15px; font-size: 1.4em; font-family: 'Garamond', serif; border-bottom: 1px solid #c8b89a; padding-bottom: 5px; }
-h3 { font-size: 1.2em; font-weight: bold; margin-bottom: 15px; color: #604028; font-family: 'Garamond', serif;}
-h4 { font-size: 1.1em; margin-bottom: 10px; color: #5a2d0c; text-align: center; font-family: 'Garamond', serif;}
-h5 { font-size: 1em; margin-bottom: 8px; color: #6a5a4a; text-align: center; border-bottom: 1px dashed #d3c0a0; padding-bottom: 4px;}
-p { text-align: center; margin-bottom: 15px; color: #5a4a3a; font-size: 1em; }
-hr { border: none; border-top: 1px dashed #c8b89a; margin: 15px 0; }
-.popup-hr { border-top: 1px solid #d3c0a0; margin: 10px 0;}
+// --- Global State ---
+let currentElementIndex = 0;
+let userScores = { Attraction: 5, Interaction: 5, Sensory: 5, Psychological: 5, Cognitive: 5, Relational: 5 };
+let userAnswers = {};
+const elementNames = ["Attraction", "Interaction", "Sensory", "Psychological", "Cognitive", "Relational"];
+let currentElementAnswers = {};
+let selectedElements = [];
+let currentlyDisplayedConceptId = null;
+let discoveredConcepts = new Map(); // Use Map to store ID -> { data, discoveredTime }
+let coreConcepts = new Set();
+let elementAttunement = { Attraction: 0, Interaction: 0, Sensory: 0, Psychological: 0, Cognitive: 0, Relational: 0 };
+let elementEssence = { Attraction: 0, Interaction: 0, Sensory: 0, Psychological: 0, Cognitive: 0, Relational: 0 };
 
-/* --- Lab Theme --- */
-.lab-theme { background: linear-gradient(to bottom, #f5f0e1, #e8e4d8); }
-.lab-theme .button { background-color: #8b4513; border: 1px solid #5a2d0c; box-shadow: 0 2px 3px rgba(0,0,0,0.2); color: #fff; text-shadow: 1px 1px 1px rgba(0,0,0,0.3);}
-.lab-theme .button:hover { background-color: #a0522d; }
-.lab-theme .back-button { background-color: #a09a8e; border-color: #7a746a; color: #333; text-shadow: none;}
-.lab-theme .back-button:hover { background-color: #8a8478; }
+// --- DOM Elements ---
+const screens = document.querySelectorAll('.screen');
+const startButton = document.getElementById('startGuidedButton');
+const questionnaireScreen = document.getElementById('questionnaireScreen');
+const elementProgressHeader = document.getElementById('elementProgressHeader');
+const questionContent = document.getElementById('questionContent');
+const progressText = document.getElementById('progressText');
+const dynamicScoreFeedback = document.getElementById('dynamicScoreFeedback');
+const feedbackElementSpan = document.getElementById('feedbackElement');
+const feedbackScoreSpan = document.getElementById('feedbackScore');
+const feedbackScoreBar = document.getElementById('feedbackScoreBar');
+const prevElementButton = document.getElementById('prevElementButton');
+const nextElementButton = document.getElementById('nextElementButton');
+const mainNavBar = document.getElementById('mainNavBar');
+const navButtons = document.querySelectorAll('.nav-button');
+const personaScreen = document.getElementById('personaScreen');
+const personaProfileScoresDiv = document.getElementById('personaProfileScores');
+const elementEssenceDisplay = document.getElementById('elementEssenceDisplay');
+const personaThemesList = document.getElementById('personaThemesList');
+const personaCoreConceptsList = document.getElementById('personaCoreConceptsList');
+const restartButtonPersona = document.getElementById('restartButtonPersona');
+const labScreen = document.getElementById('labScreen');
+const grimoireCountSpan = document.getElementById('grimoireCount');
+const elementVialsDiv = document.getElementById('elementVials');
+const clearSelectionButton = document.getElementById('clearSelectionButton');
+const resultsBenchDiv = document.getElementById('conceptResults');
+const mixingStatusDiv = document.getElementById('mixingStatus');
+const grimoireScreen = document.getElementById('grimoireScreen');
+const grimoireElementFilter = document.getElementById('grimoireElementFilter');
+const grimoireSortOrder = document.getElementById('grimoireSortOrder');
+const grimoireContentDiv = document.getElementById('grimoireContent');
+const conceptDetailPopup = document.getElementById('conceptDetailPopup');
+const popupOverlay = document.getElementById('popupOverlay');
+const popupConceptName = document.getElementById('popupConceptName');
+const popupConceptType = document.getElementById('popupConceptType');
+const popupResonanceSummary = document.getElementById('popupResonanceSummary');
+const popupComparisonHighlights = document.getElementById('popupComparisonHighlights');
+const popupConceptProfile = document.getElementById('popupConceptProfile'); // Detail view
+const popupRelatedConceptsList = document.getElementById('relatedConceptsList');
+const closePopupButton = document.getElementById('closePopupButton');
+const addToGrimoireButton = document.getElementById('addToGrimoireButton');
+const markAsCoreButton = document.getElementById('markAsCoreButton');
+const personaElementDetailsDiv = document.getElementById('personaElementDetails'); // Div for detailed descriptions
 
-/* Navigation Bar */
-.main-nav { display: flex; justify-content: center; background-color: #d2b48c; padding: 5px 0; border-bottom: 2px solid #8b4513; position: sticky; top: 0; z-index: 50;}
-.nav-button { background-color: transparent; border: none; color: #5a2d0c; padding: 10px 20px; font-size: 1em; font-weight: bold; cursor: pointer; border-bottom: 3px solid transparent; margin: 0 5px;}
-.nav-button:hover { border-bottom-color: #a0522d; }
-.nav-button.active { color: #8b4513; border-bottom-color: #8b4513; font-weight: bold; }
 
-/* Welcome Screen */
-#welcomeScreen { text-align: center; padding: 50px 30px;}
+// --- Utility & Setup Functions ---
 
-/* Questionnaire Screen */
-#questionnaireScreen { text-align: center; }
-#questionnaireScreen header { padding-bottom: 15px; border-bottom: 1px solid #d3c0a0; margin-bottom: 25px; }
-.element-progress-header { display: flex; justify-content: space-around; margin-bottom: 15px; padding: 5px; background-color: #e8e4d8; border-radius: 5px; border: 1px solid #d3c0a0; }
-.element-tab { padding: 5px 10px; border-radius: 4px; font-size: 0.85em; color: #7a5230; border: 1px solid transparent; font-family: monospace; }
-.element-tab.active { background-color: #f0e68c; color: #5a3a22; border-color: #b8a880; font-weight: bold; }
-.element-tab.completed { background-color: #d4ffd4; color: #006400; }
-#progressText { text-align: center; color: #5a4a3a; font-size: 1.1em; font-weight: bold; margin-bottom: 10px;}
-#dynamicScoreFeedback { text-align: center; font-size: 0.9em; color: #555; margin-top: 5px; background-color: #eee9dd; padding: 5px; border-radius: 4px;}
-#feedbackElement, #feedbackScore { font-weight: bold; color: #8b4513; }
-#dynamicScoreFeedback .score-label { font-style: italic; color: #6a5a4a; margin-left: 5px;}
-.score-bar-container { height: 6px; background-color: #d3c0a0; border-radius: 3px; margin-top: 5px; max-width: 150px; margin-left: auto; margin-right: auto; overflow: hidden;}
-#feedbackScoreBar { height: 100%; background-color: #8b4513; width: 50%; border-radius: 3px; transition: width 0.3s ease; }
-#questionnaireScreen main { padding: 0 20px; min-height: 250px; margin-bottom: 25px; text-align: left; }
-#questionnaireScreen footer { margin-top: 25px; display: flex; justify-content: space-between;}
-.element-intro { background-color: #faf0e6; padding: 15px; border-radius: 5px; margin-bottom: 25px; border-left: 4px solid #8b4513;}
-.element-intro h2 { text-align: left; margin-bottom: 5px; color: #5a3a22; }
-.element-intro p { text-align: left; font-size: 0.95em; color: #444; margin-bottom: 0;}
-.question-block { margin-bottom: 25px; padding-bottom: 15px; border-bottom: 1px dotted #d3c0a0; }
-.question-block:last-child { border-bottom: none; }
-.question-title { font-size: 1.1em; font-weight: 600; margin-bottom: 15px; color: #4a4a4a; }
-.input-container { margin: 10px 0; }
-/* Input Styles */
-.slider-container { width: 100%; max-width: 400px; margin: 15px auto; }
-.slider { width: 100%; cursor: pointer; appearance: none; height: 8px; background: #d3c0a0; border-radius: 5px; outline: none; border: 1px solid #b8a880;}
-.slider::-webkit-slider-thumb { appearance: none; width: 18px; height: 18px; background: #8b4513; border-radius: 50%; cursor: pointer; border: 1px solid #5a2d0c;}
-.slider::-moz-range-thumb { width: 18px; height: 18px; background: #8b4513; border-radius: 50%; cursor: pointer; border: 1px solid #5a2d0c; }
-.label-container { display: flex; justify-content: space-between; margin-top: 6px; }
-.label-text { font-size: 0.75em; color: #6a5a4a; }
-.value-text { margin-top: 10px; text-align: center; font-size: 0.9em; font-weight: 500; }
-.radio-options label, .checkbox-options label { display: block; background-color: #fff8e7; padding: 10px 12px; margin-bottom: 8px; border-radius: 5px; border: 1px solid #d3c0a0; cursor: pointer; transition: background-color 0.2s ease; font-size: 0.95em; }
-.radio-options input[type="radio"]:checked + label, .checkbox-options input[type="checkbox"]:checked + label { background-color: #f0e68c; border-color: #a09060; color: #4a3e33; }
-.radio-options input[type="radio"], .checkbox-options input[type="checkbox"] { display: none; }
+function getScoreLabel(score) {
+    if (score >= 9) return "Very High";
+    if (score >= 7) return "High";
+    if (score >= 5) return "Moderate";
+    if (score >= 3) return "Low";
+    return "Very Low";
+}
 
-/* My Persona Screen */
-.persona-screen { background-color: #faf0e6; }
-.persona-layout { display: flex; gap: 30px; }
-.persona-scores { flex: 1; background-color: #fff8e7; padding: 20px; border-radius: 5px; border: 1px solid #d3c0a0;}
-.persona-insights { flex: 2; background-color: #fff8e7; padding: 20px; border-radius: 5px; border: 1px solid #d3c0a0;}
-.persona-scores h2, .persona-insights h2 { text-align: left; border: none; margin-bottom: 10px; font-size: 1.3em;}
-.persona-insights p { text-align: left; font-size: 0.9em; color: #666; margin-bottom: 10px;}
-#personaProfileScores div { font-size: 1em; margin-bottom: 8px;}
-#personaProfileScores strong { width: 110px; display: inline-block; font-weight: bold;}
-#personaProfileScores .score-label { font-style: italic; margin-left: 5px; color: #7a5230; font-size: 0.9em;}
-#personaProfileScores .score-bar-container { max-width: 120px; height: 10px;}
-#elementEssenceDisplay { margin-top: 15px; padding-top: 10px; border-top: 1px dashed #c8b89a;}
-#elementEssenceDisplay h4 { text-align: left; margin-bottom: 5px; font-size: 1em; color: #604028;}
-#elementEssenceDisplay .essence-item { display: flex; align-items: center; margin-bottom: 5px; font-size: 0.9em;}
-#elementEssenceDisplay .essence-icon { width: 15px; height: 15px; border-radius: 50%; margin-right: 8px; border: 1px solid rgba(0,0,0,0.2);}
-#elementEssenceDisplay .essence-name { width: 90px; }
-#elementEssenceDisplay .essence-value { font-weight: bold; }
-#personaThemesList, #personaCoreConceptsList { list-style: none; /* Use custom icon/bullet */ padding-left: 10px; margin-top: 5px; font-size: 0.95em; }
-#personaThemesList li, #personaCoreConceptsList li { margin-bottom: 6px; padding-left: 15px; position: relative; }
-#personaThemesList li::before { content: '✧'; /* Sparkle/theme icon */ position: absolute; left: 0; color: #b8860b; }
-#personaCoreConceptsList li::before { content: '★'; /* Star for core concept */ position: absolute; left: 0; color: #FFD700; }
+// --- NEW: Get Detailed Score Interpretation ---
+function getScoreInterpretation(element, score) {
+    const label = getScoreLabel(score);
+    switch (element) {
+        case "Attraction":
+            if (label === "Very Low") return "Suggests very little specific sexual attraction (Asexual spectrum) or perhaps extremely broad attraction.";
+            if (label === "Low") return "Indicates lower specific focus; attraction might require strong emotional bonds (Demisexual spectrum) or be infrequent.";
+            if (label === "Moderate") return "A balanced level, potentially attracted to common cues like gender/presentation but without intense specific focus.";
+            if (label === "High") return "Suggests a strong focus on particular types, dynamics, or potentially specific objects/situations (fetish leanings).";
+            if (label === "Very High") return "Indicates a very strong, possibly consuming, focus on specific triggers for attraction.";
+            return "";
+        case "Interaction":
+             if (label === "Very Low") return "Strong preference for yielding control, following direction, or service (Submissive leaning).";
+             if (label === "Low") return "Leans towards preferring others to take the lead; comfort in supportive or submissive roles.";
+             if (label === "Moderate") return "Prefers collaborative, equal dynamics, or enjoys switching between leading and following roles.";
+             if (label === "High") return "Leans towards taking charge, guiding the interaction, or dominant roles.";
+             if (label === "Very High") return "Strong preference for being in control, directing the dynamic, or explicitly Dominant roles.";
+             return "";
+        case "Sensory":
+             if (label === "Very Low") return "Physical sensation is likely secondary; focus may be heavily on emotional or psychological aspects.";
+             if (label === "Low") return "Prefers subtle touch, warmth, and gentle sensations over intense physical input.";
+             if (label === "Moderate") return "Enjoys a common range of physical sensations, potentially exploring mild intensity.";
+             if (label === "High") return "Actively seeks distinct or intense physical sensations (pleasure or pain) as a key part of arousal.";
+             if (label === "Very High") return "Strongly driven by specific, intense, or even extreme physical sensations; edge play may be appealing.";
+             return "";
+        case "Psychological":
+             if (label === "Very Low") return "Sexuality may be primarily recreational or physical, less tied to fulfilling deep emotional/psychological needs.";
+             if (label === "Low") return "Emotional needs are a minor component; focus might be more on sensation, play, or simple connection.";
+             if (label === "Moderate") return "Seeks a balance of connection, pleasure, and emotional release through sexuality.";
+             if (label === "High") return "Sexuality is significantly driven by needs like deep Intimacy, Trust, Power dynamics, Validation, or Catharsis.";
+             if (label === "Very High") return "Fulfilling core psychological needs (e.g., intense connection, total power/surrender, transcendence) is paramount.";
+             return "";
+        case "Cognitive":
+             if (label === "Very Low") return "Strong preference for being present and embodied; fantasy or complex scenarios are less important.";
+             if (label === "Low") return "Primarily enjoys the physical and emotional reality; mental constructs play a minor role.";
+             if (label === "Moderate") return "Appreciates some level of imagination or mental engagement, but it's not the primary driver.";
+             if (label === "High") return "Arousal is significantly fueled by fantasy, role-playing scenarios, mental games, or psychological dynamics.";
+             if (label === "Very High") return "Deeply immersed in complex fantasies, intricate scenarios, intellectual play, or psychological depth for arousal.";
+             return "";
+        case "Relational":
+             if (label === "Very Low") return "Strong preference for Solitary sexual expression or potentially strict Monogamy with deep bonding.";
+             if (label === "Low") return "Leans towards exclusive pair-bonding (Monogamy) as the ideal context.";
+             if (label === "Moderate") return "Comfortable with various contexts, potentially including Casual connections or some openness alongside committed ones.";
+             if (label === "High") return "Leans towards or prefers various forms of Consensual Non-Monogamy (Open Relationships, Polyamory).";
+             if (label === "Very High") return "Strongly prefers or practices structures involving multiple simultaneous relationships or significant openness (Polyamory, Relationship Anarchy).";
+             return "";
+        default: return "";
+    }
+}
 
-/* Main Lab Screen */
-#labScreen { display: block; }
-.lab-top-bar { text-align: right; margin-bottom: 15px; border-bottom: 1px dashed #c8b89a; padding-bottom: 10px;} /* Removed - nav bar replaces */
-.lab-layout-container { display: flex; gap: 30px; }
-.ingredient-shelf { flex: 1; max-width: 300px; background-color: #deb887; padding: 20px; border-radius: 8px; border: 3px ridge #8b4513; box-shadow: inset 0 0 10px rgba(0,0,0,0.2); }
-.results-bench { flex: 3; background-color: #eee8aa; padding: 20px; border-radius: 8px; border: 1px solid #b8a880;}
-.ingredient-shelf h2, .results-bench h2 { margin-top: 0; border-bottom-color: #a08460; }
-.ingredient-shelf p, .results-bench p { text-align: left; font-size: 0.9em; margin-bottom: 10px; }
-.mixing-status { background-color: rgba(255, 248, 220, 0.8); border: 1px dashed #b8860b; padding: 10px; margin-bottom: 15px; border-radius: 4px; text-align: center; font-weight: bold; color: #5a3a22; min-height: 1.5em;}
-/* Element Vials */
-#elementVials { margin-top: 15px; }
-.vial { background: linear-gradient(to bottom, #f8f8f8, #ffffff); border: 2px solid #8b4513; border-radius: 5px; padding: 8px 10px; margin-bottom: 8px; cursor: pointer; transition: all 0.2s ease; display: flex; align-items: center; box-shadow: 1px 1px 3px rgba(0,0,0,0.1);}
-.vial.selected { border-color: #cd853f; transform: scale(1.02); box-shadow: 0 0 8px rgba(205, 133, 63, 0.7); background: #fffacd; }
-.vial.disabled { opacity: 0.6; cursor: not-allowed; background-color: #e0e0e0; box-shadow: none; transform: none;}
-/* Vial Resonance Visual Feedback */
-.vial.resonating { animation: pulseGlow 1.5s infinite alternate; }
-@keyframes pulseGlow { 0% { box-shadow: 0 0 5px rgba(255, 255, 150, 0.6); } 100% { box-shadow: 0 0 15px 5px rgba(255, 255, 100, 0.9); } }
-.vial-icon { width: 20px; height: 30px; background: linear-gradient(to bottom, rgba(255,255,255,0.5), rgba(200,200,255,0.3)); border: 1px solid #aaa; border-radius: 4px 4px 15px 15px / 4px 4px 20px 20px; margin-right: 10px; position: relative; overflow: hidden; box-shadow: inset 1px 1px 3px rgba(0,0,0,0.1);}
-.vial-liquid { position: absolute; bottom: 0; left: 0; width: 100%; background-color: #6495ED; transition: height 0.3s ease, background-color 0.3s ease; border-top: 1px solid rgba(255,255,255,0.3); }
-.vial-label { flex-grow: 1; }
-.vial-name { font-weight: bold; font-size: 0.95em; color: #5a2d0c; }
-.vial-score { font-size: 0.8em; color: #7a5230; }
-#clearSelectionButton { margin-top: 15px; width: 100%; }
-/* Concept Results */
-.concept-results-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px; margin-top: 20px; max-height: calc(100vh - 280px); /* Adjust height */ overflow-y: auto; padding: 10px; background-color: rgba(255,255,255,0.3); border-radius: 4px;}
-.potion-card { background-color: #fff8dc; border: 2px solid #b8860b; border-radius: 8px; padding: 15px; text-align: center; cursor: pointer; transition: all 0.2s ease; position: relative; box-shadow: 2px 2px 5px rgba(0,0,0,0.1);}
-.potion-card:hover { transform: translateY(-3px); box-shadow: 0 4px 8px rgba(0,0,0,0.15); border-color: #8B4513;}
-.potion-card h4 { margin: 0 0 5px 0; color: #8B4513; font-size: 1.1em; font-family: 'Garamond', serif;}
-.potion-card .concept-type { font-size: 0.8em; color: #6a5a4a; margin-bottom: 8px; font-style: italic;}
-.resonance-indicator { position: absolute; top: 5px; right: 5px; font-size: 0.7em; padding: 2px 5px; border-radius: 10px; color: white; font-weight: bold; text-shadow: 1px 1px 1px rgba(0,0,0,0.4);}
-.resonance-high { background-color: #28a745; }
-.resonance-medium { background-color: #ffc107; color: #333; text-shadow: none;}
-.resonance-low { background-color: #dc3545; }
 
-/* Grimoire Screen */
-.grimoire-screen { background-color: #d2b48c; }
-#grimoireControls { text-align: center; margin-bottom: 15px; background-color: rgba(255,255,255,0.3); padding: 8px; border-radius: 5px;}
-#grimoireControls label { margin: 0 10px 0 5px; font-weight: bold; color: #5a3a22;}
-#grimoireControls select { padding: 5px; border-radius: 4px; border: 1px solid #a08460; background-color: #fff8e7;}
-.grimoire-content { background-color: #fff8e7; padding: 20px; border-radius: 5px; border: 1px solid #a08460; margin-top: 10px; max-height: calc(100vh - 200px); overflow-y: auto; columns: 2; column-gap: 25px;}
-.grimoire-section { break-inside: avoid; margin-bottom: 20px;}
-.grimoire-section h3 { border-bottom: 1px solid #c8b89a; padding-bottom: 3px; margin-bottom: 10px; font-size: 1.1em;}
-.grimoire-entry { margin-bottom: 8px; padding: 5px 8px; border-bottom: 1px dotted #d3c0a0; font-size: 0.95em; background-color: #fffaf0; border-radius: 3px; cursor: pointer; }
-.grimoire-entry:hover { background-color: #f5eecf; }
-.grimoire-entry:last-child { border-bottom: none; }
-.grimoire-entry strong { color: #5a2d0c; }
-.grimoire-entry span { font-size: 0.85em; color: #7a5230; margin-left: 5px; }
+function showScreen(screenId) { /* ... Same ... */
+     let targetIsMain = ['personaScreen', 'labScreen', 'grimoireScreen'].includes(screenId); screens.forEach(screen => { screen.id === screenId ? screen.classList.add('current') : screen.classList.add('hidden'); screen.id === screenId ? screen.classList.remove('hidden') : screen.classList.remove('current'); }); mainNavBar.classList.toggle('hidden', !targetIsMain); navButtons.forEach(button => { button.classList.toggle('active', button.dataset.target === screenId); }); if (screenId === 'questionnaireScreen' || screenId === 'grimoireScreen') { window.scrollTo(0, 0); }
+}
+function initializeQuestionnaire() { /* ... Same ... */
+    currentElementIndex = 0; userScores = { Attraction: 5, Interaction: 5, Sensory: 5, Psychological: 5, Cognitive: 5, Relational: 5 }; userAnswers = {}; elementNames.forEach(el => userAnswers[el] = {}); discoveredConcepts = new Map(); coreConcepts = new Set(); elementAttunement = { Attraction: 0, Interaction: 0, Sensory: 0, Psychological: 0, Cognitive: 0, Relational: 0 }; elementEssence = { Attraction: 0, Interaction: 0, Sensory: 0, Psychological: 0, Cognitive: 0, Relational: 0 }; updateElementProgressHeader(-1); displayElementQuestions(currentElementIndex); showScreen('questionnaireScreen'); mainNavBar.classList.add('hidden');
+}
+function updateElementProgressHeader(activeIndex) { /* ... Same ... */
+    elementProgressHeader.innerHTML = ''; elementNames.forEach((name, index) => { const tab = document.createElement('div'); tab.classList.add('element-tab'); tab.textContent = name.substring(0, 3).toUpperCase(); tab.title = name; if (index < activeIndex) tab.classList.add('completed'); else if (index === activeIndex) tab.classList.add('active'); elementProgressHeader.appendChild(tab); });
+}
+function enforceMaxChoices(name, max, event) { /* ... Same ... */
+    const checkboxes = document.querySelectorAll(`input[name="${name}"]:checked`); if (checkboxes.length > max) { alert(`You can only select up to ${max} options.`); if (event && event.target && event.target.checked) event.target.checked = false; }
+}
+function displayElementQuestions(index) { /* ... Uses getScoreLabel ... */
+     if (index >= elementNames.length) { finalizeScoresAndShowPersona(); return; } const element = elementNames[index]; const questions = questionnaireGuided[element] || []; updateElementProgressHeader(index); progressText.textContent = `Element ${index + 1} / ${elementNames.length}: ${element}`; questionContent.innerHTML = `<div class="element-intro"><h2>${element}</h2><p>${elementExplanations[element]}</p></div>`; currentElementAnswers = { ...(userAnswers[element] || {}) };
+    questions.forEach(q => { let inputHTML = `<div class="question-block" id="block_${q.qId}"><h3 class="question-title">${q.text}</h3><div class="input-container">`; const savedAnswer = currentElementAnswers[q.qId]; if (q.type === "slider") { const currentValue = savedAnswer !== undefined ? savedAnswer : q.defaultValue; inputHTML += `<div class="slider-container"> <input type="range" id="${q.qId}" class="slider q-input" min="${q.minValue}" max="${q.maxValue}" step="${q.step || 0.5}" value="${currentValue}" data-question-id="${q.qId}" data-type="slider"> <div class="label-container"><span class="label-text">${q.minLabel}</span><span class="label-text">${q.maxLabel}</span></div> <p class="value-text">Selected: <span id="display_${q.qId}">${parseFloat(currentValue).toFixed(1)}</span></p> </div>`; } else if (q.type === "radio") { inputHTML += `<div class="radio-options">`; q.options.forEach(opt => { const isChecked = savedAnswer === opt.value ? 'checked' : ''; inputHTML += `<div><input type="radio" id="${q.qId}_${opt.value}" class="q-input" name="${q.qId}" value="${opt.value}" ${isChecked} data-question-id="${q.qId}" data-type="radio"><label for="${q.qId}_${opt.value}">${opt.value}</label></div>`; }); inputHTML += `</div>`; } else if (q.type === "checkbox") { inputHTML += `<div class="checkbox-options">`; q.options.forEach(opt => { const isChecked = savedAnswer?.includes(opt.value) ? 'checked' : ''; inputHTML += `<div><input type="checkbox" id="${q.qId}_${opt.value}" class="q-input" name="${q.qId}" value="${opt.value}" ${isChecked} data-question-id="${q.qId}" data-max-choices="${q.maxChoices || 2}" data-type="checkbox"><label for="${q.qId}_${opt.value}">${opt.value}</label></div>`; }); inputHTML += `</div>`; } inputHTML += `</div></div>`; questionContent.innerHTML += inputHTML; });
+    questionContent.querySelectorAll('.q-input').forEach(input => { const eventType = (input.type === 'range') ? 'input' : 'change'; input.addEventListener(eventType, handleQuestionnaireInputChange); });
+    updateDynamicFeedback(element); // Initial update
+    dynamicScoreFeedback.style.display = 'block'; prevElementButton.style.visibility = (index > 0) ? 'visible' : 'hidden'; nextElementButton.textContent = (index === elementNames.length - 1) ? "View My Persona" : "Next Element";
+}
+function handleQuestionnaireInputChange(event) { /* ... */ const input = event.target; const qId = input.dataset.questionId; const type = input.dataset.type; const element = elementNames[currentElementIndex]; if (type === 'checkbox') { enforceMaxChoices(input.name, parseInt(input.dataset.maxChoices || 2), event); } if (type === 'slider') { document.getElementById(`display_${qId}`).textContent = parseFloat(input.value).toFixed(1); } collectCurrentElementAnswers(); updateDynamicFeedback(element); }
+function collectCurrentElementAnswers() { /* ... */ const element = elementNames[currentElementIndex]; const questions = questionnaireGuided[element] || []; currentElementAnswers = {}; questions.forEach(q => { if (q.type === 'slider') { const input = document.getElementById(q.qId); if (input) currentElementAnswers[q.qId] = parseFloat(input.value); } else if (q.type === 'radio') { const checked = document.querySelector(`input[name="${q.qId}"]:checked`); if (checked) currentElementAnswers[q.qId] = checked.value; } else if (q.type === 'checkbox') { const checked = document.querySelectorAll(`input[name="${q.qId}"]:checked`); currentElementAnswers[q.qId] = Array.from(checked).map(cb => cb.value); } }); userAnswers[element] = { ...currentElementAnswers }; }
 
-/* Popups & Overlay */
-.overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.7); z-index: 99; }
-.popup { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: linear-gradient(to bottom, #fdf5e6, #faf0e6); border: 3px solid #8b4513; padding: 25px 30px; border-radius: 8px; box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3); z-index: 100; width: 90%; max-width: 600px; /* Wider */ text-align: center; max-height: 85vh; overflow-y: auto;}
-.lab-popup h3 { margin-top: 0; color: #5a3a22; font-size: 1.4em; font-family: 'Garamond', serif;}
-.lab-popup p { font-size: 0.9em; color: #6a5a4a; margin-bottom: 10px; }
-.close-button { position: absolute; top: 8px; right: 12px; background: none; border: none; font-size: 1.8em; color: #a08460; cursor: pointer; line-height: 1; }
-.close-button:hover { color: #7a5230; }
-/* Concept Detail Pop-up */
-.resonance-summary { font-weight: bold; margin-bottom: 10px; font-size: 1.1em; display: flex; align-items: center; justify-content: center; }
-.resonance-summary .resonance-indicator { margin-left: 8px; } /* Space indicator */
-.recipe-view h4 { font-size: 1.1em; margin-top: 15px; margin-bottom: 8px; color: #5a2d0c; text-align: center; border: none; padding: 0;}
-#popupComparisonHighlights { text-align: left; margin: 10px 0; font-size: 0.95em; background-color: rgba(255,255,255,0.5); padding: 10px; border-radius: 4px;}
-#popupComparisonHighlights p { text-align: left; margin: 4px 0; }
-#popupComparisonHighlights strong.match { color: #1e7e34; font-weight: bold;}
-#popupComparisonHighlights strong.mismatch { color: #c82333; font-weight: bold;}
-.element-details { margin-top: 15px; text-align: left; border: 1px solid #d3c0a0; border-radius: 4px; background: #fffefa; }
-.element-details summary { cursor: pointer; padding: 8px 10px; font-weight: bold; color: #7a5230; background-color: #eee9dd; border-radius: 4px 4px 0 0;}
-.element-details summary:hover { background-color: #e8e4d8; }
-.profile-comparison { display: flex; justify-content: space-around; text-align: left; gap: 15px; padding: 10px;}
-.profile-column h5 { font-size: 1em; margin-bottom: 8px; color: #6a5a4a; text-align: center; border-bottom: 1px dashed #d3c0a0; padding-bottom: 4px;}
-#popupConceptProfile div, #popupUserComparisonProfile div { font-size: 0.9em; margin: 3px 0; }
-#popupConceptProfile strong, #popupUserComparisonProfile strong { display: inline-block; width: 100px; color: #6a5a4a; font-weight: normal; }
-#popupConceptProfile span, #popupUserComparisonProfile span { font-weight: bold; color: #8b4513; }
-.related-concepts h4 { font-size: 1em; margin-top: 15px; margin-bottom: 8px; color: #5a2d0c; }
-#relatedConceptsList { list-style: none; padding: 0; text-align: center; }
-#relatedConceptsList li { display: inline-block; background-color: #eee9dd; border: 1px solid #d3c0a0; border-radius: 15px; padding: 3px 10px; margin: 3px; font-size: 0.9em; cursor: pointer; color: #6a5a4a;}
-#relatedConceptsList li:hover { background-color: #f0e68c; color: #4a3e33;}
-.add-grimoire-button { margin-top: 15px; background-color: #2e8b57; border-color: #1e5a3a; }
-.add-grimoire-button:hover { background-color: #3cb371; }
-.add-grimoire-button.added { background-color: #aaa; border-color: #888; cursor: default; }
-.core-button { background-color: #ffc107; border-color: #b8860b; color: #333; text-shadow: none;}
-.core-button:hover { background-color: #e0a800; }
-.core-button.marked { background-color: #ffaa00; border-color: #cc8400; }
+// Update Dynamic Feedback includes qualitative label
+function updateDynamicFeedback(element) {
+    const tempScore = calculateElementScore(element, currentElementAnswers);
+    feedbackElementSpan.textContent = element;
+    feedbackScoreSpan.textContent = tempScore.toFixed(1);
+    let labelSpan = dynamicScoreFeedback.querySelector('.score-label');
+    if (!labelSpan) { labelSpan = document.createElement('span'); labelSpan.classList.add('score-label'); feedbackScoreSpan.parentNode.insertBefore(labelSpan, feedbackScoreSpan.nextSibling); feedbackScoreSpan.parentNode.insertBefore(document.createTextNode(' '), labelSpan); }
+    labelSpan.textContent = `(${getScoreLabel(tempScore)})`; // Add qualitative label
+    feedbackScoreBar.style.width = `${tempScore * 10}%`;
+}
 
-/* Buttons */
-.button { display: inline-block; padding: 10px 20px; border: none; border-radius: 5px; font-size: 1em; font-weight: bold; cursor: pointer; transition: background-color 0.2s ease, transform 0.1s ease; color: #ffffff; text-shadow: 1px 1px 1px rgba(0,0,0,0.3); }
-.small-button { padding: 6px 12px; font-size: 0.85em; margin: 5px; }
+function calculateElementScore(element, answersForElement) { /* ... Same calculation logic ... */
+    const questions = questionnaireGuided[element] || []; let score = 5.0; questions.forEach(q => { const answer = answersForElement[q.qId]; let pointsToAdd = 0; if (q.type === 'slider') { const value = (answer !== undefined) ? answer : q.defaultValue; pointsToAdd = (value - q.defaultValue) * (q.scoreWeight || 1.0); } else if (q.type === 'radio') { const selectedOption = q.options.find(opt => opt.value === answer); pointsToAdd = selectedOption ? selectedOption.points * (q.scoreWeight || 1.0) : 0; } else if (q.type === 'checkbox' && answer) { answer.forEach(val => { const selectedOption = q.options.find(opt => opt.value === val); pointsToAdd += selectedOption ? selectedOption.points * (q.scoreWeight || 1.0) : 0; }); } score += pointsToAdd; }); return Math.max(0, Math.min(10, score));
+}
+
+function finalizeScoresAndShowPersona() { /* ... Finalizes scores and shows Persona screen ... */
+    console.log("Finalizing scores..."); elementNames.forEach(element => { userScores[element] = calculateElementScore(element, userAnswers[element] || {}); }); console.log("Final User Scores:", userScores);
+    displayPersonaScreen(); displayElementVials(); filterAndDisplayConcepts(); updateGrimoireCounter(); populateGrimoireFilter(); showScreen('personaScreen');
+}
+
+function nextElement() { collectCurrentElementAnswers(); currentElementIndex++; displayElementQuestions(currentElementIndex); }
+function prevElement() { collectCurrentElementAnswers(); currentElementIndex--; displayElementQuestions(currentElementIndex); }
+
+// --- Display Persona Screen (with detailed explanations) ---
+function displayPersonaScreen() {
+    personaProfileScoresDiv.innerHTML = ''; // Clear scores div
+    personaElementDetailsDiv.innerHTML = ''; // Clear details div
+
+    elementNames.forEach(element => {
+        const score = userScores[element];
+        const scoreLabel = getScoreLabel(score);
+        const interpretation = getScoreInterpretation(element, score);
+        const barWidth = score * 10;
+
+        // Create collapsible details entry
+        const details = document.createElement('details');
+        details.classList.add('element-detail-entry');
+        details.innerHTML = `
+            <summary class="element-detail-header">
+                 <div>
+                    <strong>${element}:</strong>
+                    <span>${score.toFixed(1)}</span>
+                    <span class="score-label">(${scoreLabel})</span>
+                 </div>
+                 <div class="score-bar-container" style="height: 10px; max-width: 100px;">
+                    <div style="width: ${barWidth}%; height: 100%; background-color: ${getElementColor(element)}; border-radius: 3px;"></div>
+                 </div>
+            </summary>
+            <div class="element-description">
+                 <p><strong>Meaning:</strong> ${elementExplanations[element]}</p>
+                 <p><strong>Your Score (${scoreLabel}):</strong> ${interpretation}</p>
+            </div>
+        `;
+        personaElementDetailsDiv.appendChild(details);
+    });
+
+    displayElementEssence();
+    synthesizeAndDisplayThemes();
+    displayCoreConcepts();
+}
+
+// --- Display Element Essence ---
+function displayElementEssence() { /* ... Same ... */
+    elementEssenceDisplay.innerHTML = '<h4>Collected Essence</h4>'; elementNames.forEach(el => { const essenceValue = elementEssence[el].toFixed(1); elementEssenceDisplay.innerHTML += `<div class="essence-item"><span class="essence-icon" style="background-color: ${getElementColor(el)};"></span><span class="essence-name">${el}:</span><span class="essence-value">${essenceValue}</span></div>`; });
+}
+
+// --- Synthesize Themes ---
+function synthesizeAndDisplayThemes() { /* ... Same logic ... */
+     personaThemesList.innerHTML = ''; if (discoveredConcepts.size === 0) { personaThemesList.innerHTML = '<li>Explore the Lab to reveal themes.</li>'; return; } const elementCounts = { Attraction: 0, Interaction: 0, Sensory: 0, Psychological: 0, Cognitive: 0, Relational: 0 }; const threshold = 7.0; discoveredConcepts.forEach((data, id) => { /* Use Map value */ const concept = data.concept; if (concept && concept.elementScores) { elementNames.forEach(el => { if (concept.elementScores[el] >= threshold) { elementCounts[el]++; } }); } }); const sortedThemes = Object.entries(elementCounts).filter(([el, count]) => count > 0).sort(([, countA], [, countB]) => countB - countA); if (sortedThemes.length === 0) { personaThemesList.innerHTML = '<li>No strong elemental themes identified yet.</li>'; return; } sortedThemes.slice(0, 3).forEach(([element, count]) => { const li = document.createElement('li'); li.textContent = `${element} Focus (from ${count} concepts)`; personaThemesList.appendChild(li); });
+}
+
+// --- Display Core Concepts ---
+function displayCoreConcepts() { /* ... Same logic ... */
+     personaCoreConceptsList.innerHTML = ''; if (coreConcepts.size === 0) { personaCoreConceptsList.innerHTML = '<li>Mark concepts as "Core".</li>'; return; } coreConcepts.forEach(conceptId => { const concept = concepts.find(c => c.id === conceptId); if (concept) { const li = document.createElement('li'); li.textContent = `${concept.name} (${concept.type})`; personaCoreConceptsList.appendChild(li); } });
+}
+
+
+// --- Lab Screen Functions ---
+function displayElementVials() { /* ... Adds title attribute ... */
+    elementVialsDiv.innerHTML = ''; elementNames.forEach(element => { const score = userScores[element]; const vial = document.createElement('div'); vial.classList.add('vial'); vial.dataset.element = element; vial.title = elementExplanations[element] || element; if (selectedElements.includes(element)) { vial.classList.add('selected', 'resonating'); } vial.innerHTML = ` <div class="vial-icon"><div class="vial-liquid" style="height: ${score * 10}%; background-color: ${getElementColor(element)};"></div></div> <div class="vial-label"><span class="vial-name">${element}</span> <span class="vial-score">Score: ${score.toFixed(1)}</span></div> `; vial.addEventListener('click', handleVialClick); elementVialsDiv.appendChild(vial); }); clearSelectionButton.classList.toggle('hidden', selectedElements.length === 0); // Ensure clear button state is correct
+}
+function getElementColor(elementName) { /* ... */ const colors={Attraction:'#FF6347',Interaction:'#4682B4',Sensory:'#32CD32',Psychological:'#FFD700',Cognitive:'#8A2BE2',Relational:'#FF8C00'};return colors[elementName]||'#CCC'; }
+function handleVialClick(event) { /* ... Adds Resonance/Attunement ... */
+    const clickedVial = event.currentTarget; const element = clickedVial.dataset.element; elementAttunement[element]++; console.log(`Attunement for ${element}: ${elementAttunement[element]}`); clickedVial.classList.add('resonating'); setTimeout(() => { if (!selectedElements.includes(element)) { clickedVial.classList.remove('resonating'); } }, 1500); if (selectedElements.includes(element)) { selectedElements = selectedElements.filter(el => el !== element); clickedVial.classList.remove('selected', 'resonating'); } else if (selectedElements.length < 2) { selectedElements.push(element); clickedVial.classList.add('selected'); } else { alert("Max 2 elements."); clickedVial.classList.remove('resonating'); return; } updateVialStates(); updateMixingStatus(); filterAndDisplayConcepts(); clearSelectionButton.classList.toggle('hidden', selectedElements.length === 0);
+}
+function updateVialStates() { /* ... Includes resonance handling ... */ const vials = elementVialsDiv.querySelectorAll('.vial'); const maxSelected = selectedElements.length >= 2; vials.forEach(vial => { const isSelected = vial.classList.contains('selected'); vial.classList.toggle('disabled', maxSelected && !isSelected); if (!isSelected) vial.classList.remove('resonating'); }); }
+function updateMixingStatus() { /* ... Same ... */ let statusHTML = "<strong>Mixing:</strong> "; if (selectedElements.length === 0) { statusHTML += "<i>None Selected - Showing Top Overall Matches</i>"; } else { statusHTML += selectedElements.map(el => `<span class="status-element" style="border-color:${getElementColor(el)}; color:${getElementColor(el)}; font-weight:bold; padding:2px 6px; border-radius:4px; border:1px solid ${getElementColor(el)}; margin:0 5px;">${el}</span>`).join(' + '); } mixingStatusDiv.innerHTML = statusHTML; }
+function clearElementSelection() { /* ... Includes resonance reset ... */ selectedElements = []; updateVialStates(); updateMixingStatus(); filterAndDisplayConcepts(); clearSelectionButton.classList.add('hidden'); elementVialsDiv.querySelectorAll('.vial.selected, .vial.resonating').forEach(v => v.classList.remove('selected', 'resonating')); }
+
+function filterAndDisplayConcepts() { /* ... Same logic, includes Grimoire Stamp ... */
+    resultsBenchDiv.innerHTML = ''; let filteredConcepts = []; const scoreThreshold = 5.5; const userRelevanceWeight = 0.3; let conceptsWithDistance = concepts.map(c => ({ ...c, distance: euclideanDistance(userScores, c.elementScores || {}) })).filter(c => c.distance !== Infinity);
+    if (selectedElements.length === 0) { filteredConcepts = conceptsWithDistance.sort((a, b) => a.distance - b.distance).slice(0, 15); }
+    else if (selectedElements.length === 1) { const el1 = selectedElements[0]; filteredConcepts = conceptsWithDistance.filter(c => c.elementScores && c.elementScores[el1] >= scoreThreshold).sort((a, b) => { const scoreA = a.elementScores[el1]; const scoreB = b.elementScores[el1]; if (scoreB !== scoreA) return scoreB - scoreA; return a.distance - b.distance; }); }
+    else if (selectedElements.length === 2) { const el1 = selectedElements[0]; const el2 = selectedElements[1]; filteredConcepts = conceptsWithDistance.filter(c => c.elementScores && c.elementScores[el1] >= scoreThreshold && c.elementScores[el2] >= scoreThreshold).sort((a, b) => { const scoreA = (a.elementScores[el1] + a.elementScores[el2]) * (1 - userRelevanceWeight) + (30 - a.distance) * userRelevanceWeight; const scoreB = (b.elementScores[el1] + b.elementScores[el2]) * (1 - userRelevanceWeight) + (30 - b.distance) * userRelevanceWeight; return scoreB - scoreA; }); }
+    updateMixingStatus();
+    if (filteredConcepts.length === 0) { resultsBenchDiv.innerHTML = selectedElements.length > 0 ? '<p>No concepts strongly match this specific combination.</p>' : '<p>Select elements to begin discovering concepts.</p>'; }
+    else { filteredConcepts.slice(0, 24).forEach(concept => { const potionCard = document.createElement('div'); potionCard.classList.add('potion-card'); potionCard.dataset.conceptId = concept.id; let resonanceClass = 'resonance-low'; let resonanceText = 'Low'; if (concept.distance < 10) { resonanceClass = 'resonance-high'; resonanceText = 'High'; } else if (concept.distance < 16) { resonanceClass = 'resonance-medium'; resonanceText = 'Mid'; }
+    // *** Add Grimoire Stamp ***
+    const grimoireStampHTML = discoveredConcepts.has(concept.id) ? '<span class="grimoire-stamp" title="In Grimoire"><i class="fas fa-book-open"></i></span>' : '';
+    potionCard.innerHTML = `${grimoireStampHTML}<span class="resonance-indicator ${resonanceClass}" title="Overall match to your profile">${resonanceText}</span> <h4>${concept.name}</h4> <p class="concept-type">(${concept.type})</p> `; potionCard.addEventListener('click', () => showConceptDetailPopup(concept.id)); resultsBenchDiv.appendChild(potionCard); }); }
+}
+
+// --- Concept Detail Pop-up (Simplified Comparison) ---
+function showConceptDetailPopup(conceptId) { /* ... Same logic with qualitative labels ... */
+    currentlyDisplayedConceptId = conceptId; const conceptData = concepts.find(c => c.id === conceptId); if (!conceptData || !conceptData.elementScores) return; popupConceptName.textContent = conceptData.name; popupConceptType.textContent = conceptData.type; popupComparisonHighlights.innerHTML = ''; popupConceptProfile.innerHTML = ''; popupRelatedConceptsList.innerHTML = '';
+    const distance = euclideanDistance(userScores, conceptData.elementScores); let resonanceClass = 'resonance-low'; let resonanceText = 'Low Match'; if (distance < 10) { resonanceClass = 'resonance-high'; resonanceText = 'Good Match'; } else if (distance < 16) { resonanceClass = 'resonance-medium'; resonanceText = 'Okay Match'; } popupResonanceSummary.innerHTML = `Overall Match: <span class="resonance-indicator ${resonanceClass}">${resonanceText}</span>`;
+    let highlightsHTML = ''; const diffThreshold = 3.0; const alignThreshold = 1.5; let matches = []; let mismatches = [];
+    elementNames.forEach((element) => { const cScore = conceptData.elementScores[element]; const uScore = userScores[element]; const diff = uScore - cScore; if (Math.abs(diff) <= alignThreshold) { matches.push(`**${element}** (${getScoreLabel(uScore)})`); } else if (Math.abs(diff) >= diffThreshold) { const comparison = diff > 0 ? `higher than concept's ${getScoreLabel(cScore)}` : `lower than concept's ${getScoreLabel(cScore)}`; mismatches.push({ element: element, diff: diff, text: `for **${element}**, your ${getScoreLabel(uScore)} is ${comparison}` }); } const barWidth = (cScore / 10) * 100; popupConceptProfile.innerHTML += `<div><strong>${element}:</strong><span>${cScore.toFixed(1)} (${getScoreLabel(cScore)})</span><div class="score-bar-container" style="/* styles */"><div style="width: ${barWidth}%; height: 100%; background-color: ${getElementColor(element)}; border-radius: 3px;"></div></div></div>`; });
+    if (matches.length > 0) { highlightsHTML += `<p><strong class="match">Aligns Well With:</strong> Your ${matches.join(', ')} preference(s).</p>`; } if (mismatches.length > 0) { mismatches.sort((a, b) => Math.abs(b.diff) - Math.abs(a.diff)); highlightsHTML += `<p><strong class="mismatch">Key Difference:</strong> Notably, ${mismatches[0].text}.</p>`; if(mismatches.length > 1) { highlightsHTML += `<p><small>(Other differences noted in ${mismatches.slice(1).map(m => m.element).join(', ')}.)</small></p>`; } } if (!highlightsHTML) highlightsHTML = "<p>This concept has a moderate alignment across your elements.</p>"; popupComparisonHighlights.innerHTML = highlightsHTML;
+    if (conceptData.relatedIds && conceptData.relatedIds.length > 0) { conceptData.relatedIds.forEach(relId => { const relatedConcept = concepts.find(c => c.id === relId); if (relatedConcept) { const li = document.createElement('li'); li.textContent = relatedConcept.name; li.dataset.conceptId = relId; li.addEventListener('click', handleRelatedConceptClick); popupRelatedConceptsList.appendChild(li); } }); } else { popupRelatedConceptsList.innerHTML = '<li>None specified</li>'; }
+    updateGrimoireButtonStatus(conceptId); updateCoreButtonStatus(conceptId); popupOverlay.classList.remove('hidden'); conceptDetailPopup.classList.remove('hidden'); recordElementAttunementFromConcept(conceptData.elementScores);
+}
+function hideConceptDetailPopup() { /* ... */ conceptDetailPopup.classList.add('hidden'); popupOverlay.classList.add('hidden'); currentlyDisplayedConceptId = null; }
+function handleRelatedConceptClick(event) { /* ... */ const newConceptId = parseInt(event.target.dataset.conceptId); if (newConceptId) { hideConceptDetailPopup(); setTimeout(() => showConceptDetailPopup(newConceptId), 50); } }
+
+// --- Grimoire Functions ---
+function addToGrimoire() { /* ... Includes essence gain ... */ if (currentlyDisplayedConceptId !== null) { if(!discoveredConcepts.has(currentlyDisplayedConceptId)) { const concept = concepts.find(c => c.id === currentlyDisplayedConceptId); if (concept) { discoveredConcepts.set(currentlyDisplayedConceptId, { concept: concept, discoveredTime: Date.now() }); /* Store concept data */ if(concept.elementScores) { elementNames.forEach(el => { elementEssence[el] += Math.max(0, concept.elementScores[el] - 4) * 0.1; }); console.log("Updated Essence:", elementEssence); displayElementEssence(); } updateGrimoireCounter(); updateGrimoireButtonStatus(currentlyDisplayedConceptId); synthesizeAndDisplayThemes(); /* Update themes on add */ filterAndDisplayConcepts(); // Refresh lab view to show stamp } } } }
+function updateGrimoireCounter() { /* ... */ grimoireCountSpan.textContent = discoveredConcepts.size; }
+function displayGrimoire(filterElement = "All", sortBy = "discovered") { /* ... Uses Map, updates listeners */
+     grimoireContentDiv.innerHTML = ''; if (discoveredConcepts.size === 0) { grimoireContentDiv.innerHTML = '<p>You haven\'t discovered any concepts yet.</p>'; showScreen('grimoireScreen'); return; }
+     let discoveredArray = Array.from(discoveredConcepts.values()); // Get array from Map values
+    const conceptsToDisplay = (filterElement === "All") ? discoveredArray : discoveredArray.filter(data => elementKeyToName[data.concept.primaryElement] === filterElement);
+    if (sortBy === 'name') conceptsToDisplay.sort((a, b) => a.concept.name.localeCompare(b.concept.name));
+    else if (sortBy === 'type') conceptsToDisplay.sort((a, b) => a.concept.type.localeCompare(b.concept.type) || a.concept.name.localeCompare(b.concept.name));
+    else { conceptsToDisplay.sort((a,b) => a.discoveredTime - b.discoveredTime); } // Sort by time added (default)
+     if (conceptsToDisplay.length === 0) { grimoireContentDiv.innerHTML = `<p>No discovered concepts match filter.</p>`; showScreen('grimoireScreen'); return; } const grouped = {}; elementNames.forEach(el => grouped[el] = []); conceptsToDisplay.forEach(data => { const primaryEl = elementKeyToName[data.concept.primaryElement] || "Other"; if (!grouped[primaryEl]) grouped[primaryEl] = []; grouped[primaryEl].push(data.concept); });
+    elementNames.forEach(element => { if (grouped[element] && grouped[element].length > 0) { let sectionHTML = `<div class="grimoire-section"><h3>${element} Concepts</h3>`; grouped[element].forEach(concept => { const coreIndicator = coreConcepts.has(concept.id) ? ' <span class="core-indicator" title="Marked as Core">★</span>' : ''; sectionHTML += `<div class="grimoire-entry" data-concept-id="${concept.id}"><strong>${concept.name}</strong> <span>(${concept.type})</span>${coreIndicator}</div>`; }); sectionHTML += `</div>`; grimoireContentDiv.innerHTML += sectionHTML; } });
+     grimoireContentDiv.querySelectorAll('.grimoire-entry').forEach(entry => { entry.addEventListener('click', () => { const conceptId = parseInt(entry.dataset.conceptId); showConceptDetailPopup(conceptId); }); }); showScreen('grimoireScreen');
+}
+function updateGrimoireButtonStatus(conceptId) { /* ... */ if (discoveredConcepts.has(conceptId)) { addToGrimoireButton.textContent = "In Grimoire"; addToGrimoireButton.disabled = true; addToGrimoireButton.classList.add('added'); } else { addToGrimoireButton.textContent = "Add to Grimoire"; addToGrimoireButton.disabled = false; addToGrimoireButton.classList.remove('added'); } }
+function populateGrimoireFilter() { /* ... */ grimoireElementFilter.innerHTML = '<option value="All">All Elements</option>'; elementNames.forEach(el => { const option = document.createElement('option'); option.value = el; option.textContent = el; grimoireElementFilter.appendChild(option); }); }
+
+// --- Core Concepts ---
+function toggleCoreConcept() { /* ... Same ... */ if (currentlyDisplayedConceptId === null) return; if (coreConcepts.has(currentlyDisplayedConceptId)) { coreConcepts.delete(currentlyDisplayedConceptId); console.log(`Removed ${currentlyDisplayedConceptId}`); } else { if (coreConcepts.size >= 7) { alert("Max 7 Core Concepts."); return; } coreConcepts.add(currentlyDisplayedConceptId); console.log(`Added ${currentlyDisplayedConceptId}`); } updateCoreButtonStatus(currentlyDisplayedConceptId); displayCoreConcepts(); displayGrimoire(grimoireElementFilter.value, grimoireSortOrder.value); } // Refresh Grimoire view
+function updateCoreButtonStatus(conceptId) { /* ... Includes hidden toggle ... */ if (coreConcepts.has(conceptId)) { markAsCoreButton.textContent = "Core Concept ★"; markAsCoreButton.classList.add('marked'); } else { markAsCoreButton.textContent = "Mark as Core"; markAsCoreButton.classList.remove('marked'); } markAsCoreButton.classList.toggle('hidden', !discoveredConcepts.has(conceptId)); }
+
+// --- Element Attunement ---
+function recordElementAttunementFromConcept(elementScores) { /* ... Updates Essence Display ... */ elementNames.forEach(el => { if (elementScores[el] >= 7) { elementAttunement[el] += 0.5; console.log(`Attunement ++ for ${el}: ${elementAttunement[el].toFixed(1)}`); } }); displayElementEssence(); }
+
+// --- Utility functions ---
+function hexToRgb(hex) { /* ... */ if (!hex || typeof hex !== 'string') return '128,128,128'; hex = hex.replace('#', ''); if (hex.length === 3) hex = hex[0]+hex[0]+hex[1]+hex[1]+hex[2]+hex[2]; const bigint = parseInt(hex, 16); if (isNaN(bigint)) return '128,128,128'; const r = (bigint >> 16) & 255; const g = (bigint >> 8) & 255; const b = bigint & 255; return `${r},${g},${b}`; }
+function darkenColor(hex, amount = 30) { /* ... */ if (!hex || typeof hex !== 'string') return '#808080'; hex = hex.replace('#', ''); if (hex.length === 3) hex = hex[0]+hex[0]+hex[1]+hex[1]+hex[2]+hex[2]; let r = parseInt(hex.substring(0,2), 16); let g = parseInt(hex.substring(2,4), 16); let b = parseInt(hex.substring(4,6), 16); if (isNaN(r) || isNaN(g) || isNaN(b)) return '#808080'; r = Math.max(0, r - amount); g = Math.max(0, g - amount); b = Math.max(0, b - amount); return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`; }
+
+// --- Reset App ---
+function resetApp() { /* ... includes coreConcepts reset */
+     currentElementIndex = 0; userScores = { Attraction: 5, Interaction: 5, Sensory: 5, Psychological: 5, Cognitive: 5, Relational: 5 }; userAnswers = {}; selectedElements = []; currentlyDisplayedConceptId = null; discoveredConcepts = new Map(); coreConcepts = new Set(); elementAttunement = { Attraction: 0, Interaction: 0, Sensory: 0, Psychological: 0, Cognitive: 0, Relational: 0 }; elementEssence = { Attraction: 0, Interaction: 0, Sensory: 0, Psychological: 0, Cognitive: 0, Relational: 0 }; hideConceptDetailPopup(); showScreen('welcomeScreen'); mainNavBar.classList.add('hidden');
+}
+
+// --- Event Listeners ---
+startButton.addEventListener('click', initializeQuestionnaire);
+nextElementButton.addEventListener('click', nextElement);
+prevElementButton.addEventListener('click', prevElement);
+navButtons.forEach(button => button.addEventListener('click', () => { if (button.dataset.target === 'personaScreen') displayPersonaScreen(); if (button.dataset.target === 'grimoireScreen') displayGrimoire(grimoireElementFilter.value, grimoireSortOrder.value); showScreen(button.dataset.target); }));
+restartButtonPersona.addEventListener('click', resetApp);
+closePopupButton.addEventListener('click', hideConceptDetailPopup);
+popupOverlay.addEventListener('click', hideConceptDetailPopup);
+clearSelectionButton.addEventListener('click', clearElementSelection);
+addToGrimoireButton.addEventListener('click', addToGrimoire);
+markAsCoreButton.addEventListener('click', toggleCoreConcept);
+grimoireElementFilter.addEventListener('change', (e) => displayGrimoire(e.target.value, grimoireSortOrder.value));
+grimoireSortOrder.addEventListener('change', (e) => displayGrimoire(grimoireElementFilter.value, e.target.value));
+
+// --- Initial Setup ---
+showScreen('welcomeScreen');
