@@ -3,30 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Persona Map MVP - Territories</title>
+    <title>Persona Alchemy Lab</title>
     <link rel="stylesheet" href="style.css">
-    <!-- Vis.js Network CSS -->
-    <link href="https://unpkg.com/vis-network/styles/vis-network.min.css" rel="stylesheet" type="text/css" />
 </head>
 <body>
-    <div class="app-container">
+    <div class="app-container lab-theme"> {/* Added theme class */}
 
         <!-- === Welcome Screen === -->
         <div id="welcomeScreen" class="screen current">
-            <h1>Welcome to Persona Map</h1>
-            <p>Define your core sexual elements and explore the landscape of desire.</p>
-            <p>(Territory Exploration Demo)</p>
-            <button id="startGuidedButton" class="button">Start Guided Exploration</button>
+            <h1>Welcome to the Persona Alchemy Lab!</h1>
+            <p>Discover your sexual persona by exploring the 6 core Elements.</p>
+            <button id="startGuidedButton" class="button">Begin Experimentation</button>
         </div>
 
         <!-- === Questionnaire Screen (Element Focused) === -->
         <div id="questionnaireScreen" class="screen hidden">
             <header>
-                 <!-- Element Progress Header (Can be built dynamically) -->
-                <div id="elementProgressHeader" class="element-progress-header">
-                    <!-- Populated by JS -->
-                </div>
-                 <p id="progressText">Element 1 / 6: [Element Name]</p>
+                <div id="elementProgressHeader" class="element-progress-header"></div>
+                <p id="progressText">Element 1 / 6: [Element Name]</p>
                 <div id="dynamicScoreFeedback">
                     Current <span id="feedbackElement">Element</span> Score: <span id="feedbackScore">5.0</span>
                     <div class="score-bar-container"><div id="feedbackScoreBar" style="width: 50%;"></div></div>
@@ -37,46 +31,51 @@
             </main>
             <footer>
                 <button id="prevElementButton" class="button back-button hidden">Previous Element</button>
-                <button id="nextElementButton" class="button next-button">Next Element / View Map</button>
+                <button id="nextElementButton" class="button next-button">Next Element / Enter Lab</button>
             </footer>
         </div>
 
-        <!-- === Main Exploration Screen (Profile + Map + Quests) === -->
-        <div id="explorationScreen" class="screen hidden">
-            <div class="main-layout-container">
-                <!-- Left Panel: Profile & Quests -->
-                <div class="left-panel">
-                    <div class="profile-display">
-                        <h2>Your Profile</h2>
-                        <p class="interactive-hint">Click element names to highlight territory.</p>
-                        <div id="profileScores">
-                            <!-- Scores Loaded Here -->
-                        </div>
+        <!-- === Main Lab Screen === -->
+        <div id="labScreen" class="screen hidden">
+            <div class="lab-layout-container">
+                <!-- Left Panel: Ingredient Shelf (Elements) -->
+                <div class="ingredient-shelf">
+                    <h2>Your Elements</h2>
+                    <p>Select 1 or 2 elements to combine:</p>
+                    <div id="elementVials">
+                        <!-- Element Vials Loaded Here -->
                     </div>
-                    <hr>
-                    <div class="quest-panel">
-                        <h2>Discovery Quests</h2>
-                        <p>Start a guided exploration:</p>
-                        <button class="button quest-button" data-quest="exploreSensory">Explore Sensory</button>
-                        <button class="button quest-button" data-quest="exploreInteraction" disabled>Explore Interaction (Soon)</button>
-                        </div>
-                         <hr>
-                         <button id="restartButton" class="button small-button back-button">Start Over</button>
+                     <button id="clearSelectionButton" class="button small-button back-button hidden">Clear Selection</button>
+                     <button id="restartButton" class="button small-button back-button">Restart Setup</button>
                 </div>
 
-                <!-- Right Panel: Map Display -->
-                <div class="map-display">
-                    <h2>Persona Constellation</h2>
-                    <p>Explore the territories. Click nodes/hubs to reveal connections.</p>
-                    <div id="network"></div>
+                <!-- Right Panel: Experiment Results -->
+                <div class="results-bench">
+                    <h2>Experiment Results</h2>
+                    <p id="resultsInstruction">Select elements on the left to see resulting concepts.</p>
+                    <div id="conceptResults" class="concept-results-grid">
+                        <!-- Concept "Potions" Loaded Here -->
+                    </div>
                 </div>
             </div>
         </div>
 
+        <!-- === Concept Detail Pop-up (Recipe View) === -->
+        <div id="conceptDetailPopup" class="popup hidden lab-popup">
+             <button id="closePopupButton" class="close-button">×</button>
+             <h3 id="popupConceptName">Concept Name</h3>
+             <p id="popupConceptType">Concept Type</p>
+             <div class="recipe-view">
+                 <h4>Elemental Recipe</h4>
+                 <div id="popupConceptProfile">
+                     <!-- Concept's Element Scores (Recipe) Loaded Here -->
+                 </div>
+             </div>
+        </div>
+         <div id="popupOverlay" class="overlay hidden"></div>
+
     </div>
 
-    <!-- Vis.js Network JS -->
-    <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
     <!-- Data File -->
     <script src="data.js"></script>
     <!-- Main Application Logic -->
