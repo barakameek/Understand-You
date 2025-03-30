@@ -111,49 +111,42 @@ const elementNameToKey = {
 };
 // *** MODIFIED euclideanDistance function ***
 
-function euclideanDistance(scores1, scores2) {
-    let sumOfSquares = 0;
-    let validDimensions = 0;
-    let issueFound = false;
+function euclideanDistance(scores1, scores2) { // Function starts here {
+    // ... variable declarations ...
 
     if (!scores1 || typeof scores1 !== 'object') {
-        console.error("Invalid user scores object provided to euclideanDistance:", scores1);
-        return Infinity;
+        console.error("Invalid user scores...");
+        return Infinity; // OK: inside function
     }
      if (!scores2 || typeof scores2 !== 'object') {
-        console.error("Invalid concept scores object provided to euclideanDistance:", scores2);
-        return Infinity;
+        console.error("Invalid concept scores...");
+        return Infinity; // OK: inside function
     }
 
-    for (const elementName of elementNames) { // Loop through full names: "Attraction", "Interaction", ...
-        const key = elementNameToKey[elementName]; // Get the corresponding key: "A", "I", ...
-        if (!key) { // Safety check if mapping failed
-             console.warn(`Could not find key for element name: ${elementName}`);
-             issueFound = true;
-             continue; // Skip this dimension
-        }
+    for (const elementName of elementNames) { // Loop starts here {
+        // ... key lookup ...
+        const s1 = scores1[key];
+        const s2 = scores2[key];
+        const s1Valid = ...;
+        const s2Valid = ...;
 
-        const s1 = scores1[key]; // Access user score using the KEY ('A', 'I', ...)
-        const s2 = scores2[key]; // Access concept score using the KEY ('A', 'I', ...)
-
-        const s1Valid = typeof s1 === 'number' && !isNaN(s1);
-        const s2Valid = typeof s2 === 'number' && !isNaN(s2);
-
-        if (s1Valid && s2Valid) {
-            sumOfSquares += Math.pow(s1 - s2, 2);
+        if (s1Valid && s2Valid) { // IF starts here {
+            sumOfSquares += ...;
             validDimensions++;
-        } else {
-            if (!s1Valid) console.warn(`Invalid USER score for element ${elementName} (key ${key}). User Score: ${s1}. User Scores:`, scores1);
-            if (!s2Valid) console.warn(`Invalid CONCEPT score for element ${elementName} (key ${key}). Concept Score: ${s2}. Concept ID: ${scores2.id || '(unknown)'} Concept Scores:`, scores2); // Log concept ID if possible
-            issueFound = true;
-            // Still return Infinity if any score is invalid to prevent bad sorting
-            return Infinity;
-        }
-    }
+        } // <--- Brace closing the IF block
+        else { // ELSE starts here {
+           // ... console warnings ...
+           issueFound = true;
+           return Infinity; // OK: inside ELSE, which is inside function
+        } // <--- Brace closing the ELSE block
+    } // <--- Brace closing the FOR loop
 
-    // Only return a valid distance if all dimensions were valid and processed
-    return (validDimensions === elementNames.length && !issueFound) ? Math.sqrt(sumOfSquares) : Infinity;
-}
+    // This return is *after* the loop but *before* the function ends
+    return (validDimensions === elementNames.length && !issueFound) ? Math.sqrt(sumOfSquares) : Infinity; // OK: inside function
+
+} // <--- Brace closing the FUNCTION itself
+
+// <<< NO return statements allowed out here >>>
 
     // Return Infinity if no valid dimensions were comparable or if an issue was found (stricter check)
     // Adjust `validDimensions === elementNames.length` if partial matching is desired later.
