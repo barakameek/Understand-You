@@ -455,6 +455,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Attach ALL listeners
     if (startButton) startButton.addEventListener('click', initializeQuestionnaire); else console.error("Start button not found!");
+    console.log('Type of nextElement before attaching listener:', typeof nextElement);
     if (nextElementButton) nextElementButton.addEventListener('click', nextElement); else console.error("Next button not found!"); // Error was here!
     if (prevElementButton) prevElementButton.addEventListener('click', prevElement); else console.error("Prev button not found!");
     if (restartButtonPersona) restartButtonPersona.addEventListener('click', resetApp); else console.error("Restart button not found!");
