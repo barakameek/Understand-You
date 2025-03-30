@@ -1217,4 +1217,4 @@ document.addEventListener('DOMContentLoaded', () => {
      console.log("Initial screen set to Welcome.");
 
 }); // End DOMContentLoaded listener
-```
+
