@@ -1,4 +1,3 @@
-// --- Global State ---
 let currentElementIndex = 0;
 let userScores = { A: 5, I: 5, S: 5, P: 5, C: 5, R: 5 }; // Use single letter keys
 let userAnswers = {}; // Stores answers keyed by FULL element names during questionnaire
