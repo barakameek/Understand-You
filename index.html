@@ -5,11 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Persona Map MVP</title>
     <link rel="stylesheet" href="style.css">
+    <!-- *** ADD Vis.js Network CSS *** -->
+    <link href="https://unpkg.com/vis-network/styles/vis-network.min.css" rel="stylesheet" type="text/css" />
 </head>
 <body>
     <div class="app-container">
 
-        <!-- === Welcome Screen === -->
+        <!-- === Welcome Screen (No Change) === -->
         <div id="welcomeScreen" class="screen current">
             <h1>Welcome to Persona Map</h1>
             <p>Explore your unique sexual persona through a short questionnaire.</p>
@@ -17,44 +19,43 @@
             <button id="startButton" class="button">Start Questionnaire</button>
         </div>
 
-        <!-- === Questionnaire Screen === -->
+        <!-- === Questionnaire Screen (No Change) === -->
         <div id="questionnaireScreen" class="screen hidden">
-            <header>
-                <p id="progressText">Question 1 / X</p>
-            </header>
-            <main id="questionContent">
-                <!-- Question will be loaded here by JS -->
-            </main>
-            <footer>
-                <button id="nextQButton" class="button next-button">Next</button>
-                <!-- Back button could be added -->
-            </footer>
+             <header>
+                 <p id="progressText">Question 1 / X</p>
+             </header>
+             <main id="questionContent">
+                 <!-- Question will be loaded here by JS -->
+             </main>
+             <footer>
+                 <button id="nextQButton" class="button next-button">Next</button>
+             </footer>
         </div>
 
-        <!-- === Profile Results Screen === -->
+        <!-- === Profile Results Screen (No Change) === -->
         <div id="profileScreen" class="screen hidden">
             <h1>Your Persona Profile</h1>
             <p>Based on your answers, here's a snapshot of your element scores (0-10):</p>
             <div id="profileScores">
                 <!-- Scores will be loaded here -->
             </div>
-            <button id="showMapButton" class="button">Explore Matching Concepts</button>
+            <button id="showMapButton" class="button">Explore Your Constellation</button> <!-- Button text changed -->
         </div>
 
-        <!-- === Map Results Screen === -->
+        <!-- === Map Results Screen (MODIFIED) === -->
         <div id="mapScreen" class="screen hidden">
-            <h1>Matching Concepts</h1>
-            <p>Concepts most closely aligned with your profile:</p>
-            <p>(Lower score means closer match in this simplified example)</p>
-            <ul id="mapResultsList">
-                <!-- Ranked list will be loaded here -->
-            </ul>
+            <h1>Your Persona Constellation</h1>
+            <p>Concepts closer to the center ("You") are more aligned with your profile. Pinch/scroll to zoom, drag to pan.</p>
+            <!-- *** REMOVE List, ADD Network Container *** -->
+            <div id="network"></div>
              <button id="restartButton" class="button back-button">Start Over</button>
         </div>
 
     </div>
 
-    <script src="data.js"></script> <!---- Load Data First ---->
-    <script src="script.js"></script>
+    <!-- *** ADD Vis.js Network JS *** -->
+    <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+    <script src="data.js"></script>
+    <script src="script.js"></script> <!---- Load Script Last ---->
 </body>
 </html>
