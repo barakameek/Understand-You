@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Persona Alchemy Lab - Enhanced</title>
+    <title>Persona Alchemy Lab - Persona Build</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -26,73 +26,100 @@
                     <div class="score-bar-container"><div id="feedbackScoreBar" style="width: 50%;"></div></div>
                 </div>
             </header>
-            <main id="questionContent">
-                <!-- Element Title, Explanation, and Questions Loaded Here -->
-            </main>
+            <main id="questionContent"></main>
             <footer>
                 <button id="prevElementButton" class="button back-button hidden">Previous Element</button>
-                <button id="nextElementButton" class="button next-button">Next Element / Enter Lab</button>
+                <button id="nextElementButton" class="button next-button">Next Element / View Persona</button> {/* Changed Button Text */}
             </footer>
         </div>
 
+        <!-- === Navigation Bar (Appears after setup) === -->
+        <nav id="mainNavBar" class="main-nav hidden">
+            <button class="nav-button" data-target="personaScreen">My Persona</button>
+            <button class="nav-button active" data-target="labScreen">Alchemy Lab</button>
+            <button class="nav-button" data-target="grimoireScreen">Grimoire (<span id="grimoireCount">0</span>)</button>
+        </nav>
+
+        <!-- === My Persona Screen === -->
+        <div id="personaScreen" class="screen hidden persona-screen">
+             <h1>My Persona</h1>
+             <div class="persona-layout">
+                 <div class="persona-scores">
+                     <h2>Core Elements</h2>
+                     <div id="personaProfileScores">
+                         <!-- User scores displayed visually/numerically -->
+                     </div>
+                 </div>
+                 <div class="persona-insights">
+                     <h2>Synthesized Themes</h2>
+                     <p>(Based on your Grimoire discoveries)</p>
+                     <ul id="personaThemesList">
+                         <li>No discoveries logged yet.</li>
+                     </ul>
+                     <h2>Core Concepts</h2>
+                     <p>(Mark concepts as core in the Grimoire - Feature Placeholder)</p>
+                     <ul id="personaCoreConceptsList">
+                         <li>Mark concepts in the Grimoire.</li>
+                     </ul>
+                 </div>
+             </div>
+              <button id="restartButtonPersona" class="button small-button back-button">Restart Setup</button>
+        </div>
+
+
         <!-- === Main Lab Screen === -->
         <div id="labScreen" class="screen hidden">
-            <!-- Top Bar for Grimoire Access -->
-            <div class="lab-top-bar">
-                 <button id="viewGrimoireButton" class="button small-button grimoire-button">View Grimoire (<span id="grimoireCount">0</span>)</button>
-            </div>
-
             <div class="lab-layout-container">
-                <!-- Left Panel: Ingredient Shelf (Elements) -->
+                <!-- Left Panel: Ingredient Shelf -->
                 <div class="ingredient-shelf">
-                    <h2>Your Elements</h2>
-                    <p>Select 1 or 2 primary elements:</p>
-                    <div id="elementVials">
-                        <!-- Element Vials Loaded Here -->
-                    </div>
-                     <button id="clearSelectionButton" class="button small-button back-button hidden">Clear Selection</button>
-                     <button id="restartButton" class="button small-button back-button">Restart Setup</button>
+                    <h2>Elements</h2>
+                    <p>Select 1 or 2 to combine:</p>
+                    <div id="elementVials"></div>
+                    <button id="clearSelectionButton" class="button small-button back-button hidden">Clear</button>
                 </div>
-
                 <!-- Right Panel: Experiment Results -->
                 <div class="results-bench">
-                    <div id="mixingStatus" class="mixing-status">
-                         <!-- Status Text Loaded Here -->
-                    </div>
-                    <h2>Experiment Results</h2>
-                    <div id="conceptResults" class="concept-results-grid">
-                        <!-- Concept "Potions" Loaded Here -->
-                    </div>
+                    <div id="mixingStatus" class="mixing-status"></div>
+                    <h2>Results</h2>
+                    <div id="conceptResults" class="concept-results-grid"></div>
                 </div>
             </div>
         </div>
 
          <!-- === Grimoire Screen === -->
          <div id="grimoireScreen" class="screen hidden grimoire-screen">
-             <button id="closeGrimoireButton" class="button back-button grimoire-close-button">Back to Lab</button>
+             {/* No Back to Lab Button Needed - Use Nav */}
              <h1>The Grand Grimoire</h1>
              <p>Your discovered conceptual concoctions.</p>
-             <div id="grimoireContent" class="grimoire-content">
-                 <!-- Discovered concepts listed here -->
+             <div id="grimoireFilters">
+                 <label>Filter by Element:</label>
+                 <select id="grimoireElementFilter">
+                     <option value="All">All Elements</option>
+                     {/* Options populated by JS */}
+                 </select>
              </div>
+             <div id="grimoireContent" class="grimoire-content"></div>
          </div>
 
 
-        <!-- === Concept Detail Pop-up (Recipe View) === -->
+        <!-- === Concept Detail Pop-up (Simplified Comparison) === -->
         <div id="conceptDetailPopup" class="popup hidden lab-popup">
              <button id="closePopupButton" class="close-button">×</button>
-             <h3 id="popupConceptName">Concept Name</h3>
-             <p id="popupConceptType">Concept Type</p>
+             <h3 id="popupConceptName"></h3>
+             <p id="popupConceptType"></p>
+             <div class="resonance-summary" id="popupResonanceSummary">
+                 Overall Match: <span class="resonance-indicator">?</span>
+             </div>
              <hr class="popup-hr">
-             <div class="profile-comparison">
-                 <div class="profile-column">
-                     <h4>Elemental Composition</h4>
+             <div class="recipe-view">
+                 <h4>Key Alignments & Differences</h4>
+                 <div id="popupComparisonHighlights">
+                      <!-- Highlights loaded here -->
+                 </div>
+                 <details class="element-details">
+                     <summary>View Full Recipe</summary>
                      <div id="popupConceptProfile"></div>
-                 </div>
-                 <div class="profile-column">
-                     <h4>Your Resonance</h4>
-                     <div id="popupUserComparisonProfile"></div>
-                 </div>
+                 </details>
              </div>
              <hr class="popup-hr">
              <div id="popupRelatedConcepts" class="related-concepts">
@@ -100,14 +127,14 @@
                  <ul id="relatedConceptsList"></ul>
              </div>
               <button id="addToGrimoireButton" class="button small-button add-grimoire-button">Add to Grimoire</button>
+              {/* Add Favorite Button Placeholder */}
+              <button class="button small-button hidden" title="Feature coming soon">Mark as Core</button>
         </div>
          <div id="popupOverlay" class="overlay hidden"></div>
 
     </div>
 
-    <!-- Data File -->
     <script src="data.js"></script>
-    <!-- Main Application Logic -->
     <script src="script.js"></script>
 </body>
 </html>
