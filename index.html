@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Persona Map MVP - Advanced Exploration</title>
+    <title>Persona Map MVP - Dual Setup</title>
     <link rel="stylesheet" href="style.css">
     <!-- Vis.js Network CSS -->
     <link href="https://unpkg.com/vis-network/styles/vis-network.min.css" rel="stylesheet" type="text/css" />
@@ -14,89 +14,89 @@
         <!-- === Welcome Screen === -->
         <div id="welcomeScreen" class="screen current">
             <h1>Welcome to Persona Map</h1>
-            <p>Explore your unique sexual persona.</p>
-            <p>(Advanced Exploration Demo)</p>
-            <button id="startButton" class="button">Start Questionnaire</button>
+            <p>Explore your unique sexual persona based on 6 core elements.</p>
+            <button id="continueToChoiceButton" class="button">Get Started</button>
         </div>
 
-        <!-- === Questionnaire Screen === -->
+        <!-- === Flow Choice Screen === -->
+        <div id="flowChoiceScreen" class="screen hidden">
+            <h1>Choose Your Setup Method</h1>
+            <div class="flow-choice-container">
+                <div class="flow-option">
+                    <h3>Define Directly</h3>
+                    <p>Quick setup if you have a strong sense of your core preferences. Set each element score with 1-2 focused inputs.</p>
+                    <button id="chooseDirectFlowButton" class="button" data-flow="direct">Choose Direct</button>
+                </div>
+                <div class="flow-option">
+                    <h3>Guided Exploration</h3>
+                    <p>Explore each element with several questions for a more nuanced profile. See the element score update as you answer.</p>
+                    <button id="chooseGuidedFlowButton" class="button" data-flow="guided">Choose Guided</button>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- === Questionnaire Screen (Common Structure) === -->
         <div id="questionnaireScreen" class="screen hidden">
-            <header><p id="progressText">Question 1 / X</p></header>
-            <main id="questionContent"><!-- Question Loaded Here --></main>
-            <footer><button id="nextQButton" class="button next-button">Next</button></footer>
+            <header>
+                <p id="progressText">Element 1 / 6: [Element Name]</p>
+                <!-- Dynamic Score Feedback Area (for Guided Flow) -->
+                <div id="dynamicScoreFeedback" class="hidden">
+                    Current <span id="feedbackElement">Element</span> Score: <span id="feedbackScore">5.0</span>
+                    <div class="score-bar-container"><div id="feedbackScoreBar" style="width: 50%;"></div></div>
+                </div>
+            </header>
+            <main id="questionContent">
+                <!-- Questions for the current element loaded here -->
+            </main>
+            <footer>
+                <button id="prevElementButton" class="button back-button hidden">Previous Element</button>
+                <button id="nextElementButton" class="button next-button">Next Element</button>
+            </footer>
         </div>
 
-        <!-- === Profile & Map Screen === -->
+        <!-- === Profile & Map Screen (Same as before) === -->
         <div id="profileAndMapScreen" class="screen hidden">
             <div class="profile-map-container">
-                <!-- Profile Display Area -->
                 <div class="profile-display">
                     <h2>Your Persona Profile</h2>
-                    <p class="interactive-hint">Click element names to highlight concepts. Use 'Refine' for targeted questions.</p>
-                    <div id="profileScores">
-                        <!-- Scores & Clickable Elements Loaded Here -->
-                    </div>
+                    <p class="interactive-hint">Click element names to highlight. Use 'Refine'.</p>
+                    <div id="profileScores"></div>
                     <hr>
-                    <!-- "What If?" Mode Controls -->
                     <div class="what-if-controls">
-                        <button id="toggleWhatIfButton" class="button small-button what-if-toggle">Enable 'What If?' Mode</button>
-                        <div id="whatIfSliders" class="hidden">
-                            <p>Adjust sliders to simulate changes:</p>
-                            <!-- Sliders loaded here by JS -->
-                             <button id="resetWhatIfButton" class="button small-button back-button">Reset to My Profile</button>
-                        </div>
+                        <button id="toggleWhatIfButton" class="button small-button what-if-toggle">Enable 'What If?'</button>
+                        <div id="whatIfSliders" class="hidden"></div>
+                        <button id="resetWhatIfButton" class="button small-button back-button hidden">Reset to My Profile</button>
                     </div>
                      <hr>
                      <button id="restartButton" class="button small-button back-button">Start Over</button>
                 </div>
-
-                <!-- Map Display Area -->
                 <div class="map-display">
                     <h2>Your Persona Constellation</h2>
-                    <p>Click concepts to see details & find similar. Zoom/Pan enabled.</p>
+                    <p>Click concepts for details. Zoom/Pan.</p>
                     <div id="network"></div>
                 </div>
             </div>
         </div>
 
-        <!-- === Concept Detail Pop-up === -->
-        <div id="conceptDetailPopup" class="popup hidden">
-            <button id="closePopupButton" class="close-button">×</button>
-            <h3 id="popupConceptName">Concept Name</h3>
-            <p id="popupConceptType">Concept Type</p>
-            <div class="profile-comparison">
-                <div class="profile-column">
-                    <h4>Concept Profile</h4>
-                    <div id="popupConceptProfile"></div>
-                </div>
-                <div class="profile-column">
-                    <h4>Your Profile</h4>
-                    <div id="popupUserComparisonProfile"></div>
-                </div>
-            </div>
+        <!-- === Popups & Overlay (Same as before) === -->
+         <div id="conceptDetailPopup" class="popup hidden"> /* ... Content unchanged ... */
+             <button id="closePopupButton" class="close-button">×</button>
+             <h3 id="popupConceptName"></h3><p id="popupConceptType"></p>
+             <div class="profile-comparison"><div class="profile-column"><h4>Concept Profile</h4><div id="popupConceptProfile"></div></div><div class="profile-column"><h4>Your Profile</h4><div id="popupUserComparisonProfile"></div></div></div>
              <button id="findSimilarButton" class="button small-button">Find Similar Concepts</button>
-        </div>
-
-        <!-- === Refinement Modal === -->
-         <div id="refinementModal" class="popup hidden">
-             <button id="closeRefinementButton" class="close-button">×</button>
-             <h3 id="refinementTitle">Refine Element</h3>
-             <div id="refinementQuestionContent">
-                 <!-- Refinement question loaded here -->
-             </div>
-             <button id="submitRefinementButton" class="button small-button">Update Profile</button>
          </div>
-
-         <!-- Overlay for Popups -->
+         <div id="refinementModal" class="popup hidden"> /* ... Content unchanged ... */
+              <button id="closeRefinementButton" class="close-button">×</button>
+              <h3 id="refinementTitle"></h3><div id="refinementQuestionContent"></div>
+              <button id="submitRefinementButton" class="button small-button">Update Profile</button>
+         </div>
          <div id="popupOverlay" class="overlay hidden"></div>
 
     </div>
 
-    <!-- Vis.js Network JS -->
     <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
-    <!-- Data File -->
     <script src="data.js"></script>
-    <!-- Main Application Logic -->
     <script src="script.js"></script>
 </body>
 </html>
