@@ -1,19 +1,41 @@
 /* Basic Reset & Body */
 body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; margin: 0; background-color: #f4f7f6; color: #333; line-height: 1.6; }
-.app-container { max-width: 1200px; /* Even Wider */ margin: 20px auto; background-color: #ffffff; border-radius: 8px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); overflow: hidden; }
+.app-container { max-width: 1200px; margin: 20px auto; background-color: #ffffff; border-radius: 8px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); overflow: hidden; }
 /* Screen Management */
 .screen { padding: 20px 30px; }
-.hidden { display: none !important; /* Use important to override potential inline styles */ }
+.hidden { display: none !important; }
 .current { display: block; }
-/* Welcome & Questionnaire */
-#welcomeScreen, #questionnaireScreen { text-align: center; }
-#questionnaireScreen header { text-align: right; color: #888; margin-bottom: 20px; font-size: 0.9em; }
-#questionnaireScreen main { min-height: 150px; margin-bottom: 20px; }
-#questionnaireScreen footer { margin-top: 20px; }
-.question-title { font-size: 1.2em; font-weight: 600; margin-bottom: 20px; }
-.input-container { margin: 15px 0; }
+/* Headings and Text */
+h1 { color: #8A2BE2; text-align: center; margin-bottom: 15px; }
+h2 { text-align: center; color: #8A2BE2; margin-bottom: 10px; font-size: 1.3em; }
+h3 { font-size: 1.2em; font-weight: 600; margin-bottom: 20px; color: #444; }
+p { text-align: center; margin-bottom: 20px; color: #555; font-size: 1em; }
+hr { border: none; border-top: 1px solid #eee; margin: 20px 0; }
+
+/* Flow Choice Screen */
+#flowChoiceScreen { text-align: center; }
+.flow-choice-container { display: flex; gap: 30px; justify-content: center; margin-top: 30px; }
+.flow-option { flex: 1; max-width: 350px; padding: 20px; border: 1px solid #ddd; border-radius: 8px; background-color: #fafafa; }
+.flow-option h3 { color: #6a0dad; margin-top: 0; }
+.flow-option p { font-size: 0.9em; color: #666; min-height: 60px; }
+
+/* Questionnaire Screen */
+#questionnaireScreen { text-align: center; }
+#questionnaireScreen header { padding-bottom: 15px; border-bottom: 1px solid #eee; margin-bottom: 25px; }
+#progressText { text-align: center; color: #888; font-size: 1em; font-weight: bold; margin-bottom: 10px;}
+#dynamicScoreFeedback { text-align: center; font-size: 0.9em; color: #555; margin-top: 10px; }
+#feedbackElement { font-weight: bold; }
+#feedbackScore { font-weight: bold; color: #8A2BE2; }
+.score-bar-container { height: 8px; background-color: #e0e0e0; border-radius: 4px; margin-top: 5px; max-width: 200px; margin-left: auto; margin-right: auto; overflow: hidden;}
+#feedbackScoreBar { height: 100%; background-color: #8A2BE2; width: 50%; /* Initial */ border-radius: 4px; transition: width 0.3s ease; }
+#questionnaireScreen main { min-height: 200px; margin-bottom: 25px; text-align: left; }
+#questionnaireScreen footer { margin-top: 25px; display: flex; justify-content: space-between;}
+.question-block { margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px dotted #eee; }
+.question-block:last-child { border-bottom: none; }
+.question-title { font-size: 1.1em; font-weight: 600; margin-bottom: 15px; color: #4a4a4a; }
+.input-container { margin: 10px 0; }
 /* Slider */
-.slider-container { width: 100%; max-width: 350px; margin: 15px auto; }
+.slider-container { width: 100%; max-width: 400px; margin: 15px auto; }
 .slider { width: 100%; cursor: pointer; appearance: none; height: 8px; background: #d3d3d3; border-radius: 5px; outline: none; }
 .slider::-webkit-slider-thumb { appearance: none; width: 18px; height: 18px; background: #8A2BE2; border-radius: 50%; cursor: pointer; }
 .slider::-moz-range-thumb { width: 18px; height: 18px; background: #8A2BE2; border-radius: 50%; cursor: pointer; border: none; }
@@ -30,31 +52,27 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helve
 .profile-map-container { display: flex; flex-direction: row; gap: 30px; }
 .profile-display { flex: 1; max-width: 320px; border-right: 1px solid #eee; padding-right: 30px; display: flex; flex-direction: column; }
 .map-display { flex: 3; }
-.profile-display h2, .map-display h2 { text-align: center; color: #8A2BE2; margin-bottom: 10px; font-size: 1.3em; }
-.profile-display p, .map-display p { text-align: center; font-size: 0.9em; color: #666; margin-bottom: 15px; }
-.interactive-hint { font-style: italic; font-size: 0.85em !important; }
-
-/* Profile Scores Display */
+.profile-display p.interactive-hint { font-style: italic; font-size: 0.85em !important; color: #777; margin-bottom: 10px;}
+/* Profile Scores */
 #profileScores div { margin: 8px 0; font-size: 1.0em; display: flex; justify-content: space-between; align-items: center; }
 #profileScores strong { font-weight: 600; color: #333; cursor: pointer; padding: 2px 5px; border-radius: 3px; transition: background-color 0.2s ease; margin-right: 5px; }
 #profileScores strong:hover { background-color: #efebf5; }
 #profileScores span { font-weight: bold; color: #8A2BE2; min-width: 30px; text-align: right; }
 .refine-button { font-size: 0.7em; padding: 1px 5px; margin-left: 8px; cursor: pointer; border: 1px solid #ccc; background-color: #eee; border-radius: 3px; }
 .refine-button:hover { background-color: #ddd; }
-
 /* What If Controls */
-.what-if-controls { margin-top: 15px; padding-top: 15px; border-top: 1px solid #eee; }
+.what-if-controls { margin-top: 15px; padding-top: 15px; }
 .what-if-toggle { width: 100%; margin-bottom: 10px; background-color: #6c757d; }
 .what-if-toggle:hover { background-color: #5a6268; }
 .what-if-controls p { text-align: left; font-size: 0.9em; margin-bottom: 5px; }
-#whatIfSliders .slider-container { margin: 10px auto; max-width: 100%; }
-#whatIfSliders .label-text { font-size: 0.7em; }
-#whatIfSliders .value-text { margin-top: 5px; font-size: 0.85em; }
+#whatIfSliders .slider-container { margin: 8px auto; } /* Reduced margin */
+#whatIfSliders label { font-weight: 500; font-size: 0.9em; display: block; margin-bottom: 2px;}
+#whatIfSliders .label-container { display: none; } /* Hide min/max labels */
+#whatIfSliders .value-text { margin-top: 2px; font-size: 0.8em; }
 #whatIfSliders .slider { height: 6px; }
 #whatIfSliders .slider::-webkit-slider-thumb { width: 15px; height: 15px; }
 #whatIfSliders .slider::-moz-range-thumb { width: 15px; height: 15px; }
 #resetWhatIfButton { margin-top: 15px; }
-
 
 /* Buttons */
 .button { display: inline-block; padding: 10px 25px; border: none; border-radius: 20px; font-size: 1em; font-weight: bold; cursor: pointer; transition: background-color 0.2s ease, transform 0.1s ease; color: #ffffff; background-color: #8A2BE2; text-align: center; margin: 10px 5px; }
@@ -69,21 +87,20 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helve
 
 /* Popups & Overlay */
 .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); z-index: 99; }
-.popup { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: white; padding: 25px 30px; border-radius: 8px; box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2); z-index: 100; width: 90%; max-width: 500px; text-align: center; }
+.popup { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: white; padding: 25px 30px; border-radius: 8px; box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2); z-index: 100; width: 90%; max-width: 500px; text-align: center; max-height: 80vh; overflow-y: auto;}
 .popup h3 { margin-top: 0; color: #8A2BE2; font-size: 1.4em; }
 .popup p { font-size: 0.9em; color: #666; margin-bottom: 15px; }
 .close-button { position: absolute; top: 8px; right: 12px; background: none; border: none; font-size: 1.8em; color: #aaa; cursor: pointer; line-height: 1; }
 .close-button:hover { color: #777; }
-
-/* Concept Detail Pop-up Specific */
-.profile-comparison { display: flex; justify-content: space-around; margin-top: 20px; margin-bottom: 20px; text-align: left; }
+/* Concept Detail Pop-up */
+.profile-comparison { display: flex; justify-content: space-around; margin-top: 20px; margin-bottom: 20px; text-align: left; gap: 15px;}
+.profile-column { flex-basis: 45%; }
 .profile-column h4 { font-size: 1em; margin-bottom: 10px; color: #555; text-align: center; border-bottom: 1px solid #eee; padding-bottom: 5px;}
 #popupConceptProfile div, #popupUserComparisonProfile div { font-size: 0.9em; margin: 4px 0; }
 #popupConceptProfile strong, #popupUserComparisonProfile strong { display: inline-block; width: 100px; color: #555; font-weight: normal; }
 #findSimilarButton { margin-top: 15px; background-color: #17a2b8; }
 #findSimilarButton:hover { background-color: #138496; }
-
-/* Refinement Modal Specific */
+/* Refinement Modal */
 #refinementModal h3 { font-size: 1.2em; }
 #refinementQuestionContent { margin: 20px 0; text-align: left; }
 #refinementQuestionContent .question-title { text-align: left; font-size: 1.1em; margin-bottom: 15px; }
