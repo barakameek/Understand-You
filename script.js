@@ -100,24 +100,42 @@ function getElementIcon(elementName) {
      // ... (same as before)
      switch (elementName) { case "Attraction": return "fa-solid fa-magnet"; case "Interaction": return "fa-solid fa-users"; case "Sensory": return "fa-solid fa-hand-sparkles"; case "Psychological": return "fa-solid fa-comment-dots"; case "Cognitive": return "fa-solid fa-lightbulb"; case "Relational": return "fa-solid fa-link"; default: return "fa-solid fa-atom"; }
 }
-
+// --- Utility Maps --- (Add this new map)
+const elementNameToKey = {
+    "Attraction": "A",
+    "Interaction": "I",
+    "Sensory": "S",
+    "Psychological": "P",
+    "Cognitive": "C",
+    "Relational": "R"
+};
 // *** MODIFIED euclideanDistance function ***
+
 function euclideanDistance(scores1, scores2) {
     let sumOfSquares = 0;
-    let validDimensions = 0; // Count dimensions with valid scores in *both* objects
-    let issueFound = false; // Flag if any issue occurs
+    let validDimensions = 0;
+    let issueFound = false;
 
-    // Ensure scores2 is a valid object before proceeding
-    if (!scores2 || typeof scores2 !== 'object') {
+    if (!scores1 || typeof scores1 !== 'object') {
+        console.error("Invalid user scores object provided to euclideanDistance:", scores1);
+        return Infinity;
+    }
+     if (!scores2 || typeof scores2 !== 'object') {
         console.error("Invalid concept scores object provided to euclideanDistance:", scores2);
-        return Infinity; // Cannot calculate distance
+        return Infinity;
     }
 
-    for (const element of elementNames) {
-        const s1 = scores1[element]; // User score
-        const s2 = scores2[element]; // Concept score
+    for (const elementName of elementNames) { // Loop through full names: "Attraction", "Interaction", ...
+        const key = elementNameToKey[elementName]; // Get the corresponding key: "A", "I", ...
+        if (!key) { // Safety check if mapping failed
+             console.warn(`Could not find key for element name: ${elementName}`);
+             issueFound = true;
+             continue; // Skip this dimension
+        }
 
-        // Check if both scores are valid numbers
+        const s1 = scores1[key]; // Access user score using the KEY ('A', 'I', ...)
+        const s2 = scores2[key]; // Access concept score using the KEY ('A', 'I', ...)
+
         const s1Valid = typeof s1 === 'number' && !isNaN(s1);
         const s2Valid = typeof s2 === 'number' && !isNaN(s2);
 
@@ -125,16 +143,17 @@ function euclideanDistance(scores1, scores2) {
             sumOfSquares += Math.pow(s1 - s2, 2);
             validDimensions++;
         } else {
-            // Log a more specific warning
-            if (!s1Valid) console.warn(`Invalid USER score for element ${element} in distance calc. User Score: ${s1}`);
-            if (!s2Valid) console.warn(`Invalid CONCEPT score for element ${element} in distance calc. Concept Score: ${s2}. Concept details:`, scores2); // Log the problematic concept scores object
+            if (!s1Valid) console.warn(`Invalid USER score for element ${elementName} (key ${key}). User Score: ${s1}. User Scores:`, scores1);
+            if (!s2Valid) console.warn(`Invalid CONCEPT score for element ${elementName} (key ${key}). Concept Score: ${s2}. Concept ID: ${scores2.id || '(unknown)'} Concept Scores:`, scores2); // Log concept ID if possible
             issueFound = true;
-            // Optional: Decide how to handle partially invalid data. Returning Infinity might be safest.
-            // break; // Stop calculation if one dimension is invalid? Or continue with valid ones?
-                    // For starter hand, returning Infinity if *any* score is bad is safer.
+            // Still return Infinity if any score is invalid to prevent bad sorting
             return Infinity;
         }
     }
+
+    // Only return a valid distance if all dimensions were valid and processed
+    return (validDimensions === elementNames.length && !issueFound) ? Math.sqrt(sumOfSquares) : Infinity;
+}
 
     // Return Infinity if no valid dimensions were comparable or if an issue was found (stricter check)
     // Adjust `validDimensions === elementNames.length` if partial matching is desired later.
