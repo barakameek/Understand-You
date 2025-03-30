@@ -380,7 +380,82 @@ function finalizeScoresAndShowPersona() {
 }
 
 // --- Starter Hand & Initial Essence ---
-function determineStarterHandAndEssence() { /* ... (same correct logic as before) ... */ }
+// --- Starter Hand & Initial Essence (Revised for Debugging) ---
+function determineStarterHandAndEssence() {
+    console.log("[determineStarterHand] Function called."); // Log entry
+    try { // Add a try...catch block to catch unexpected errors
+        discoveredConcepts = new Map();
+        // Reset essence using full names as keys
+        elementEssence = { Attraction: 0, Interaction: 0, Sensory: 0, Psychological: 0, Cognitive: 0, Relational: 0 };
+        console.log("[determineStarterHand] State reset.");
+
+        let conceptsWithDistance = [];
+        console.log(`[determineStarterHand] Processing ${concepts.length} total concepts.`);
+
+        concepts.forEach((c, index) => {
+            // Explicitly check if elementScores exists and is an object
+            const conceptScores = c.elementScores;
+            if (!conceptScores || typeof conceptScores !== 'object') {
+                console.warn(`[determineStarterHand] Concept ID ${c.id} (${c.name}) has missing or invalid elementScores:`, conceptScores);
+                return; // Skip this concept if scores are bad
+            }
+
+            // Pass userScores (keys A,I,S...) & conceptScores (keys A,I,S...)
+            const distance = euclideanDistance(userScores, conceptScores);
+
+            // Log distance calculation for first few concepts
+            if (index < 15) { // Log more examples
+                console.log(`[determineStarterHand] Dist calc for ID ${c.id} (${c.name}): ${distance}`);
+            }
+
+            if (distance !== Infinity && typeof distance === 'number' && !isNaN(distance)) {
+                conceptsWithDistance.push({ ...c, distance: distance });
+            } else {
+                 console.warn(`[determineStarterHand] Skipping concept ${c.id} (${c.name}) due to invalid distance: ${distance}`);
+            }
+        });
+
+        console.log(`[determineStarterHand] Found ${conceptsWithDistance.length} concepts with valid distances.`);
+
+        if (conceptsWithDistance.length === 0) {
+            console.error("[determineStarterHand] No concepts had valid distances! Cannot select starter hand. Check concept score data in data.js and userScores:", userScores);
+            alert("Error: Could not determine initial concept suggestions. Please check console (F12)."); // Alert user
+            return;
+        }
+
+        conceptsWithDistance.sort((a, b) => a.distance - b.distance);
+         console.log("[determineStarterHand] Concepts sorted by distance (Top 15 shown):", conceptsWithDistance.slice(0,15).map(c => `${c.name} (Dist: ${c.distance.toFixed(2)})`));
+
+        const candidates = conceptsWithDistance.slice(0, 15);
+        const starterHand = [];
+        const representedElements = new Set(); // Use primaryElement keys (A, I, S...)
+        const starterHandIds = new Set();
+
+        // Selection logic (same as before)
+        for (const candidate of candidates) { if (starterHand.length >= 4) break; if (!starterHandIds.has(candidate.id)) { starterHand.push(candidate); starterHandIds.add(candidate.id); if (candidate.primaryElement) representedElements.add(candidate.primaryElement); } }
+        for (const candidate of candidates) { if (starterHand.length >= 7) break; if (starterHandIds.has(candidate.id)) continue; if (!representedElements.has(candidate.primaryElement) || candidates.slice(candidates.indexOf(candidate)).every(rem => representedElements.has(rem.primaryElement) || starterHand.length >= 7)) { starterHand.push(candidate); starterHandIds.add(candidate.id); if (candidate.primaryElement) representedElements.add(candidate.primaryElement); } }
+        for (const candidate of candidates) { if (starterHand.length >= 7) break; if (!starterHandIds.has(candidate.id)) { starterHand.push(candidate); starterHandIds.add(candidate.id); } }
+
+        console.log("[determineStarterHand] Starter Hand Selected:", starterHand.map(c => c.name));
+
+        if (starterHand.length === 0) {
+             console.error("[determineStarterHand] Failed to select any cards for starter hand despite valid distances!");
+             return; // Avoid errors if selection failed
+        }
+
+        starterHand.forEach(concept => {
+            discoveredConcepts.set(concept.id, { concept: concept, discoveredTime: Date.now(), artUnlocked: false }); // Add artUnlocked flag
+            grantEssenceForConcept(concept, 0.5); // Grant half essence for starter hand
+            gainAttunementForAction('discover', concept.primaryElement); // Gain attunement
+        });
+        console.log("[determineStarterHand] Initial Essence Granted:", elementEssence);
+
+    } catch (error) {
+        console.error("!!! CRITICAL ERROR within determineStarterHandAndEssence !!!", error);
+        alert("An unexpected error occurred while generating initial concepts. Please check the console (F12).");
+    }
+     console.log("[determineStarterHand] Function finished."); // Log exit
+} // <<<<---- THIS IS THE END OF THE FUNCTION TO PASTE
 
 // --- Attunement ---
 function gainAttunementForAction(actionType, elementKey = null, amount = 0.5) { /* ... (same logic as before) ... */ }
