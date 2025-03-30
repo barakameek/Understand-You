@@ -2,14 +2,97 @@
 
 // --- Core Element Details ---
 const elementDetails = {
-    "Attraction": { name: "Attraction Focus", coreQuestion: /*...*/, coreConcept: /*...*/, elaboration: /*...*/, scoreInterpretations: { /*...*/ }, examples: /*...*/, personaConnection: /*...*/ },
-    "Interaction": { name: "Interaction Style", coreQuestion: /*...*/, coreConcept: /*...*/, elaboration: /*...*/, scoreInterpretations: { /*...*/ }, examples: /*...*/, personaConnection: /*...*/ },
-    "Sensory": { name: "Sensory Emphasis", coreQuestion: /*...*/, coreConcept: /*...*/, elaboration: /*...*/, scoreInterpretations: { /*...*/ }, examples: /*...*/, personaConnection: /*...*/ },
-    "Psychological": { name: "Psychological Driver", coreQuestion: /*...*/, coreConcept: /*...*/, elaboration: /*...*/, scoreInterpretations: { /*...*/ }, examples: /*...*/, personaConnection: /*...*/ },
-    "Cognitive": { name: "Cognitive Engagement", coreQuestion: /*...*/, coreConcept: /*...*/, elaboration: /*...*/, scoreInterpretations: { /*...*/ }, examples: /*...*/, personaConnection: /*...*/ },
-    "Relational": { name: "Relational Context", coreQuestion: /*...*/, coreConcept: /*...*/, elaboration: /*...*/, scoreInterpretations: { /*...*/ }, examples: /*...*/, personaConnection: /*...*/ }
-    // Ensure all descriptions from previous steps are filled in here
-};
+    "Attraction": {
+        name: "Attraction Focus",
+        coreQuestion: "Who or What sparks your sexual interest and arousal?",
+        coreConcept: "This element defines the primary target, nature, or necessary conditions for your sexual attraction. It goes beyond simple gender orientation to include the importance of presentation, specific dynamics, concepts, objects, situations, or the level of emotional connection required.",
+        elaboration: "It encompasses traditional orientations (hetero-, homo-, bi-, pan-) but also acknowledges the Asexuality spectrum (lack of attraction) and Demisexuality (attraction requiring an emotional bond). It includes attractions focused on specific aesthetics, personality types, intellectual connection (Sapiosexuality), power dynamics, or even inanimate objects, materials, or scenarios (often termed fetishes or paraphilias, explored here non-judgmentally).",
+        scoreInterpretations: {
+            "Very Low": "Suggests very little or no specific sexual attraction (aligns strongly with the Asexuality spectrum). Arousal might be absent, rare, or triggered by non-specific stimuli.",
+            "Low": "Indicates less emphasis on specific external targets; attraction might be infrequent, require strong emotional bonds first (Demisexual leaning), or be primarily responsive rather than spontaneous.",
+            "Moderate": "Represents a common balance. Attraction might be geared towards familiar cues like gender or presentation, potentially broad (Pansexual leaning without intense focus), or require some connection without it being strictly Demisexual.",
+            "High": "Suggests a strong focus or pull towards particular targets. This could be specific gender(s)/presentations, specific dynamics (like intelligence or power), or the beginning of significant focus on specific objects, materials, or situations (fetishistic interests).",
+            "Very High": "Indicates a very strong, potentially primary, focus on specific triggers. This could be an intense orientation towards a narrow group, or a central role for specific objects, materials, scenarios, or conceptual dynamics in generating arousal (strong fetishistic or paraphilic focus)."
+        },
+        examples: "Asexuality, Demisexuality, Heterosexuality, Homosexuality, Bisexuality, Pansexuality, Sapiosexuality, Fetishes (e.g., latex, feet, uniforms), attraction to specific body types, attraction based on D/s roles.",
+        personaConnection: "Defines the fundamental 'object' or condition of your sexual desire."
+    }, // Comma BETWEEN elements
+    "Interaction": {
+        name: "Interaction Style",
+        coreQuestion: "How do you prefer to engage and exchange energy during sexual encounters?",
+        coreConcept: "This element describes your preferred behavioral dynamics, roles, and energy flow when interacting sexually with others (or even in solo fantasy).",
+        elaboration: "It covers the spectrum from leading to following, the desire for collaboration versus power differentials, and specific energetic expressions like nurturing, service, playfulness, or performance. It's strongly linked to identities like Dominant, Submissive, Switch, Top, Bottom, Caregiver, etc.",
+        scoreInterpretations: {
+            "Very Low": "Strong preference for yielding control, following explicit direction, serving, or being cared for/guided (Strongly Submissive leaning). Comfort in passivity or receiving.",
+            "Low": "General comfort or preference for letting others take the lead, supportive roles, receiving attention/sensation more than directing it (Submissive or Bottom leaning).",
+            "Moderate": "Prefers collaborative, egalitarian dynamics with mutual give-and-take. May enjoy switching roles (Switch identity) or find balance in playful, reciprocal exchanges.",
+            "High": "Enjoys taking initiative, guiding the encounter, providing sensation/care, or being the center of attention (Dominant, Top, or Caregiver leaning).",
+            "Very High": "Strong preference or need to be in control, direct the scenario explicitly, command, or embody a significantly Dominant role. May involve performance or intense focus on the other's response."
+        },
+        examples: "Dominance/submission (D/s), Master/slave (M/s), Top/Bottom/Versatile roles, Primal play (instinctive interaction), Service dynamics, Exhibitionism/Voyeurism (performance/observation roles), Teacher/student roles, Caregiver/Little dynamics (DDlg, MDlb).",
+        personaConnection: "Defines your preferred social and power 'dance' within sexuality."
+    }, // Comma BETWEEN elements
+    "Sensory": {
+        name: "Sensory Emphasis",
+        coreQuestion: "What physical Feelings are most important or sought after?",
+        coreConcept: "This element relates to the significance, type, and intensity of physical sensations in your sexual arousal and fulfillment.",
+        elaboration: "It encompasses the full range of senses – touch (light, firm, impact), temperature (hot, cold), texture (smooth, rough), pressure (binding, squeezing), vibration, internal sensations, as well as visual, auditory, and olfactory input. It also includes the spectrum from pure pleasure to the integration of pain or intense sensation (Sadomasochism).",
+        scoreInterpretations: {
+            "Very Low": "Physical sensation is largely secondary or even unimportant compared to emotional connection, psychological needs, or cognitive engagement. Strong aversion to intense stimuli likely.",
+            "Low": "Prefers subtle, gentle, affectionate, or 'vanilla' physical sensations. Comfort, warmth, and light touch may be prioritized. Intense sensations are generally avoided.",
+            "Moderate": "Enjoys a broad range of pleasurable physical sensations common in conventional sex. May be open to exploring mild intensity (e.g., light spanking, different textures) but it's not a primary driver.",
+            "High": "Actively seeks out distinct, strong, or specific types of physical input as a key part of arousal. This could include impact play, temperature, specific textures (latex, rope), light restriction, or intense pleasure focus.",
+            "Very High": "Strongly driven by, or requires, intense, specific, or even extreme physical sensations. This includes significant pain/pleasure play (heavy impact, needles, wax), intense restriction/bondage, sensory overload/deprivation, edge play, or a powerful focus on specific sensory triggers (e.g., specific materials against skin)."
+        },
+        examples: "Gentle massage, passionate kissing, cuddling, BDSM impact play (flogging, caning), wax play, ice play, rope bondage, Shibari, sensory deprivation hoods, electrostimulation, specific material fetishes (focus on the feel).",
+        personaConnection: "Defines how your body interfaces with sexuality and what physical input it craves or avoids."
+    }, // Comma BETWEEN elements
+    "Psychological": {
+        name: "Psychological Driver",
+        coreQuestion: "Why do you engage with sexuality? What underlying needs does it fulfill?",
+        coreConcept: "This element explores the core emotional, psychological, or existential motivations, needs, and states that sexuality helps you access, express, or satisfy.",
+        elaboration: "This is about the deeper meaning or purpose behind the act. It includes needs for connection (intimacy, trust, vulnerability, belonging), power dynamics (control, dominance, surrender, objectification), self-expression (creativity, validation, exploration), state change (escape, transcendence, catharsis, stress relief), and comfort (security, care).",
+        scoreInterpretations: {
+            "Very Low": "Sexuality primarily serves physical functions or simple pleasure/recreation. Deep psychological needs are largely met elsewhere or aren't strongly linked to sex.",
+            "Low": "Emotional or psychological aspects are present but secondary. Focus might be on fun, physical release, or light connection without significant depth or weight.",
+            "Moderate": "A balanced approach where sexuality often fulfills needs like connection, stress relief, fun, and validation in fairly equal measure, integrated with physical pleasure.",
+            "High": "Sexuality is a significant and important channel for fulfilling specific, core psychological needs. These needs (e.g., Intimacy, Power, Validation, Catharsis) are consciously or unconsciously sought through sexual expression.",
+            "Very High": "Fulfilling one or more profound psychological needs is the primary driver and purpose of sexual engagement. The experience might feel incomplete or unsatisfying if these deep needs (e.g., total surrender, absolute control, deep vulnerability/trust, transcendental escape) are not met."
+        },
+        examples: "Using sex primarily for stress relief (Low/Moderate), seeking deep emotional intimacy through partnered sex (High), using BDSM for catharsis or power exchange (High/Very High), seeking validation through performance (High), using intense experiences for transcendence (Very High).",
+        personaConnection: "Defines the emotional and motivational core of your sexual expression – its deeper purpose for you."
+    }, // Comma BETWEEN elements
+    "Cognitive": {
+        name: "Cognitive Engagement",
+        coreQuestion: "How important is the Mind – fantasy, intellect, scenarios – in your arousal?",
+        coreConcept: "This element measures the degree and style of mental involvement preferred or required during sexual experiences. It contrasts focus on immediate physical/emotional presence with reliance on imagination, narrative, psychological complexity, or intellectual stimulation.",
+        elaboration: "Includes everything from being fully 'in the moment' to elaborate fantasy worlds, scripted role-plays, psychological games, intellectual banter, or focusing on the conceptual meaning of dynamics.",
+        scoreInterpretations: {
+            "Very Low": "Strong preference for being completely present and embodied. Finds elaborate fantasy, role-play, or complex psychological analysis distracting or uninteresting. Focus is purely on the physical and immediate emotional connection.",
+            "Low": "Primarily enjoys the immediate experience. Mental constructs are minimal; perhaps light scenarios or appreciating a partner's mindset, but not reliant on internal narratives.",
+            "Moderate": "Appreciates a degree of mental engagement. May enjoy occasional role-play, dirty talk that builds a picture, understanding the psychological dynamic, or using fantasy to enhance arousal, but can also enjoy purely present experiences.",
+            "High": "Arousal is significantly enhanced or often triggered by mental elements. This includes enjoying detailed fantasies, specific role-playing scenarios, understanding and playing with psychological power dynamics, or engaging in witty/intellectual sexual banter.",
+            "Very High": "Deeply reliant on the mind for arousal and fulfillment. This involves intricate, potentially pre-scripted scenarios, complex world-building in fantasy, intense psychological manipulation or analysis (mind games), or finding the conceptual/intellectual aspect paramount. The mental narrative is the core experience."
+        },
+        examples: "Mindful sensual touch (Low), enjoying descriptions during dirty talk (Moderate), elaborate D/s protocol scenes (High/Very High), historical or fantasy LARP-style sex (High/Very High), writing/reading erotica focused on complex plots (High/Very High), deep psychological edge play (Very High).",
+        personaConnection: "Defines how much and in what way your thoughts, imagination, and intellect participate in your sexuality."
+    }, // Comma BETWEEN elements
+    "Relational": {
+        name: "Relational Context",
+        coreQuestion: "In what Structure or with whom do you ideally express your sexuality?",
+        coreConcept: "This element describes your preferred social structure and context for sexual relationships and expression.",
+        elaboration: "It considers the number of partners involved, the desired level of commitment and emotional intimacy, the importance of familiarity versus anonymity, and the preference for dyadic versus group interactions. It covers the spectrum from solitary practice through various forms of monogamy and consensual non-monogamy (CNM).",
+        scoreInterpretations: {
+            "Very Low": "Strong preference for solitary sexual expression or a deeply bonded, strictly exclusive lifelong partnership (Traditional Monogamy). Discomfort with or disinterest in multiple partners or casual encounters.",
+            "Low": "Generally prefers and seeks monogamous, committed relationships as the ideal context for sexual expression. Casual sex is less appealing or infrequent.",
+            "Moderate": "Comfortable with committed dyads but potentially open to some flexibility (e.g., swinging in specific contexts, dating casually before commitment) or values deep connection without strict long-term exclusivity. Might be exploring CNM or identify as Solo Poly.",
+            "High": "Prefers or actively practices structures involving multiple partners or explicit openness, such as Open Relationships or common forms of Polyamory (hierarchical or not). Values communication around multiple connections.",
+            "Very High": "Strong preference for highly fluid, non-traditional structures. May identify with Relationship Anarchy, practice non-hierarchical Polyamory with many partners, enjoy group dynamics, or be comfortable with varying levels of commitment and anonymity across different connections. Rejects rigid rules or default exclusivity."
+        },
+        examples: "Masturbation (Solitary), Serial Monogamy, Lifelong Monogamy, Friends With Benefits (Casual), Open Relationships, Swinging, Triads/Quads, Hierarchical Polyamory, Egalitarian Polyamory, Solo Polyamory, Relationship Anarchy, Group Sex, Anonymous Encounters.",
+        personaConnection: "Defines the preferred social constellation or lack thereof for your sexual life."
+    } // NO Comma after the LAST element's closing brace
+}; // Semicolon to end the const elementDetails statement
 
 // --- Concepts Data (Card Structure - Expanded) ---
 const concepts = [
