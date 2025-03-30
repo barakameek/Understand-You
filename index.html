@@ -5,11 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Persona Alchemy Lab</title>
     <link rel="stylesheet" href="style.css">
-    <!-- Font Awesome for placeholder icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-    <div class="app-container study-theme"> <!-- Changed theme class -->
+    <div class="app-container study-theme">
 
         <!-- === Welcome Screen === -->
         <div id="welcomeScreen" class="screen current">
@@ -20,44 +19,49 @@
 
         <!-- === Questionnaire Screen === -->
         <div id="questionnaireScreen" class="screen hidden">
-            <!-- Content remains the same - header, main, footer -->
              <header> <div id="elementProgressHeader"></div> <p id="progressText"></p> <div id="dynamicScoreFeedback">Current <span id="feedbackElement">Element</span> Score: <span id="feedbackScore">5.0</span> (<span class="score-label">Moderate</span>)<div class="score-bar-container"><div id="feedbackScoreBar" style="width: 50%;"></div></div></div> </header> <main id="questionContent"></main> <footer> <button id="prevElementButton" class="button back-button hidden">Previous</button> <button id="nextElementButton" class="button next-button">Next / View Persona</button> </footer>
         </div>
 
         <!-- === Navigation Bar === -->
         <nav id="mainNavBar" class="main-nav hidden">
-             <button class="nav-button" data-target="personaScreen">Persona Tapestry</button> <!-- Renamed -->
-             <button class="nav-button active" data-target="studyScreen">The Study</button> <!-- Renamed -->
+             <button class="nav-button" data-target="personaScreen">Persona Tapestry</button>
+             <button class="nav-button active" data-target="studyScreen">The Study</button>
              <button class="nav-button" data-target="grimoireScreen">Grimoire (<span id="grimoireCount">0</span>)</button>
         </nav>
 
         <!-- === My Persona Screen ("Persona Tapestry") === -->
         <div id="personaScreen" class="screen hidden persona-screen">
-             <h1>My Persona Tapestry</h1> <!-- Renamed -->
+             <h1>My Persona Tapestry</h1>
              <div class="persona-overview">
-                 <div class="persona-elements-detailed"> <!-- Left Column -->
-                     <h2>Core Foundation</h2> <!-- Changed Title -->
+                 <div class="persona-elements-detailed">
+                     <h2>Core Foundation</h2>
                      <p>Your fundamental attributes. Expand each to understand your score.</p>
                      <div id="personaElementDetails"></div>
                      <hr>
                      <h2>Element Essence</h2>
                      <p>Gained by adding/curating concepts. Spend in The Study.</p>
-                     <div id="elementEssenceDisplayPersona"></div> <!-- Dedicated display on Persona -->
+                     <div id="elementEssenceDisplayPersona"></div>
+                     <hr>
+                     <!-- Optional: Display Attunement Levels -->
+                     <h2>Element Attunement</h2>
+                     <p>Grows passively through interaction and reflection.</p>
+                     <div id="elementAttunementDisplay"></div>
                  </div>
-                 <div class="persona-constellation"> <!-- Right Column -->
-                      <h2>Persona Tapestry</h2> <!-- Changed Title -->
+                 <div class="persona-constellation">
+                      <h2>Persona Tapestry</h2>
                       <p>Visualizing your Core Concepts & Grimoire Insights</p>
-                      <div class="tapestry-area" id="tapestryArea"> <!-- Changed ID/Class -->
+                      <div class="tapestry-area" id="tapestryArea">
                            <h4>Your Core Concepts</h4>
-                           <!-- Core cards will be displayed here -->
-                           <div id="personaCoreConceptsDisplay" class="core-concepts-grid">
-                               <!-- Simple grid/list populated by JS -->
-                           </div>
+                           <div id="personaCoreConceptsDisplay" class="core-concepts-grid"></div>
                       </div>
                       <div class="grimoire-insights">
                           <h3>Grimoire Insights</h3>
-                          <!-- Themes based on Core cards might go here later -->
                           <ul id="personaThemesList"></ul>
+                      </div>
+                       <!-- Optional: Milestones Display -->
+                      <div class="milestones-section">
+                          <h3>Milestones Achieved</h3>
+                          <ul id="milestonesDisplay"><li>None yet</li></ul>
                       </div>
                  </div>
              </div>
@@ -66,20 +70,25 @@
 
 
         <!-- === Main Study Screen === -->
-        <div id="studyScreen" class="screen hidden study-screen"> <!-- Renamed ID/Class -->
+        <div id="studyScreen" class="screen hidden study-screen">
              <div class="study-layout-container">
-                 <div class="essence-shelf"> <!-- Changed Class -->
+                 <div class="essence-shelf">
                       <h2>Elemental Essences</h2>
                       <p>Click an Essence to Research related concepts (Cost: 5).</p>
-                      <div id="elementEssenceDisplayStudy"> <!-- Dedicated display for interaction -->
-                          <!-- Essence vials/counters loaded by JS -->
+                      <div id="elementEssenceDisplayStudy"></div>
+                      <hr>
+                      <!-- Optional: Rituals Display -->
+                      <div class="rituals-section">
+                          <h3>Daily Rituals</h3>
+                          <ul id="dailyRitualsDisplay"><li>Loading...</li></ul>
                       </div>
                  </div>
-                 <div class="research-bench"> <!-- Changed Class -->
+                 <div class="research-bench">
                      <h2>Research Notes</h2>
                      <div id="researchStatus">Select an Essence to begin Research...</div>
                      <div id="researchOutput" class="research-output-area">
-                         <!-- Temporary results from Research shown here? Or use modal -->
+                        <!-- Maybe show last research results briefly? Mostly use modal -->
+                        <p><i>Research results will appear in a pop-up window.</i></p>
                      </div>
                  </div>
              </div>
@@ -90,27 +99,29 @@
               <h1>The Grand Grimoire</h1>
               <div id="grimoireControls">
                   <label for="grimoireTypeFilter">Type:</label>
-                  <select id="grimoireTypeFilter"><option value="All">All Types</option></select> <!-- Added Type Filter -->
+                  <select id="grimoireTypeFilter"><option value="All">All Types</option></select>
                   <label for="grimoireElementFilter">Element:</label>
                   <select id="grimoireElementFilter"><option value="All">All Elements</option></select>
+                   <label for="grimoireRarityFilter">Rarity:</label> <!-- Added Rarity Filter -->
+                  <select id="grimoireRarityFilter"><option value="All">All Rarities</option><option value="common">Common</option><option value="uncommon">Uncommon</option><option value="rare">Rare</option></select>
                   <label for="grimoireSortOrder">Sort:</label>
-                  <select id="grimoireSortOrder"><option value="discovered">Date Added</option><option value="name">Name</option><option value="type">Type</option></select>
+                  <select id="grimoireSortOrder"><option value="discovered">Date Added</option><option value="name">Name</option><option value="type">Type</option><option value="rarity">Rarity</option></select>
               </div>
-              <div id="grimoireContent" class="card-grid"></div> <!-- Added card-grid class -->
+              <div id="grimoireContent" class="card-grid"></div>
          </div>
 
 
         <!-- === Concept Detail Pop-up === -->
-        <div id="conceptDetailPopup" class="popup hidden card-popup"> <!-- Changed Class -->
+        <div id="conceptDetailPopup" class="popup hidden card-popup">
               <button id="closePopupButton" class="close-button">×</button>
               <div class="popup-header">
-                  <span id="popupCardTypeIcon" class="card-type-icon"></span> <!-- Icon placeholder -->
+                  <span id="popupCardTypeIcon" class="card-type-icon"></span>
                   <h3 id="popupConceptName"></h3>
                   <p id="popupConceptType"></p>
               </div>
               <div class="popup-content">
                   <div class="popup-visual">
-                      <!-- Placeholder for larger card art/icon -->
+                       <!-- Actual visual handle class will be set by JS -->
                       <i id="popupCardVisual" class="card-visual-placeholder fa-solid fa-image"></i>
                   </div>
                   <div class="popup-details">
@@ -130,12 +141,18 @@
                       </div>
                        <hr class="popup-hr">
                       <div id="popupRelatedConcepts" class="related-concepts"><h4>Synergies / Related:</h4><ul id="relatedConceptsList"></ul></div>
-                      <!-- Evolution section would go here if implemented -->
+                      <!-- Evolution Button Area -->
+                      <div id="popupEvolutionSection" class="evolution-section hidden">
+                          <hr class="popup-hr">
+                          <h4>Deepen Understanding</h4>
+                          <button id="evolveArtButton" class="button small-button evolve-button" disabled>Unlock Enhanced Art (Cost: <span id="evolveCost">?</span>)</button>
+                          <p id="evolveEligibility" class="evolve-eligibility-text"></p>
+                      </div>
                   </div>
               </div>
               <div class="popup-actions">
                   <button id="addToGrimoireButton" class="button small-button add-grimoire-button">Add to Grimoire</button>
-                  <button id="markAsCoreButton" class="button small-button core-button hidden">Mark as Core</button> <!-- Start hidden -->
+                  <button id="markAsCoreButton" class="button small-button core-button hidden">Mark as Core</button>
               </div>
         </div>
 
@@ -144,10 +161,28 @@
              <button id="closeResearchModalButton" class="close-button">×</button>
              <h3>Research Discovery</h3>
              <p id="researchModalStatus"></p>
-             <div id="researchModalContent" class="card-grid research-results-grid">
-                 <!-- Discovered cards shown here -->
-             </div>
+             <div id="researchModalContent" class="card-grid research-results-grid"></div>
          </div>
+
+         <!-- === Reflection Prompt Modal === -->
+         <div id="reflectionModal" class="popup hidden reflection-modal">
+             <button id="closeReflectionModalButton" class="close-button">×</button>
+             <h3>Moment for Reflection</h3>
+             <p>Regarding <strong id="reflectionElement">Element</strong>:</p>
+             <p id="reflectionPromptText" class="prompt-text"></p>
+             <div class="reflection-confirm">
+                 <input type="checkbox" id="reflectionCheckbox">
+                 <label for="reflectionCheckbox">I have taken a moment to reflect on this.</label>
+             </div>
+             <button id="confirmReflectionButton" class="button small-button" disabled>Confirm Reflection (+<span id="reflectionRewardAmount">?</span> Essence)</button>
+         </div>
+
+          <!-- === Milestone Alert (Optional Simple Version) === -->
+         <div id="milestoneAlert" class="milestone-alert hidden">
+             <span id="milestoneAlertText">Milestone Reached!</span>
+             <button id="closeMilestoneAlertButton">×</button>
+         </div>
+
 
          <!-- Overlay for Popups -->
          <div id="popupOverlay" class="overlay hidden"></div>
