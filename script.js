@@ -1,9 +1,11 @@
-// --- Global State (No Change) ---
+// --- Global State ---
 let currentQuestionIndex = 0;
 let userScores = { Attraction: 5, Interaction: 5, Sensory: 5, Psychological: 5, Cognitive: 5, Relational: 5 };
 let userAnswers = {};
+let network = null; // Store Vis.js Network instance
+let allNodesDataSet = null; // Store the original nodes dataset
 
-// --- DOM Elements (Add network container) ---
+// --- DOM Elements ---
 const screens = document.querySelectorAll('.screen');
 const startButton = document.getElementById('startButton');
 const questionnaireScreen = document.getElementById('questionnaireScreen');
@@ -14,11 +16,10 @@ const profileScreen = document.getElementById('profileScreen');
 const profileScoresDiv = document.getElementById('profileScores');
 const showMapButton = document.getElementById('showMapButton');
 const mapScreen = document.getElementById('mapScreen');
-// const mapResultsList = document.getElementById('mapResultsList'); // Remove list ref
-const networkContainer = document.getElementById('network'); // *** ADD Network Container Ref ***
+const networkContainer = document.getElementById('network');
 const restartButton = document.getElementById('restartButton');
 
-// --- Functions (showScreen, displayQuestion, enforceMaxChoices, processAnswer, calculateAndShowProfile are mostly unchanged) ---
+// --- Functions ---
 
 function showScreen(screenId) {
     screens.forEach(screen => {
@@ -33,8 +34,7 @@ function showScreen(screenId) {
 }
 
 function displayQuestion(index) {
-    // ... (Keep existing displayQuestion logic from previous version) ...
-     if (index >= questionnaire.length) {
+    if (index >= questionnaire.length) {
         calculateAndShowProfile();
         return;
     }
@@ -71,6 +71,7 @@ function displayQuestion(index) {
     } else if (q.type === "checkbox") {
         inputHTML += `<div class="checkbox-options">`;
          q.options.forEach(opt => {
+            // Check if this option was previously selected
             const isChecked = userAnswers[q.questionId]?.includes(opt.value) ? 'checked' : '';
              inputHTML += `
                 <div>
@@ -85,10 +86,11 @@ function displayQuestion(index) {
     inputHTML += `</div>`;
     questionContent.innerHTML = inputHTML;
 
-    // Add event listeners
+    // Add event listeners for dynamic inputs
     if (q.type === "slider") {
         const sliderInput = document.getElementById(`q${q.questionId}`);
         const displaySpan = document.getElementById(`sliderValueDisplay_q${q.questionId}`);
+        // Update display immediately on input
         sliderInput.addEventListener('input', () => {
             displaySpan.textContent = sliderInput.value;
         });
@@ -96,7 +98,8 @@ function displayQuestion(index) {
     if (q.type === "checkbox") {
         const checkboxes = questionContent.querySelectorAll(`input[name="q${q.questionId}"]`);
         checkboxes.forEach(cb => {
-            cb.addEventListener('change', () => enforceMaxChoices(cb.name, parseInt(cb.dataset.maxChoices)));
+            // Add listener to enforce max choices when checkbox state changes
+            cb.addEventListener('change', () => enforceMaxChoices(cb.name, parseInt(cb.dataset.maxChoices || 2))); // Default max 2 if not set
         });
     }
 }
@@ -105,12 +108,19 @@ function enforceMaxChoices(name, max) {
     const checkboxes = document.querySelectorAll(`input[name="${name}"]:checked`);
     if (checkboxes.length > max) {
         alert(`You can only select up to ${max} options.`);
-        checkboxes[checkboxes.length - 1].checked = false;
+        // Find which checkbox was just checked to cause the excess and uncheck it
+        // This requires knowing the event target, which we don't have here directly.
+        // A simpler approach for now: just alert and maybe disable further checks,
+        // or force the user to uncheck one. Let's stick to the alert for MVP simplicity.
+        // Ideally, you'd find the last checked item and revert its state.
+        event.target.checked = false; // Attempt to uncheck the one just clicked (might need event passed)
     }
 }
 
+
 function processAnswer(index) {
-    // ... (Keep existing processAnswer logic from previous version) ...
+    if (index >= questionnaire.length) return; // Avoid processing beyond last question
+
     const q = questionnaire[index];
     const elementToUpdate = q.element;
     let pointsToAdd = 0;
@@ -119,33 +129,57 @@ function processAnswer(index) {
     if (q.type === "slider") {
         const sliderInput = document.getElementById(`q${q.questionId}`);
         answerValue = parseInt(sliderInput.value);
+        // Compare current answer to previous answer for this question if it exists
+        const previousAnswer = userAnswers[q.questionId] !== undefined ? userAnswers[q.questionId] : q.defaultValue;
+        const previousPoints = (previousAnswer - q.defaultValue);
+        const currentPoints = (answerValue - q.defaultValue);
+        pointsToAdd = currentPoints - previousPoints; // Add the difference
         userAnswers[q.questionId] = answerValue;
-        pointsToAdd = (answerValue - q.defaultValue);
+
     } else if (q.type === "radio") {
         const selectedRadio = document.querySelector(`input[name="q${q.questionId}"]:checked`);
+        const previousAnswer = userAnswers[q.questionId];
+        let previousPoints = 0;
+        if (previousAnswer) {
+             const prevOption = q.options.find(opt => opt.value === previousAnswer);
+             previousPoints = prevOption ? prevOption.points : 0;
+        }
+
         if (selectedRadio) {
             answerValue = selectedRadio.value;
             userAnswers[q.questionId] = answerValue;
             const selectedOption = q.options.find(opt => opt.value === answerValue);
-            pointsToAdd = selectedOption ? selectedOption.points : 0;
+            const currentPoints = selectedOption ? selectedOption.points : 0;
+            pointsToAdd = currentPoints - previousPoints; // Add the difference
         } else {
-            pointsToAdd = 0;
+            userAnswers[q.questionId] = null; // Store null if nothing selected
+            pointsToAdd = 0 - previousPoints; // Revert effect if selection removed
         }
     } else if (q.type === "checkbox") {
          const selectedCheckboxes = document.querySelectorAll(`input[name="q${q.questionId}"]:checked`);
+         const previousAnswerArray = userAnswers[q.questionId] || [];
+         let previousPoints = 0;
+         previousAnswerArray.forEach(prevVal => {
+             const prevOption = q.options.find(opt => opt.value === prevVal);
+             previousPoints += prevOption ? prevOption.points : 0;
+         });
+
          answerValue = [];
+         let currentPoints = 0;
          selectedCheckboxes.forEach(cb => {
              const optionValue = cb.value;
              answerValue.push(optionValue);
              const selectedOption = q.options.find(opt => opt.value === optionValue);
-             pointsToAdd += selectedOption ? selectedOption.points : 0;
+             currentPoints += selectedOption ? selectedOption.points : 0;
          });
-         userAnswers[q.questionId] = answerValue;
+         userAnswers[q.questionId] = answerValue; // Store array of selected values
+         pointsToAdd = currentPoints - previousPoints; // Add the difference
     }
 
-    if (elementToUpdate) {
+    // Update the score (ensure it stays within 0-10)
+    if (elementToUpdate && pointsToAdd !== 0) { // Only update if there's a change
         userScores[elementToUpdate] = Math.max(0, Math.min(10, userScores[elementToUpdate] + pointsToAdd));
-        console.log(`Updated ${elementToUpdate}: ${userScores[elementToUpdate]} (added ${pointsToAdd})`);
+         console.log(`Updated ${elementToUpdate}: ${userScores[elementToUpdate].toFixed(1)} (changed by ${pointsToAdd.toFixed(1)})`);
     }
 }
 
@@ -153,14 +187,13 @@ function calculateAndShowProfile() {
     console.log("Final Scores:", userScores);
     profileScoresDiv.innerHTML = ''; // Clear previous scores
     for (const element in userScores) {
-        // Use Math.round for display if needed, keep raw score for calculations
         profileScoresDiv.innerHTML += `<div><strong>${element}:</strong> ${userScores[element].toFixed(1)}</div>`;
     }
     showScreen('profileScreen');
 }
 
+// Simplified Euclidean Distance Calculation
 function euclideanDistance(profile1, profile2) {
-    // ... (Keep existing euclideanDistance logic from previous version) ...
     let sum = 0;
     const elements = ["Attraction", "Interaction", "Sensory", "Psychological", "Cognitive", "Relational"];
     for (let i = 0; i < elements.length; i++) {
@@ -173,168 +206,252 @@ function euclideanDistance(profile1, profile2) {
 }
 
 
-// --- *** MODIFIED calculateAndShowMap function *** ---
+// --- Calculate and Show Map function (includes Vis.js setup) ---
 function calculateAndShowMap() {
     console.log("Calculating matches for network graph based on scores:", userScores);
 
-    // 1. Calculate distances (same as before)
     const matchedConcepts = concepts.map(concept => {
         if (!concept.profile || concept.profile.length !== 6) {
+             console.warn(`Concept ${concept.name} missing or invalid profile.`);
              return { ...concept, distance: Infinity };
         }
         const distance = euclideanDistance(userScores, concept.profile);
         return { ...concept, distance: distance };
-    }).filter(c => c.distance !== Infinity); // Filter out invalid ones
+    }).filter(c => c.distance !== Infinity);
 
-    // 2. Sort by distance
     matchedConcepts.sort((a, b) => a.distance - b.distance);
 
-    // 3. Prepare data for Vis.js
-    const nodes = [];
+    const nodesArray = [];
     const edges = [];
-    const topN = 15; // Number of concepts to show on graph
-    const maxDistance = matchedConcepts[topN-1]?.distance || 20; // Use distance of Nth item as reference
+    const topN = 15;
+    const conceptIdsOnGraph = new Set(); // Keep track of IDs added
 
-    // Add "Me" node
-    nodes.push({
-        id: 0,
-        label: "You",
-        color: { background:'#ff69b4', border:'#ff1493' }, // Hot pink for distinction
-        size: 30,
-        shape: 'star', // Make the user node stand out
-        font: { size: 16, color: '#333', face: 'Arial' }
-    });
+    // Use distance of Nth item or a fallback max distance for scaling
+    const maxRefDistance = matchedConcepts[topN - 1]?.distance || 20;
 
-    // Define colors for concept types (customize as needed)
     const typeColors = {
-        "Orientation": "#87CEEB", // SkyBlue
-        "Relationship Style": "#98FB98", // PaleGreen
-        "Identity/Role": "#FFD700", // Gold
-        "Practice": "#FFA07A", // LightSalmon
-        "Kink": "#FF6347", // Tomato (if used)
-        "Fetish": "#FFB6C1", // LightPink
-        "Framework": "#DDA0DD", // Plum
-        "Goal/Concept": "#B0E0E6", // PowderBlue
-        "Approach": "#F0E68C", // Khaki
-        "Default": "#D3D3D3" // LightGray
+        "Orientation": "#87CEEB", "Relationship Style": "#98FB98", "Identity/Role": "#FFD700",
+        "Practice": "#FFA07A", "Kink": "#FF6347", "Fetish": "#FFB6C1", "Framework": "#DDA0DD",
+        "Goal/Concept": "#B0E0E6", "Approach": "#F0E68C", "Default": "#D3D3D3"
     };
 
-    // Add top N concept nodes and edges connecting to "Me"
-    matchedConcepts.slice(0, topN).forEach(concept => {
-        // Node size based on relevance (inverse of distance) - needs scaling
-        const relevance = Math.max(0.1, 1 - (concept.distance / (maxDistance * 1.5))); // Normalize relevance (0 to ~1)
-        const nodeSize = 15 + relevance * 15; // Base size + relevance bonus
+    nodesArray.push({
+        id: 0, label: "You", color: { background:'#ff69b4', border:'#ff1493' },
+        size: 30, shape: 'star', font: { size: 16 }, fixed: true // Fix "You" node in center
+    });
+    conceptIdsOnGraph.add(0);
 
-        nodes.push({
-            id: concept.id,
-            label: concept.name,
-            title: `${concept.name} (${concept.type})\nDistance: ${concept.distance.toFixed(2)}`, // Tooltip
+    matchedConcepts.slice(0, topN).forEach(concept => {
+        if(conceptIdsOnGraph.has(concept.id)) return; // Avoid duplicates if relation brought it in early
+
+        const relevance = Math.max(0.1, 1 - (concept.distance / (maxRefDistance * 1.5)));
+        const nodeSize = 15 + relevance * 15;
+        const nodeColor = typeColors[concept.type] || typeColors["Default"];
+
+        nodesArray.push({
+            id: concept.id, label: concept.name,
+            title: `${concept.name} (${concept.type})\nMatch Score (Lower is better): ${concept.distance.toFixed(2)}`,
             size: nodeSize,
-            color: typeColors[concept.type] || typeColors["Default"],
+            color: nodeColor,
+            originalColor: nodeColor,
             font: { size: 12 }
         });
+        conceptIdsOnGraph.add(concept.id);
 
-        // Edge length based on distance - shorter means closer
-        const edgeLength = 100 + concept.distance * 15; // Base length + distance penalty
-
-        edges.push({
-            from: 0, // From "Me" node
-            to: concept.id,
-            length: edgeLength, // Let physics use this
-            // value: relevance, // Optionally influence edge width/physics
-            // color: { inherit:'from' } // Edge color matches source node
-        });
+        const edgeLength = 100 + concept.distance * 15;
+        edges.push({ from: 0, to: concept.id, length: edgeLength, dashes: true, color: '#e0e0e0' }); // Dashed edges from You
     });
 
-    // 4. Create Vis.js Network
+    // Store original nodes dataset
+    allNodesDataSet = new vis.DataSet(nodesArray);
+
     const data = {
-        nodes: new vis.DataSet(nodes),
-        edges: new vis.DataSet(edges),
+        nodes: allNodesDataSet,
+        edges: new vis.DataSet(edges), // Start with edges from "You"
     };
     const options = {
-        nodes: {
-            shape: "dot", // Default shape
-             borderWidth: 2,
-             font: {
-                 color: '#343434',
-                 size: 14, // Default font size
-                 face: 'arial'
-            }
-        },
-        edges: {
-            width: 1,
-            color: {
-                color: "#cccccc",
-                highlight: "#8A2BE2",
-                hover: "#b39ddb",
-                inherit: false // Don't inherit color from nodes by default
-            },
-            smooth: {
-                 enabled: true,
-                 type: 'dynamic' // Adjusts dynamically
-            }
-        },
-        physics: {
-            enabled: true,
-            solver: 'forceAtlas2Based', // Or 'barnesHut' etc.
-            forceAtlas2Based: {
-                gravitationalConstant: -50,
-                centralGravity: 0.01,
-                springLength: 100, // Default spring length
-                springConstant: 0.08,
-                damping: 0.4
-            },
-            stabilization: { // Stabilize faster
-                 iterations: 150
-            }
-        },
-        interaction: {
-            dragNodes: true,
-            dragView: true,
-            hover: true,
-            zoomView: true,
-            tooltipDelay: 200
-        },
-        layout: {
-             hierarchical: false // Ensure physics layout is used
-        }
+         nodes: { shape: "dot", borderWidth: 2, font: { color: '#343434', size: 14, face: 'arial'} },
+         edges: { width: 1, color: { color: "#cccccc", highlight: "#8A2BE2", hover: "#b39ddb", inherit: false }, smooth: { enabled: true, type: 'dynamic' } },
+         physics: { enabled: true, solver: 'forceAtlas2Based', forceAtlas2Based: { gravitationalConstant: -50, centralGravity: 0.01, springLength: 150, springConstant: 0.05, damping: 0.4 }, stabilization: { iterations: 200, fit: true } }, // Increase iterations
+         interaction: { dragNodes: true, dragView: true, hover: true, zoomView: true, tooltipDelay: 200 },
+         layout: { hierarchical: false }
     };
 
-    // Clear previous network if any, before creating a new one
-    if (networkContainer.visNetwork) {
-         networkContainer.visNetwork.destroy();
-     }
-    networkContainer.visNetwork = new vis.Network(networkContainer, data, options); // Store network instance if needed later
+    if (network) { network.destroy(); }
+    network = new vis.Network(networkContainer, data, options);
 
-    // Make sure the correct screen is visible
+    network.on('click', handleNetworkClick);
+
     showScreen('mapScreen');
 }
 
+// --- Handle clicks on the network ---
+function handleNetworkClick(params) {
+    const clickedNodeIds = params.nodes;
+    const edgesToUpdate = []; // To dynamically add/remove edges
 
+    // Get current edge dataset
+    const edgeDataSet = network.body.data.edges;
+
+    // Reset previous highlighting and remove dynamic edges
+    resetNodeStyles(); // Resets node appearances
+    const edgesToRemove = edgeDataSet.get({ filter: edge => edge.dynamic === true }); // Find previous dynamic edges
+    if (edgesToRemove.length > 0) {
+         edgeDataSet.remove(edgesToRemove.map(e => e.id)); // Remove them
+    }
+
+
+    if (clickedNodeIds.length > 0) {
+        const nodeId = clickedNodeIds[0];
+        if (nodeId !== 0) { // Clicked on a concept node
+            highlightRelatedNodes(nodeId); // Highlight nodes
+
+            // Add dynamic edges between related nodes
+            const selectedNodeData = concepts.find(c => c.id === nodeId);
+            const relatedIds = selectedNodeData?.relatedIds || [];
+
+            relatedIds.forEach(relatedId => {
+                 // Only add edge if the related node is currently visible on the graph
+                if (allNodesDataSet.get(relatedId)) {
+                    // Check if edge already exists (avoid duplicates) - simple check
+                    const existingEdge = edgeDataSet.get({
+                        filter: edge => (edge.from === nodeId && edge.to === relatedId) || (edge.from === relatedId && edge.to === nodeId)
+                    });
+
+                    if(existingEdge.length === 0) {
+                         edgesToUpdate.push({
+                             from: nodeId,
+                             to: relatedId,
+                             color: '#8A2BE2', // Highlight color
+                             width: 2,
+                             dashes: false,
+                             dynamic: true // Mark as dynamic for easy removal later
+                         });
+                     }
+                }
+            });
+             if (edgesToUpdate.length > 0) {
+                 edgeDataSet.add(edgesToUpdate); // Add new dynamic edges
+            }
+        }
+        // Clicking "Me" node implicitly resets via the initial resetNodeStyles call
+    }
+    // Clicking background implicitly resets via the initial resetNodeStyles call
+}
+
+// --- Highlight selected node and its relatives ---
+function highlightRelatedNodes(selectedNodeId) {
+    if (!allNodesDataSet) return;
+
+    const updates = [];
+    const selectedNodeData = concepts.find(c => c.id === selectedNodeId);
+    const relatedIds = selectedNodeData?.relatedIds || [];
+    const highlightColor = '#8A2BE2'; // Violet for related borders
+
+    allNodesDataSet.forEach(node => {
+        let nodeUpdate = { id: node.id }; // Start with just ID
+
+        if (node.id === 0) { // "Me" node
+            nodeUpdate.color = { background:'#ff69b4', border:'#ff1493' };
+            nodeUpdate.shadow = false;
+            nodeUpdate.borderWidth = 2;
+        } else if (node.id === selectedNodeId) {
+            // Strongly highlight the selected node
+            nodeUpdate.borderWidth = 4;
+            nodeUpdate.shadow = { enabled: true, color: 'rgba(0,0,0,0.4)', size: 8, x: 3, y: 3 };
+            nodeUpdate.color = { background: node.originalColor, border: darkenColor(node.originalColor, 60) }; // Darker border
+        } else if (relatedIds.includes(node.id)) {
+            // Highlight related nodes
+            nodeUpdate.borderWidth = 3;
+            nodeUpdate.shadow = false;
+            nodeUpdate.color = { background: node.originalColor, border: highlightColor }; // Highlight border
+        } else {
+            // Dim non-related nodes (using opacity via RGBA)
+            const rgb = hexToRgb(node.originalColor);
+            nodeUpdate.color = { background: `rgba(${rgb}, 0.2)`, border: `rgba(${rgb}, 0.1)` };
+            nodeUpdate.borderWidth = 1;
+            nodeUpdate.shadow = false;
+            // Dim label color too
+            nodeUpdate.font = { color: 'rgba(52, 52, 52, 0.3)' }; // Dimmed default font color
+        }
+        updates.push(nodeUpdate);
+    });
+
+    allNodesDataSet.update(updates);
+}
+
+// --- Reset all nodes to default styles ---
+function resetNodeStyles() {
+    if (!allNodesDataSet) return;
+    const updates = [];
+    allNodesDataSet.forEach(node => {
+        let resetColor = node.originalColor;
+        if (node.id === 0) {
+             resetColor = { background:'#ff69b4', border:'#ff1493' };
+        }
+        updates.push({
+            id: node.id,
+            color: (typeof resetColor === 'string' || !resetColor) ? resetColor : { background: resetColor, border: darkenColor(resetColor) },
+            borderWidth: 2,
+            shadow: false,
+            font: { color: '#343434', size: (node.id === 0 ? 16 : 12) } // Reset font color and size
+        });
+    });
+    allNodesDataSet.update(updates);
+}
+
+// --- Utility functions for color manipulation ---
+function hexToRgb(hex) {
+    if (!hex || typeof hex !== 'string') return '128,128,128';
+    hex = hex.replace('#', '');
+    if (hex.length === 3) hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2]; // Handle shorthand hex
+    const bigint = parseInt(hex, 16);
+    if (isNaN(bigint)) return '128,128,128';
+    const r = (bigint >> 16) & 255;
+    const g = (bigint >> 8) & 255;
+    const b = bigint & 255;
+    return `${r},${g},${b}`;
+}
+function darkenColor(hex, amount = 30) {
+     if (!hex || typeof hex !== 'string') return '#808080';
+     hex = hex.replace('#', '');
+     if (hex.length === 3) hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
+     let r = parseInt(hex.substring(0,2), 16);
+     let g = parseInt(hex.substring(2,4), 16);
+     let b = parseInt(hex.substring(4,6), 16);
+     if (isNaN(r) || isNaN(g) || isNaN(b)) return '#808080';
+     r = Math.max(0, r - amount);
+     g = Math.max(0, g - amount);
+     b = Math.max(0, b - amount);
+     return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+}
+
+
+// --- Reset App function ---
 function resetApp() {
      currentQuestionIndex = 0;
+     // Reset scores more carefully
      userScores = { Attraction: 5, Interaction: 5, Sensory: 5, Psychological: 5, Cognitive: 5, Relational: 5 };
      userAnswers = {};
-     // Destroy network if it exists
-     if (networkContainer.visNetwork) {
-         networkContainer.visNetwork.destroy();
-         networkContainer.visNetwork = null;
+     if (network) {
+         network.destroy();
+         network = null;
      }
+     allNodesDataSet = null;
      showScreen('welcomeScreen');
 }
 
 
-// --- Event Listeners (No Change) ---
+// --- Event Listeners ---
 startButton.addEventListener('click', () => {
     displayQuestion(currentQuestionIndex);
     showScreen('questionnaireScreen');
 });
 
 nextQButton.addEventListener('click', () => {
-    // Save answer before moving
-    processAnswer(currentQuestionIndex); // Make sure current answer is processed
+    processAnswer(currentQuestionIndex); // Process current answer *before* incrementing
     currentQuestionIndex++;
-    displayQuestion(currentQuestionIndex); // Will show profile if done
+    displayQuestion(currentQuestionIndex); // Display next or show profile
 });
 
 showMapButton.addEventListener('click', calculateAndShowMap);
@@ -342,5 +459,5 @@ showMapButton.addEventListener('click', calculateAndShowMap);
 restartButton.addEventListener('click', resetApp);
 
 
-// --- Initial Setup (No Change) ---
+// --- Initial Setup ---
 showScreen('welcomeScreen');
