@@ -1,14 +1,21 @@
 // --- Core Element Details ---
 // (Same as provided in the previous step - contains name, coreQuestion, coreConcept, elaboration, scoreInterpretations, examples, personaConnection for each element)
 const elementDetails = {
-    "Attraction": { name: "Attraction Focus", coreQuestion: "Who or What sparks your sexual interest and arousal?", coreConcept: /*...*/, elaboration: /*...*/, scoreInterpretations: { /*...*/ }, examples: /*...*/, personaConnection: /*...*/ },
-    "Interaction": { name: "Interaction Style", coreQuestion: "How do you prefer to engage and exchange energy during sexual encounters?", coreConcept: /*...*/, elaboration: /*...*/, scoreInterpretations: { /*...*/ }, examples: /*...*/, personaConnection: /*...*/ },
-    "Sensory": { name: "Sensory Emphasis", coreQuestion: "What physical Feelings are most important or sought after?", coreConcept: /*...*/, elaboration: /*...*/, scoreInterpretations: { /*...*/ }, examples: /*...*/, personaConnection: /*...*/ },
-    "Psychological": { name: "Psychological Driver", coreQuestion: "Why do you engage with sexuality? What underlying needs does it fulfill?", coreConcept: /*...*/, elaboration: /*...*/, scoreInterpretations: { /*...*/ }, examples: /*...*/, personaConnection: /*...*/ },
-    "Cognitive": { name: "Cognitive Engagement", coreQuestion: "How important is the Mind – fantasy, intellect, scenarios – in your arousal?", coreConcept: /*...*/, elaboration: /*...*/, scoreInterpretations: { /*...*/ }, examples: /*...*/, personaConnection: /*...*/ },
-    "Relational": { name: "Relational Context", coreQuestion: "In what Structure or with whom do you ideally express your sexuality?", coreConcept: /*...*/, elaboration: /*...*/, scoreInterpretations: { /*...*/ }, examples: /*...*/, personaConnection: /*...*/ }
-};
-
+   "Attraction": {
+    name: "Attraction Focus",
+    coreQuestion: "Who or What sparks your sexual interest and arousal?",
+    coreConcept: "This element defines the primary target, nature, or necessary conditions for your sexual attraction. It goes beyond simple gender orientation to include the importance of presentation, specific dynamics, concepts, objects, situations, or the level of emotional connection required.", // <-- Text in quotes
+    elaboration: "It encompasses traditional orientations (hetero-, homo-, bi-, pan-) but also acknowledges the Asexuality spectrum (lack of attraction) and Demisexuality (attraction requiring an emotional bond). It includes attractions focused on specific aesthetics, personality types, intellectual connection (Sapiosexuality), power dynamics, or even inanimate objects, materials, or scenarios (often termed fetishes or paraphilias, explored here non-judgmentally).", // <-- Text in quotes
+    scoreInterpretations: { // This value IS an object, so it uses {}
+        "Very Low": "Suggests very little or no specific sexual attraction (aligns strongly with the Asexuality spectrum). Arousal might be absent, rare, or triggered by non-specific stimuli.",
+        "Low": "Indicates less emphasis on specific external targets; attraction might be infrequent, require strong emotional bonds first (Demisexual leaning), or be primarily responsive rather than spontaneous.",
+        "Moderate": "Represents a common balance. Attraction might be geared towards familiar cues like gender or presentation, potentially broad (Pansexual leaning without intense focus), or require some connection without it being strictly Demisexual.",
+        "High": "Suggests a strong focus or pull towards particular targets. This could be specific gender(s)/presentations, specific dynamics (like intelligence or power), or the beginning of significant focus on specific objects, materials, or situations (fetishistic interests).",
+        "Very High": "Indicates a very strong, potentially primary, focus on specific triggers. This could be an intense orientation towards a narrow group, or a central role for specific objects, materials, scenarios, or conceptual dynamics in generating arousal (strong fetishistic or paraphilic focus)."
+    },
+    examples: "Asexuality, Demisexuality, Heterosexuality, Homosexuality, Bisexuality, Pansexuality, Sapiosexuality, Fetishes (e.g., latex, feet, uniforms), attraction to specific body types, attraction based on D/s roles.", // <-- Text in quotes
+    personaConnection: "Defines the fundamental 'object' or condition of your sexual desire." // <-- Text in quotes
+}, // <-- Comma separating from the next element
 
 // --- Concepts Data (Card Structure) ---
 const concepts = [
