@@ -5,70 +5,58 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Persona Alchemy Lab</title>
     <link rel="stylesheet" href="style.css">
-    <!-- Add Font Awesome for icons -->
+    <!-- Font Awesome for placeholder icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-    <div class="app-container lab-theme">
+    <div class="app-container study-theme"> {/* Changed theme class */}
 
-        <!-- === Welcome Screen === -->
+        {/* === Welcome Screen === */}
         <div id="welcomeScreen" class="screen current">
              <h1>Welcome to the Persona Alchemy Lab!</h1>
-             <p>Distill your core sexual elements and discover the concepts that resonate with your unique essence.</p>
+             <p>Discover Concept Cards that resonate with your essence and curate your unique Persona Tapestry.</p>
              <button id="startGuidedButton" class="button">Begin Experimentation</button>
         </div>
 
-        <!-- === Questionnaire Screen === -->
+        {/* === Questionnaire Screen === */}
         <div id="questionnaireScreen" class="screen hidden">
-             <header>
-                <div id="elementProgressHeader"></div>
-                <p id="progressText"></p>
-                <div id="dynamicScoreFeedback">Current <span id="feedbackElement">Element</span> Score: <span id="feedbackScore">5.0</span> (<span class="score-label">Moderate</span>)
-                    <div class="score-bar-container"><div id="feedbackScoreBar" style="width: 50%;"></div></div>
-                </div>
-             </header>
-             <main id="questionContent"></main>
-             <footer>
-                <button id="prevElementButton" class="button back-button hidden">Previous</button>
-                <button id="nextElementButton" class="button next-button">Next / View Persona</button>
-             </footer>
+            {/* ... (Content remains the same - header, main, footer) ... */}
+             <header> <div id="elementProgressHeader"></div> <p id="progressText"></p> <div id="dynamicScoreFeedback">Current <span id="feedbackElement">Element</span> Score: <span id="feedbackScore">5.0</span> (<span class="score-label">Moderate</span>)<div class="score-bar-container"><div id="feedbackScoreBar" style="width: 50%;"></div></div></div> </header> <main id="questionContent"></main> <footer> <button id="prevElementButton" class="button back-button hidden">Previous</button> <button id="nextElementButton" class="button next-button">Next / View Persona</button> </footer>
         </div>
 
-        <!-- === Navigation Bar === -->
+        {/* === Navigation Bar === */}
         <nav id="mainNavBar" class="main-nav hidden">
-             <button class="nav-button" data-target="personaScreen">My Persona</button>
-             <button class="nav-button active" data-target="labScreen">Alchemy Lab</button>
+             <button class="nav-button" data-target="personaScreen">Persona Tapestry</button> {/* Renamed */}
+             <button class="nav-button active" data-target="studyScreen">The Study</button> {/* Renamed */}
              <button class="nav-button" data-target="grimoireScreen">Grimoire (<span id="grimoireCount">0</span>)</button>
         </nav>
 
-        <!-- === My Persona Screen === -->
+        {/* === My Persona Screen ("Persona Tapestry") === */}
         <div id="personaScreen" class="screen hidden persona-screen">
-             <h1>My Persona</h1>
+             <h1>My Persona Tapestry</h1> {/* Renamed */}
              <div class="persona-overview">
-                 <div class="persona-elements-detailed">
-                     <h2>Core Elements Explained</h2>
+                 <div class="persona-elements-detailed"> {/* Left Column */}
+                     <h2>Core Foundation</h2> {/* Changed Title */}
                      <p>Your fundamental attributes. Expand each to understand your score.</p>
-                     <!-- Element details will be loaded here -->
                      <div id="personaElementDetails"></div>
                      <hr>
                      <h2>Element Essence</h2>
-                     <p>Gained by adding concepts to your Grimoire.</p>
-                      <!-- Element essence will be loaded here -->
-                     <div id="elementEssenceDisplay"></div>
+                     <p>Gained by adding/curating concepts. Spend in The Study.</p>
+                     <div id="elementEssenceDisplayPersona"></div> {/* Dedicated display on Persona */}
                  </div>
-                 <div class="persona-constellation">
-                      <h2>Persona Constellation</h2>
+                 <div class="persona-constellation"> {/* Right Column */}
+                      <h2>Persona Tapestry</h2> {/* Changed Title */}
                       <p>Visualizing your Core Concepts & Grimoire Insights</p>
-                      <div class="constellation-area" id="constellationArea">
-                           <div class="constellation-core">
-                                <h4>Your Core Concepts</h4>
-                                <!-- Core concepts list loaded here (Ensure ID is correct) -->
-                                <ul id="personaCoreConceptsList"></ul>
+                      <div class="tapestry-area" id="tapestryArea"> {/* Changed ID/Class */}
+                           <h4>Your Core Concepts</h4>
+                           {/* Core cards will be displayed here */}
+                           <div id="personaCoreConceptsDisplay" class="core-concepts-grid">
+                               {/* Simple grid/list populated by JS */}
                            </div>
                       </div>
                       <div class="grimoire-insights">
                           <h3>Grimoire Insights</h3>
-                          <!-- Themes list loaded here (Ensure ID is correct) -->
+                          {/* Themes based on Core cards might go here later */}
                           <ul id="personaThemesList"></ul>
                       </div>
                  </div>
@@ -77,73 +65,96 @@
         </div>
 
 
-        <!-- === Main Lab Screen === -->
-        <div id="labScreen" class="screen hidden">
-             <div class="lab-layout-container">
-                 <div class="ingredient-shelf">
-                      <h2>Elements</h2>
-                      <p>Select 1 or 2 ingredients:</p>
-                      <div id="elementVials"></div>
-                      <button id="clearSelectionButton" class="button small-button back-button hidden">Clear</button>
+        {/* === Main Study Screen === */}
+        <div id="studyScreen" class="screen hidden study-screen"> {/* Renamed ID/Class */}
+             <div class="study-layout-container">
+                 <div class="essence-shelf"> {/* Changed Class */}
+                      <h2>Elemental Essences</h2>
+                      <p>Click an Essence to Research related concepts (Cost: 5).</p>
+                      <div id="elementEssenceDisplayStudy"> {/* Dedicated display for interaction */}
+                          {/* Essence vials/counters loaded by JS */}
+                      </div>
                  </div>
-                 <div class="results-bench">
-                     <div id="mixingStatus"></div>
-                     <h2>Results</h2>
-                     <div id="conceptResults"></div>
+                 <div class="research-bench"> {/* Changed Class */}
+                     <h2>Research Notes</h2>
+                     <div id="researchStatus">Select an Essence to begin Research...</div>
+                     <div id="researchOutput" class="research-output-area">
+                         {/* Temporary results from Research shown here? Or use modal */}
+                     </div>
                  </div>
              </div>
         </div>
 
-         <!-- === Grimoire Screen === -->
+         {/* === Grimoire Screen === */}
          <div id="grimoireScreen" class="screen hidden grimoire-screen">
               <h1>The Grand Grimoire</h1>
               <div id="grimoireControls">
-                  <label for="grimoireElementFilter">Filter:</label>
-                  <select id="grimoireElementFilter"><option value="All">All</option></select>
+                  <label for="grimoireTypeFilter">Type:</label>
+                  <select id="grimoireTypeFilter"><option value="All">All Types</option></select> {/* Added Type Filter */}
+                  <label for="grimoireElementFilter">Element:</label>
+                  <select id="grimoireElementFilter"><option value="All">All Elements</option></select>
                   <label for="grimoireSortOrder">Sort:</label>
                   <select id="grimoireSortOrder"><option value="discovered">Date Added</option><option value="name">Name</option><option value="type">Type</option></select>
               </div>
-              <div id="grimoireContent"></div>
+              <div id="grimoireContent" class="card-grid"></div> {/* Added card-grid class */}
          </div>
 
 
-        <!-- === Concept Detail Pop-up === -->
-        <div id="conceptDetailPopup" class="popup hidden lab-popup">
+        {/* === Concept Detail Pop-up === */}
+        <div id="conceptDetailPopup" class="popup hidden card-popup"> {/* Changed Class */}
               <button id="closePopupButton" class="close-button">×</button>
-              <h3 id="popupConceptName"></h3>
-              <p id="popupConceptType"></p>
-              <div class="resonance-summary" id="popupResonanceSummary"></div>
-              <hr class="popup-hr">
-              <div class="recipe-view">
-                  <h4>Resonance Analysis</h4>
-                  <div id="popupComparisonHighlights"></div>
-                  <details class="element-details">
-                      <summary>View Full Recipe Comparison</summary>
-                      <div class="profile-comparison">
-                          <div class="profile-column">
-                              <h5>Concept</h5>
-                              <div id="popupConceptProfile"></div>
-                          </div>
-                          <div class="profile-column">
-                              <h5>You</h5>
-                              <div id="popupUserComparisonProfile"></div>
-                          </div>
+              <div class="popup-header">
+                  <span id="popupCardTypeIcon" class="card-type-icon"></span> {/* Icon placeholder */}
+                  <h3 id="popupConceptName"></h3>
+                  <p id="popupConceptType"></p>
+              </div>
+              <div class="popup-content">
+                  <div class="popup-visual">
+                      {/* Placeholder for larger card art/icon */}
+                      <i id="popupCardVisual" class="card-visual-placeholder fa-solid fa-image"></i>
+                  </div>
+                  <div class="popup-details">
+                      <p id="popupDetailedDescription" class="detailed-description"></p>
+                       <hr class="popup-hr">
+                      <div class="resonance-summary" id="popupResonanceSummary"></div>
+                      <div class="recipe-view">
+                          <h4>Resonance Analysis</h4>
+                          <div id="popupComparisonHighlights"></div>
+                          <details class="element-details">
+                              <summary>View Full Recipe Comparison</summary>
+                              <div class="profile-comparison">
+                                  <div class="profile-column"><h5>Concept</h5><div id="popupConceptProfile"></div></div>
+                                  <div class="profile-column"><h5>You</h5><div id="popupUserComparisonProfile"></div></div>
+                              </div>
+                          </details>
                       </div>
-                  </details>
+                       <hr class="popup-hr">
+                      <div id="popupRelatedConcepts" class="related-concepts"><h4>Synergies / Related:</h4><ul id="relatedConceptsList"></ul></div>
+                      {/* Evolution section would go here if implemented */}
+                  </div>
               </div>
-              <hr class="popup-hr">
-              <div id="popupRelatedConcepts" class="related-concepts">
-                  <h4>Related:</h4>
-                  <ul id="relatedConceptsList"></ul>
+              <div class="popup-actions">
+                  <button id="addToGrimoireButton" class="button small-button add-grimoire-button">Add to Grimoire</button>
+                  <button id="markAsCoreButton" class="button small-button core-button hidden">Mark as Core</button> {/* Start hidden */}
               </div>
-              <button id="addToGrimoireButton" class="button small-button add-grimoire-button">Add to Grimoire</button>
-              <button id="markAsCoreButton" class="button small-button core-button">Mark as Core</button>
         </div>
+
+         {/* === Research Results Modal === */}
+         <div id="researchModal" class="popup hidden research-modal">
+             <button id="closeResearchModalButton" class="close-button">×</button>
+             <h3>Research Discovery</h3>
+             <p id="researchModalStatus"></p>
+             <div id="researchModalContent" class="card-grid research-results-grid">
+                 {/* Discovered cards shown here */}
+             </div>
+         </div>
+
+         {/* Overlay for Popups */}
          <div id="popupOverlay" class="overlay hidden"></div>
 
     </div>
 
-    <!-- *** SCRIPTS AT THE END *** -->
+    {/* SCRIPTS AT THE END */}
     <script src="data.js"></script>
     <script src="script.js"></script>
 </body>
