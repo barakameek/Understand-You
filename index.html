@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Persona Alchemy Lab - Persona Build</title>
+    <title>Persona Alchemy Lab - Rich Exploration</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -12,28 +12,28 @@
         <!-- === Welcome Screen === -->
         <div id="welcomeScreen" class="screen current">
             <h1>Welcome to the Persona Alchemy Lab!</h1>
-            <p>Distill your core sexual elements and discover potent conceptual concoctions.</p>
+            <p>Distill your core sexual elements and discover the concepts that resonate with your unique essence.</p>
             <button id="startGuidedButton" class="button">Begin Experimentation</button>
         </div>
 
-        <!-- === Questionnaire Screen (Element Focused) === -->
+        <!-- === Questionnaire Screen === -->
         <div id="questionnaireScreen" class="screen hidden">
-            <header>
-                <div id="elementProgressHeader" class="element-progress-header"></div>
-                <p id="progressText">Element 1 / 6: [Element Name]</p>
-                <div id="dynamicScoreFeedback">
-                    Current <span id="feedbackElement">Element</span> Score: <span id="feedbackScore">5.0</span>
-                    <div class="score-bar-container"><div id="feedbackScoreBar" style="width: 50%;"></div></div>
-                </div>
-            </header>
-            <main id="questionContent"></main>
-            <footer>
-                <button id="prevElementButton" class="button back-button hidden">Previous Element</button>
-                <button id="nextElementButton" class="button next-button">Next Element / View Persona</button> {/* Changed Button Text */}
-            </footer>
+             <header>
+                 <div id="elementProgressHeader" class="element-progress-header"></div>
+                 <p id="progressText"></p>
+                 <div id="dynamicScoreFeedback">
+                     Current <span id="feedbackElement">Element</span> Score: <span id="feedbackScore">5.0</span> (<span id="feedbackLabel">Moderate</span>)
+                     <div class="score-bar-container"><div id="feedbackScoreBar" style="width: 50%;"></div></div>
+                 </div>
+             </header>
+             <main id="questionContent"></main>
+             <footer>
+                 <button id="prevElementButton" class="button back-button hidden">Previous Element</button>
+                 <button id="nextElementButton" class="button next-button">Next Element / View Persona</button>
+             </footer>
         </div>
 
-        <!-- === Navigation Bar (Appears after setup) === -->
+        <!-- === Navigation Bar === -->
         <nav id="mainNavBar" class="main-nav hidden">
             <button class="nav-button" data-target="personaScreen">My Persona</button>
             <button class="nav-button active" data-target="labScreen">Alchemy Lab</button>
@@ -46,21 +46,18 @@
              <div class="persona-layout">
                  <div class="persona-scores">
                      <h2>Core Elements</h2>
-                     <div id="personaProfileScores">
-                         <!-- User scores displayed visually/numerically -->
-                     </div>
+                     <div id="personaProfileScores"></div>
+                     <hr>
+                     <h2>Element Essence</h2>
+                     <div id="elementEssenceDisplay"></div>
                  </div>
                  <div class="persona-insights">
                      <h2>Synthesized Themes</h2>
-                     <p>(Based on your Grimoire discoveries)</p>
-                     <ul id="personaThemesList">
-                         <li>No discoveries logged yet.</li>
-                     </ul>
+                     <p>(From your Grimoire)</p>
+                     <ul id="personaThemesList"></ul>
                      <h2>Core Concepts</h2>
-                     <p>(Mark concepts as core in the Grimoire - Feature Placeholder)</p>
-                     <ul id="personaCoreConceptsList">
-                         <li>Mark concepts in the Grimoire.</li>
-                     </ul>
+                     <p>(Mark concepts as 'Core' in their detail view)</p>
+                     <ul id="personaCoreConceptsList"></ul>
                  </div>
              </div>
               <button id="restartButtonPersona" class="button small-button back-button">Restart Setup</button>
@@ -69,56 +66,60 @@
 
         <!-- === Main Lab Screen === -->
         <div id="labScreen" class="screen hidden">
-            <div class="lab-layout-container">
-                <!-- Left Panel: Ingredient Shelf -->
-                <div class="ingredient-shelf">
-                    <h2>Elements</h2>
-                    <p>Select 1 or 2 to combine:</p>
-                    <div id="elementVials"></div>
-                    <button id="clearSelectionButton" class="button small-button back-button hidden">Clear</button>
-                </div>
-                <!-- Right Panel: Experiment Results -->
-                <div class="results-bench">
-                    <div id="mixingStatus" class="mixing-status"></div>
-                    <h2>Results</h2>
-                    <div id="conceptResults" class="concept-results-grid"></div>
-                </div>
-            </div>
+             <div class="lab-layout-container">
+                 <div class="ingredient-shelf">
+                     <h2>Elements</h2>
+                     <p>Select 1 or 2 ingredients:</p>
+                     <div id="elementVials"></div>
+                     <button id="clearSelectionButton" class="button small-button back-button hidden">Clear</button>
+                 </div>
+                 <div class="results-bench">
+                     <div id="mixingStatus" class="mixing-status"></div>
+                     <h2>Results</h2>
+                     <div id="conceptResults" class="concept-results-grid"></div>
+                 </div>
+             </div>
         </div>
 
          <!-- === Grimoire Screen === -->
          <div id="grimoireScreen" class="screen hidden grimoire-screen">
-             {/* No Back to Lab Button Needed - Use Nav */}
              <h1>The Grand Grimoire</h1>
-             <p>Your discovered conceptual concoctions.</p>
-             <div id="grimoireFilters">
+             <div id="grimoireControls">
                  <label>Filter by Element:</label>
-                 <select id="grimoireElementFilter">
-                     <option value="All">All Elements</option>
-                     {/* Options populated by JS */}
+                 <select id="grimoireElementFilter"><option value="All">All</option></select>
+                 <label>Sort by:</label>
+                 <select id="grimoireSortOrder">
+                     <option value="name">Name</option>
+                     <option value="type">Type</option>
+                     <option value="discovered">Date Added (Default)</option>
                  </select>
              </div>
              <div id="grimoireContent" class="grimoire-content"></div>
          </div>
 
 
-        <!-- === Concept Detail Pop-up (Simplified Comparison) === -->
+        <!-- === Concept Detail Pop-up === -->
         <div id="conceptDetailPopup" class="popup hidden lab-popup">
              <button id="closePopupButton" class="close-button">×</button>
              <h3 id="popupConceptName"></h3>
              <p id="popupConceptType"></p>
-             <div class="resonance-summary" id="popupResonanceSummary">
-                 Overall Match: <span class="resonance-indicator">?</span>
-             </div>
+             <div class="resonance-summary" id="popupResonanceSummary"></div>
              <hr class="popup-hr">
              <div class="recipe-view">
-                 <h4>Key Alignments & Differences</h4>
-                 <div id="popupComparisonHighlights">
-                      <!-- Highlights loaded here -->
-                 </div>
+                 <h4>Resonance Analysis</h4>
+                 <div id="popupComparisonHighlights"></div>
                  <details class="element-details">
-                     <summary>View Full Recipe</summary>
-                     <div id="popupConceptProfile"></div>
+                     <summary>View Full Recipe Comparison</summary>
+                     <div class="profile-comparison">
+                         <div class="profile-column">
+                             <h5>Concept Recipe</h5>
+                             <div id="popupConceptProfile"></div>
+                         </div>
+                         <div class="profile-column">
+                             <h5>Your Profile</h5>
+                             <div id="popupUserComparisonProfile"></div>
+                         </div>
+                     </div>
                  </details>
              </div>
              <hr class="popup-hr">
@@ -127,8 +128,7 @@
                  <ul id="relatedConceptsList"></ul>
              </div>
               <button id="addToGrimoireButton" class="button small-button add-grimoire-button">Add to Grimoire</button>
-              {/* Add Favorite Button Placeholder */}
-              <button class="button small-button hidden" title="Feature coming soon">Mark as Core</button>
+              <button id="markAsCoreButton" class="button small-button core-button" title="Mark this as a core part of your persona">Mark as Core</button>
         </div>
          <div id="popupOverlay" class="overlay hidden"></div>
 
