@@ -126,10 +126,7 @@ const elementNameToKey = {
     "Attraction": "A", "Interaction": "I", "Sensory": "S",
     "Psychological": "P", "Cognitive": "C", "Relational": "R"
 };
-const elementKeyToFullName = {
-    A: "Attraction", I: "Interaction", S: "Sensory",
-    P: "Psychological", C: "Cognitive", R: "Relational"
-};
+
 
 // *** Corrected euclideanDistance function ***
 function euclideanDistance(userScoresObj, conceptScoresObj) {
