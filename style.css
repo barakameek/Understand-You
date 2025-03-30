@@ -1,136 +1,165 @@
 /* Basic Reset & Body Styling */
 body {
-    font-family: sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     margin: 0;
-    background-color: #f5f5f5;
+    background-color: #f4f7f6;
     color: #333;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh; /* Ensure container takes full viewport height */
+    line-height: 1.6;
 }
 
-.container {
+.app-container {
+    max-width: 700px;
+    margin: 20px auto;
     background-color: #ffffff;
     border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    padding: 30px;
-    width: 90%;
-    max-width: 500px; /* Max width for larger screens */
-    display: flex;
-    flex-direction: column;
-    min-height: 400px; /* Give it some minimum height */
-    justify-content: space-between; /* Push header up, footer down */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    overflow: hidden; /* Prevents content spill */
 }
 
-/* Header */
-.header {
+/* Screen Management */
+.screen {
+    padding: 30px 40px;
+    border-bottom: 1px solid #eee; /* Separator for visual structure */
+}
+.screen:last-child {
+    border-bottom: none;
+}
+.hidden {
+    display: none;
+}
+.current {
+    display: block; /* Or flex, grid depending on internal layout */
+}
+
+/* Headings and Text */
+h1 {
+    color: #8A2BE2; /* BlueViolet */
     text-align: center;
-    color: #666;
-    font-size: 0.9em;
-    margin-bottom: 20px;
+    margin-bottom: 15px;
 }
-
-/* Content */
-.content {
-    flex-grow: 1; /* Allow content to take available space */
-    display: flex;
-    flex-direction: column;
-    justify-content: center; /* Center content vertically */
-    align-items: center; /* Center content horizontally */
+p {
     text-align: center;
-}
-
-.question-text {
-    font-size: 1.4em; /* Slightly larger */
-    font-weight: bold;
-    margin-bottom: 40px;
-}
-
-/* Slider Area */
-.slider-container {
-    width: 100%;
-    max-width: 400px; /* Limit slider width */
-    margin-top: 20px;
-}
-
-.slider {
-    width: 100%;
-    height: 8px;
-    cursor: pointer;
-    appearance: none; /* Override default look */
-    background: #d3d3d3; /* Track background */
-    border-radius: 5px;
-    outline: none;
-}
-
-/* Styling the slider thumb (cross-browser can be tricky) */
-.slider::-webkit-slider-thumb { /* Chrome, Edge, Safari */
-    appearance: none;
-    width: 20px;
-    height: 20px;
-    background: #8A2BE2; /* BlueViolet */
-    border-radius: 50%;
-    cursor: pointer;
-}
-
-.slider::-moz-range-thumb { /* Firefox */
-    width: 20px;
-    height: 20px;
-    background: #8A2BE2;
-    border-radius: 50%;
-    cursor: pointer;
-    border: none; /* Remove default border */
-}
-
-.label-container {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 8px;
-    padding: 0 5px; /* Align labels slightly inwards */
-}
-
-.label-text {
-    font-size: 0.8em;
+    margin-bottom: 25px;
     color: #555;
 }
 
-.value-text {
-    margin-top: 20px;
-    font-size: 1.1em;
-    font-weight: 500;
+/* Questionnaire Specific */
+#questionnaireScreen header {
+    text-align: right;
+    color: #888;
+    margin-bottom: 30px;
+    font-size: 0.9em;
 }
-
-/* Footer */
-.footer {
-    display: flex;
-    justify-content: space-between; /* Push buttons apart */
-    margin-top: 30px;
-    padding-top: 20px;
-    border-top: 1px solid #eee; /* Separator line */
+#questionnaireScreen main {
+    min-height: 150px; /* Space for question content */
+    margin-bottom: 30px;
 }
+#questionnaireScreen footer {
+    text-align: center;
+}
+.question-title {
+    font-size: 1.3em;
+    font-weight: 600;
+    margin-bottom: 25px;
+    text-align: center;
+}
+.input-container {
+    margin: 20px 0;
+}
+.slider-container { /* Copied from previous CSS */
+    width: 100%;
+    max-width: 400px;
+    margin: 20px auto;
+}
+.slider { width: 100%; cursor: pointer; appearance: none; height: 8px; background: #d3d3d3; border-radius: 5px; outline: none; }
+.slider::-webkit-slider-thumb { appearance: none; width: 20px; height: 20px; background: #8A2BE2; border-radius: 50%; cursor: pointer; }
+.slider::-moz-range-thumb { width: 20px; height: 20px; background: #8A2BE2; border-radius: 50%; cursor: pointer; border: none; }
+.label-container { display: flex; justify-content: space-between; margin-top: 8px; padding: 0 5px; }
+.label-text { font-size: 0.8em; color: #555; }
+.value-text { margin-top: 15px; text-align: center; font-size: 1em; font-weight: 500; }
 
-.button {
-    padding: 12px 25px;
-    border: none;
-    border-radius: 25px;
-    font-size: 1em;
-    font-weight: bold;
+.radio-options label,
+.checkbox-options label {
+    display: block;
+    background-color: #f9f9f9;
+    padding: 12px 15px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    border: 1px solid #eee;
     cursor: pointer;
     transition: background-color 0.2s ease;
-    color: #ffffff;
+}
+.radio-options input[type="radio"]:checked + label,
+.checkbox-options input[type="checkbox"]:checked + label {
+    background-color: #e8d4ff; /* Light violet */
+    border-color: #8A2BE2;
+}
+.radio-options input[type="radio"],
+.checkbox-options input[type="checkbox"] {
+   margin-right: 10px;
+   display: none; /* Hide default radio/checkbox */
 }
 
+
+/* Buttons */
+.button {
+    display: inline-block;
+    padding: 12px 30px;
+    border: none;
+    border-radius: 25px;
+    font-size: 1.1em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+    color: #ffffff;
+    background-color: #8A2BE2; /* BlueViolet */
+    text-align: center;
+    margin: 10px 5px;
+}
+.button:hover {
+    background-color: #7a1fd0;
+}
+.button:active {
+    transform: scale(0.98);
+}
 .back-button {
-    background-color: #aaa; /* Gray for back */
+    background-color: #aaa;
 }
 .back-button:hover {
     background-color: #888;
 }
 
-.next-button {
-    background-color: #8A2BE2; /* BlueViolet */
+
+/* Results */
+#profileScores div {
+    margin: 8px 0;
+    font-size: 1.1em;
 }
-.next-button:hover {
-    background-color: #7a1fd0; /* Darker violet */
+#profileScores strong {
+    color: #8A2BE2;
+    display: inline-block;
+    width: 150px; /* Align scores */
+}
+
+#mapResultsList {
+    list-style: none;
+    padding: 0;
+    max-height: 400px; /* Scroll if too many results */
+    overflow-y: auto;
+}
+#mapResultsList li {
+    background-color: #f9f9f9;
+    padding: 10px 15px;
+    margin-bottom: 8px;
+    border-radius: 4px;
+    border: 1px solid #eee;
+    font-size: 1.05em;
+}
+#mapResultsList li span {
+    font-size: 0.8em;
+    color: #777;
+    margin-left: 10px;
+}
+#mapResultsList li strong {
+    font-weight: 600;
 }
