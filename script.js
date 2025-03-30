@@ -6,8 +6,8 @@ const elementNames = ["Attraction", "Interaction", "Sensory", "Psychological", "
 let currentElementAnswers = {};
 let selectedElements = []; // Track selected elements for mixing
 let currentlyDisplayedConceptId = null;
-let discoveredConcepts = new Set(); // Track discovered concept IDs for Grimoire
-let elementAttunement = { Attraction: 0, Interaction: 0, Sensory: 0, Psychological: 0, Cognitive: 0, Relational: 0 }; // Track interaction count
+let discoveredConcepts = new Set(); // Track discovered concept IDs
+let elementAttunement = { Attraction: 0, Interaction: 0, Sensory: 0, Psychological: 0, Cognitive: 0, Relational: 0 };
 
 // --- DOM Elements ---
 const screens = document.querySelectorAll('.screen');
@@ -22,33 +22,60 @@ const feedbackScoreSpan = document.getElementById('feedbackScore');
 const feedbackScoreBar = document.getElementById('feedbackScoreBar');
 const prevElementButton = document.getElementById('prevElementButton');
 const nextElementButton = document.getElementById('nextElementButton');
+const mainNavBar = document.getElementById('mainNavBar'); // Nav Bar
+const navButtons = document.querySelectorAll('.nav-button');
+const personaScreen = document.getElementById('personaScreen'); // Persona Screen
+const personaProfileScoresDiv = document.getElementById('personaProfileScores');
+const personaThemesList = document.getElementById('personaThemesList');
+const personaCoreConceptsList = document.getElementById('personaCoreConceptsList');
+const restartButtonPersona = document.getElementById('restartButtonPersona'); // Restart on Persona screen
 const labScreen = document.getElementById('labScreen');
-const viewGrimoireButton = document.getElementById('viewGrimoireButton');
+const viewGrimoireButton = document.getElementById('viewGrimoireButton'); // Moved to Nav
 const grimoireCountSpan = document.getElementById('grimoireCount');
 const elementVialsDiv = document.getElementById('elementVials');
 const clearSelectionButton = document.getElementById('clearSelectionButton');
 const resultsBenchDiv = document.getElementById('conceptResults');
-const mixingStatusDiv = document.getElementById('mixingStatus'); // Mixing status display
-const resultsInstructionP = document.getElementById('resultsInstruction'); // Removed - replaced by mixingStatus
-const restartButton = document.getElementById('restartButton');
-const grimoireScreen = document.getElementById('grimoireScreen'); // Grimoire Screen
-const closeGrimoireButton = document.getElementById('closeGrimoireButton');
+const mixingStatusDiv = document.getElementById('mixingStatus');
+// const resultsInstructionP = document.getElementById('resultsInstruction'); // Removed
+const restartButtonLab = document.getElementById('restartButton'); // Renamed for clarity
+const grimoireScreen = document.getElementById('grimoireScreen');
+const closeGrimoireButton = document.getElementById('closeGrimoireButton'); // Removed, use nav
+const grimoireElementFilter = document.getElementById('grimoireElementFilter'); // Filter dropdown
 const grimoireContentDiv = document.getElementById('grimoireContent');
 // Popup elements
 const conceptDetailPopup = document.getElementById('conceptDetailPopup');
 const popupOverlay = document.getElementById('popupOverlay');
 const popupConceptName = document.getElementById('popupConceptName');
 const popupConceptType = document.getElementById('popupConceptType');
-const popupConceptProfile = document.getElementById('popupConceptProfile');
-const popupUserComparisonProfile = document.getElementById('popupUserComparisonProfile'); // Added for comparison
-const popupRelatedConceptsList = document.getElementById('relatedConceptsList'); // Added for related
+const popupResonanceSummary = document.getElementById('popupResonanceSummary'); // Resonance Text
+const popupComparisonHighlights = document.getElementById('popupComparisonHighlights'); // Highlights Div
+const popupConceptProfile = document.getElementById('popupConceptProfile'); // Full Recipe (in details)
+// const popupUserComparisonProfile = document.getElementById('popupUserComparisonProfile'); // Removed direct comparison display
+const popupRelatedConceptsList = document.getElementById('relatedConceptsList');
 const closePopupButton = document.getElementById('closePopupButton');
-const addToGrimoireButton = document.getElementById('addToGrimoireButton'); // Add to Grimoire button
+const addToGrimoireButton = document.getElementById('addToGrimoireButton');
 
 // --- Core Functions ---
 
-function showScreen(screenId) { /* ... Same as before ... */
-    screens.forEach(screen => { screen.id === screenId ? screen.classList.add('current') : screen.classList.add('hidden'); screen.id === screenId ? screen.classList.remove('hidden') : screen.classList.remove('current'); });
+function showScreen(screenId) {
+    let targetIsMain = ['personaScreen', 'labScreen', 'grimoireScreen'].includes(screenId);
+    screens.forEach(screen => {
+        const isMain = ['personaScreen', 'labScreen', 'grimoireScreen'].includes(screen.id);
+        if (screen.id === screenId) {
+            screen.classList.add('current');
+            screen.classList.remove('hidden');
+        } else {
+             // Keep other main screens loaded but hidden for faster switching? Or hide fully? Hide fully for now.
+            screen.classList.add('hidden');
+            screen.classList.remove('current');
+        }
+    });
+    // Show/Hide Nav Bar
+    mainNavBar.classList.toggle('hidden', !targetIsMain);
+     // Update Active Nav Button
+     navButtons.forEach(button => {
+         button.classList.toggle('active', button.dataset.target === screenId);
+     });
     if (screenId === 'questionnaireScreen' || screenId === 'grimoireScreen') { window.scrollTo(0, 0); }
 }
 
@@ -61,17 +88,18 @@ function updateElementProgressHeader(activeIndex) { /* ... Same as before ... */
 }
 
 function enforceMaxChoices(name, max, event) { /* ... Same as before ... */
-     const checkboxes = document.querySelectorAll(`input[name="${name}"]:checked`); if (checkboxes.length > max) { alert(`You can only select up to ${max} options.`); if (event && event.target && event.target.checked) event.target.checked = false; }
+    const checkboxes = document.querySelectorAll(`input[name="${name}"]:checked`); if (checkboxes.length > max) { alert(`You can only select up to ${max} options.`); if (event && event.target && event.target.checked) event.target.checked = false; }
 }
 
 function displayElementQuestions(index) { /* ... Same as before ... */
-     if (index >= elementNames.length) { finalizeScoresAndShowLab(); return; } const element = elementNames[index]; const questions = questionnaireGuided[element] || []; updateElementProgressHeader(index); progressText.textContent = `Element ${index + 1} / ${elementNames.length}: ${element}`; questionContent.innerHTML = `<div class="element-intro"><h2>${element}</h2><p>${elementExplanations[element]}</p></div>`; currentElementAnswers = { ...(userAnswers[element] || {}) };
+     if (index >= elementNames.length) { finalizeScoresAndShowPersona(); return; } // Go to Persona Screen First
+    const element = elementNames[index]; const questions = questionnaireGuided[element] || []; updateElementProgressHeader(index); progressText.textContent = `Element ${index + 1} / ${elementNames.length}: ${element}`; questionContent.innerHTML = `<div class="element-intro"><h2>${element}</h2><p>${elementExplanations[element]}</p></div>`; currentElementAnswers = { ...(userAnswers[element] || {}) };
     questions.forEach(q => { let inputHTML = `<div class="question-block" id="block_${q.qId}"><h3 class="question-title">${q.text}</h3><div class="input-container">`; const savedAnswer = currentElementAnswers[q.qId];
     if (q.type === "slider") { const currentValue = savedAnswer !== undefined ? savedAnswer : q.defaultValue; inputHTML += `<div class="slider-container"> <input type="range" id="${q.qId}" class="slider q-input" min="${q.minValue}" max="${q.maxValue}" step="${q.step || 0.5}" value="${currentValue}" data-question-id="${q.qId}" data-type="slider"> <div class="label-container"><span class="label-text">${q.minLabel}</span><span class="label-text">${q.maxLabel}</span></div> <p class="value-text">Selected: <span id="display_${q.qId}">${parseFloat(currentValue).toFixed(1)}</span></p> </div>`; }
     else if (q.type === "radio") { inputHTML += `<div class="radio-options">`; q.options.forEach(opt => { const isChecked = savedAnswer === opt.value ? 'checked' : ''; inputHTML += `<div><input type="radio" id="${q.qId}_${opt.value}" class="q-input" name="${q.qId}" value="${opt.value}" ${isChecked} data-question-id="${q.qId}" data-type="radio"><label for="${q.qId}_${opt.value}">${opt.value}</label></div>`; }); inputHTML += `</div>`; }
     else if (q.type === "checkbox") { inputHTML += `<div class="checkbox-options">`; q.options.forEach(opt => { const isChecked = savedAnswer?.includes(opt.value) ? 'checked' : ''; inputHTML += `<div><input type="checkbox" id="${q.qId}_${opt.value}" class="q-input" name="${q.qId}" value="${opt.value}" ${isChecked} data-question-id="${q.qId}" data-max-choices="${q.maxChoices || 2}" data-type="checkbox"><label for="${q.qId}_${opt.value}">${opt.value}</label></div>`; }); inputHTML += `</div>`; }
     inputHTML += `</div></div>`; questionContent.innerHTML += inputHTML; });
-    questionContent.querySelectorAll('.q-input').forEach(input => { const eventType = (input.type === 'range') ? 'input' : 'change'; input.addEventListener(eventType, handleQuestionnaireInputChange); }); updateDynamicFeedback(element); dynamicScoreFeedback.style.display = 'block'; prevElementButton.style.visibility = (index > 0) ? 'visible' : 'hidden'; nextElementButton.textContent = (index === elementNames.length - 1) ? "Enter the Lab" : "Next Element";
+    questionContent.querySelectorAll('.q-input').forEach(input => { const eventType = (input.type === 'range') ? 'input' : 'change'; input.addEventListener(eventType, handleQuestionnaireInputChange); }); updateDynamicFeedback(element); dynamicScoreFeedback.style.display = 'block'; prevElementButton.style.visibility = (index > 0) ? 'visible' : 'hidden'; nextElementButton.textContent = (index === elementNames.length - 1) ? "View My Persona" : "Next Element"; // Changed button text
 }
 
 function handleQuestionnaireInputChange(event) { /* ... Same as before ... */
@@ -95,144 +123,125 @@ function calculateElementScore(element, answersForElement) { /* ... Same as befo
     return Math.max(0, Math.min(10, score));
 }
 
-function finalizeScoresAndShowLab() { /* ... Same as before ... */
-     console.log("Finalizing scores..."); elementNames.forEach(element => { userScores[element] = calculateElementScore(element, userAnswers[element] || {}); }); console.log("Final User Scores:", userScores); displayElementVials(); filterAndDisplayConcepts(); updateGrimoireCounter(); showScreen('labScreen');
+// --- Finalize scores and show PERSONA screen first ---
+function finalizeScoresAndShowPersona() {
+     console.log("Finalizing scores...");
+     elementNames.forEach(element => { userScores[element] = calculateElementScore(element, userAnswers[element] || {}); });
+     console.log("Final User Scores:", userScores);
+     displayPersonaScreen(); // Display the persona screen
+     displayElementVials(); // Prepare vials for lab screen
+     filterAndDisplayConcepts(); // Prepare initial lab results
+     updateGrimoireCounter(); // Update counter
+     populateGrimoireFilter(); // Add element options to filter
+     showScreen('personaScreen'); // Show Persona Screen FIRST
 }
 
-function nextElement() { /* ... Same as before ... */ collectCurrentElementAnswers(); currentElementIndex++; displayElementQuestions(currentElementIndex); }
-function prevElement() { /* ... Same as before ... */ collectCurrentElementAnswers(); currentElementIndex--; displayElementQuestions(currentElementIndex); }
+function nextElement() { collectCurrentElementAnswers(); currentElementIndex++; displayElementQuestions(currentElementIndex); }
+function prevElement() { collectCurrentElementAnswers(); currentElementIndex--; displayElementQuestions(currentElementIndex); }
+
+// --- Display Persona Screen ---
+function displayPersonaScreen() {
+    personaProfileScoresDiv.innerHTML = '';
+    elementNames.forEach(element => {
+        const score = userScores[element];
+        const barWidth = score * 10;
+        personaProfileScoresDiv.innerHTML += `
+            <div>
+                <strong>${element}:</strong>
+                <span>${score.toFixed(1)}</span>
+                <div class="score-bar-container" style="height: 10px; max-width: 150px; display: inline-block; margin-left: 10px; vertical-align: middle;">
+                    <div style="width: ${barWidth}%; height: 100%; background-color: ${getElementColor(element)}; border-radius: 3px;"></div>
+                </div>
+            </div>
+        `;
+    });
+
+    // Synthesize Themes from Grimoire
+    synthesizeAndDisplayThemes();
+
+    // Display Core Concepts (Placeholder)
+    personaCoreConceptsList.innerHTML = '<li>Feature coming soon!</li>';
+}
+
+// --- Synthesize and Display Persona Themes from Grimoire ---
+function synthesizeAndDisplayThemes() {
+     personaThemesList.innerHTML = ''; // Clear existing
+     if (discoveredConcepts.size === 0) {
+         personaThemesList.innerHTML = '<li>Explore the Lab and add discoveries to your Grimoire to see themes here.</li>';
+         return;
+     }
+
+     const elementCounts = { Attraction: 0, Interaction: 0, Sensory: 0, Psychological: 0, Cognitive: 0, Relational: 0 };
+     const threshold = 7.0; // Consider an element strong if concept score is >= this
+
+     discoveredConcepts.forEach(conceptId => {
+         const concept = concepts.find(c => c.id === conceptId);
+         if (concept && concept.elementScores) {
+             elementNames.forEach(el => {
+                 if (concept.elementScores[el] >= threshold) {
+                     elementCounts[el]++;
+                 }
+             });
+         }
+     });
+
+     // Convert counts to sorted array of themes
+     const sortedThemes = Object.entries(elementCounts)
+        .filter(([el, count]) => count > 0) // Only show elements with discovered concepts
+        .sort(([, countA], [, countB]) => countB - countA); // Sort by count desc
+
+    if (sortedThemes.length === 0) {
+         personaThemesList.innerHTML = '<li>No strong elemental themes identified in your Grimoire yet.</li>';
+         return;
+    }
+
+     // Display top 3 themes
+     sortedThemes.slice(0, 3).forEach(([element, count]) => {
+        const li = document.createElement('li');
+        li.textContent = `Prominent Theme: ${element} (Found in ${count} discovered concepts)`;
+        personaThemesList.appendChild(li);
+     });
+}
+
 
 // --- Lab Screen Functions ---
-
-function displayElementVials() { /* ... Same as before ... */
+function displayElementVials() { /* ... Same logic, add title attribute ... */
     elementVialsDiv.innerHTML = ''; selectedElements = []; clearSelectionButton.classList.add('hidden');
-    elementNames.forEach(element => { const score = userScores[element]; const vial = document.createElement('div'); vial.classList.add('vial'); vial.dataset.element = element; vial.innerHTML = ` <div class="vial-icon"><div class="vial-liquid" style="height: ${score * 10}%; background-color: ${getElementColor(element)};"></div></div> <div class="vial-label"><span class="vial-name">${element}</span> <span class="vial-score">Score: ${score.toFixed(1)}</span></div> `; vial.addEventListener('click', handleVialClick); elementVialsDiv.appendChild(vial); });
+    elementNames.forEach(element => { const score = userScores[element]; const vial = document.createElement('div'); vial.classList.add('vial'); vial.dataset.element = element;
+    // *** ADDED title attribute ***
+    vial.title = elementExplanations[element] || element; // Add hover explanation
+    vial.innerHTML = ` <div class="vial-icon"><div class="vial-liquid" style="height: ${score * 10}%; background-color: ${getElementColor(element)};"></div></div> <div class="vial-label"><span class="vial-name">${element}</span> <span class="vial-score">Score: ${score.toFixed(1)}</span></div> `; vial.addEventListener('click', handleVialClick); elementVialsDiv.appendChild(vial); });
 }
-
-function getElementColor(elementName) { /* ... Same as before ... */
-    const colors = { Attraction: '#FF6347', Interaction: '#4682B4', Sensory: '#32CD32', Psychological: '#FFD700', Cognitive: '#8A2BE2', Relational: '#FF8C00' }; return colors[elementName] || '#CCCCCC';
-}
-
-function handleVialClick(event) { /* ... Same as before ... */
-    const clickedVial = event.currentTarget; const element = clickedVial.dataset.element;
-    // --- Attunement Tracking ---
-    elementAttunement[element]++;
-    console.log(`Attunement for ${element}: ${elementAttunement[element]}`); // Log attunement increase
-    // Check for potential unlocks/feedback based on attunement level here later
-    // --- End Attunement Tracking ---
+function getElementColor(elementName) { /* ... */ const colors = { Attraction: '#FF6347', Interaction: '#4682B4', Sensory: '#32CD32', Psychological: '#FFD700', Cognitive: '#8A2BE2', Relational: '#FF8C00' }; return colors[elementName] || '#CCCCCC'; }
+function handleVialClick(event) { /* ... Same logic, update Attunement ... */
+    const clickedVial = event.currentTarget; const element = clickedVial.dataset.element; elementAttunement[element]++; console.log(`Attunement for ${element}: ${elementAttunement[element]}`);
     if (selectedElements.includes(element)) { selectedElements = selectedElements.filter(el => el !== element); clickedVial.classList.remove('selected'); }
     else if (selectedElements.length < 2) { selectedElements.push(element); clickedVial.classList.add('selected'); }
     else { alert("You can only select up to two elements to combine."); return; }
     updateVialStates(); updateMixingStatus(); filterAndDisplayConcepts(); clearSelectionButton.classList.toggle('hidden', selectedElements.length === 0);
 }
-
 function updateVialStates() { /* ... Same as before ... */
-    const vials = elementVialsDiv.querySelectorAll('.vial'); const maxSelected = selectedElements.length >= 2; vials.forEach(vial => { const isSelected = vial.classList.contains('selected'); vial.classList.toggle('disabled', maxSelected && !isSelected); });
+     const vials = elementVialsDiv.querySelectorAll('.vial'); const maxSelected = selectedElements.length >= 2; vials.forEach(vial => { const isSelected = vial.classList.contains('selected'); vial.classList.toggle('disabled', maxSelected && !isSelected); });
 }
-
-// --- NEW: Update Mixing Status Display ---
-function updateMixingStatus() {
-    let statusHTML = "<strong>Mixing:</strong> ";
-    if (selectedElements.length === 0) {
-        statusHTML += "<i>None Selected</i>";
-    } else {
-        statusHTML += selectedElements.map(el => `<span class="status-element" style="border-color:${getElementColor(el)}; color:${getElementColor(el)};">${el}</span>`).join(' + ');
-    }
-    mixingStatusDiv.innerHTML = statusHTML;
-    // Add inline styles for status elements if needed, or use CSS classes
-     mixingStatusDiv.querySelectorAll('.status-element').forEach(el => {
-         el.style.fontWeight = 'bold';
-         el.style.padding = '2px 6px';
-         el.style.borderRadius = '4px';
-         el.style.border = `1px solid ${el.style.borderColor}`; // Use color for border
-         el.style.marginLeft = '5px';
-         el.style.marginRight = '5px';
-     });
+function updateMixingStatus() { /* ... Same as before ... */
+    let statusHTML = "<strong>Mixing:</strong> "; if (selectedElements.length === 0) { statusHTML += "<i>None Selected</i>"; } else { statusHTML += selectedElements.map(el => `<span class="status-element" style="border-color:${getElementColor(el)}; color:${getElementColor(el)}; font-weight:bold; padding:2px 6px; border-radius:4px; border:1px solid ${getElementColor(el)}; margin:0 5px;">${el}</span>`).join(' + '); } mixingStatusDiv.innerHTML = statusHTML;
 }
-
-
 function clearElementSelection() { /* ... Same as before ... */
     selectedElements = []; updateVialStates(); updateMixingStatus(); filterAndDisplayConcepts(); clearSelectionButton.classList.add('hidden'); elementVialsDiv.querySelectorAll('.vial.selected').forEach(v => v.classList.remove('selected'));
 }
+function filterAndDisplayConcepts() { /* ... Same logic with weighted sorting ... */
+    resultsBenchDiv.innerHTML = ''; let filteredConcepts = []; const scoreThreshold = 5.5; // Lowered threshold
+    const userRelevanceWeight = 0.3; let conceptsWithDistance = concepts.map(c => ({ ...c, distance: euclideanDistance(userScores, c.elementScores || {}) })).filter(c => c.distance !== Infinity);
 
-// --- Weighted Filtering and Display ---
-function filterAndDisplayConcepts() {
-    resultsBenchDiv.innerHTML = '';
-    let filteredConcepts = [];
-    const scoreThreshold = 5.5; // Lower threshold slightly for weighted approach
-    const userRelevanceWeight = 0.3; // How much user's overall profile match matters (0 to 1)
+    if (selectedElements.length === 0) { updateMixingStatus(); filteredConcepts = conceptsWithDistance.sort((a, b) => a.distance - b.distance).slice(0, 15); mixingStatusDiv.innerHTML = '<strong>Mixing:</strong> <i>None Selected - Showing Top Overall Matches</i>'; }
+    else if (selectedElements.length === 1) { const el1 = selectedElements[0]; updateMixingStatus(); filteredConcepts = conceptsWithDistance.filter(c => c.elementScores && c.elementScores[el1] >= scoreThreshold).sort((a, b) => { const scoreA = a.elementScores[el1]; const scoreB = b.elementScores[el1]; if (scoreB !== scoreA) return scoreB - scoreA; return a.distance - b.distance; }); }
+    else if (selectedElements.length === 2) { const el1 = selectedElements[0]; const el2 = selectedElements[1]; updateMixingStatus(); filteredConcepts = conceptsWithDistance.filter(c => c.elementScores && c.elementScores[el1] >= scoreThreshold && c.elementScores[el2] >= scoreThreshold).sort((a, b) => { const scoreA = (a.elementScores[el1] + a.elementScores[el2]) * (1 - userRelevanceWeight) + (30 - a.distance) * userRelevanceWeight; const scoreB = (b.elementScores[el1] + b.elementScores[el2]) * (1 - userRelevanceWeight) + (30 - b.distance) * userRelevanceWeight; return scoreB - scoreA; }); } // Adjusted max distance assumption
 
-    // Calculate overall distance for all concepts first
-    let conceptsWithDistance = concepts.map(c => ({
-        ...c,
-        distance: euclideanDistance(userScores, c.elementScores || {})
-    })).filter(c => c.distance !== Infinity);
-
-    if (selectedElements.length === 0) {
-        updateMixingStatus(); // Update status display
-        filteredConcepts = conceptsWithDistance.sort((a, b) => a.distance - b.distance).slice(0, 15); // Show top 15 overall
-    } else if (selectedElements.length === 1) {
-        const el1 = selectedElements[0];
-        updateMixingStatus();
-        filteredConcepts = conceptsWithDistance
-            .filter(c => c.elementScores && c.elementScores[el1] >= scoreThreshold)
-            .sort((a, b) => {
-                 // Sort primarily by score in selected element, secondarily by distance
-                 const scoreA = a.elementScores[el1];
-                 const scoreB = b.elementScores[el1];
-                 if (scoreB !== scoreA) return scoreB - scoreA; // Higher score first
-                 return a.distance - b.distance; // Then closer overall match
-            });
-    } else if (selectedElements.length === 2) {
-        const el1 = selectedElements[0];
-        const el2 = selectedElements[1];
-        updateMixingStatus();
-        filteredConcepts = conceptsWithDistance
-            .filter(c =>
-                c.elementScores &&
-                c.elementScores[el1] >= scoreThreshold &&
-                c.elementScores[el2] >= scoreThreshold
-            )
-            .sort((a, b) => {
-                 // Sort by combined score in selected elements + user relevance
-                 const scoreA = (a.elementScores[el1] + a.elementScores[el2]) * (1 - userRelevanceWeight) + (20 - a.distance) * userRelevanceWeight; // Combine element scores and inverse distance
-                 const scoreB = (b.elementScores[el1] + b.elementScores[el2]) * (1 - userRelevanceWeight) + (20 - b.distance) * userRelevanceWeight;
-                 return scoreB - scoreA; // Higher combined score first
-            });
-    }
-
-    // Display results
-    if (filteredConcepts.length === 0) {
-        resultsBenchDiv.innerHTML = '<p>No concepts strongly match this specific combination. Try different elements!</p>';
-    } else {
-        filteredConcepts.slice(0, 20).forEach(concept => { // Limit display
-            const potionCard = document.createElement('div');
-            potionCard.classList.add('potion-card');
-            potionCard.dataset.conceptId = concept.id;
-
-            // Resonance Indicator Logic
-            let resonanceClass = 'resonance-low';
-            let resonanceText = 'Low Match';
-            if (concept.distance < 10) { resonanceClass = 'resonance-high'; resonanceText = 'Good Match'; }
-            else if (concept.distance < 15) { resonanceClass = 'resonance-medium'; resonanceText = 'Okay Match'; }
-
-            potionCard.innerHTML = `
-                <span class="resonance-indicator ${resonanceClass}" title="Overall match to your profile">${resonanceText}</span>
-                <h4>${concept.name}</h4>
-                <p class="concept-type">(${concept.type})</p>
-            `;
-            potionCard.addEventListener('click', () => showConceptDetailPopup(concept.id));
-            resultsBenchDiv.appendChild(potionCard);
-        });
-    }
+    if (filteredConcepts.length === 0) { resultsBenchDiv.innerHTML = selectedElements.length > 0 ? '<p>No concepts strongly match this specific combination.</p>' : '<p>Select elements to begin discovering concepts.</p>'; }
+    else { filteredConcepts.slice(0, 24).forEach(concept => { const potionCard = document.createElement('div'); potionCard.classList.add('potion-card'); potionCard.dataset.conceptId = concept.id; let resonanceClass = 'resonance-low'; let resonanceText = 'Low'; if (concept.distance < 10) { resonanceClass = 'resonance-high'; resonanceText = 'High'; } else if (concept.distance < 16) { resonanceClass = 'resonance-medium'; resonanceText = 'Mid'; } potionCard.innerHTML = `<span class="resonance-indicator ${resonanceClass}" title="Overall match to your profile">${resonanceText}</span> <h4>${concept.name}</h4> <p class="concept-type">(${concept.type})</p> `; potionCard.addEventListener('click', () => showConceptDetailPopup(concept.id)); resultsBenchDiv.appendChild(potionCard); }); }
 }
 
-// --- Utility - Euclidean Distance ---
-function euclideanDistance(profile1, profile2) { /* ... Same as before ... */
-    let sum = 0; for (let i = 0; i < elementNames.length; i++) { const key = elementNames[i]; const score1 = profile1[key] ?? 5; const score2 = profile2[key] ?? 5; sum += Math.pow(score1 - score2, 2); } return Math.sqrt(sum);
-}
-
-// --- Concept Detail Pop-up (Recipe View with Comparison & Related) ---
+// --- Concept Detail Pop-up (Simplified Comparison) ---
 function showConceptDetailPopup(conceptId) {
     currentlyDisplayedConceptId = conceptId;
     const conceptData = concepts.find(c => c.id === conceptId);
@@ -240,138 +249,125 @@ function showConceptDetailPopup(conceptId) {
 
     popupConceptName.textContent = conceptData.name;
     popupConceptType.textContent = conceptData.type;
-    popupConceptProfile.innerHTML = '';
-    popupUserComparisonProfile.innerHTML = '';
+    popupComparisonHighlights.innerHTML = ''; // Clear previous highlights
+    popupConceptProfile.innerHTML = ''; // Clear previous full recipe
     popupRelatedConceptsList.innerHTML = ''; // Clear related list
 
-    // Display Concept's & User's Profiles with Comparison
+    // Resonance Summary
+    const distance = euclideanDistance(userScores, conceptData.elementScores);
+    let resonanceClass = 'resonance-low';
+    let resonanceText = 'Low Match';
+    if (distance < 10) { resonanceClass = 'resonance-high'; resonanceText = 'Good Match'; }
+    else if (distance < 16) { resonanceClass = 'resonance-medium'; resonanceText = 'Okay Match'; }
+    popupResonanceSummary.innerHTML = `Overall Match: <span class="resonance-indicator ${resonanceClass}">${resonanceText}</span>`;
+
+    // Key Alignments / Differences
+    let highlightsHTML = '';
+    const diffThreshold = 2.5; // How different scores need to be to be highlighted
+    const alignmentThreshold = 1.5; // How close scores need to be to be highlighted as aligned
+    let matches = [];
+    let mismatches = [];
+
     elementNames.forEach((element) => {
         const cScore = conceptData.elementScores[element];
         const uScore = userScores[element];
-        const diff = Math.abs(cScore - uScore);
-        let comparisonClass = '';
-        if (diff <= 1.5) comparisonClass = 'comparison-match'; // Good match
-        else if (diff >= 4) comparisonClass = 'comparison-mismatch'; // Mismatch
+        const diff = uScore - cScore;
 
-        // Concept Profile Side
-        const cBarWidth = (cScore / 10) * 100;
-        popupConceptProfile.innerHTML += `<div class="${comparisonClass}"><strong>${element}:</strong><span>${cScore.toFixed(1)}</span><div class="score-bar-container" style="height: 8px; max-width: 80px; display: inline-block; margin-left: 8px; vertical-align: middle;"><div style="width: ${cBarWidth}%; height: 100%; background-color: ${getElementColor(element)}; border-radius: 3px;"></div></div></div>`;
+        if (Math.abs(diff) <= alignmentThreshold) {
+            matches.push(element);
+        } else if (Math.abs(diff) >= diffThreshold) {
+            mismatches.push({ element: element, diff: diff });
+        }
 
-        // User Profile Side
-        const uBarWidth = (uScore / 10) * 100;
-         popupUserComparisonProfile.innerHTML += `<div class="${comparisonClass}"><strong>${element}:</strong><span>${uScore.toFixed(1)}</span><div class="score-bar-container" style="height: 8px; max-width: 80px; display: inline-block; margin-left: 8px; vertical-align: middle;"><div style="width: ${uBarWidth}%; height: 100%; background-color: ${getElementColor(element)}; border-radius: 3px;"></div></div></div>`;
+        // Populate full recipe inside details
+        const barWidth = (cScore / 10) * 100;
+        popupConceptProfile.innerHTML += `<div><strong>${element}:</strong><span>${cScore.toFixed(1)}</span><div class="score-bar-container" style="/* styles */"><div style="width: ${barWidth}%; height: 100%; background-color: ${getElementColor(element)}; border-radius: 3px;"></div></div></div>`;
     });
+
+    if (matches.length > 0) {
+        highlightsHTML += `<p><strong class="match">Strong Alignment In:</strong> ${matches.join(', ')}</p>`;
+    }
+    if (mismatches.length > 0) {
+         mismatches.sort((a, b) => Math.abs(b.diff) - Math.abs(a.diff)); // Sort by largest difference
+         highlightsHTML += `<p><strong class="mismatch">Key Difference In:</strong> ${mismatches[0].element} ${mismatches[0].diff > 0 ? '(Your score higher)' : '(Concept score higher)'}${mismatches.length > 1 ? ', ...' : ''}</p>`;
+    }
+     if (!highlightsHTML) {
+         highlightsHTML = "<p>Profile alignment is generally moderate across elements.</p>";
+     }
+    popupComparisonHighlights.innerHTML = highlightsHTML;
+
 
     // Display Related Concepts
     if (conceptData.relatedIds && conceptData.relatedIds.length > 0) {
-        conceptData.relatedIds.forEach(relId => {
-            const relatedConcept = concepts.find(c => c.id === relId);
-            if (relatedConcept) {
-                const li = document.createElement('li');
-                li.textContent = relatedConcept.name;
-                li.dataset.conceptId = relId;
-                li.addEventListener('click', handleRelatedConceptClick);
-                popupRelatedConceptsList.appendChild(li);
-            }
-        });
-    } else {
-        popupRelatedConceptsList.innerHTML = '<li>None specified</li>';
-    }
+        conceptData.relatedIds.forEach(relId => { /* ... Same as before ... */ const relatedConcept = concepts.find(c => c.id === relId); if (relatedConcept) { const li = document.createElement('li'); li.textContent = relatedConcept.name; li.dataset.conceptId = relId; li.addEventListener('click', handleRelatedConceptClick); popupRelatedConceptsList.appendChild(li); } });
+    } else { popupRelatedConceptsList.innerHTML = '<li>None specified</li>'; }
 
-    // Update Grimoire Button Status
     updateGrimoireButtonStatus(conceptId);
-
     popupOverlay.classList.remove('hidden');
     conceptDetailPopup.classList.remove('hidden');
-
-     // Attunement Tracking for viewing details
-     recordElementAttunementFromConcept(conceptData.elementScores);
+    recordElementAttunementFromConcept(conceptData.elementScores); // Track attunement
 }
 
-function hideConceptDetailPopup() { /* ... Same as before ... */
-    conceptDetailPopup.classList.add('hidden'); popupOverlay.classList.add('hidden'); currentlyDisplayedConceptId = null;
-}
-
-// --- NEW: Handle click on related concept in popup ---
-function handleRelatedConceptClick(event) {
-    const newConceptId = parseInt(event.target.dataset.conceptId);
-    if (newConceptId) {
-        hideConceptDetailPopup(); // Close current popup
-        // Need a slight delay to ensure it's hidden before showing new one
-        setTimeout(() => showConceptDetailPopup(newConceptId), 50);
-    }
-}
+function hideConceptDetailPopup() { /* ... */ conceptDetailPopup.classList.add('hidden'); popupOverlay.classList.add('hidden'); currentlyDisplayedConceptId = null; }
+function handleRelatedConceptClick(event) { /* ... */ const newConceptId = parseInt(event.target.dataset.conceptId); if (newConceptId) { hideConceptDetailPopup(); setTimeout(() => showConceptDetailPopup(newConceptId), 50); } }
 
 // --- Grimoire Functions ---
-function addToGrimoire() {
-    if (currentlyDisplayedConceptId !== null) {
-        discoveredConcepts.add(currentlyDisplayedConceptId);
-        console.log(`Added concept ${currentlyDisplayedConceptId} to Grimoire.`);
-        updateGrimoireCounter();
-        updateGrimoireButtonStatus(currentlyDisplayedConceptId); // Update button immediately
-        // Optionally provide user feedback: alert('Added to Grimoire!');
-    }
-}
+function addToGrimoire() { /* ... */ if (currentlyDisplayedConceptId !== null) { discoveredConcepts.add(currentlyDisplayedConceptId); console.log(`Added ${currentlyDisplayedConceptId}`); updateGrimoireCounter(); updateGrimoireButtonStatus(currentlyDisplayedConceptId); } }
+function updateGrimoireCounter() { /* ... */ grimoireCountSpan.textContent = discoveredConcepts.size; }
+function displayGrimoire(filterElement = "All") { // Add filter parameter
+    grimoireContentDiv.innerHTML = '';
+    if (discoveredConcepts.size === 0) { grimoireContentDiv.innerHTML = '<p>You haven\'t discovered any concepts yet. Explore the lab!</p>'; return; }
 
-function updateGrimoireCounter() {
-    grimoireCountSpan.textContent = discoveredConcepts.size;
-}
+    const grouped = {}; elementNames.forEach(el => grouped[el] = []); let discoveredArray = [];
 
-function displayGrimoire() {
-    grimoireContentDiv.innerHTML = ''; // Clear previous
-    if (discoveredConcepts.size === 0) {
-        grimoireContentDiv.innerHTML = '<p>You haven\'t discovered any concepts yet. Explore the lab!</p>';
-    } else {
-        // Group by primary element for structure
-        const grouped = {};
-        elementNames.forEach(el => grouped[el] = []);
+    discoveredConcepts.forEach(id => { const concept = concepts.find(c => c.id === id); if (concept) discoveredArray.push(concept); });
 
-        discoveredConcepts.forEach(id => {
-            const concept = concepts.find(c => c.id === id);
-            if (concept) {
-                const primaryEl = elementKeyToName[concept.primaryElement] || "Other";
-                 if (!grouped[primaryEl]) grouped[primaryEl] = [];
-                grouped[primaryEl].push(concept);
-            }
-        });
+    // Apply filter
+    const conceptsToDisplay = (filterElement === "All")
+        ? discoveredArray
+        : discoveredArray.filter(c => elementKeyToName[c.primaryElement] === filterElement);
 
-         for (const element in grouped) {
-             if (grouped[element].length > 0) {
-                 let sectionHTML = `<div class="grimoire-section"><h3>${element} Concepts</h3>`;
-                 grouped[element].sort((a,b) => a.name.localeCompare(b.name)).forEach(concept => {
-                    sectionHTML += `<div class="grimoire-entry"><strong>${concept.name}</strong> <span>(${concept.type})</span></div>`;
-                 });
-                 sectionHTML += `</div>`;
-                 grimoireContentDiv.innerHTML += sectionHTML;
-             }
-        }
-    }
-    showScreen('grimoireScreen');
-}
-
-function updateGrimoireButtonStatus(conceptId) {
-     if (discoveredConcepts.has(conceptId)) {
-         addToGrimoireButton.textContent = "In Grimoire";
-         addToGrimoireButton.disabled = true;
-         addToGrimoireButton.classList.add('added');
-     } else {
-         addToGrimoireButton.textContent = "Add to Grimoire";
-         addToGrimoireButton.disabled = false;
-         addToGrimoireButton.classList.remove('added');
+     if (conceptsToDisplay.length === 0) {
+         grimoireContentDiv.innerHTML = `<p>No discovered concepts match the filter "${filterElement}".</p>`;
+         return;
      }
+
+    // Group remaining concepts
+    conceptsToDisplay.forEach(concept => {
+        const primaryEl = elementKeyToName[concept.primaryElement] || "Other";
+        if (!grouped[primaryEl]) grouped[primaryEl] = [];
+        grouped[primaryEl].push(concept);
+    });
+
+    // Display grouped concepts
+    elementNames.forEach(element => { // Ensure consistent order
+         if (grouped[element] && grouped[element].length > 0) {
+             let sectionHTML = `<div class="grimoire-section"><h3>${element} Concepts</h3>`;
+             grouped[element].sort((a,b) => a.name.localeCompare(b.name)).forEach(concept => {
+                sectionHTML += `<div class="grimoire-entry"><strong>${concept.name}</strong> <span>(${concept.type})</span></div>`;
+             });
+             sectionHTML += `</div>`;
+             grimoireContentDiv.innerHTML += sectionHTML;
+         }
+    });
+
+    showScreen('grimoireScreen'); // Ensure correct screen is shown
+}
+function updateGrimoireButtonStatus(conceptId) { /* ... */ if (discoveredConcepts.has(conceptId)) { addToGrimoireButton.textContent = "In Grimoire"; addToGrimoireButton.disabled = true; addToGrimoireButton.classList.add('added'); } else { addToGrimoireButton.textContent = "Add to Grimoire"; addToGrimoireButton.disabled = false; addToGrimoireButton.classList.remove('added'); } }
+function populateGrimoireFilter() {
+    grimoireElementFilter.innerHTML = '<option value="All">All Elements</option>'; // Reset
+    elementNames.forEach(el => {
+        const option = document.createElement('option');
+        option.value = el;
+        option.textContent = el;
+        grimoireElementFilter.appendChild(option);
+    });
 }
 
-// --- Element Attunement Tracking (Basic) ---
-function recordElementAttunementFromConcept(elementScores) {
-     // Increase attunement slightly for elements the viewed concept is strong in
-     elementNames.forEach(el => {
-         if (elementScores[el] >= 7) { // If score is 7 or higher
-             elementAttunement[el] += 0.5; // Increase less than direct interaction
-             console.log(`Attunement ++ for ${el} via concept view: ${elementAttunement[el].toFixed(1)}`);
-         }
-     });
- }
-
+// --- Element Attunement ---
+function recordElementAttunementFromConcept(elementScores) { /* ... Same as before ... */
+    elementNames.forEach(el => { if (elementScores[el] >= 7) { elementAttunement[el] += 0.5; console.log(`Attunement ++ for ${el} via concept: ${elementAttunement[el].toFixed(1)}`); } });
+}
 
 // --- Utility functions ---
 function hexToRgb(hex) { /* ... */ if (!hex || typeof hex !== 'string') return '128,128,128'; hex = hex.replace('#', ''); if (hex.length === 3) hex = hex[0]+hex[0]+hex[1]+hex[1]+hex[2]+hex[2]; const bigint = parseInt(hex, 16); if (isNaN(bigint)) return '128,128,128'; const r = (bigint >> 16) & 255; const g = (bigint >> 8) & 255; const b = bigint & 255; return `${r},${g},${b}`; }
@@ -379,21 +375,26 @@ function darkenColor(hex, amount = 30) { /* ... */ if (!hex || typeof hex !== 's
 
 // --- Reset App ---
 function resetApp() { /* ... includes Grimoire/Attunement reset */
-     currentElementIndex = 0; userScores = { Attraction: 5, Interaction: 5, Sensory: 5, Psychological: 5, Cognitive: 5, Relational: 5 }; userAnswers = {}; selectedElements = []; currentlyDisplayedConceptId = null; discoveredConcepts = new Set(); elementAttunement = { Attraction: 0, Interaction: 0, Sensory: 0, Psychological: 0, Cognitive: 0, Relational: 0 }; hideConceptDetailPopup(); showScreen('welcomeScreen');
+     currentElementIndex = 0; userScores = { Attraction: 5, Interaction: 5, Sensory: 5, Psychological: 5, Cognitive: 5, Relational: 5 }; userAnswers = {}; selectedElements = []; currentlyDisplayedConceptId = null; discoveredConcepts = new Set(); elementAttunement = { Attraction: 0, Interaction: 0, Sensory: 0, Psychological: 0, Cognitive: 0, Relational: 0 }; hideConceptDetailPopup(); showScreen('welcomeScreen'); mainNavBar.classList.add('hidden'); // Hide nav bar on reset
 }
 
 // --- Event Listeners ---
 startButton.addEventListener('click', initializeQuestionnaire);
 nextElementButton.addEventListener('click', nextElement);
 prevElementButton.addEventListener('click', prevElement);
-restartButton.addEventListener('click', resetApp);
+// Add Nav Button Listeners
+navButtons.forEach(button => {
+    button.addEventListener('click', () => showScreen(button.dataset.target));
+});
+restartButtonLab.addEventListener('click', resetApp); // Listener for Lab restart
+restartButtonPersona.addEventListener('click', resetApp); // Listener for Persona restart
 closePopupButton.addEventListener('click', hideConceptDetailPopup);
 popupOverlay.addEventListener('click', hideConceptDetailPopup);
 clearSelectionButton.addEventListener('click', clearElementSelection);
 addToGrimoireButton.addEventListener('click', addToGrimoire);
-viewGrimoireButton.addEventListener('click', displayGrimoire);
-closeGrimoireButton.addEventListener('click', () => showScreen('labScreen')); // Go back to lab
-// Removed listeners for map clicks, find similar, what if, refine, quests
+// Removed Grimoire button listener (now uses Nav)
+// closeGrimoireButton removed
+grimoireElementFilter.addEventListener('change', (e) => displayGrimoire(e.target.value)); // Add filter listener
 
 // --- Initial Setup ---
 showScreen('welcomeScreen');
