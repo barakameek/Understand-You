@@ -90,17 +90,22 @@
         </div>
 
          <!-- === Grimoire Screen (No Structure Change) === -->
-         <div id="grimoireScreen" class="screen hidden grimoire-screen">
-              <h1>The Grand Grimoire</h1>
-              <div id="grimoireControls">
-                  <label>Filter:</label>
-                  <select id="grimoireElementFilter"><option value="All">All</option></select>
-                  <label>Sort:</label>
-                  <select id="grimoireSortOrder"><option value="name">Name</option><option value="type">Type</option></select>
-              </div>
-              <div id="grimoireContent" class="grimoire-content"></div>
-         </div>
+       <div id="grimoireScreen" class="screen hidden grimoire-screen">
+             <h1>The Grand Grimoire</h1>
+             <div id="grimoireControls">
+                 {/* *** ADDED 'for' attributes *** */}
+                 <label for="grimoireElementFilter">Filter by Element:</label>
+                 <select id="grimoireElementFilter"><option value="All">All</option></select>
 
+                 <label for="grimoireSortOrder">Sort by:</label>
+                 <select id="grimoireSortOrder">
+                    <option value="discovered">Date Added (Default)</option> {/* Moved default */}
+                    <option value="name">Name</option>
+                    <option value="type">Type</option>
+                 </select>
+             </div>
+             <div id="grimoireContent" class="grimoire-content"></div>
+         </div>
 
         <!-- === Concept Detail Pop-up (No Structure Change) === -->
         <div id="conceptDetailPopup" class="popup hidden lab-popup">
