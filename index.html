@@ -3,16 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Persona Alchemy Lab</title>
+    <title>Persona Alchemy Lab - Enhanced</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="app-container lab-theme"> {/* Added theme class */}
+    <div class="app-container lab-theme">
 
         <!-- === Welcome Screen === -->
         <div id="welcomeScreen" class="screen current">
             <h1>Welcome to the Persona Alchemy Lab!</h1>
-            <p>Discover your sexual persona by exploring the 6 core Elements.</p>
+            <p>Distill your core sexual elements and discover potent conceptual concoctions.</p>
             <button id="startGuidedButton" class="button">Begin Experimentation</button>
         </div>
 
@@ -37,11 +37,16 @@
 
         <!-- === Main Lab Screen === -->
         <div id="labScreen" class="screen hidden">
+            <!-- Top Bar for Grimoire Access -->
+            <div class="lab-top-bar">
+                 <button id="viewGrimoireButton" class="button small-button grimoire-button">View Grimoire (<span id="grimoireCount">0</span>)</button>
+            </div>
+
             <div class="lab-layout-container">
                 <!-- Left Panel: Ingredient Shelf (Elements) -->
                 <div class="ingredient-shelf">
                     <h2>Your Elements</h2>
-                    <p>Select 1 or 2 elements to combine:</p>
+                    <p>Select 1 or 2 primary elements:</p>
                     <div id="elementVials">
                         <!-- Element Vials Loaded Here -->
                     </div>
@@ -51,8 +56,10 @@
 
                 <!-- Right Panel: Experiment Results -->
                 <div class="results-bench">
+                    <div id="mixingStatus" class="mixing-status">
+                         <!-- Status Text Loaded Here -->
+                    </div>
                     <h2>Experiment Results</h2>
-                    <p id="resultsInstruction">Select elements on the left to see resulting concepts.</p>
                     <div id="conceptResults" class="concept-results-grid">
                         <!-- Concept "Potions" Loaded Here -->
                     </div>
@@ -60,17 +67,39 @@
             </div>
         </div>
 
+         <!-- === Grimoire Screen === -->
+         <div id="grimoireScreen" class="screen hidden grimoire-screen">
+             <button id="closeGrimoireButton" class="button back-button grimoire-close-button">Back to Lab</button>
+             <h1>The Grand Grimoire</h1>
+             <p>Your discovered conceptual concoctions.</p>
+             <div id="grimoireContent" class="grimoire-content">
+                 <!-- Discovered concepts listed here -->
+             </div>
+         </div>
+
+
         <!-- === Concept Detail Pop-up (Recipe View) === -->
         <div id="conceptDetailPopup" class="popup hidden lab-popup">
              <button id="closePopupButton" class="close-button">×</button>
              <h3 id="popupConceptName">Concept Name</h3>
              <p id="popupConceptType">Concept Type</p>
-             <div class="recipe-view">
-                 <h4>Elemental Recipe</h4>
-                 <div id="popupConceptProfile">
-                     <!-- Concept's Element Scores (Recipe) Loaded Here -->
+             <hr class="popup-hr">
+             <div class="profile-comparison">
+                 <div class="profile-column">
+                     <h4>Elemental Composition</h4>
+                     <div id="popupConceptProfile"></div>
+                 </div>
+                 <div class="profile-column">
+                     <h4>Your Resonance</h4>
+                     <div id="popupUserComparisonProfile"></div>
                  </div>
              </div>
+             <hr class="popup-hr">
+             <div id="popupRelatedConcepts" class="related-concepts">
+                 <h4>Related Concoctions:</h4>
+                 <ul id="relatedConceptsList"></ul>
+             </div>
+              <button id="addToGrimoireButton" class="button small-button add-grimoire-button">Add to Grimoire</button>
         </div>
          <div id="popupOverlay" class="overlay hidden"></div>
 
