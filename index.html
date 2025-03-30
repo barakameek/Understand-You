@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Persona Map MVP</title>
+    <title>Persona Map MVP - Element Focus</title>
     <link rel="stylesheet" href="style.css">
     <!-- Vis.js Network CSS -->
     <link href="https://unpkg.com/vis-network/styles/vis-network.min.css" rel="stylesheet" type="text/css" />
@@ -11,51 +11,64 @@
 <body>
     <div class="app-container">
 
-        <!-- === Welcome Screen === -->
+        <!-- === Welcome Screen (No Change) === -->
         <div id="welcomeScreen" class="screen current">
             <h1>Welcome to Persona Map</h1>
             <p>Explore your unique sexual persona through a short questionnaire.</p>
-            <p>(This is a simplified MVP concept demonstration)</p>
+            <p>(Element-Focused Exploration Demo)</p>
             <button id="startButton" class="button">Start Questionnaire</button>
         </div>
 
-        <!-- === Questionnaire Screen === -->
+        <!-- === Questionnaire Screen (No Change) === -->
         <div id="questionnaireScreen" class="screen hidden">
-            <header>
-                <p id="progressText">Question 1 / X</p>
-            </header>
-            <main id="questionContent">
-                <!-- Question will be loaded here by JS -->
-            </main>
-            <footer>
-                <button id="nextQButton" class="button next-button">Next</button>
-            </footer>
+             <header>
+                 <p id="progressText">Question 1 / X</p>
+             </header>
+             <main id="questionContent">
+                 <!-- Question will be loaded here by JS -->
+             </main>
+             <footer>
+                 <button id="nextQButton" class="button next-button">Next</button>
+             </footer>
         </div>
 
-        <!-- === Profile Results Screen === -->
-        <div id="profileScreen" class="screen hidden">
-            <h1>Your Persona Profile</h1>
-            <p>Based on your answers, here's a snapshot of your element scores (0-10):</p>
-            <div id="profileScores">
-                <!-- Scores will be loaded here -->
+        <!-- === Profile & Map Screen (COMBINED for Simplicity) === -->
+        <div id="profileAndMapScreen" class="screen hidden">
+            <div class="profile-map-container">
+                <!-- Profile Display Area -->
+                <div class="profile-display">
+                    <h2>Your Persona Profile</h2>
+                    <p>Click element names to highlight related concepts:</p>
+                    <div id="profileScores">
+                        <!-- Scores & Clickable Elements Loaded Here -->
+                    </div>
+                    <button id="restartButton" class="button back-button small-button">Start Over</button>
+                </div>
+
+                <!-- Map Display Area -->
+                <div class="map-display">
+                    <h2>Your Persona Constellation</h2>
+                    <p>Click concept nodes to see their profile. Zoom/Pan enabled.</p>
+                    <div id="network"></div>
+                </div>
             </div>
-            <button id="showMapButton" class="button">Explore Your Constellation</button>
-        </div>
-
-        <!-- === Map Results Screen === -->
-        <div id="mapScreen" class="screen hidden">
-            <h1>Your Persona Constellation</h1>
-            <p>Concepts closer to "You" are more aligned. Click nodes to explore related concepts. Pinch/scroll to zoom, drag to pan.</p>
-            <!-- Network Container -->
-            <div id="network"></div>
-             <button id="restartButton" class="button back-button">Start Over</button>
+            <!-- Concept Detail Pop-up Area (Initially Hidden) -->
+            <div id="conceptDetailPopup" class="popup hidden">
+                <button id="closePopupButton" class="close-button">×</button>
+                <h3 id="popupConceptName">Concept Name</h3>
+                <p id="popupConceptType">Concept Type</p>
+                <div id="popupConceptProfile">
+                    <!-- Concept's Element Scores Loaded Here -->
+                </div>
+            </div>
+             <div id="popupOverlay" class="overlay hidden"></div>
         </div>
 
     </div>
 
     <!-- Vis.js Network JS -->
     <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
-    <!-- Data File (Concepts & Questionnaire) -->
+    <!-- Data File -->
     <script src="data.js"></script>
     <!-- Main Application Logic -->
     <script src="script.js"></script>
