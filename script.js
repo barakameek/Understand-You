@@ -1,3 +1,6 @@
+// script.js - FINAL COMPLETE VERSION v5 (Removed duplicate elementKeyToFullName declaration)
+
+// --- Global State ---
 let currentElementIndex = 0;
 let userScores = { A: 5, I: 5, S: 5, P: 5, C: 5, R: 5 }; // Use single letter keys
 let userAnswers = {}; // Stores answers keyed by FULL element names during questionnaire
@@ -135,11 +138,11 @@ function getElementIcon(elementName) { // Expects full name
 
 // --- Utility Maps ---
 const elementNameToKey = { "Attraction": "A", "Interaction": "I", "Sensory": "S", "Psychological": "P", "Cognitive": "C", "Relational": "R" };
-// *** FIX: Re-add elementKeyToFullName map ***
-const elementKeyToFullName = { A: "Attraction", I: "Interaction", S: "Sensory", P: "Psychological", C: "Cognitive", R: "Relational" };
+// *** FIX: REMOVED the duplicate declaration of elementKeyToFullName. It's defined in data.js ***
+// const elementKeyToFullName = { A: "Attraction", I: "Interaction", S: "Sensory", P: "Psychological", C: "Cognitive", R: "Relational" }; // <-- THIS LINE IS REMOVED
 
 
-// *** Corrected euclideanDistance function (Keep as is) ***
+// *** Corrected euclideanDistance function (Keep as is from previous version) ***
 function euclideanDistance(userScoresObj, conceptScoresObj) {
     let sumOfSquares = 0; let validDimensions = 0; let issueFound = false;
     if (!userScoresObj || typeof userScoresObj !== 'object') { console.error("Invalid user scores:", userScoresObj); return Infinity; }
@@ -170,7 +173,7 @@ function euclideanDistance(userScoresObj, conceptScoresObj) {
 }
 
 
-// --- Screen Management ---
+// --- Screen Management --- (Keep as is)
 function showScreen(screenId) {
     console.log("Showing screen:", screenId);
     let targetIsMain = ['personaScreen', 'studyScreen', 'grimoireScreen'].includes(screenId);
@@ -188,7 +191,7 @@ function hidePopups() {
     currentlyDisplayedConceptId = null; currentReflectionElement = null; currentPromptId = null;
 }
 
-// --- Initialization and Questionnaire Logic ---
+// --- Initialization and Questionnaire Logic --- (Keep as is)
 function initializeQuestionnaire() {
     currentElementIndex = 0; userScores = { A: 5, I: 5, S: 5, P: 5, C: 5, R: 5 }; userAnswers = {}; elementNames.forEach(elName => { userAnswers[elName] = {}; });
     discoveredConcepts = new Map(); coreConcepts = new Set(); elementEssence = { A: 0, I: 0, S: 0, P: 0, C: 0, R: 0 }; elementAttunement = { A: 0, I: 0, S: 0, P: 0, C: 0, R: 0 };
@@ -204,8 +207,6 @@ function initializeQuestionnaire() {
     if(elementEssenceDisplayStudy) elementEssenceDisplayStudy.innerHTML = ''; // Will be populated later
     updateGrimoireCounter(); // Should show 0
 }
-
-// --- Questionnaire Display/Logic Functions (Keep as is) ---
 function updateElementProgressHeader(activeIndex) { /* ... no changes needed ... */
     if (!elementProgressHeader) return; elementProgressHeader.innerHTML = '';
     elementNames.forEach((name, index) => { const tab = document.createElement('div'); tab.classList.add('element-tab'); const elementData = elementDetails[name] || {}; tab.textContent = (elementData.name || name).substring(0, 3).toUpperCase(); tab.title = elementData.name || name; tab.classList.toggle('completed', index < activeIndex); tab.classList.toggle('active', index === activeIndex); elementProgressHeader.appendChild(tab); });
@@ -258,9 +259,7 @@ function nextElement() { /* ... no changes needed ... */
 function prevElement() { /* ... no changes needed ... */
      collectCurrentElementAnswers(); currentElementIndex--; displayElementQuestions(currentElementIndex);
 }
-
-
-function finalizeScoresAndShowPersona() {
+function finalizeScoresAndShowPersona() { /* ... (Keep as is from previous version) ... */
      console.log("Finalizing scores..."); const finalScores = {}; elementNames.forEach(elementName => { const score = calculateElementScore(elementName, userAnswers[elementName] || {}); const key = elementNameToKey[elementName]; if (key) { finalScores[key] = score; } }); userScores = finalScores; console.log("Final User Scores:", userScores);
 
      // Run starter hand selection
@@ -285,11 +284,14 @@ function finalizeScoresAndShowPersona() {
      setTimeout(() => { alert("Experiment Complete! Explore your Persona Tapestry, Grimoire, and The Study."); }, 100);
 }
 
-// --- Starter Hand & Initial Essence ---
+// --- Starter Hand & Initial Essence --- (Keep as is from previous version)
 function determineStarterHandAndEssence() {
     console.log("[determineStarterHand] Function called.");
      // Verify concepts availability
     console.log("[determineStarterHand] Checking 'concepts' variable type:", typeof concepts, "Is Array:", Array.isArray(concepts), "Length:", concepts?.length);
+     // Verify elementKeyToFullName availability (since it's from data.js now)
+    console.log("[determineStarterHand] Checking 'elementKeyToFullName' variable type:", typeof elementKeyToFullName);
+
 
     try {
         // Reset state (already done in initialize, but safe to repeat)
@@ -300,6 +302,11 @@ function determineStarterHandAndEssence() {
         if (!concepts || !Array.isArray(concepts) || concepts.length === 0) {
              console.error("[determineStarterHand] 'concepts' array is missing or empty!");
              return; // Cannot proceed
+        }
+        // Add check for elementKeyToFullName needed by other functions called within/after this
+        if (typeof elementKeyToFullName === 'undefined' || elementKeyToFullName === null) {
+             console.error("[determineStarterHand] 'elementKeyToFullName' map is missing! Check data.js.");
+             // Depending on usage, might need to return here or handle defaults
         }
 
         let conceptsWithDistance = [];
@@ -421,7 +428,7 @@ function determineStarterHandAndEssence() {
 }
 
 
-// --- Attunement ---
+// --- Attunement --- (Keep as is)
 function gainAttunementForAction(actionType, elementKey = null, amount = 0.5) {
     let targetKeys = [];
     const gainAmount = amount; // Use fixed amount passed
@@ -455,11 +462,16 @@ function gainAttunementForAction(actionType, elementKey = null, amount = 0.5) {
     });
 
     if (changed) {
-        console.log(`Attunement updated (${actionType}, Key: ${elementKey || 'Multi/None'}):`, elementAttunement);
+        // Check if elementKeyToFullName is available before using it in log
+        const displayKey = elementKey || 'Multi/None';
+        let logMessage = `Attunement updated (${actionType}, Key: ${displayKey})`;
+        if (elementKeyToFullName && elementKeyToFullName[elementKey]) {
+             logMessage += ` - ${elementKeyToFullName[elementKey]}`;
+        }
+        console.log(logMessage + '):', elementAttunement);
         displayElementAttunement(); // Update UI if changed
     }
 }
-
 function displayElementAttunement() { /* ... no changes needed ... */
     if (!elementAttunementDisplay) return; elementAttunementDisplay.innerHTML = '';
     elementNames.forEach(elName => {
@@ -468,7 +480,7 @@ function displayElementAttunement() { /* ... no changes needed ... */
     });
 }
 
-// --- Persona Screen Functions ---
+// --- Persona Screen Functions --- (Keep as is)
 function displayPersonaScreen() { /* ... no changes needed ... */
     if (!personaElementDetailsDiv) { console.error("Persona details div not found!"); return; } personaElementDetailsDiv.innerHTML = '';
     elementNames.forEach(elementName => {
@@ -492,10 +504,12 @@ function displayCoreConceptsPersona() { /* ... no changes needed ... */
     if (coreConcepts.size === 0) { personaCoreConceptsDisplay.innerHTML = '<li>Mark concepts as "Core" from the Grimoire or detail view to build your tapestry.</li>'; return; }
     coreConcepts.forEach(conceptId => { const conceptData = discoveredConcepts.get(conceptId); if (conceptData?.concept) { const concept = conceptData.concept; const item = document.createElement('div'); item.classList.add('core-concept-item'); item.dataset.conceptId = concept.id; item.title = `View ${concept.name}`; item.innerHTML = `<i class="${getCardTypeIcon(concept.cardType)}"></i><span class="name">${concept.name}</span><span class="type">(${concept.cardType})</span>`; item.addEventListener('click', () => showConceptDetailPopup(concept.id)); personaCoreConceptsDisplay.appendChild(item); } else { console.warn(`Core concept ID ${conceptId} not found in discoveredConcepts.`); } });
 }
-// *** FIX: Use elementKeyToFullName map ***
-function synthesizeAndDisplayThemesPersona() {
+function synthesizeAndDisplayThemesPersona() { /* Uses elementKeyToFullName */
      if (!personaThemesList) return; personaThemesList.innerHTML = '';
      if (coreConcepts.size === 0) { personaThemesList.innerHTML = '<li>Mark Core Concepts for themes.</li>'; return; }
+     // Add check for map availability
+     if (typeof elementKeyToFullName === 'undefined') { console.error("synthesizeThemes: elementKeyToFullName map not found!"); return; }
+
      const elementCountsByKey = { A: 0, I: 0, S: 0, P: 0, C: 0, R: 0 }; const threshold = 7.0;
      coreConcepts.forEach(id => {
          const discoveredData = discoveredConcepts.get(id); // Get from discovered map
@@ -519,8 +533,7 @@ function synthesizeAndDisplayThemesPersona() {
      sortedThemes.slice(0, 3).forEach(theme => { const li = document.createElement('li'); li.textContent = `${theme.name} Focus (${theme.count} Core concepts)`; personaThemesList.appendChild(li); });
 }
 
-
-// --- Study Screen Functions ---
+// --- Study Screen Functions --- (Keep as is)
 function displayElementEssenceStudy() { /* ... no changes needed ... */
      if (!elementEssenceDisplayStudy) return; elementEssenceDisplayStudy.innerHTML = '';
      elementNames.forEach(elName => {
@@ -531,15 +544,20 @@ function displayElementEssenceStudy() { /* ... no changes needed ... */
          if (canAfford) { counter.addEventListener('click', handleResearchClick); } elementEssenceDisplayStudy.appendChild(counter);
      });
 }
-function handleResearchClick(event) { /* ... no changes needed ... */
+function handleResearchClick(event) { /* ... uses elementKeyToFullName for alert ... */
     const elementKey = event.currentTarget.dataset.elementKey; // Get KEY
     if (!elementKey || event.currentTarget.classList.contains('disabled')) return;
+     // Add check for map availability
+     if (typeof elementKeyToFullName === 'undefined') { console.error("handleResearchClick: elementKeyToFullName map not found!"); return; }
+
     const currentEssence = parseFloat(elementEssence[elementKey] || 0);
     if (currentEssence >= RESEARCH_COST) { elementEssence[elementKey] = currentEssence - RESEARCH_COST; console.log(`Spent ${RESEARCH_COST} ${elementKey} Essence.`); displayElementEssenceStudy(); conductResearch(elementKey); updateMilestoneProgress('conductResearch', 1); }
     else { alert(`Not enough ${elementDetails[elementKeyToFullName[elementKey]]?.name || elementKey} Essence! Need ${RESEARCH_COST}.`); } // Improved alert
 }
-// *** FIX: Use elementKeyToFullName map ***
-function conductResearch(elementKeyToResearch) { // Expects KEY
+function conductResearch(elementKeyToResearch) { /* ... Uses elementKeyToFullName ... */
+     // Add check for map availability
+     if (typeof elementKeyToFullName === 'undefined') { console.error("conductResearch: elementKeyToFullName map not found!"); return; }
+
     const elementFullName = elementKeyToFullName[elementKeyToResearch]; // Use map
     if (!elementFullName) { console.error("Invalid key for research:", elementKeyToResearch); return; }
     console.log(`Researching: ${elementFullName} (Key: ${elementKeyToResearch})`); if (researchStatus) researchStatus.textContent = `Researching ${elementDetails[elementFullName]?.name || elementFullName}...`; if (researchModalContent) researchModalContent.innerHTML = '';
@@ -629,7 +647,7 @@ function conductResearch(elementKeyToResearch) { // Expects KEY
 }
 
 
-// --- Grimoire Functions ---
+// --- Grimoire Functions --- (Keep as is)
 function displayGrimoire(filterType = "All", filterElement = "All", sortBy = "discovered", filterRarity = "All") {
      if (!grimoireContentDiv) return; grimoireContentDiv.innerHTML = '';
      if (discoveredConcepts.size === 0) { grimoireContentDiv.innerHTML = '<p style="text-align: center; color: #666;">Your Grimoire is empty. Discover concepts through Research in The Study.</p>'; /* Removed showScreen call here */ return; } // Don't switch screen here
@@ -656,7 +674,6 @@ function displayGrimoire(filterType = "All", filterElement = "All", sortBy = "di
      else { conceptsToDisplay.forEach(data => { const cardElement = renderCard(data.concept, 'grimoire'); grimoireContentDiv.appendChild(cardElement); }); }
      // Removed showScreen call from here, it's handled by the nav button listener
 }
-
 function populateGrimoireFilters() { /* ... no changes needed ... */
     if (grimoireTypeFilter) { grimoireTypeFilter.innerHTML = '<option value="All">All Types</option>'; cardTypeKeys.forEach(type => { const option = document.createElement('option'); option.value = type; option.textContent = type; grimoireTypeFilter.appendChild(option); }); }
     if (grimoireElementFilter) { grimoireElementFilter.innerHTML = '<option value="All">All Elements</option>'; elementNames.forEach(fullName => { const name = elementDetails[fullName]?.name || fullName; const option = document.createElement('option'); option.value = name; /* Use Full Name for filter value */ option.textContent = name; grimoireElementFilter.appendChild(option); }); }
@@ -665,10 +682,11 @@ function populateGrimoireFilters() { /* ... no changes needed ... */
 function updateGrimoireCounter() { if (grimoireCountSpan) grimoireCountSpan.textContent = discoveredConcepts.size; }
 
 
-// --- Card Rendering Function ---
-// *** FIX: Use elementKeyToFullName map ***
+// --- Card Rendering Function --- (Uses elementKeyToFullName)
 function renderCard(concept, context = 'grimoire') {
     if (!concept || !concept.id) { console.warn("renderCard called with invalid concept:", concept); return document.createElement('div'); } // Basic validation
+     // Add check for map availability
+     if (typeof elementKeyToFullName === 'undefined') { console.error("renderCard: elementKeyToFullName map not found!"); /* Render basic card? */ }
 
     const cardDiv = document.createElement('div'); cardDiv.classList.add('concept-card'); cardDiv.classList.add(`rarity-${concept.rarity || 'common'}`); cardDiv.dataset.conceptId = concept.id; cardDiv.title = `View ${concept.name}`;
 
@@ -685,7 +703,7 @@ function renderCard(concept, context = 'grimoire') {
 
     // Affinities
     let affinitiesHTML = '';
-    if (concept.elementScores) {
+    if (concept.elementScores && typeof elementKeyToFullName !== 'undefined') { // Check map exists
         Object.entries(concept.elementScores).forEach(([key, score]) => {
              const level = getAffinityLevel(score); // Returns "High", "Moderate", or null
              if (level && elementKeyToFullName[key]) { // Check if key is valid
@@ -734,7 +752,7 @@ function renderCard(concept, context = 'grimoire') {
 }
 
 
-// --- Concept Detail Pop-up Logic ---
+// --- Concept Detail Pop-up Logic --- (Keep as is)
 function showConceptDetailPopup(conceptId) {
      const conceptData = concepts.find(c => c.id === conceptId);
      const discoveredData = discoveredConcepts.get(conceptId); // Check if discovered
@@ -753,20 +771,26 @@ function showConceptDetailPopup(conceptId) {
      const artUnlocked = discoveredData?.artUnlocked || false;
      const currentVisualHandle = artUnlocked ? (conceptData.visualHandleUnlocked || conceptData.visualHandle) : conceptData.visualHandle;
      if (popupCardVisual) {
-         popupCardVisual.className = `fa-solid ${artUnlocked ? 'fa-star card-art-unlocked' : 'fa-image card-visual-placeholder'}`; // Use FontAwesome icons or clear for image
-         popupCardVisual.title = currentVisualHandle || "Visual representation";
-          // Clear previous image if any
-         const existingImg = popupCardVisual.parentNode.querySelector('.card-art-image');
-         if (existingImg) existingImg.remove();
+          const visualParent = popupCardVisual.parentNode; // Get parent div
+          // Clear previous content (both icon and image)
+          visualParent.innerHTML = ''; // Clear parent content
+
          // Add image if art is unlocked and handle exists
          if (artUnlocked && conceptData.visualHandleUnlocked) {
-            popupCardVisual.className = ''; // Remove icon classes
             const img = document.createElement('img');
             img.src = `placeholder_art/${conceptData.visualHandleUnlocked}.png`; // Use placeholder path
             img.alt = `${conceptData.name} Art`;
             img.classList.add('card-art-image'); // Add class for styling
-             popupCardVisual.parentNode.insertBefore(img, popupCardVisual); // Add image before placeholder
+            visualParent.appendChild(img); // Add image to parent
+         } else {
+             // Add placeholder icon if no unlocked art
+             const icon = document.createElement('i');
+             icon.className = `fas fa-${artUnlocked ? 'star' : 'question'} card-visual-placeholder ${artUnlocked ? 'card-art-unlocked' : ''}`;
+             icon.title = currentVisualHandle || "Visual representation";
+             visualParent.appendChild(icon); // Add icon to parent
          }
+          // Re-assign the popupCardVisual reference if needed, though modifying parent is often easier
+          // popupCardVisual = visualParent.firstChild; // If needed elsewhere
      }
 
 
@@ -791,7 +815,6 @@ function showConceptDetailPopup(conceptId) {
      if (conceptDetailPopup) conceptDetailPopup.classList.remove('hidden');
      if (popupOverlay) popupOverlay.classList.remove('hidden');
  }
-
 function displayPopupResonance(distance) { /* ... no changes needed ... */
     if (!popupResonanceSummary) return;
     let resonanceLabel = "Low"; let resonanceClass = "resonance-low";
@@ -802,9 +825,10 @@ function displayPopupResonance(distance) { /* ... no changes needed ... */
     // Default is Low
     popupResonanceSummary.innerHTML = `Resonance with You: <span class="resonance-indicator ${resonanceClass}">${resonanceLabel}</span> (Dist: ${distance.toFixed(1)})`;
 }
-// *** FIX: Use elementKeyToFullName map ***
-function displayPopupRecipeComparison(conceptData) {
+function displayPopupRecipeComparison(conceptData) { /* Uses elementKeyToFullName */
     if (!popupConceptProfile || !popupUserComparisonProfile || !popupComparisonHighlights) return;
+     // Add check for map availability
+     if (typeof elementKeyToFullName === 'undefined') { console.error("displayPopupRecipeComparison: elementKeyToFullName map not found!"); return; }
 
     popupConceptProfile.innerHTML = ''; popupUserComparisonProfile.innerHTML = ''; popupComparisonHighlights.innerHTML = '';
     let highlightsHTML = '<p><strong>Key Alignments & Differences:</strong></p>'; let hasHighlights = false;
@@ -854,9 +878,11 @@ function handleRelatedConceptClick(event) { /* ... no changes needed ... */
      const numericId = parseInt(conceptId);
      if (!isNaN(numericId)) { showConceptDetailPopup(numericId); } // Show detail for the clicked related concept
 }
-// *** FIX: Use elementKeyToFullName map ***
-function displayEvolutionSection(conceptData, discoveredData) {
+function displayEvolutionSection(conceptData, discoveredData) { /* Uses elementKeyToFullName */
     if (!popupEvolutionSection || !evolveArtButton || !evolveEligibility || !evolveCostSpan) return;
+     // Add check for map availability
+     if (typeof elementKeyToFullName === 'undefined') { console.error("displayEvolutionSection: elementKeyToFullName map not found!"); return; }
+
 
     const isDiscovered = !!discoveredData;
     const canUnlock = conceptData.canUnlockArt;
@@ -864,6 +890,8 @@ function displayEvolutionSection(conceptData, discoveredData) {
     const isCore = coreConcepts.has(conceptData.id);
     const requiredElement = conceptData.primaryElement; // Use primary element key
     const fullName = elementKeyToFullName[requiredElement]; // Use map
+    if (!fullName) { console.warn(`Evolution: Invalid primary element key ${requiredElement} for concept ${conceptData.id}`); popupEvolutionSection.classList.add('hidden'); return; } // Cannot proceed if key invalid
+
     const currentEssence = elementEssence[requiredElement] || 0;
     const cost = ART_EVOLVE_COST;
     const hasEnoughEssence = currentEssence >= cost;
@@ -883,8 +911,9 @@ function displayEvolutionSection(conceptData, discoveredData) {
         evolveEligibility.innerHTML = `<ul>${eligibilityText}</ul>`;
         evolveEligibility.classList.remove('hidden');
         evolveArtButton.disabled = !canEvolve;
-        // Add listener if not already added (or manage listeners better)
-        evolveArtButton.onclick = () => attemptArtEvolution(conceptData.id, requiredElement, cost);
+        // Ensure listener is attached correctly
+        evolveArtButton.onclick = canEvolve ? () => attemptArtEvolution(conceptData.id, requiredElement, cost) : null;
+
 
     } else {
         popupEvolutionSection.classList.add('hidden');
@@ -893,7 +922,7 @@ function displayEvolutionSection(conceptData, discoveredData) {
         evolveArtButton.onclick = null; // Remove listener
     }
 }
-function attemptArtEvolution(conceptId, essenceElementKey, cost) { /* ... (logic seems okay, uses key) ... */
+function attemptArtEvolution(conceptId, essenceElementKey, cost) { /* Uses elementKeyToFullName indirectly */
      console.log(`Attempting art evolution for ${conceptId} using ${essenceElementKey} essence.`);
      const discoveredData = discoveredConcepts.get(conceptId);
      if (!discoveredData || !discoveredData.concept || discoveredData.artUnlocked) { console.error("Cannot evolve: Not discovered or already unlocked."); return; }
@@ -919,25 +948,14 @@ function attemptArtEvolution(conceptId, essenceElementKey, cost) { /* ... (logic
          displayElementEssencePersona(); // Refresh persona essence
          if (currentlyDisplayedConceptId === conceptId) {
              displayEvolutionSection(concept, discoveredData); // Refresh evolution section in popup
-             // Refresh visual in popup
-             const artUnlocked = discoveredData?.artUnlocked || false;
-             const currentVisualHandle = artUnlocked ? (concept.visualHandleUnlocked || concept.visualHandle) : concept.visualHandle;
+             // Refresh visual in popup (reuse logic from showConceptDetailPopup)
              if (popupCardVisual) {
-                 // Clear previous image if any
-                 const existingImg = popupCardVisual.parentNode.querySelector('.card-art-image');
-                 if (existingImg) existingImg.remove();
-                 // Add image if art is unlocked and handle exists
-                 if (artUnlocked && concept.visualHandleUnlocked) {
-                    popupCardVisual.className = ''; // Remove icon classes
-                    const img = document.createElement('img');
-                    img.src = `placeholder_art/${concept.visualHandleUnlocked}.png`;
-                    img.alt = `${concept.name} Art`;
-                    img.classList.add('card-art-image');
-                    popupCardVisual.parentNode.insertBefore(img, popupCardVisual);
+                 const visualParent = popupCardVisual.parentNode; visualParent.innerHTML = ''; // Clear parent
+                 if (discoveredData.artUnlocked && concept.visualHandleUnlocked) {
+                    const img = document.createElement('img'); img.src = `placeholder_art/${concept.visualHandleUnlocked}.png`; img.alt = `${concept.name} Art`; img.classList.add('card-art-image'); visualParent.appendChild(img);
                  } else {
-                     popupCardVisual.className = `fa-solid fa-star card-visual-placeholder card-art-unlocked`; // Fallback icon if no image
+                     const icon = document.createElement('i'); icon.className = `fas fa-star card-visual-placeholder card-art-unlocked`; icon.title = concept.visualHandleUnlocked || concept.visualHandle || "Visual"; visualParent.appendChild(icon);
                  }
-                 popupCardVisual.title = currentVisualHandle || "Visual representation";
              }
          }
          if (grimoireScreen.classList.contains('current')) {
@@ -954,9 +972,7 @@ function attemptArtEvolution(conceptId, essenceElementKey, cost) { /* ... (logic
 }
 
 
-// --- Grimoire/Core Button & State Logic ---
-
-// *** DEBUG: Add detailed logging to grantEssenceForConcept ***
+// --- Grimoire/Core Button & State Logic --- (Keep as is)
 function grantEssenceForConcept(concept, multiplier = 1.0) {
     if (!concept || !concept.elementScores) {
         console.warn(`[grantEssence] Invalid concept or missing scores for ${concept?.name || 'Unknown Concept'}`);
@@ -1011,7 +1027,6 @@ function grantEssenceForConcept(concept, multiplier = 1.0) {
          // displayElementEssencePersona();
     }
 }
-
 function addToGrimoire() {
     if (currentlyDisplayedConceptId === null) return;
     const concept = concepts.find(c => c.id === currentlyDisplayedConceptId);
@@ -1127,7 +1142,7 @@ function updateCoreButtonStatus(conceptId) { /* ... no changes needed ... */
     }
 }
 
-// --- Reflection Prompts ---
+// --- Reflection Prompts --- (Keep as is)
 function checkTriggerReflectionPrompt(triggerAction = 'other') { /* ... (logic seems okay) ... */
     if (promptCooldownActive) return; // Don't trigger if cooling down
 
@@ -1187,8 +1202,7 @@ function displayReflectionPrompt() { /* ... (logic seems okay) ... */
     if (reflectionModal) reflectionModal.classList.remove('hidden');
     if (popupOverlay) popupOverlay.classList.remove('hidden');
 }
-// *** FIX: Use elementNameToKey for essence gain ***
-function handleConfirmReflection() {
+function handleConfirmReflection() { /* Uses elementNameToKey */
     if (!currentReflectionElement || !currentPromptId || !reflectionCheckbox || !reflectionCheckbox.checked) return;
 
     console.log(`Reflection confirmed for ${currentReflectionElement}, prompt ID: ${currentPromptId}`);
@@ -1218,7 +1232,7 @@ function handleConfirmReflection() {
 }
 
 
-// --- Rituals & Milestones ---
+// --- Rituals & Milestones --- (Keep as is)
 function displayDailyRituals() { /* ... (placeholder logic seems okay) ... */
      if (!dailyRitualsDisplay) return; dailyRitualsDisplay.innerHTML = '';
      if (!dailyRituals || dailyRituals.length === 0) { dailyRitualsDisplay.innerHTML = '<li>No rituals defined.</li>'; return; }
@@ -1257,8 +1271,7 @@ function displayMilestones() { /* ... (logic seems okay) ... */
     if (achievedMilestones.size === 0) { milestonesDisplay.innerHTML = '<li>No milestones achieved yet.</li>'; return; }
     achievedMilestones.forEach(milestoneId => { const milestone = milestones.find(m => m.id === milestoneId); if (milestone) { const li = document.createElement('li'); li.textContent = `✓ ${milestone.description}`; milestonesDisplay.appendChild(li); } });
 }
-// *** FIX: Use elementNameToKey for reward key ***
-function updateMilestoneProgress(trackType, currentValue) {
+function updateMilestoneProgress(trackType, currentValue) { /* Uses element keys in rewards */
      // console.log("Checking Milestones:", trackType, currentValue);
      milestones.forEach(m => {
          if (!achievedMilestones.has(m.id)) { // If not already achieved
@@ -1334,7 +1347,7 @@ function showTemporaryMessage(message, duration = 3000) { /* ... (logic seems ok
      // Future: implement a proper toast notification element
 }
 
-// --- Reset App ---
+// --- Reset App --- (Keep as is)
 function resetApp() { /* ... no changes needed ... */
     if (confirm("Are you sure you want to reset all progress? This cannot be undone.")) {
         console.log("Resetting application state...");
@@ -1346,7 +1359,7 @@ function resetApp() { /* ... no changes needed ... */
     }
 }
 
-// --- Daily Login Check ---
+// --- Daily Login Check --- (Keep as is)
 function checkForDailyLogin() { /* ... (placeholder logic seems okay) ... */
      const today = new Date().toDateString();
      if (lastLoginDate !== today) {
@@ -1363,7 +1376,7 @@ function checkForDailyLogin() { /* ... (placeholder logic seems okay) ... */
      }
 }
 
-// --- Event Listeners (MUST BE AT THE END) ---
+// --- Event Listeners (MUST BE AT THE END) --- (Keep as is)
 document.addEventListener('DOMContentLoaded', () => {
     console.log("DOM Fully Loaded. Initializing Card Concept Expanded...");
 
