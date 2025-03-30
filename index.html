@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Questionnaire - Sensory Intensity</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header Area -->
+        <header class="header">
+            <p id="sectionTitle">Section 3 of 6: Sensory Emphasis</p>
+        </header>
+
+        <!-- Main Content Area -->
+        <main class="content">
+            <h2 id="questionText" class="question-text">
+                What intensity level do you generally prefer for physical sensations?
+            </h2>
+
+            <!-- Slider and Labels -->
+            <div class="slider-container">
+                <input type="range" id="intensitySlider" class="slider" min="0" max="10" step="1" value="5">
+                <div class="label-container">
+                    <span id="minLabel" class="label-text">Very Subtle/Gentle</span>
+                    <span id="maxLabel" class="label-text">Intense/Extreme</span>
+                </div>
+                <p class="value-text">Selected Value: <span id="sliderValueDisplay">5</span></p>
+            </div>
+        </main>
+
+        <!-- Footer / Navigation Area -->
+        <footer class="footer">
+            <button id="backButton" class="button back-button">Back</button>
+            <button id="nextButton" class="button next-button">Next</button>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
