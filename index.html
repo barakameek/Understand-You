@@ -17,11 +17,15 @@
 <body>
     <div class="app-container study-theme">
 
+        <!-- === Saving Indicator === -->
+        <div id="saveIndicator" class="save-indicator hidden"><i class="fas fa-save"></i> Saving...</div>
+
         <!-- === Welcome Screen === -->
         <div id="welcomeScreen" class="screen current">
              <h1>Welcome to the Persona Alchemy Lab!</h1>
              <p>Discover Concept Cards that resonate with your essence and curate your unique Persona Tapestry.</p>
              <button id="startGuidedButton" class="button">Begin Experimentation</button>
+             <button id="loadButton" class="button secondary-button hidden">Load Previous Session</button> <!-- Added Load Button -->
         </div>
 
         <!-- === Questionnaire Screen === -->
@@ -45,70 +49,115 @@
 
         <!-- === Navigation Bar === -->
         <nav id="mainNavBar" class="main-nav hidden">
-             <button class="nav-button" data-target="personaScreen">Persona Tapestry</button>
+             <button class="nav-button active" data-target="personaScreen">Persona Tapestry</button> <!-- Default active -->
              <button class="nav-button" data-target="studyScreen">The Study</button>
              <button class="nav-button" data-target="grimoireScreen">Grimoire (<span id="grimoireCount">0</span>)</button>
+             <!-- Settings Button to access Reset -->
+             <button id="settingsButton" class="nav-button settings-button" title="Settings"><i class="fas fa-cog"></i></button>
         </nav>
 
         <!-- === My Persona Screen ("Persona Tapestry") === -->
         <div id="personaScreen" class="screen hidden persona-screen">
-             <h1>My Persona Tapestry</h1>
-             <div class="persona-overview">
-                 <div class="persona-elements-detailed">
-                     <h2>Core Foundation</h2>
-                     <p>Your fundamental attributes. Expand each to understand your score.</p>
-                     <div id="personaElementDetails"></div>
-                     <hr>
-                     <h2>Resources</h2>
-                     <p>Gain Insight <i class="fas fa-brain insight-icon"></i> through discovery and reflection. Spend it in The Study.</p>
-                     <p>Current Insight: <strong id="userInsightDisplayPersona">0.0</strong> <i class="fas fa-brain insight-icon"></i></p>
-                     <hr>
-                     <h2>Element Attunement</h2>
-                     <p>Grows passively through interaction and reflection.</p>
-                     <div id="elementAttunementDisplay"></div>
-                 </div>
-                 <div class="persona-constellation">
-                      <h2>Persona Tapestry</h2>
-                      <p>Visualizing your Focused Concepts & Grimoire Insights</p>
-                      <div class="tapestry-area" id="tapestryArea">
-                           <h4 id="focusedConceptsHeader">Focused Concepts (0 / 5)</h4>
-                           <div id="focusedConceptsDisplay" class="focus-concepts-grid"></div>
-                      </div>
-                      <div class="grimoire-insights">
-                          <h3>Grimoire Insights</h3>
-                          <ul id="personaThemesList"></ul>
-                      </div>
-                      <div class="milestones-section">
-                          <h3>Milestones Achieved</h3>
-                          <ul id="milestonesDisplay"><li>None yet</li></ul>
-                      </div>
+             <div class="persona-header">
+                 <h1>My Persona Tapestry</h1>
+                 <div class="view-toggle-buttons">
+                     <button id="showDetailedViewBtn" class="button small-button view-toggle-btn active">Detailed View</button>
+                     <button id="showSummaryViewBtn" class="button small-button view-toggle-btn">Summary View</button>
                  </div>
              </div>
-              <button id="restartButtonPersona" class="button small-button back-button">Restart Setup</button>
+
+             <!-- Detailed View -->
+             <div id="personaDetailedView" class="persona-view current">
+                 <div class="persona-overview">
+                     <div class="persona-elements-detailed">
+                         <h2>Core Foundation</h2>
+                         <p>Your fundamental attributes. Expand each to understand your score.</p>
+                         <div id="personaElementDetails"></div>
+                         <hr>
+                         <h2>Resources</h2>
+                         <p>Gain Insight <i class="fas fa-brain insight-icon"></i> through discovery and reflection. Spend it in The Study.</p>
+                         <p>Current Insight: <strong id="userInsightDisplayPersona">0.0</strong> <i class="fas fa-brain insight-icon"></i></p>
+                         <hr>
+                         <h2>Element Attunement</h2>
+                         <p>Grows passively through interaction and reflection.</p>
+                         <div id="elementAttunementDisplay"></div>
+                     </div>
+                     <div class="persona-constellation">
+                          <h2>Persona Tapestry - Focus</h2>
+                          <p>Curate concepts to shape your active Persona.</p>
+                          <div class="tapestry-area" id="tapestryArea">
+                               <h4 id="focusedConceptsHeader">Focused Concepts (0 / 5)</h4>
+                               <div id="focusedConceptsDisplay" class="focus-concepts-grid"></div>
+                          </div>
+                          <div id="focusElementalResonance" class="focus-resonance-section">
+                               <h3>Focus Resonance</h3>
+                               <p>Average elemental scores of your focused concepts.</p>
+                               <div id="focusResonanceBars"></div>
+                          </div>
+                          <div class="tapestry-narrative-section">
+                              <h3>Tapestry Narrative</h3>
+                              <p id="tapestryNarrative">Mark concepts as "Focus" to generate narrative...</p>
+                          </div>
+                          <div class="grimoire-insights">
+                              <h3>Grimoire Themes</h3>
+                              <p>Themes emerging from your focused concepts.</p>
+                              <ul id="personaThemesList"></ul>
+                          </div>
+                          <div class="milestones-section">
+                              <h3>Milestones Achieved</h3>
+                              <ul id="milestonesDisplay"><li>None yet</li></ul>
+                          </div>
+                     </div>
+                 </div>
+             </div>
+
+             <!-- Summary View -->
+             <div id="personaSummaryView" class="persona-view hidden">
+                  <h2>Persona Summary</h2>
+                  <div id="summaryContent">
+                      <p>Generating summary...</p>
+                      <!-- Content will be injected by JS -->
+                  </div>
+             </div>
+             <!-- Moved Reset button to Settings Popup -->
         </div>
 
 
         <!-- === Main Study Screen === -->
         <div id="studyScreen" class="screen hidden study-screen">
              <div class="study-layout-container">
-                 <div class="study-resources">
-                      <h2>Resources & Actions</h2>
-                      <p>Current Insight: <strong id="userInsightDisplayStudy">0.0</strong> <i class="fas fa-brain insight-icon"></i></p>
-                      <hr>
-                      <p>Focus your Insight <i class="fas fa-brain insight-icon"></i> to deepen understanding:</p>
-                      <button id="freeResearchButton" class="button free-research-button hidden">Perform Daily Meditation</button>
-                      <div id="researchButtonContainer" class="research-buttons"></div>
-                      <hr>
-                      <div class="rituals-section">
-                          <h3>Daily Rituals</h3>
-                          <ul id="dailyRitualsDisplay"><li>Loading...</li></ul>
-                      </div>
+                 <!-- Left Column: Resources & Element Library -->
+                 <div class="study-column-left">
+                     <div class="study-resources">
+                          <h2>Resources & Actions</h2>
+                          <p>Current Insight: <strong id="userInsightDisplayStudy">0.0</strong> <i class="fas fa-brain insight-icon"></i></p>
+                          <hr>
+                          <p>Focus your Insight <i class="fas fa-brain insight-icon"></i> to deepen understanding:</p>
+                          <button id="freeResearchButton" class="button free-research-button hidden">Perform Daily Meditation</button>
+                          <div id="researchButtonContainer" class="research-buttons"></div>
+                          <!-- Add Guided Reflection Button -->
+                          <button id="seekGuidanceButton" class="button guidance-button">Seek Guided Reflection (Cost: 3 <i class="fas fa-brain insight-icon"></i>)</button>
+                          <hr>
+                          <div class="rituals-section">
+                              <h3>Daily Rituals</h3>
+                              <ul id="dailyRitualsDisplay"><li>Loading...</li></ul>
+                          </div>
+                     </div>
+                     <div id="elementLibrary" class="element-library">
+                         <h2>Element Library</h2>
+                         <p>Unlock deeper knowledge about each core element.</p>
+                         <div id="elementLibraryButtons" class="library-buttons"></div>
+                         <div id="elementLibraryContent" class="library-content">
+                             <p>Select an Element above to view its deep dive content.</p>
+                         </div>
+                     </div>
                  </div>
-                 <div class="research-bench">
+                 <!-- Right Column: Research Bench -->
+                 <div class="study-column-right research-bench">
                      <h2>Research Notes</h2>
-                     <div id="researchStatus">Select an Element to focus on...</div>
-                     <div id="researchOutput" class="research-output-area">
-                        <p><i>Research results will appear in a pop-up window.</i></p>
+                     <div id="researchStatus">Select an Element or perform Meditation...</div>
+                     <div id="researchOutput" class="research-output-area card-grid">
+                        <p><i>Research results will appear here.</i></p>
                      </div>
                  </div>
              </div>
@@ -170,6 +219,14 @@
                       </div>
                        <hr class="popup-hr">
                       <div id="popupRelatedConcepts" class="related-concepts"><h4>Synergies / Related:</h4><ul id="relatedConceptsList"></ul></div>
+                      <!-- ADD "My Notes" section -->
+                       <div id="myNotesSection" class="my-notes-section hidden">
+                            <hr class="popup-hr">
+                           <h4>My Notes</h4>
+                           <textarea id="myNotesTextarea" rows="3" placeholder="Add your personal reflections here..."></textarea>
+                           <button id="saveMyNoteButton" class="button small-button">Save Note</button>
+                           <span id="noteSaveStatus" class="note-status"></span>
+                       </div>
                       <div id="popupEvolutionSection" class="evolution-section hidden">
                           <hr class="popup-hr">
                           <h4>Deepen Understanding</h4>
@@ -184,18 +241,12 @@
               </div>
         </div>
 
-         <!-- === Research Results Modal === -->
-         <div id="researchModal" class="popup hidden research-modal">
-             <button id="closeResearchModalButton" class="close-button">×</button>
-             <h3>Research Discovery</h3>
-             <p id="researchModalStatus">Status...</p>
-             <div id="researchModalContent" class="card-grid research-results-grid"></div>
-         </div>
+         <!-- Research Results Modal IS REMOVED (content goes to Study page) -->
 
          <!-- === Reflection Prompt Modal === -->
          <div id="reflectionModal" class="popup hidden reflection-modal">
              <button id="closeReflectionModalButton" class="close-button">×</button>
-             <h3>Moment for Reflection</h3>
+             <h3 id="reflectionModalTitle">Moment for Reflection</h3> <!-- Title can change for Guided -->
              <p>Regarding <strong id="reflectionElement">Element/Concept</strong>:</p>
              <p id="reflectionPromptText" class="prompt-text">Prompt text...</p>
              <div class="reflection-confirm">
@@ -206,6 +257,18 @@
                  <label for="scoreNudgeCheckbox" id="scoreNudgeLabel" class="hidden score-nudge-label">Allow this reflection to potentially nudge your core understanding?</label>
              </div>
              <button id="confirmReflectionButton" class="button small-button" disabled>Confirm Reflection (+<span id="reflectionRewardAmount">?</span>)</button>
+         </div>
+
+         <!-- === Settings Popup === -->
+         <div id="settingsPopup" class="popup hidden settings-popup">
+             <button id="closeSettingsPopupButton" class="close-button">×</button>
+             <h3>Settings</h3>
+             <div class="settings-content">
+                  <p>Manage your session data.</p>
+                  <button id="forceSaveButton" class="button small-button">Force Save</button>
+                  <button id="resetAppButton" class="button small-button back-button">Reset All Progress</button>
+                  <p class="reset-warning"><strong>Warning:</strong> Resetting will erase all scores, discovered concepts, insight, and progress permanently.</p>
+             </div>
          </div>
 
           <!-- === Milestone Alert === -->
