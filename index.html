@@ -25,7 +25,7 @@
              <h1>Welcome to the Persona Alchemy Lab!</h1>
              <p>Discover Concept Cards that resonate with your essence and curate your unique Persona Tapestry.</p>
              <button id="startGuidedButton" class="button">Begin Experimentation</button>
-             <button id="loadButton" class="button secondary-button hidden">Load Previous Session</button> <!-- Added Load Button -->
+             <button id="loadButton" class="button secondary-button hidden">Load Previous Session</button>
         </div>
 
         <!-- === Questionnaire Screen === -->
@@ -49,10 +49,10 @@
 
         <!-- === Navigation Bar === -->
         <nav id="mainNavBar" class="main-nav hidden">
-             <button class="nav-button active" data-target="personaScreen">Persona Tapestry</button> <!-- Default active -->
+             <button class="nav-button active" data-target="personaScreen">Persona Tapestry</button>
              <button class="nav-button" data-target="studyScreen">The Study</button>
              <button class="nav-button" data-target="grimoireScreen">Grimoire (<span id="grimoireCount">0</span>)</button>
-             <!-- Settings Button to access Reset -->
+             <button class="nav-button" data-target="repositoryScreen">Repository</button> <!-- NEW REPOSITORY TAB -->
              <button id="settingsButton" class="nav-button settings-button" title="Settings"><i class="fas fa-cog"></i></button>
         </nav>
 
@@ -71,16 +71,15 @@
                  <div class="persona-overview">
                      <div class="persona-elements-detailed">
                          <h2>Core Foundation</h2>
-                         <p>Your fundamental attributes. Expand each to understand your score.</p>
-                         <div id="personaElementDetails"></div>
+                         <p>Your fundamental attributes and elemental attunement. Expand each element.</p>
+                         <div id="personaElementDetails">
+                            <!-- Element details with integrated attunement bars will be injected here -->
+                         </div>
                          <hr>
                          <h2>Resources</h2>
                          <p>Gain Insight <i class="fas fa-brain insight-icon"></i> through discovery and reflection. Spend it in The Study.</p>
                          <p>Current Insight: <strong id="userInsightDisplayPersona">0.0</strong> <i class="fas fa-brain insight-icon"></i></p>
-                         <hr>
-                         <h2>Element Attunement</h2>
-                         <p>Grows passively through interaction and reflection.</p>
-                         <div id="elementAttunementDisplay"></div>
+                         <!-- Removed separate Attunement Section -->
                      </div>
                      <div class="persona-constellation">
                           <h2>Persona Tapestry - Focus</h2>
@@ -99,7 +98,7 @@
                               <p id="tapestryNarrative">Mark concepts as "Focus" to generate narrative...</p>
                           </div>
                           <div class="grimoire-insights">
-                              <h3>Grimoire Themes</h3>
+                              <h3>Focus Themes</h3> <!-- Renamed from Grimoire Themes -->
                               <p>Themes emerging from your focused concepts.</p>
                               <ul id="personaThemesList"></ul>
                           </div>
@@ -116,10 +115,8 @@
                   <h2>Persona Summary</h2>
                   <div id="summaryContent">
                       <p>Generating summary...</p>
-                      <!-- Content will be injected by JS -->
                   </div>
              </div>
-             <!-- Moved Reset button to Settings Popup -->
         </div>
 
 
@@ -135,8 +132,7 @@
                           <p>Focus your Insight <i class="fas fa-brain insight-icon"></i> to deepen understanding:</p>
                           <button id="freeResearchButton" class="button free-research-button hidden">Perform Daily Meditation</button>
                           <div id="researchButtonContainer" class="research-buttons"></div>
-                          <!-- Add Guided Reflection Button -->
-                          <button id="seekGuidanceButton" class="button guidance-button">Seek Guided Reflection (Cost: 3 <i class="fas fa-brain insight-icon"></i>)</button>
+                          <button id="seekGuidanceButton" class="button guidance-button">Seek Guided Reflection (Cost: 10 <i class="fas fa-brain insight-icon"></i>)</button>
                           <hr>
                           <div class="rituals-section">
                               <h3>Daily Rituals</h3>
@@ -189,6 +185,37 @@
               <div id="grimoireContent" class="card-grid"></div>
          </div>
 
+         <!-- === NEW Repository Screen === -->
+         <div id="repositoryScreen" class="screen hidden repository-screen">
+             <h1>Repository</h1>
+             <p>A collection of rare discoveries: Scene Blueprints, Alchemical Experiments, and Elemental Insights.</p>
+             <div class="repository-layout">
+                 <section id="repositoryScenes" class="repository-section">
+                     <h2><i class="fas fa-scroll"></i> Scene Blueprints</h2>
+                     <div class="repo-list">
+                         <p>Conduct research for a chance to discover scene blueprints.</p>
+                         <!-- Scene items injected here -->
+                     </div>
+                 </section>
+                 <hr>
+                 <section id="repositoryExperiments" class="repository-section">
+                     <h2><i class="fas fa-flask"></i> Alchemical Experiments</h2>
+                     <div class="repo-list">
+                         <p>Achieve high Attunement in elements to unlock challenging experiments.</p>
+                         <!-- Experiment items injected here -->
+                     </div>
+                 </section>
+                 <hr>
+                 <section id="repositoryInsights" class="repository-section">
+                     <h2><i class="fas fa-lightbulb"></i> Elemental Insights</h2>
+                     <div class="repo-list">
+                         <p>Rare fragments of knowledge occasionally found during research.</p>
+                         <!-- Insight items injected here -->
+                     </div>
+                 </section>
+             </div>
+         </div>
+
 
         <!-- === Concept Detail Pop-up === -->
         <div id="conceptDetailPopup" class="popup hidden card-popup">
@@ -219,7 +246,6 @@
                       </div>
                        <hr class="popup-hr">
                       <div id="popupRelatedConcepts" class="related-concepts"><h4>Synergies / Related:</h4><ul id="relatedConceptsList"></ul></div>
-                      <!-- ADD "My Notes" section -->
                        <div id="myNotesSection" class="my-notes-section hidden">
                             <hr class="popup-hr">
                            <h4>My Notes</h4>
@@ -241,12 +267,10 @@
               </div>
         </div>
 
-         <!-- Research Results Modal IS REMOVED (content goes to Study page) -->
-
          <!-- === Reflection Prompt Modal === -->
          <div id="reflectionModal" class="popup hidden reflection-modal">
              <button id="closeReflectionModalButton" class="close-button">×</button>
-             <h3 id="reflectionModalTitle">Moment for Reflection</h3> <!-- Title can change for Guided -->
+             <h3 id="reflectionModalTitle">Moment for Reflection</h3>
              <p>Regarding <strong id="reflectionElement">Element/Concept</strong>:</p>
              <p id="reflectionPromptText" class="prompt-text">Prompt text...</p>
              <div class="reflection-confirm">
@@ -287,8 +311,8 @@
 
     </div> <!-- End app-container -->
 
-    <!-- SCRIPTS AT THE END -->
-    <script src="data.js" defer></script>   <!-- Add defer -->
-    <script src="script.js" defer></script>  <!-- Add defer -->
+    <!-- SCRIPTS AT THE END (with defer) -->
+    <script src="data.js" defer></script>
+    <script src="script.js" defer></script>
 </body>
 </html>
