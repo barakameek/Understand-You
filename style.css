@@ -322,3 +322,46 @@ hr { border: none; border-top: 1px dashed #c8b89a; margin: 15px 0; }
 .card-header .card-stamps span { margin-left: 4px; } /* Space out stamps */
 /* Pop-up specific placement */
 .resonance-summary .resonance-indicator { margin-left: 8px; }
+
+/* Concept Card Basic Style */
+.concept-card {
+    /* ... existing styles ... */
+    position: relative; /* Needed for pseudo-elements */
+    overflow: hidden; /* Prevent pseudo-elements spilling out */
+}
+
+/* Rarity borders/styles */
+.concept-card.rarity-common {
+    /* Keep default look */
+    border: 2px solid #b8860b; /* Standard border */
+}
+.concept-card.rarity-uncommon {
+    border-color: #808080; /* Darker Grey border */
+    background-color: #f8f8f4; /* Slightly different off-white */
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.1), inset 0 0 4px rgba(0,0,0,0.05); /* Add subtle inset shadow */
+    border-width: 2px;
+}
+.concept-card.rarity-rare {
+    border-color: #DAA520; /* Brighter Gold border */
+    border-width: 3px; /* Thicker border */
+    background: linear-gradient(145deg, #fffacd, #f5efba); /* Lemon gradient bg */
+    box-shadow: 0 0 8px rgba(255, 215, 0, 0.6), 0 3px 6px rgba(0,0,0,0.15); /* Enhanced glow and drop shadow */
+}
+.concept-card.rarity-rare::before { /* Add a subtle sheen/glow effect */
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255, 230, 150, 0.3) 0%, rgba(255,255,255,0) 60%);
+    transform: rotate(30deg);
+    opacity: 0.7;
+    pointer-events: none; /* Allow clicks through */
+    z-index: 0; /* Behind content */
+}
+
+/* Adjust hover effects */
+.concept-card:hover { transform: translateY(-3px) scale(1.02); box-shadow: 0 5px 12px rgba(0,0,0,0.2); } /* General hover */
+.concept-card:hover.rarity-uncommon { border-color: #555; box-shadow: 0 5px 12px rgba(0,0,0,0.2), inset 0 0 4px rgba(0,0,0,0.1); }
+.concept-card:hover.rarity-rare { border-color: #b8860b; box-shadow: 0 0 12px rgba(255, 215, 0, 0.8), 0 4px 8px rgba(0,0,0,0.2); }
