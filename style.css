@@ -359,3 +359,103 @@ hr { border: none; border-top: 1px dashed #c8b89a; margin: 15px 0; }
 .resonance-medium { background-color: #ffc107; color: #333; text-shadow: none;}
 .resonance-low { background-color: #dc3545; }
 .resonance-summary .resonance-indicator { margin-left: 8px; }
+
+/* style.css (Suggestions for polish - add or modify existing rules) */
+
+/* --- General --- */
+body {
+    background-color: #f0e7d8; /* Slightly softer background */
+    color: #4a392c; /* Slightly darker text for better contrast */
+    font-family: 'Merriweather', serif; /* Try a serif for body */
+}
+.app-container {
+    background: linear-gradient(to bottom, #fdf8f0, #f5f0e1); /* Softer gradient */
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15); /* Softer shadow */
+    border: 1px solid #d3c0a0;
+}
+h1, h2, h3, h4, h5 {
+     font-family: 'Cinzel Decorative', cursive; /* More thematic heading font - ensure you link this font in HTML head or use a fallback */
+     /* OR use a more standard serif like: font-family: 'Garamond', serif; */
+     letter-spacing: 0.5px; /* Add subtle spacing */
+}
+h1 { color: #6a3906; text-shadow: 1px 1px 2px rgba(0,0,0,0.1); }
+h2 { color: #8b4513; }
+h3 { color: #5a2d0c; }
+
+/* --- Buttons --- */
+.button {
+    border-radius: 20px; /* Rounded buttons */
+    padding: 10px 25px; /* Adjust padding */
+    box-shadow: 0 3px 5px rgba(0,0,0,0.15);
+    transition: background-color 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
+    text-transform: uppercase; /* Optional: Uppercase text */
+    font-size: 0.9em;
+    letter-spacing: 0.8px;
+}
+.button:hover:not(:disabled) {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    transform: translateY(-2px); /* More lift */
+}
+.button:active:not(:disabled) {
+    transform: translateY(0px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+}
+.small-button {
+    padding: 7px 15px;
+    font-size: 0.8em;
+    border-radius: 15px;
+}
+
+/* --- Cards --- */
+.concept-card {
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(80, 50, 20, 0.15);
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); /* Smoother transition */
+    height: 280px; /* Adjust if needed */
+    background: linear-gradient(145deg, #fffaf0, #fdf5e6);
+    border: 1px solid #d3c0a0; /* Base border */
+}
+.concept-card:hover {
+    transform: translateY(-5px) scale(1.04);
+    box-shadow: 0 10px 20px rgba(80, 50, 20, 0.25);
+    z-index: 10;
+}
+/* Rarity Polish */
+.concept-card.rarity-common { border-left: 5px solid #cd7f32; /* Bronze */ }
+.concept-card.rarity-uncommon { border-left: 5px solid #c0c0c0; /* Silver */ background: linear-gradient(145deg, #f8f8f8, #efefef); }
+.concept-card.rarity-rare { border-left: 5px solid #ffd700; /* Gold */ background: radial-gradient(ellipse at top left, #fffacd, #faf0e6); box-shadow: 0 4px 8px rgba(80, 50, 20, 0.15), 0 0 5px rgba(255, 215, 0, 0.3); }
+.concept-card:hover.rarity-rare { box-shadow: 0 10px 20px rgba(80, 50, 20, 0.25), 0 0 15px rgba(255, 215, 0, 0.5); }
+
+.card-header .card-name { font-family: 'Garamond', serif; font-size: 1.1em; }
+.card-visual { border-radius: 5px; margin: 8px 0; background-color: #ede8d8; /* Less yellow */ }
+.card-footer .card-brief-desc { font-family: 'Merriweather', serif; font-size: 0.85em; }
+
+/* --- Popups --- */
+.popup {
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+    border: 1px solid #a08460; /* Slightly lighter border */
+}
+.close-button {
+    top: 10px;
+    right: 15px;
+    font-size: 2em;
+    color: #b8a880; /* Softer color */
+    transition: color 0.2s ease;
+}
+.close-button:hover { color: #8b4513; }
+.card-popup .popup-header { border-radius: 11px 11px 0 0; /* Match parent */ background: #e8e4d8; /* Match body bg */ }
+.card-popup .popup-content { padding: 25px; }
+.card-popup #popupVisualContainer { border-radius: 8px; }
+
+/* --- Questionnaire --- */
+#questionnaireScreen header { background: rgba(245, 240, 225, 0.98); /* More opaque */ backdrop-filter: blur(3px); /* Subtle blur */ box-shadow: 0 3px 8px rgba(0,0,0,0.1); }
+.question-block { box-shadow: 0 3px 7px rgba(0,0,0,0.08); }
+.slider::-webkit-slider-thumb { background: #a0522d; /* Peru */ border: 2px solid #fdf5e6; width: 20px; height: 20px; }
+.slider::-moz-range-thumb { background: #a0522d; border: 2px solid #fdf5e6; width: 20px; height: 20px; }
+.radio-options input[type="radio"]:checked + label,
+.checkbox-options input[type="checkbox"]:checked + label {
+    background-color: #eaddb3; /* Softer gold */
+    border-color: #b8860b;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+}
