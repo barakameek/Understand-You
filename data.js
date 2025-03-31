@@ -1,3 +1,4 @@
+// data.js - COMPLETE VERSION v11.2 (Verified Complete - Includes Deep Dive & Guided Prompts Data)
 console.log("data.js starting..."); // Log for debugging load order
 
 const elementDetails = {
