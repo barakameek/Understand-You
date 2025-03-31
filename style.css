@@ -393,4 +393,95 @@ hr { border: none; border-top: 1px dashed #c8b89a; margin: 15px 0; }
 .element-detail-header:hover {
     background-color: rgba(238, 233, 221, 0.9);
 }
-/* Score bar already uses the color */
+/* Questionnaire Screen */
+
+/* Adjust header for potentially longer names */
+.element-progress-header {
+    display: flex;
+    /* Allow wrapping if needed, or keep nowrap and add scroll */
+    flex-wrap: wrap; /* Or flex-wrap: nowrap; overflow-x: auto; */
+    justify-content: center; /* Center tabs */
+    margin-bottom: 10px;
+    padding: 5px;
+    background-color: #e8e4d8;
+    border-radius: 5px;
+    border: 1px solid #d3c0a0;
+}
+
+.element-tab {
+    padding: 6px 12px; /* Adjust padding */
+    border-radius: 4px;
+    font-size: 0.8em; /* Slightly smaller font if needed */
+    color: #7a5230;
+    border: 1px solid transparent;
+    /* font-family: monospace; REMOVED - use default font */
+    margin: 2px 4px; /* Add spacing between tabs */
+    text-align: center; /* Center text within tab */
+    white-space: nowrap; /* Prevent names breaking mid-word */
+    flex-shrink: 0; /* Prevent shrinking if using nowrap */
+}
+.element-tab.active { background-color: #f0e68c; color: #5a3a22; border-color: #b8a880; font-weight: bold; }
+.element-tab.completed { background-color: #d4ffd4; color: #006400; opacity: 0.8;}
+
+
+/* Question Block Layout */
+.question-block {
+    margin-bottom: 30px; /* Increase spacing */
+    padding-bottom: 20px;
+    border-bottom: 1px dotted #d3c0a0;
+    /* Center content within the block */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.question-block:last-child { border-bottom: none; }
+
+.question-title {
+    font-size: 1.15em; /* Slightly larger */
+    font-weight: 600;
+    margin-bottom: 20px; /* Increase space below title */
+    color: #4a4a4a;
+    text-align: center; /* Center the question text */
+    max-width: 600px; /* Prevent title getting too wide */
+}
+
+.input-container {
+    margin: 10px 0;
+    width: 100%; /* Allow container to take width */
+    display: flex; /* Center content within input area */
+    justify-content: center;
+}
+
+/* Slider Styles */
+.slider-container {
+    width: 100%;
+    max-width: 500px; /* Make slider area wider */
+    margin: 15px 0; /* Remove auto margin */
+    padding: 0 10px; /* Add padding if needed */
+    box-sizing: border-box;
+}
+.slider { width: 100%; /* Slider takes full width of container */ }
+.label-container { display: flex; justify-content: space-between; margin-top: 6px; }
+.label-text { font-size: 0.8em; color: #6a5a4a; } /* Slightly larger labels */
+.value-text { margin-top: 10px; text-align: center; font-size: 0.9em; font-weight: 500; }
+
+/* Added Slider Feedback Style */
+.slider-feedback {
+    font-size: 0.9em;
+    color: #5a3a22; /* Darker brown for feedback */
+    background-color: #fff8e7; /* Light parchment background */
+    border: 1px dashed #d3c0a0; /* Dashed border */
+    border-radius: 4px;
+    padding: 8px 12px;
+    margin-top: 15px; /* Space above feedback */
+    min-height: 2.5em; /* Ensure space even if empty initially */
+    text-align: left; /* Align text left */
+    line-height: 1.4;
+}
+
+/* Radio/Checkbox - Keep centering if desired, or adjust */
+.radio-options, .checkbox-options {
+    max-width: 450px; /* Limit width */
+    margin: 0 auto; /* Center block */
+    text-align: left; /* Align labels left */
+}
