@@ -1,3 +1,4 @@
+
 let currentElementIndex = 0;
 let userScores = { A: 5, I: 5, S: 5, P: 5, C: 5, R: 5 };
 let userAnswers = {};
@@ -412,7 +413,7 @@ function renderCard(concept, context = 'grimoire') {
 // --- Concept Detail Pop-up Logic ---
 function showConceptDetailPopup(conceptId) {
     if (!checkDataLoaded()) return;
-    const conceptData = concepts.find(c => c.id === conceptId); const discoveredData = discoveredConcepts.get(conceptId); if (!conceptData) { return; } currentlyDisplayedConceptId = conceptId; if (popupConceptName) popupConceptName.textContent = conceptData.name; if (popupConceptType) popupConceptType.textContent = conceptData.cardType; if (popupCardTypeIcon) popupCardTypeIcon.className = `${getCardTypeIcon(conceptData.cardType)} card-type-icon`; if (popupDetailedDescription) popupDetailedDescription.textContent = conceptData.detailedDescription || "No description."; const artUnlocked = discoveredData?.artUnlocked || false; const currentVisualHandle = artUnlocked ? (conceptData.visualHandleUnlocked || concept.visualHandle) : conceptData.visualHandle; if (popupVisualContainer) { popupVisualContainer.innerHTML = ''; if (artUnlocked && conceptData.visualHandleUnlocked) { const img = document.createElement('img'); img.src = `placeholder_art/${conceptData.visualHandleUnlocked}.png`; img.alt = `${conceptData.name} Art`; img.classList.add('card-art-image'); img.onerror = function() { this.style.display='none'; const icon = document.createElement('i'); icon.className = `fas fa-image card-visual-placeholder`; icon.title = "Art Placeholder (Load Failed)"; popupVisualContainer.appendChild(icon); }; popupVisualContainer.appendChild(img); } else { const icon = document.createElement('i'); icon.className = `fas fa-${artUnlocked ? 'star card-art-unlocked' : 'question'} card-visual-placeholder`; icon.title = currentVisualHandle || "Visual Placeholder"; if (artUnlocked) icon.classList.add('card-art-unlocked'); popupVisualContainer.appendChild(icon); } } const distance = euclideanDistance(userScores, conceptData.elementScores); displayPopupResonance(distance); displayPopupRecipeComparison(conceptData); displayPopupRelatedConcepts(conceptData); if (myNotesSection && myNotesTextarea && saveMyNoteButton) { if (discoveredData) { myNotesTextarea.value = discoveredData.notes || ""; myNotesSection.classList.remove('hidden'); noteSaveStatusSpan.textContent = ""; saveMyNoteButton.onclick = () => saveMyNote(conceptId); } else { myNotesSection.classList.add('hidden'); } } displayEvolutionSection(conceptData, discoveredData); updateGrimoireButtonStatus(conceptId); updateFocusButtonStatus(conceptId); if (conceptDetailPopup) conceptDetailPopup.classList.remove('hidden'); if (popupOverlay) popupOverlay.classList.remove('hidden');
+    const conceptData = concepts.find(c => c.id === conceptId); const discoveredData = discoveredConcepts.get(conceptId); if (!conceptData) { return; } currentlyDisplayedConceptId = conceptId; if (popupConceptName) popupConceptName.textContent = conceptData.name; if (popupConceptType) popupConceptType.textContent = conceptData.cardType; if (popupCardTypeIcon) popupCardTypeIcon.className = `${getCardTypeIcon(conceptData.cardType)} card-type-icon`; if (popupDetailedDescription) popupDetailedDescription.textContent = conceptData.detailedDescription || "No description."; const artUnlocked = discoveredData?.artUnlocked || false; const currentVisualHandle = artUnlocked ? (conceptData.visualHandleUnlocked || conceptData.visualHandle) : conceptData.visualHandle; if (popupVisualContainer) { popupVisualContainer.innerHTML = ''; if (artUnlocked && conceptData.visualHandleUnlocked) { const img = document.createElement('img'); img.src = `placeholder_art/${conceptData.visualHandleUnlocked}.png`; img.alt = `${conceptData.name} Art`; img.classList.add('card-art-image'); img.onerror = function() { this.style.display='none'; const icon = document.createElement('i'); icon.className = `fas fa-image card-visual-placeholder`; icon.title = "Art Placeholder (Load Failed)"; popupVisualContainer.appendChild(icon); }; popupVisualContainer.appendChild(img); } else { const icon = document.createElement('i'); icon.className = `fas fa-${artUnlocked ? 'star card-art-unlocked' : 'question'} card-visual-placeholder`; icon.title = currentVisualHandle || "Visual Placeholder"; if (artUnlocked) icon.classList.add('card-art-unlocked'); popupVisualContainer.appendChild(icon); } } const distance = euclideanDistance(userScores, conceptData.elementScores); displayPopupResonance(distance); displayPopupRecipeComparison(conceptData); displayPopupRelatedConcepts(conceptData); if (myNotesSection && myNotesTextarea && saveMyNoteButton) { if (discoveredData) { myNotesTextarea.value = discoveredData.notes || ""; myNotesSection.classList.remove('hidden'); noteSaveStatusSpan.textContent = ""; saveMyNoteButton.onclick = () => saveMyNote(conceptId); } else { myNotesSection.classList.add('hidden'); } } displayEvolutionSection(conceptData, discoveredData); updateGrimoireButtonStatus(conceptId); updateFocusButtonStatus(conceptId); if (conceptDetailPopup) conceptDetailPopup.classList.remove('hidden'); if (popupOverlay) popupOverlay.classList.remove('hidden');
 }
 function displayPopupResonance(distance) { if (!popupResonanceSummary) return; let resonanceLabel = "Low"; let resonanceClass = "resonance-low"; let message = ""; if (distance === Infinity || isNaN(distance)) { resonanceLabel = "N/A"; resonanceClass = ""; message = "(Cannot compare profiles)"; } else if (distance < 2.5) { resonanceLabel = "Very High"; resonanceClass = "resonance-high"; message = "Strongly aligns with your core profile."; } else if (distance < 4.0) { resonanceLabel = "High"; resonanceClass = "resonance-high"; message = "Shares significant common ground."; } else if (distance < 6.0) { resonanceLabel = "Moderate"; resonanceClass = "resonance-medium"; message = "Some similarities and differences noted."; } else if (distance <= DISSONANCE_THRESHOLD) { resonanceLabel = "Low"; resonanceClass = "resonance-low"; message = "Notable divergence from your profile."; } else { resonanceLabel = "Dissonant"; resonanceClass = "resonance-low"; message = "Significantly diverges. Reflection suggested if added."; } popupResonanceSummary.innerHTML = `Resonance with You: <span class="resonance-indicator ${resonanceClass}">${resonanceLabel}</span> (Dist: ${distance.toFixed(1)})<br><small>${message}</small>`; }
 function displayPopupRecipeComparison(conceptData) {
@@ -479,9 +480,21 @@ function saveMyNote(conceptId) {
 
 // --- Reflection Prompts ---
 function checkTriggerReflectionPrompt(triggerAction = 'other') { if (promptCooldownActive) return; if (triggerAction === 'add') cardsAddedSinceLastPrompt++; if (triggerAction === 'completeQuestionnaire') cardsAddedSinceLastPrompt = 99; const triggerThreshold = 3; if (cardsAddedSinceLastPrompt >= triggerThreshold && pendingRarePrompts.length === 0) { /* Only trigger standard if no rare prompt waiting */ displayReflectionPrompt('Standard'); cardsAddedSinceLastPrompt = 0; promptCooldownActive = true; setTimeout(() => { promptCooldownActive = false; console.log("Reflection cooldown ended."); }, 1000 * 60 * 5); } else if (pendingRarePrompts.length > 0) { /* Trigger queued rare prompt instead */ displayReflectionPrompt('RareConcept'); cardsAddedSinceLastPrompt = 0; } } // Modified logic
-function displayReflectionPrompt(context = 'Standard', targetId = null, promptCategory = null) { // Modified for RareConcept queue
+
+// --- Reflection Prompts (UPDATED with Logging) ---
+function displayReflectionPrompt(context = 'Standard', targetId = null, promptCategory = null) {
     if (!checkDataLoaded()) return;
-    currentReflectionContext = context; reflectionTargetConceptId = (context === 'Dissonance') ? targetId : null; let promptPool = []; let titleElement = "Reflection Topic"; let selectedPrompt = null; const nudgeElements = [scoreNudgeCheckbox, scoreNudgeLabel];
+    currentReflectionContext = context;
+    reflectionTargetConceptId = (context === 'Dissonance') ? targetId : null;
+    let promptPool = [];
+    let titleElement = "Reflection Topic";
+    let selectedPrompt = null;
+    const nudgeElements = [scoreNudgeCheckbox, scoreNudgeLabel];
+
+    // --- ADDED LOG ---
+    console.log(`[displayReflectionPrompt] Context: ${context}, TargetID: ${targetId}`);
+    console.log('[displayReflectionPrompt] Checking reflectionPrompts object:', reflectionPrompts);
+    // ------------------
 
     // Check Rare Prompt Queue FIRST (unless it's specifically a Dissonance prompt)
     if (context !== 'Dissonance' && pendingRarePrompts.length > 0) {
@@ -491,30 +504,104 @@ function displayReflectionPrompt(context = 'Standard', targetId = null, promptCa
         if (selectedPrompt) {
             context = 'RareConcept'; // Update context
             titleElement = "Rare Concept Reflection";
-            // Find concept associated with this prompt for display name? Hard without mapping prompt IDs back.
             const conceptEntry = Array.from(discoveredConcepts.entries()).find(([id, data]) => data.concept.uniquePromptId === rarePromptId);
             currentReflectionCategory = conceptEntry ? conceptEntry[1].concept.name : "Rare Concept"; // Use concept name if found
             nudgeElements.forEach(el => el?.classList.add('hidden'));
             console.log(`Displaying queued Rare Concept reflection: ${rarePromptId}`);
         } else {
             console.warn(`Could not find prompt text for queued rare prompt ID: ${rarePromptId}`);
-             // Fall through to standard/guided logic if queued prompt failed
              context = 'Standard'; // Revert context if prompt not found
         }
     }
 
     // If no rare prompt was displayed, proceed with other contexts
     if (!selectedPrompt) {
-        if(context === 'Guided') { /* ... (Guided logic - unchanged) ... */ }
-        else if (context === 'Dissonance') { /* ... (Dissonance logic - unchanged) ... */ }
-        else { /* ... (Standard logic - unchanged) ... */ }
-        // Select standard/dissonance prompt if applicable and none selected yet
-        if (!selectedPrompt && promptPool.length > 0) { const availablePrompts = promptPool.filter(p => !seenPrompts.has(p.id)); selectedPrompt = availablePrompts.length > 0 ? availablePrompts[Math.floor(Math.random() * availablePrompts.length)] : promptPool[Math.floor(Math.random() * promptPool.length)]; }
+        if(context === 'Guided') {
+            titleElement = "Guided Reflection";
+            currentReflectionCategory = promptCategory; // Use passed category
+            promptPool = reflectionPrompts.Guided?.[promptCategory] || [];
+            console.log(`[displayReflectionPrompt] Guided promptPool for category ${promptCategory}:`, promptPool); // Log guided pool
+            nudgeElements.forEach(el => el?.classList.add('hidden'));
+        }
+        else if (context === 'Dissonance') {
+            titleElement = "Dissonance Reflection";
+            const concept = concepts.find(c => c.id === reflectionTargetConceptId);
+            currentReflectionCategory = concept ? concept.name : "Dissonant Concept";
+
+            // --- ADDED LOG ---
+            console.log('[displayReflectionPrompt] Accessing reflectionPrompts.Dissonance:', reflectionPrompts.Dissonance);
+            // ------------------
+
+            promptPool = reflectionPrompts.Dissonance || []; // <<< The critical line
+
+            // --- ADDED LOG ---
+            console.log(`[displayReflectionPrompt] Dissonance promptPool length: ${promptPool.length}`);
+            // ------------------
+
+            nudgeElements.forEach(el => el?.classList.remove('hidden'));
+        }
+        else { // Standard
+            titleElement = "Standard Reflection";
+            const validElements = elementNames.filter(elName => (elementAttunement[elementNameToKey[elName]] || 0) > 0); // Only reflect on elements with some attunement
+            if (validElements.length > 0) {
+                currentReflectionElement = validElements[Math.floor(Math.random() * validElements.length)];
+                promptPool = reflectionPrompts[currentReflectionElement] || [];
+                currentReflectionCategory = currentReflectionElement; // Use element name for category
+                console.log(`[displayReflectionPrompt] Standard promptPool for element ${currentReflectionElement}:`, promptPool); // Log standard pool
+            } else {
+                promptPool = []; // No valid elements to reflect on
+                console.warn("[displayReflectionPrompt] No elements with attunement > 0 found for Standard reflection.");
+            }
+            nudgeElements.forEach(el => el?.classList.remove('hidden'));
+        }
+
+        // Select standard/dissonance/guided prompt if applicable and none selected yet
+        if (!selectedPrompt && promptPool.length > 0) { // <--- Selection logic
+            const availablePrompts = promptPool.filter(p => !seenPrompts.has(p.id));
+            selectedPrompt = availablePrompts.length > 0 ? availablePrompts[Math.floor(Math.random() * availablePrompts.length)] : promptPool[Math.floor(Math.random() * promptPool.length)];
+
+            // --- ADDED LOG ---
+            console.log('[displayReflectionPrompt] Selected prompt:', selectedPrompt);
+            // ------------------
+
+        } else if (!selectedPrompt) {
+             // --- ADDED LOG ---
+             console.warn('[displayReflectionPrompt] Prompt selection skipped (promptPool likely empty).');
+             // ------------------
+        }
     }
 
-    if (!selectedPrompt) { console.error(`Could not select prompt for context: ${context}`); return; }
-    currentPromptId = selectedPrompt.id; if(reflectionModalTitle) reflectionModalTitle.textContent = titleElement; if (reflectionElement) reflectionElement.textContent = (context === 'Dissonance' || context === 'Guided' || context === 'RareConcept') ? currentReflectionCategory || titleElement : currentReflectionElement; if (reflectionPromptText) reflectionPromptText.textContent = selectedPrompt.text; if (reflectionCheckbox) reflectionCheckbox.checked = false; if (scoreNudgeCheckbox) scoreNudgeCheckbox.checked = false; if (confirmReflectionButton) confirmReflectionButton.disabled = true; const rewardAmount = (context === 'Guided') ? GUIDED_REFLECTION_COST + 2 : (context === 'RareConcept') ? 7.0 : 5.0; /* Higher reward for rare */ if (reflectionRewardAmount) reflectionRewardAmount.textContent = `${rewardAmount} Insight`; if (reflectionModal) reflectionModal.classList.remove('hidden'); if (popupOverlay) popupOverlay.classList.remove('hidden');
+    if (!selectedPrompt) {
+        console.error(`Could not select prompt for context: ${context}`); // Error occurs here
+        // Attempt to recover if it was Dissonance that failed
+        if (context === 'Dissonance' && reflectionTargetConceptId !== null) {
+             console.warn("Dissonance prompt failed, attempting to add concept directly.");
+             addConceptToGrimoireInternal(reflectionTargetConceptId); // Add concept anyway
+             hidePopups(); // Close any lingering modal attempts
+             showTemporaryMessage("Reflection unavailable, concept added directly.", 3500);
+        }
+        return;
+    }
+
+    // --- Display Modal Logic ---
+    currentPromptId = selectedPrompt.id;
+    if(reflectionModalTitle) reflectionModalTitle.textContent = titleElement;
+    if (reflectionElement) reflectionElement.textContent = (context === 'Dissonance' || context === 'Guided' || context === 'RareConcept' || context === 'SceneMeditation') ? currentReflectionCategory || titleElement : currentReflectionElement; // Corrected logic for category display
+    if (reflectionPromptText) reflectionPromptText.textContent = selectedPrompt.text;
+    if (reflectionCheckbox) reflectionCheckbox.checked = false;
+    if (scoreNudgeCheckbox && scoreNudgeLabel) { // Ensure both exist
+         scoreNudgeCheckbox.checked = false;
+         // Only show nudge for Dissonance context
+         scoreNudgeCheckbox.classList.toggle('hidden', context !== 'Dissonance');
+         scoreNudgeLabel.classList.toggle('hidden', context !== 'Dissonance');
+    }
+    if (confirmReflectionButton) confirmReflectionButton.disabled = true;
+    const rewardAmount = (context === 'Guided') ? GUIDED_REFLECTION_COST + 2 : (context === 'RareConcept') ? 7.0 : 5.0; /* Higher reward for rare */
+    if (reflectionRewardAmount) reflectionRewardAmount.textContent = `${rewardAmount} Insight`;
+    if (reflectionModal) reflectionModal.classList.remove('hidden');
+    if (popupOverlay) popupOverlay.classList.remove('hidden');
 }
+
 function handleConfirmReflection() {
     if (!checkDataLoaded()) return;
     if (!currentPromptId || !reflectionCheckbox || !reflectionCheckbox.checked) return; console.log(`Reflection confirmed: ${currentReflectionContext}, prompt: ${currentPromptId}`); seenPrompts.add(currentPromptId); const insightReward = (currentReflectionContext === 'Guided') ? GUIDED_REFLECTION_COST + 2 : (currentReflectionContext === 'RareConcept') ? 7.0 : 5.0; let attunementKey = null; let attunementAmount = 1.0; let milestoneAction = 'completeReflection'; let scoreNudged = false; if (currentReflectionContext === 'Dissonance' && scoreNudgeCheckbox && scoreNudgeCheckbox.checked) { console.log("Score nudge requested."); const concept = concepts.find(c => c.id === reflectionTargetConceptId); if (concept?.elementScores) { for (const key in userScores) { if (userScores.hasOwnProperty(key) && concept.elementScores.hasOwnProperty(key)) { const userScore = userScores[key]; const conceptScore = concept.elementScores[key]; const diff = conceptScore - userScore; if (Math.abs(diff) > 2.0) { const nudge = Math.sign(diff) * SCORE_NUDGE_AMOUNT; userScores[key] = Math.max(0, Math.min(10, userScore + nudge)); scoreNudged = true; } } } if (scoreNudged) { console.log("Updated User Scores:", userScores); displayPersonaScreen(); showTemporaryMessage("Core understanding shifted slightly.", 3500); gainAttunementForAction('scoreNudge', 'All', 0.5); updateMilestoneProgress('scoreNudgeApplied', 1); } } } if (currentReflectionContext === 'Dissonance' && reflectionTargetConceptId !== null) { addConceptToGrimoireInternal(reflectionTargetConceptId); milestoneAction = 'completeReflectionDissonance'; attunementAmount = 0.5; } gainInsight(insightReward, `Reflection (${currentReflectionContext})`); if (currentReflectionContext === 'Standard' && currentReflectionElement) { attunementKey = elementNameToKey[currentReflectionElement]; } else if (['Guided', 'RareConcept', 'SceneMeditation'].includes(currentReflectionContext) && currentReflectionCategory) { // Use category if guided/rare/scene
@@ -522,7 +609,7 @@ function handleConfirmReflection() {
          attunementKey = elementNameToKey[currentReflectionCategory] || null;
          if (!attunementKey) { // If category wasn't an element (e.g., 'LowAttunement'), check if target concept ID exists
               if(reflectionTargetConceptId) {
-                   const concept = discoveredConcepts.get(reflectionTargetConceptId)?.concept;
+                   const concept = discoveredConcepts.get(reflectionTargetConceptId)?.concept || concepts.find(c => c.id === reflectionTargetConceptId); // Check both discovered and base concepts
                    attunementKey = concept?.primaryElement || null;
               }
          }
@@ -624,29 +711,36 @@ function unlockDeepDiveLevel(elementKey, levelToUnlock) {
 function displayRepositoryContent() {
     if (!checkDataLoaded()) return;
     // Find or create the target divs if they don't exist in HTML yet
-    let scenesContainer = document.getElementById('repositoryScenes');
-    let experimentsContainer = document.getElementById('repositoryExperiments');
-    let insightsContainer = document.getElementById('repositoryInsights');
+    let scenesContainer = document.getElementById('repositoryScenes')?.querySelector('.repo-list'); // Target the inner div
+    let experimentsContainer = document.getElementById('repositoryExperiments')?.querySelector('.repo-list');
+    let insightsContainer = document.getElementById('repositoryInsights')?.querySelector('.repo-list');
 
     if (!repositoryScreen) return; // Ensure the main screen exists
 
-    // If containers missing, create them (basic structure)
+    // If containers missing, log error or handle gracefully - HTML should define them
     if (!scenesContainer || !experimentsContainer || !insightsContainer) {
-        repositoryScreen.innerHTML = `<h1>Repository</h1>
-            <section id="repositoryScenes"><h2>Scene Blueprints</h2><div class="repo-list"></div></section>
-            <hr>
-            <section id="repositoryExperiments"><h2>Alchemical Experiments</h2><div class="repo-list"></div></section>
-            <hr>
-            <section id="repositoryInsights"><h2>Elemental Insights</h2><div class="repo-list"></div></section>`;
-        scenesContainer = document.getElementById('repositoryScenes').querySelector('.repo-list');
-        experimentsContainer = document.getElementById('repositoryExperiments').querySelector('.repo-list');
-        insightsContainer = document.getElementById('repositoryInsights').querySelector('.repo-list');
-    } else {
-        // Clear previous content if divs exist
-        scenesContainer.innerHTML = '';
-        experimentsContainer.innerHTML = '';
-        insightsContainer.innerHTML = '';
+        console.error("Repository list containers not found in HTML!");
+        // Optionally create them dynamically if needed, but prefer HTML structure
+        if (!document.getElementById('repositoryScenes')) {
+             repositoryScreen.innerHTML += `<section id="repositoryScenes" class="repository-section"><h2><i class="fas fa-scroll"></i> Scene Blueprints</h2><div class="repo-list"><p>Repository structure error.</p></div></section>`;
+             scenesContainer = document.getElementById('repositoryScenes').querySelector('.repo-list');
+        }
+         if (!document.getElementById('repositoryExperiments')) {
+             repositoryScreen.innerHTML += `<section id="repositoryExperiments" class="repository-section"><h2><i class="fas fa-flask"></i> Alchemical Experiments</h2><div class="repo-list"><p>Repository structure error.</p></div></section>`;
+             experimentsContainer = document.getElementById('repositoryExperiments').querySelector('.repo-list');
+        }
+         if (!document.getElementById('repositoryInsights')) {
+             repositoryScreen.innerHTML += `<section id="repositoryInsights" class="repository-section"><h2><i class="fas fa-lightbulb"></i> Elemental Insights</h2><div class="repo-list"><p>Repository structure error.</p></div></section>`;
+             insightsContainer = document.getElementById('repositoryInsights').querySelector('.repo-list');
+        }
+        // If still not found, exit
+        if (!scenesContainer || !experimentsContainer || !insightsContainer) return;
     }
+
+    // Clear previous content
+    scenesContainer.innerHTML = '';
+    experimentsContainer.innerHTML = '';
+    insightsContainer.innerHTML = '';
 
 
     // Display Scene Blueprints
@@ -691,13 +785,13 @@ function displayRepositoryContent() {
         for (const key in insightsByElement) {
             if (insightsByElement[key].length > 0) {
                 insightsHTML += `<h5>${elementDetails[elementKeyToFullName[key]]?.name || key} Insights:</h5><ul>`;
-                insightsByElement[key].forEach(insight => {
+                insightsByElement[key].sort((a, b) => a.id.localeCompare(b.id)).forEach(insight => { // Sort for consistency
                     insightsHTML += `<li>"${insight.text}"</li>`;
                 });
                 insightsHTML += `</ul>`;
             }
         }
-        insightsContainer.innerHTML = insightsHTML || '<p>No Elemental Insights collected yet.</p>';
+        insightsContainer.innerHTML = insightsHTML || '<p>No Elemental Insights collected yet.</p>'; // Should not happen if size > 0
 
     } else {
         insightsContainer.innerHTML = '<p>No Elemental Insights collected yet.</p>';
@@ -726,20 +820,22 @@ function renderRepositoryItem(item, type, completed = false) {
             });
         }
         if (item.requiredFocusConceptTypes && item.requiredFocusConceptTypes.length > 0) {
-            let typeMet = false;
-             for(const typeReq of item.requiredFocusConceptTypes) {
-                 for (const focusId of focusedConcepts) {
+             item.requiredFocusConceptTypes.forEach(typeReq => {
+                  let typeMet = false;
+                  for (const focusId of focusedConcepts) {
                       const concept = discoveredConcepts.get(focusId)?.concept;
-                      if(concept && concept.cardType === typeReq) {
-                           typeMet = true; break;
+                      if (concept && concept.cardType === typeReq) {
+                           typeMet = true;
+                           break;
                       }
-                 }
-                 if(!typeMet) {
-                     canAttempt = false;
-                     unmetReqs.push(`Type: ${typeReq}`);
-                 }
-             }
+                  }
+                  if (!typeMet) {
+                      canAttempt = false;
+                      unmetReqs.push(`Type: ${typeReq}`);
+                  }
+             });
         }
+
 
         actionsHTML = `<button class="button small-button" onclick="attemptExperiment('${item.id}')" ${userInsight < item.insightCost || !canAttempt || completed ? 'disabled' : ''}>Attempt (${item.insightCost} <i class="fas fa-brain insight-icon"></i>)</button>`;
         if (completed) actionsHTML += ` <span class="completed-text">(Completed)</span>`;
@@ -764,6 +860,7 @@ function meditateOnScene(sceneId) {
         // Trigger a specific reflection using the scene's prompt ID
         const prompt = reflectionPrompts.SceneMeditation[scene.reflectionPromptId];
         if (prompt) {
+            console.log(`Triggering Scene Meditation for ${scene.name} (Prompt ID: ${prompt.id})`); // Logging
             currentReflectionContext = 'SceneMeditation';
             currentReflectionCategory = scene.name; // Use scene name as category for display
             currentPromptId = prompt.id;
@@ -772,7 +869,10 @@ function meditateOnScene(sceneId) {
             if (reflectionElement) reflectionElement.textContent = scene.name;
             if (reflectionPromptText) reflectionPromptText.textContent = prompt.text;
             if (reflectionCheckbox) reflectionCheckbox.checked = false;
-            if (scoreNudgeCheckbox) scoreNudgeCheckbox.classList.add('hidden'); // No nudge for scenes
+            if (scoreNudgeCheckbox && scoreNudgeLabel) { // Hide nudge for scenes
+                 scoreNudgeCheckbox.classList.add('hidden');
+                 scoreNudgeLabel.classList.add('hidden');
+            }
             if (confirmReflectionButton) confirmReflectionButton.disabled = true;
             const rewardAmount = scene.meditationCost + 5; // Example: Cost + 5 bonus Insight
             if (reflectionRewardAmount) reflectionRewardAmount.textContent = `${rewardAmount} Insight`;
@@ -797,7 +897,18 @@ function attemptExperiment(experimentId) {
     // Check focus reqs again
     let canAttempt = true;
     if (experiment.requiredFocusConceptIds) { experiment.requiredFocusConceptIds.forEach(reqId => { if (!focusedConcepts.has(reqId)) canAttempt = false; }); }
-    if (experiment.requiredFocusConceptTypes && canAttempt) { /* ... (check type reqs again) ... */ }
+    if (experiment.requiredFocusConceptTypes && canAttempt) {
+         experiment.requiredFocusConceptTypes.forEach(typeReq => {
+              let typeMet = false;
+              for (const focusId of focusedConcepts) {
+                  const concept = discoveredConcepts.get(focusId)?.concept;
+                  if (concept && concept.cardType === typeReq) {
+                      typeMet = true; break;
+                  }
+              }
+              if (!typeMet) canAttempt = false;
+         });
+    }
     if (!canAttempt) { showTemporaryMessage("Required concepts not focused.", 3000); return; }
 
     if (spendInsight(experiment.insightCost, `Attempt Experiment: ${experiment.name}`)) {
@@ -888,4 +999,4 @@ document.addEventListener('DOMContentLoaded', () => {
     else { if(loadButton) loadButton.classList.add('hidden'); showScreen('welcomeScreen'); }
     console.log("Initialization complete. Ready.");
 
-}); // --- END OF DOMContentLoaded ---
+}); // --
