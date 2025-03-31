@@ -952,7 +952,23 @@ function displayElementLibrary() {
 }
 function displayElementDeepDive(elementKey) {
     if (!checkDataLoaded() || !elementLibraryContentDiv) return;
-    const deepDiveData = elementDeepDive[elementKey] || []; const currentLevel = unlockedDeepDiveLevels[elementKey] || 0; const elementName = elementKeyToFullName[elementKey] || elementKey; elementLibraryContentDiv.innerHTML = `<h4>${elementDetails[elementName]?.name || elementName} - Insights</h4>`; if (deepDiveData.length === 0) { elementLibraryContentDiv.innerHTML += '<p>No deep dive content available.</p>'; return; } let displayedContent = false; deepDiveData.forEach(levelData => { if (levelData.level <= currentLevel) { elementLibraryContentDiv.innerHTML += `<div class="library-level"><h5 class="level-title">${levelData.title} (Level ${levelData.level})</h5><div class="level-content">${levelData.content}</div></div><hr class="popup-hr">`; displayedContent = true; } }); if (!displayedContent) { elementLibraryContentDiv.innerHTML += '<p>Unlock the first level to begin exploring.</p>'; } const nextLevel = currentLevel + 1; const nextLevelData = deepDiveData.find(l => l.level === nextLevel); if (nextLevelData) { const cost = nextLevelData.insightCost || 0; const canAfford = userInsight >= cost; const requirementsMet = true; elementLibraryContentDiv.innerHTML += `<div class="library-unlock"><h5>Next: ${nextLevelData.title} (Level ${nextLevelData.level})</h5><button class="button small-button unlock-button" onclick="unlockDeepDiveLevel('${elementKey}', ${nextLevelData.level})" ${!canAfford || !requirementsMet ? 'disabled' : ''} title="${!canAfford ? `Requires ${cost} Insight` : !requirementsMet ? 'Requirements not met' : `Unlock for ${cost} Insight`}"><Unlock (Cost: ${cost} <i class="fas fa-brain insight-icon"></i>)</button>${!canAfford ? `<p class='unlock-error'>Insufficient Insight (${userInsight.toFixed(1)}/${cost})</p>` : ''}${!requirementsMet && canAfford ? `<p class='unlock-error'>Other requirements not met.</p>` : ''}</div>`; } else if (displayedContent) { elementLibraryContentDiv.innerHTML += '<p><i>You have unlocked all available insights for this element.</i></p>'; }
+    const deepDiveData = elementDeepDive[elementKey] || []; const currentLevel = unlockedDeepDiveLevels[elementKey] || 0; const elementName = elementKeyToFullName[elementKey] || elementKey; elementLibraryContentDiv.innerHTML = `<h4>${elementDetails[elementName]?.name || elementName} - Insights</h4>`; if (deepDiveData.length === 0) { elementLibraryContentDiv.innerHTML += '<p>No deep dive content available.</p>'; return; } let displayedContent = false; deepDiveData.forEach(levelData => { if (levelData.level <= currentLevel) { elementLibraryContentDiv.innerHTML += `<div class="library-level"><h5 class="level-title">${levelData.title} (Level ${levelData.level})</h5><div class="level-content">${levelData.content}</div></div><hr class="popup-hr">`; displayedContent = true; } }); if (!displayedContent) { elementLibraryContentDiv.innerHTML += '<p>Unlock the first level to begin exploring.</p>'; } const nextLevel = currentLevel + 1; const nextLevelData = deepDiveData.find(l => l.level === nextLevel); if (nextLevelData) {
+        const cost = nextLevelData.insightCost || 0;
+        const canAfford = userInsight >= cost;
+        const requirementsMet = true;
+        elementLibraryContentDiv.innerHTML += `
+            <div class="library-unlock">
+                <h5>Next: ${nextLevelData.title} (Level ${nextLevelData.level})</h5>
+                <button class="button small-button unlock-button"
+                        onclick="unlockDeepDiveLevel('${elementKey}', ${nextLevelData.level})"
+                        ${!canAfford || !requirementsMet ? 'disabled' : ''}
+                        title="${!canAfford ? `Requires ${cost} Insight` : !requirementsMet ? 'Requirements not met' : `Unlock for ${cost} Insight`}">
+                     Unlock (Cost: ${cost} <i class="fas fa-brain insight-icon"></i>)  // <<< CORRECTED
+                </button>
+                ${!canAfford ? `<p class='unlock-error'>Insufficient Insight (${userInsight.toFixed(1)}/${cost})</p>` : ''}
+                ${!requirementsMet && canAfford ? `<p class='unlock-error'>Other requirements not met.</p>` : ''}
+            </div>`;
+    } else if (displayedContent) { elementLibraryContentDiv.innerHTML += '<p><i>You have unlocked all available insights for this element.</i></p>'; }
 }
 function unlockDeepDiveLevel(elementKey, levelToUnlock) {
     if (!checkDataLoaded()) return;
