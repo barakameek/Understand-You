@@ -1,4 +1,3 @@
-
 console.log("data.js starting..."); // Log for debugging load order
 
 const elementDetails = {
@@ -264,7 +263,7 @@ const questionnaireGuided = {
     ]
 };
 
-// --- Reflection Prompts (CORRECTED Structure) ---
+// --- Reflection Prompts (CORRECTED STRUCTURE - V2) ---
 const reflectionPrompts = {
     // --- Standard Prompts ---
     "Attraction": [
@@ -272,63 +271,64 @@ const reflectionPrompts = {
         { id: "pA2", text: "When has attraction felt confusing or unexpected for you? What did you learn from that experience?" },
         { id: "pA3", text: "Does your level of emotional connection to someone strongly influence your sexual attraction? How so?" },
         { id: "pA4", text: "Consider an attraction that faded. What changed? Was it about them, you, or the context?" },
-    ],
+    ], // Comma OK
     "Interaction": [
         { id: "pI1", text: "Describe a time you felt most comfortable in a sexual interaction. Were you leading, following, or collaborating? What made it comfortable?" },
         { id: "pI2", text: "Imagine an ideal sexual encounter. What kind of energy exchange are you looking for (playful, intense, nurturing, commanding, yielding)?" },
         { id: "pI3", text: "How important is verbal communication vs non-verbal cues in your preferred interaction style?" },
         { id: "pI4", text: "If you enjoy power dynamics, what is the appeal of holding power? What is the appeal of yielding it?" },
-    ],
+    ], // Comma OK
     "Sensory": [
         { id: "pS1", text: "What type of physical touch (light, firm, rough, specific texture) feels most arousing or connecting to you, separate from orgasm?" },
         { id: "pS2", text: "Are there any specific sensations (temperature, pressure, pain, specific sounds/smells) that strongly enhance or detract from your arousal?" },
         { id: "pS3", text: "How does your desire for sensory input change depending on your mood or partner?" },
         { id: "pS4", text: "Think about a purely sensory experience (sexual or not) that felt transcendent or deeply satisfying. What were its key elements?" },
-    ],
+    ], // Comma OK
     "Psychological": [
         { id: "pP1", text: "Beyond physical pleasure, what core emotional need (e.g., connection, validation, control, escape) does sexuality most often fulfill for you?" },
         { id: "pP2", text: "Think about a time sex felt psychologically fulfilling. What underlying needs were met?" },
         { id: "pP3", text: "Conversely, when has sex felt psychologically unfulfilling, even if physically pleasurable? What might have been missing?" },
         { id: "pP4", text: "How does vulnerability play a role in your psychologically satisfying sexual experiences?" },
-    ],
+    ], // Comma OK
     "Cognitive": [
         { id: "pC1", text: "How much do you rely on fantasy or specific scenarios to become aroused? Are you more 'in your head' or 'in the moment'?" },
         { id: "pC2", text: "Describe a fantasy or scenario (even vaguely) that you find particularly potent. What elements make it work for you?" },
         { id: "pC3", text: "Does the intellectual or psychological aspect of a dynamic (e.g., power plays, witty banter, understanding motivations) contribute significantly to your arousal?" },
         { id: "pC4", text: "How does anticipation or memory shape your sexual experiences?" },
-    ],
+    ], // Comma OK
     "Relational": [
         { id: "pR1", text: "In what context do you feel most free to express your sexuality (e.g., alone, committed partner, casual encounter, group setting)?" },
         { id: "pR2", text: "How important are explicit agreements, rules, or boundaries regarding exclusivity or openness in your ideal sexual relationships?" },
         { id: "pR3", text: "What level of emotional intimacy do you typically prefer or require in your sexual connections?" },
         { id: "pR4", text: "How do concepts like jealousy or compersion (finding joy in a partner's joy with others) manifest in your relational landscape?" },
-    ],
+    ], // Comma OK
+
     // --- Dissonance Prompts ---
     "Dissonance": [
         { id: "pD1", text: "This concept seems quite different from your current profile. What aspect of it intrigues you or makes you curious, even if it feels unfamiliar?" },
         { id: "pD2", text: "Exploring unfamiliar territory can be revealing. What potential does engaging with this concept hold for you, even if it feels challenging or uncomfortable at first glance?" },
         { id: "pD3", text: "Sometimes, what we resist holds a key. Is there an underlying need or desire this concept touches upon, perhaps indirectly, that you haven't fully acknowledged?" },
         { id: "pD4", text: "How might integrating or simply understanding this concept broaden your perspective on your own sexuality or the diverse experiences of others?" }
-    ],
+    ], // Comma OK
+
     // --- Guided Prompts Section ---
     "Guided": {
         "LowAttunement": [
             { id: "gLA1", text: "You're just beginning your exploration. Which core element feels most intriguing or confusing to you right now, and why?" },
             { id: "gLA2", text: "Consider your initial scores. Was there anything that surprised you? How does it feel to start putting names to these aspects of yourself?" }
-        ],
+        ], // Comma OK
         "HighAttunementElement": [
             { id: "gHE1", text: "You show a strong resonance with [Element Name]. How does this element manifest in your fantasies or experiences? What nuances are emerging?" },
             { id: "gHE2", text: "Where might the 'shadow' or challenge lie within your strong connection to [Element Name]? Are there potential downsides or areas for growth?" }
-        ],
+        ], // Comma OK
         "ConceptSynergy": [
              { id: "gCS1", text: "You're focusing on both [Concept A] and [Concept B], which have potential synergy. How do these concepts interact or influence each other in your mind?" },
              { id: "gCS2", text: "What new possibilities or dynamics emerge when you consider [Concept A] and [Concept B] together? Does their combination create something unique?" }
         ]
-        // Add more categories as needed
-    },
-}; // END of reflectionPrompts object
+        // Add more categories as needed // Comment
+    }, // <<< Comma NEEDED HERE
 
- // NEW: Prompts triggered by discovering specific Rare cards
+    // --- RareConcept Prompts (MOVED INSIDE) ---
     "RareConcept": {
         "rP08": { id: "rP08", text: "Heavy Impact often involves intense sensation and trust. What draws you to this level of intensity? Is it the physical feeling, the marks, the power exchange, or something else?" },
         "rP09": { id: "rP09", text: "Non-impact pain (needles, wax, clamps) offers different sensations. What specific quality of these sensations appeals to you? Is there a psychological component beyond the physical?" },
@@ -339,24 +339,79 @@ const reflectionPrompts = {
         "rP17": { id: "rP17", text: "The feeling of helplessness can be potent. What emotions or psychological states does being restricted evoke in you? Is it surrender, vulnerability, excitement, or something else?" },
         "rP20": { id: "rP20", text: "Focusing on materials like latex shifts attraction away from the person. What is it about the look, feel, sound, or smell of this material that triggers arousal for you?" },
         // ... Add prompts for other rare card IDs (rP21, rP25, etc.) ...
+        "rP21": { id: "rP21", text: "Uniforms carry strong associations. What specific uniform/clothing triggers arousal, and what power, role, or fantasy does it represent for you?" },
+        "rP25": { id: "rP25", text: "Polyamory involves managing multiple intimate connections. What are the unique joys or challenges you anticipate or experience in this structure?" },
+        "rP27": { id: "rP27", text: "Relationship Anarchy rejects pre-defined rules. How do you navigate building unique relationship agreements based purely on individual desires and consent?" },
+        "rP30": { id: "rP30", text: "High Protocol demands structure and precision. What is the appeal of such formality in a D/s dynamic? Is it the clarity, the challenge, or the transformation?" },
+        "rP41": { id: "rP41", text: "Playing with perceived control (hypnosis/mind control) taps into deep psychological themes. What boundaries are crucial for you in exploring these states safely?" },
+        "rP42": { id: "rP42", text: "Transformation fantasies can be profound. What kind of change (physical, mental, species) is most arousing, and what does that transformation signify?" },
+        "rP43": { id: "rP43", text: "Medical Play often involves clinical settings and power dynamics. What aspect is most compelling: the vulnerability, the perceived authority, the specific tools, or the scenario itself?" },
+        "rP44": { id: "rP44", text: "Edge play pushes boundaries. What safety measures and communication strategies are non-negotiable for you when exploring activities with heightened perceived risk?" },
+        "rP45": { id: "rP45", text: "Humiliation/Degradation can evoke strong emotions. What is the difference for you between playful teasing and potentially harmful degradation, and where do your boundaries lie?" },
+        "rP63": { id: "rP63", text: "Breath play significantly alters physical and mental states. What specific sensation or psychological shift are you seeking, and how do you prioritize safety?" },
+        "rP64": { id: "rP64", text: "CNC involves simulating non-consent. How do you establish enthusiastic consent beforehand to ensure the simulated scenario remains within safe and desired boundaries?" },
+        "rP65": { id: "rP65", text: "Chemsex involves substance use. Reflect on the motivations (enhancing sensation, reducing inhibition, social connection) and potential risks associated with this practice." },
+        "rP109": { id: "rP109", text: "The M/s dynamic implies a deep power exchange. How does the concept of 'ownership' or total authority/surrender resonate with you compared to less formal D/s?" },
+        "rP111": { id: "rP111", text: "Knife play introduces a sharp visual and psychological edge. What role does the perceived danger or the intense focus required play in its appeal?" },
+        "rP112": { id: "rP112", text: "E-stim offers unique, often involuntary sensations. How does the feeling of electricity differ from other types of physical stimulation for you?" },
+        "rP113": { id: "rP113", text: "Suspension involves significant trust and technical skill. Is the appeal primarily the visual, the physical strain/sensation, or the profound vulnerability?" },
+        "rP114": { id: "rP114", text: "Water sports challenge conventional notions of cleanliness and intimacy. What taboos or psychological barriers does this activity engage with for you?" },
+        "rP115": { id: "rP115", text: "Scat play is often considered highly taboo. What deep-seated psychological themes or power dynamics might be involved in finding arousal here? (Consider safety implications.)" },
+        "rP116": { id: "rP116", text: "Incorporating blood introduces primal and potentially ritualistic elements. What symbolic meaning or visceral reaction does blood evoke in your erotic landscape? (Prioritize safety.)" },
+        "rP117": { id: "rP117", text: "Abduction fantasies often involve fear and powerlessness within a safe structure. What specific elements of the capture/captivity narrative are most potent?" },
+        "rP118": { id: "rP118", text: "Somnophilia plays with vulnerability and observation. What ethical considerations are paramount when exploring fantasies involving a sleeping or unaware partner?" },
+        "rP119": { id: "rP119", text: "Controlling or forcing orgasm is a direct manipulation of pleasure/release. How does this differ from teasing/denial, and what does it signify about power?" },
+        "rP120": { id: "rP120", text: "Psychological 'torture' requires navigating intense emotional landscapes. What kind of aftercare is essential after engaging in play that challenges mental boundaries?" },
+        "rP121": { id: "rP121", text: "Furry sexuality blends identity, persona, and often specific community contexts. How does adopting a fursona or engaging within the fandom shape your sexual expression?" },
+        "rP122": { id: "rP122", text: "Autassassinophilia links arousal to the staged risk of death. What psychological mechanisms might be at play in finding excitement in this ultimate form of 'danger'?" },
+        "rP123": { id: "rP123", text: "Using BDSM for exposure therapy requires careful navigation. How can scene work facilitate processing trauma without re-traumatizing, and what professional support might be needed?" },
+        "rP124": { id: "rP124", text: "Sensory overstimulation torture focuses on overwhelming input. Is the goal disorientation, endurance, breaking down defenses, or something else?" },
         "rP125": { id: "rP125", text: "Advanced breath control involves significant risk and trust. What is the allure of playing so close to this particular edge? (Reflect on safety practices if exploring this.)" }
-    },
-    // NEW: Prompts triggered by Meditating on Scene Blueprints
+    }, // <<< Comma NEEDED HERE
+
+    // --- SceneMeditation Prompts (MOVED INSIDE) ---
     "SceneMeditation": {
         "SCN001": { id: "scnP001", text: "Meditating on 'The Blindfolded Tasting': Imagine focusing solely on taste and texture without sight. How might this heighten other senses or feelings of vulnerability and trust?" },
         "SCN002": { id: "scnP002", text: "Meditating on 'The Negotiated Power Shift': Consider the process of explicitly discussing and shifting control mid-scene. What communication skills are needed? How might this build intimacy or excitement?" },
+        "SCN003": { id: "scnP003", text: "Meditating on 'Sensory Storytelling': Reflect on how linking narrative words to physical sensations could blur the lines between mind and body. What kind of story would be most potent for you?"}
         // ... Add prompts corresponding to sceneBlueprint IDs ...
-    }
-};
+    } // <<< NO COMMA HERE as it's the last property
+
+}; // --- END of reflectionPrompts object definition ---
+
 
 // --- Element Deep Dive Content (Costs Updated) ---
 const elementDeepDive = {
-    "A": [ { level: 1, title: "Foundations of Attraction", insightCost: 10, content: "<p>...</p><ul>...</ul>" }, { level: 2, title: "Beyond Gender: Nuances & Paraphilias", insightCost: 25, content: "<p>...</p><ul>...</ul>" }, { level: 3, title: "The Attraction-Arousal Link", insightCost: 50, content: "<p>...</p><ul>...</ul>" } ],
-    "I": [ { level: 1, title: "Roles & Energy Exchange", insightCost: 10, content: "<p>...</p><ul>...</ul>" }, { level: 2, title: "Styles of Power Dynamics", insightCost: 25, content: "<p>...</p><ul>...</ul>" }, { level: 3, title: "Communication & Negotiation", insightCost: 50, content: "<p>...</p><ul>...</ul>" } ],
-    "S": [ { level: 1, title: "The Spectrum of Sensation", insightCost: 10, content: "<p>...</p><ul>...</ul>" }, { level: 2, title: "Intensity, Pain & Pleasure", insightCost: 25, content: "<p>...</p><ul>...</ul>" }, { level: 3, title: "Beyond Touch: Full Sensory Integration", insightCost: 50, content: "<p>...</p><ul>...</ul>" } ],
-    "P": [ { level: 1, title: "Core Motivations", insightCost: 10, content: "<p>...</p><ul>...</ul>" }, { level: 2, title: "Vulnerability, Trust & Catharsis", insightCost: 25, content: "<p>...</p><ul>...</ul>" }, { level: 3, title: "Shadow Work & Integration", insightCost: 50, content: "<p>...</p><ul>...</ul>" } ],
-    "C": [ { level: 1, title: "Fantasy & Imagination", insightCost: 10, content: "<p>...</p><ul>...</ul>" }, { level: 2, title: "Scenarios, Role-Play & Scripting", insightCost: 25, content: "<p>...</p><ul>...</ul>" }, { level: 3, title: "Intellect, Meaning & Transcendence", insightCost: 50, content: "<p>...</p><ul>...</ul>" } ],
-    "R": [ { level: 1, title: "Structures & Numbers", insightCost: 10, content: "<p>...</p><ul>...</ul>" }, { level: 2, title: "Commitment, Intimacy & Anonymity", insightCost: 25, content: "<p>...</p><ul>...</ul>" }, { level: 3, title: "Hierarchy, Rules & Communication", insightCost: 50, content: "<p>...</p><ul>...</ul>" } ]
+    "A": [
+        { level: 1, title: "Foundations of Attraction", insightCost: 10, content: "<p>Explores common attraction patterns like gender and presentation, the role of symmetry and health cues (often subconscious), and introduces the concept of spectrums (e.g., the asexual spectrum).</p><ul><li>Defining Orientation vs. Attraction</li><li>Common Cues: Visual, Auditory, Olfactory</li><li>Introduction to Asexuality and Demisexuality</li></ul>" },
+        { level: 2, title: "Beyond Gender: Nuances & Paraphilias", insightCost: 25, content: "<p>Delves into attractions beyond typical gender/presentation, including sapiosexuality (intelligence), attraction to dynamics (power), specific personality types, and introduces paraphilias/fetishes non-judgmentally as specific triggers.</p><ul><li>Sapiosexuality and Intellectual Connection</li><li>Attraction to Power Dynamics (Dominance/Submission Cues)</li><li>Understanding Fetishes: Specific Objects, Materials, Situations</li><li>The Role of Conditioning and Early Experience</li></ul>" },
+        { level: 3, title: "The Attraction-Arousal Link", insightCost: 50, content: "<p>Examines the complex relationship between initial attraction and physiological arousal, including factors that enhance or inhibit this connection, responsive vs. spontaneous desire, and the concept of attraction fluidity.</p><ul><li>Spontaneous vs. Responsive Desire Models</li><li>Factors Enhancing Arousal (Context, Mood, Hormones)</li><li>Factors Inhibiting Arousal (Stress, Disconnect, Context)</li><li>Attraction Fluidity and Change Over Time</li></ul>" }
+    ],
+    "I": [
+        { level: 1, title: "Roles & Energy Exchange", insightCost: 10, content: "<p>Introduces common interaction roles (Top/Bottom, Dom/Sub, Switch), discusses the concept of energy flow (leading/following), and examines collaborative vs. hierarchical interaction preferences.</p><ul><li>Defining Top/Bottom/Versatile vs. Dom/Sub/Switch</li><li>Energy Flow: Leading, Following, Mutual Exchange</li><li>Preference for Hierarchy vs. Equality in Interaction</li></ul>" },
+        { level: 2, title: "Styles of Power Dynamics", insightCost: 25, content: "<p>Explores different flavors of dominance and submission, such as psychological control, service-oriented submission, primal dynamics, nurturing/caregiver roles, and performance-based interactions (exhibitionism/voyeurism).</p><ul><li>Psychological Dominance vs. Physical Control</li><li>Service, Worship, and Obedience</li><li>Primal Play: Instinct and Non-Verbal Cues</li><li>Caregiver/Little Dynamics (DDlg, MDlb)</li><li>Performance Roles: Exhibitionism & Voyeurism</li></ul>" },
+        { level: 3, title: "Communication & Negotiation", insightCost: 50, content: "<p>Focuses on the critical role of communication in establishing and navigating interaction styles, including negotiation of roles/scenes, setting boundaries, using safewords, and providing/receiving feedback (aftercare).</p><ul><li>Negotiation: Defining Desires and Limits</li><li>Safewords: Communication Under Pressure</li><li>Implicit vs. Explicit Communication Styles</li><li>Giving and Receiving Feedback & Aftercare</li></ul>" }
+    ],
+    "S": [
+        { level: 1, title: "The Spectrum of Sensation", insightCost: 10, content: "<p>Maps the basic range of physical sensations relevant to sexuality, from light touch and warmth to firm pressure and vibration, considering different erogenous zones and sensitivity levels.</p><ul><li>Mapping Erogenous Zones</li><li>Light Touch, Pressure, Vibration</li><li>Temperature Basics (Warmth/Coolness)</li><li>Texture Fundamentals (Smooth/Rough)</li></ul>" },
+        { level: 2, title: "Intensity, Pain & Pleasure", insightCost: 25, content: "<p>Examines the deliberate use of intense sensations, including impact play (spanking, flogging), non-impact pain (pinching, biting, wax), restriction, and the psychological interplay between pain and pleasure (endorphins, context).</p><ul><li>Impact Play: Stinging, Thudding, Rhythmic</li><li>Non-Impact Pain: Sharp, Burning, Aching</li><li>The Pain/Pleasure Paradox: Endorphins and Context</li><li>Introduction to BDSM Sensation Play</li></ul>" },
+        { level: 3, title: "Beyond Touch: Full Sensory Integration", insightCost: 50, content: "<p>Expands beyond touch to include the role of sight (visual triggers, aesthetics), sound (music, voice tone, explicit words), smell (pheromones, scents), taste, and practices like sensory deprivation/overload.</p><ul><li>The Power of Visuals: Aesthetics and Action</li><li>Auditory Input: Voice, Music, Environment</li><li>Olfactory Triggers: Scents and Pheromones</li><li>Taste and Oral Fixation</li><li>Sensory Deprivation and Overload Techniques</li></ul>" }
+    ],
+    "P": [
+        { level: 1, title: "Core Motivations", insightCost: 10, content: "<p>Identifies common underlying psychological drivers for sexuality, such as connection, validation, stress relief, power, self-expression, and simple recreation. How do these manifest differently for individuals?</p><ul><li>Connection & Intimacy Needs</li><li>Validation & Self-Esteem</li><li>Stress Relief & Coping Mechanisms</li><li>Power & Control Needs (Giving/Receiving)</li><li>Play, Fun & Recreation</li></ul>" },
+        { level: 2, title: "Vulnerability, Trust & Catharsis", insightCost: 25, content: "<p>Explores the deeper psychological states accessible through sex, including the role of vulnerability in building trust, the potential for emotional release (catharsis), and achieving altered states of consciousness (flow, transcendence).</p><ul><li>Vulnerability as a Bridge to Trust</li><li>Catharsis: Emotional Release Through Intensity</li><li>Sexuality and Altered States (Flow, 'Subspace')</li><li>Building Psychological Safety</li></ul>" },
+        { level: 3, title: "Shadow Work & Integration", insightCost: 50, content: "<p>Addresses how sexuality can intersect with 'shadow' aspects of the psyche – unacknowledged desires, fears, or past experiences. Discusses potential for healing, integration, or conversely, compulsive repetition if unexamined. Introduces concepts like using play for exposure (with caution).</p><ul><li>Identifying Shadow Desires and Fears</li><li>Compulsive vs. Conscious Expression</li><li>Potential for Healing and Integration (Caution Required)</li><li>The Role of Therapy and Self-Awareness</li></ul>" }
+    ],
+    "C": [
+        { level: 1, title: "Fantasy & Imagination", insightCost: 10, content: "<p>Explores the function of internal fantasy, common fantasy themes, the difference between fantasy and reality, and the use of imagination to enhance arousal even in partnered encounters.</p><ul><li>The Role of Internal Narrative</li><li>Common Fantasy Archetypes and Themes</li><li>Distinguishing Fantasy from Intent</li><li>Using Imagination to Enhance Presence</li></ul>" },
+        { level: 2, title: "Scenarios, Role-Play & Scripting", insightCost: 25, content: "<p>Delves into the practice of creating and enacting specific scenarios, adopting roles, using costumes/props, and the degree of scripting vs. improvisation preferred in cognitive play.</p><ul><li>Common Role-Playing Archetypes (Doctor, Teacher, etc.)</li><li>Costumes, Props, and Setting the Scene</li><li>Scripting vs. Improvisation</li><li>Psychological Depth in Role-Play</li></ul>" },
+        { level: 3, title: "Intellect, Meaning & Transcendence", insightCost: 50, content: "<p>Focuses on higher-level cognitive engagement: finding arousal in intellectual banter, understanding complex psychological dynamics (mind games), exploring philosophical or symbolic meaning in sex, and seeking transcendent mental states.</p><ul><li>Sapiosexuality and Intellectual Foreplay</li><li>Mind Games and Psychological Chess</li><li>Symbolism and Ritual in Sexuality</li><li>Seeking Transcendence Through Mental Focus</li></ul>" }
+    ],
+    "R": [
+        { level: 1, title: "Structures & Numbers", insightCost: 10, content: "<p>Defines the basic structures: solitary practice, monogamy (serial vs. lifelong), and introduces the concept of consensual non-monogamy (CNM) as an umbrella term.</p><ul><li>Solitary Practice (Masturbation)</li><li>Monogamy: Definitions and Variations</li><li>Introduction to Consensual Non-Monogamy (CNM)</li><li>Dyads, Triads, Quads, and Moresomes</li></ul>" },
+        { level: 2, title: "Commitment, Intimacy & Anonymity", insightCost: 25, content: "<p>Explores the varying levels of emotional intimacy and commitment desired within different structures, from deep bonding in polyamory to the intentional lack of connection in anonymous encounters or casual sex.</p><ul><li>Defining Commitment Beyond Exclusivity</li><li>Emotional Intimacy vs. Sexual Connection</li><li>The Spectrum of Casual Sex (FWB, Hookups)</li><li>Anonymity and Its Appeals/Drawbacks</li></ul>" },
+        { level: 3, title: "Hierarchy, Rules & Communication", insightCost: 50, content: "<p>Addresses common practices and philosophies within CNM, such as open relationships vs. polyamory, hierarchical vs. non-hierarchical approaches (Relationship Anarchy), the role of rules vs. agreements, and managing complex communication and emotions like jealousy/compersion.</p><ul><li>Open Relationships vs. Polyamory</li><li>Hierarchy: Primaries, Secondaries, and Non-Hierarchical Models</li><li>Relationship Anarchy Principles</li><li>Rules vs. Agreements & Boundary Setting</li><li>Managing Jealousy & Cultivating Compersion</li></ul>" }
+    ]
 };
 
 // --- NEW Focus Rituals Data ---
@@ -400,22 +455,31 @@ const alchemicalExperiments = [
     { id: "EXP02", name: "Command Resonance", requiredElement: "I", requiredAttunement: 80, insightCost: 40, requiredFocusConceptIds: [11], // Example: Requires Command/Control Dynamics focused
       description: "Channel intense focus into the act of command or obedience, seeking perfect resonance and understanding within a power dynamic.",
       successReward: { type: "insight", amount: 20 }, failureConsequence: "Temporary inability to focus Interaction concepts.", successRate: 0.5 },
+    { id: "EXP03", name: "Intimacy Catalyst", requiredElement: "P", requiredAttunement: 85, insightCost: 50, requiredFocusConceptIds: [15], // Requires Deep Emotional Intimacy
+      description: "Attempt a ritualistic sharing of vulnerabilities to rapidly deepen a perceived emotional connection, risking discomfort or misinterpretation.",
+      successReward: { type: "attunement", element: "P", amount: 6 }, failureConsequence: "Increased feeling of psychological dissonance for a time.", successRate: 0.4 },
     // Add more experiments...
 ];
 
 const elementalInsights = [ // Short text fragments
     { id: "EI_A01", element: "A", text: "Attraction is a compass, not always pointing north." },
     { id: "EI_A02", element: "A", text: "What repels reveals as much as what attracts." },
+    { id: "EI_A03", element: "A", text: "Sometimes, the strongest pull is towards the unfamiliar edge." },
     { id: "EI_I01", element: "I", text: "Every interaction is a negotiation, spoken or unspoken." },
     { id: "EI_I02", element: "I", text: "Silence, too, is a form of dialogue in the dance." },
+    { id: "EI_I03", element: "I", text: "True power lies not in control, but in the consent to be controlled." },
     { id: "EI_S01", element: "S", text: "The skin remembers sensations the mind forgets." },
     { id: "EI_S02", element: "S", text: "Pain is but intense sensation; its meaning is chosen." },
+    { id: "EI_S03", element: "S", text: "Deprive one sense, and the others awaken hungrily." },
     { id: "EI_P01", element: "P", text: "Need is the hidden current beneath the waves of desire." },
     { id: "EI_P02", element: "P", text: "Vulnerability offered is strength transformed." },
+    { id: "EI_P03", element: "P", text: "Catharsis burns away the dross, leaving purified feeling." },
     { id: "EI_C01", element: "C", text: "Fantasy is the laboratory where reality is tested." },
     { id: "EI_C02", element: "C", text: "The most intricate scenes are mapped first in the mind." },
+    { id: "EI_C03", element: "C", text: "Meaning elevates sensation; intellect sharpens the edge." },
     { id: "EI_R01", element: "R", text: "A dyad is a universe, a network a galaxy." },
     { id: "EI_R02", element: "R", text: "Rules bind, agreements connect." },
+    { id: "EI_R03", element: "R", text: "Exclusivity is a choice, not a default setting of the heart." },
     // Add more insights...
 ];
 
