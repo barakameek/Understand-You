@@ -58,24 +58,22 @@
                      <p>Current Insight: <strong id="userInsightDisplayPersona">0.0</strong> <i class="fas fa-brain insight-icon"></i></p>
                      <hr>
                      <h2>Element Attunement</h2>
-                     <p>Grows passively through interaction and reflection.</p>
+                     <p>Grows passively. Higher levels improve Research.</p> <!-- Updated description -->
                      <div id="elementAttunementDisplay"></div>
                  </div>
                  <div class="persona-constellation">
                       <h2>Persona Tapestry</h2>
-                      <p>Visualizing your Focused Concepts & Grimoire Insights</p>
-                      <div class="tapestry-area" id="tapestryArea">
-                           <h4 id="focusedConceptsHeader">Focused Concepts (0 / 5)</h4>
-                           <div id="focusedConceptsDisplay" class="focus-concepts-grid"></div>
-                      </div>
-                      <div class="grimoire-insights">
-                          <h3>Grimoire Insights</h3>
-                          <ul id="personaThemesList"></ul>
-                      </div>
-                      <div class="milestones-section">
-                          <h3>Milestones Achieved</h3>
+                      <!-- REMOVED Limit Text -->
+                      <h4 id="focusedConceptsHeader">Focused Concepts</h4>
+                      <p>Your curated selection shaping your active persona.</p>
+                      <div id="focusedConceptsDisplay" class="focus-concepts-grid"></div>
+                      <hr>
+                       <!-- UPDATED: Milestones in Details Element -->
+                      <details class="milestones-section">
+                          <summary><h3>Milestones Achieved</h3></summary>
                           <ul id="milestonesDisplay"><li>None yet</li></ul>
-                      </div>
+                      </details>
+                      <!-- REMOVED Grimoire Insights Section -->
                  </div>
              </div>
               <button id="restartButtonPersona" class="button small-button back-button">Restart Setup</button>
@@ -101,8 +99,9 @@
                  <div class="research-bench">
                      <h2>Research Notes</h2>
                      <div id="researchStatus">Select an Element to focus on...</div>
-                     <div id="researchOutput" class="research-output-area">
-                        <p><i>Research results will appear in a pop-up window.</i></p>
+                     <!-- UPDATED: Research results appear here directly -->
+                     <div id="researchOutput" class="research-output-area card-grid">
+                        <p><i>Research results will appear here. Choose one to add to your Grimoire.</i></p>
                      </div>
                  </div>
              </div>
@@ -131,6 +130,12 @@
                       <option value="rarity">Rarity</option>
                   </select>
               </div>
+              <!-- ADDED: Div for Grimoire Insights -->
+              <div id="grimoireInsightsDisplay" class="grimoire-insights">
+                    <h3>Grimoire Insights (Themes based on Focused Concepts)</h3>
+                    <ul id="personaThemesList"></ul>
+              </div>
+              <hr style="margin: 20px 0;">
               <div id="grimoireContent" class="card-grid"></div>
          </div>
 
@@ -178,13 +183,7 @@
               </div>
         </div>
 
-         <!-- === Research Results Modal === -->
-         <div id="researchModal" class="popup hidden research-modal">
-             <button id="closeResearchModalButton" class="close-button">×</button>
-             <h3>Research Discovery</h3>
-             <p id="researchModalStatus">Status...</p>
-             <div id="researchModalContent" class="card-grid research-results-grid"></div>
-         </div>
+         <!-- REMOVED Research Results Modal -->
 
          <!-- === Reflection Prompt Modal === -->
          <div id="reflectionModal" class="popup hidden reflection-modal">
