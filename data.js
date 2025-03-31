@@ -325,7 +325,7 @@ const reflectionPrompts = {
              { id: "gCS2", text: "What new possibilities or dynamics emerge when you consider [Concept A] and [Concept B] together? Does their combination create something unique?" }
         ]
         // Add more categories as needed
-    }
+    },
 }; // END of reflectionPrompts object
 
  // NEW: Prompts triggered by discovering specific Rare cards
