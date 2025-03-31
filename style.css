@@ -1,4 +1,4 @@
-/* style.css - COMPLETE VERSION v7 */
+/* style.css - COMPLETE VERSION v8 (Insight UI, Focus Slots, Research Buttons) */
 
 /* Basic Reset & Body */
 body {
@@ -20,11 +20,7 @@ body {
 }
 
 /* Screen Management */
-.screen {
-    padding: 20px 30px;
-    box-sizing: border-box;
-    min-height: calc(100vh - 40px - 50px); /* Viewport height minus margins minus nav height */
-}
+.screen { padding: 20px 30px; box-sizing: border-box; min-height: calc(100vh - 40px - 50px); }
 .hidden { display: none !important; }
 .current { display: block; }
 
@@ -56,174 +52,45 @@ hr { border: none; border-top: 1px dashed #c8b89a; margin: 15px 0; }
 /* Welcome Screen */
 #welcomeScreen { text-align: center; padding: 50px 30px;}
 
-/* Questionnaire Screen */
+/* Questionnaire Screen - Layout v7 */
 #questionnaireScreen { text-align: center; }
 #questionnaireScreen header { padding: 10px 20px 15px 20px; border-bottom: 1px solid #d3c0a0; margin-bottom: 25px; position: sticky; top: 0; background: rgba(245, 240, 225, 0.95); z-index: 10; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-
-/* Element Progress Header - Updated for Full Names */
-.element-progress-header {
-    display: flex;
-    flex-wrap: wrap; /* Allow wrapping */
-    justify-content: center; /* Center tabs */
-    margin-bottom: 10px;
-    padding: 5px;
-    background-color: #e8e4d8;
-    border-radius: 5px;
-    border: 1px solid #d3c0a0;
-}
-.element-tab {
-    padding: 6px 12px; /* Adjust padding */
-    border-radius: 4px;
-    font-size: 0.8em; /* Slightly smaller font */
-    color: #7a5230;
-    border: 1px solid transparent;
-    margin: 2px 4px; /* Add spacing between tabs */
-    text-align: center; /* Center text within tab */
-    white-space: nowrap; /* Prevent names breaking mid-word */
-    flex-shrink: 0; /* Prevent shrinking */
-}
+.element-progress-header { display: flex; flex-wrap: wrap; justify-content: center; margin-bottom: 10px; padding: 5px; background-color: #e8e4d8; border-radius: 5px; border: 1px solid #d3c0a0; }
+.element-tab { padding: 6px 12px; border-radius: 4px; font-size: 0.8em; color: #7a5230; border: 1px solid transparent; margin: 2px 4px; text-align: center; white-space: nowrap; flex-shrink: 0; }
 .element-tab.active { background-color: #f0e68c; color: #5a3a22; border-color: #b8a880; font-weight: bold; }
 .element-tab.completed { background-color: #d4ffd4; color: #006400; opacity: 0.8;}
-
 #progressText { text-align: center; color: #5a4a3a; font-size: 1.1em; font-weight: bold; margin-bottom: 5px;}
-
-/* Dynamic Score Feedback in Header */
-#dynamicScoreFeedback {
-    text-align: center;
-    font-size: 0.95em; /* Slightly larger base size */
-    color: #555;
-    background-color: #eee9dd;
-    padding: 8px 15px; /* More padding */
-    border-radius: 4px;
-    margin-top: 10px; /* Space from tabs */
-    border: 1px solid #d3c0a0;
-}
-#dynamicScoreFeedback > div:first-of-type { /* Target the div containing score/label */
-    margin-bottom: 8px; /* Space before score bar */
-}
+#dynamicScoreFeedback { text-align: center; font-size: 0.95em; color: #555; background-color: #eee9dd; padding: 8px 15px; border-radius: 4px; margin-top: 10px; border: 1px solid #d3c0a0; }
+#dynamicScoreFeedback > div:first-of-type { margin-bottom: 8px; }
 #feedbackElement { font-weight: bold; color: #8b4513; }
 #feedbackScore { font-weight: bold; color: #8b4513; font-size: 1.1em; margin: 0 3px;}
 #dynamicScoreFeedback .score-label { font-style: italic; color: #6a5a4a; margin-left: 5px;}
 .score-bar-container { height: 8px; background-color: #d3c0a0; border-radius: 4px; margin-top: 5px; max-width: 200px; margin-left: auto; margin-right: auto; overflow: hidden;}
 #feedbackScoreBar { height: 100%; background-color: #8b4513; width: 50%; border-radius: 4px; transition: width 0.3s ease; }
-/* REMOVED interpretation text style from header */
-/* #dynamicScoreFeedback .interpretation-text { ... } */
-
-/* Questionnaire Main Area - Redesigned */
-#questionnaireScreen main {
-    padding: 0 10px; /* Reduce side padding */
-}
-
-/* Element Intro Block */
-.element-intro {
-    background-color: #faf0e6;
-    padding: 15px 20px; /* More padding */
-    border-radius: 5px;
-    margin: 0 auto 25px auto; /* Center intro block */
-    border-left: 5px solid #8b4513; /* Thicker border */
-    max-width: 700px; /* Limit width */
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-}
+#questionnaireScreen main { padding: 0 10px; }
+.element-intro { background-color: #faf0e6; padding: 15px 20px; border-radius: 5px; margin: 0 auto 25px auto; border-left: 5px solid #8b4513; max-width: 700px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
 .element-intro h2 { text-align: left; margin-bottom: 8px; color: #5a3a22; font-size: 1.3em;}
 .element-intro p { text-align: left; font-size: 0.95em; color: #444; margin-bottom: 10px;}
 .element-intro p em { color: #7a5230; font-weight: bold; }
 .element-intro p small { color: #6a5a4a; display: block; margin-top: 5px; }
-
-/* Question Block Layout - Redesigned */
-.question-block {
-    margin: 0 auto 35px auto; /* Center block horizontally, more bottom margin */
-    padding: 25px; /* Add padding inside the block */
-    border: 1px solid #e0d8c8; /* Lighter border */
-    background-color: #fffefa; /* Very light background */
-    border-radius: 8px; /* Rounded corners */
-    max-width: 650px; /* Limit width of the block */
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05); /* Subtle shadow */
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-.question-block:last-child {
-    border-bottom: 1px solid #e0d8c8; /* Re-add border for consistency */
-}
-
-.question-title {
-    font-size: 1.2em; /* Increase size */
-    font-weight: 600;
-    margin-bottom: 25px; /* More space below title */
-    color: #4a3e33; /* Darker color */
-    text-align: center;
-    max-width: 90%; /* Relative max width */
-    line-height: 1.4; /* Improve readability */
-}
-
-.input-container {
-    margin-top: 10px; /* Ensure space below title */
-    width: 100%;
-    display: flex;
-    justify-content: center; /* Center the slider/radio/checkbox area */
-    padding: 0 15px; /* Padding within the container */
-    box-sizing: border-box;
-}
-
-/* Slider Styles within the new block */
-.slider-container {
-    width: 100%;
-    max-width: 450px; /* Adjust max-width if needed */
-    margin: 0; /* Reset margin */
-}
+.question-block { margin: 0 auto 35px auto; padding: 25px; border: 1px solid #e0d8c8; background-color: #fffefa; border-radius: 8px; max-width: 650px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); display: flex; flex-direction: column; align-items: center; }
+.question-block:last-child { border-bottom: 1px solid #e0d8c8; }
+.question-title { font-size: 1.2em; font-weight: 600; margin-bottom: 25px; color: #4a3e33; text-align: center; max-width: 90%; line-height: 1.4; }
+.input-container { margin-top: 10px; width: 100%; display: flex; justify-content: center; padding: 0 15px; box-sizing: border-box; }
+.slider-container { width: 100%; max-width: 450px; margin: 0; }
 .slider { width: 100%; cursor: pointer; appearance: none; height: 8px; background: #d3c0a0; border-radius: 5px; outline: none; border: 1px solid #b8a880;}
 .slider::-webkit-slider-thumb { appearance: none; width: 18px; height: 18px; background: #8b4513; border-radius: 50%; cursor: pointer; border: 1px solid #5a2d0c;}
 .slider::-moz-range-thumb { width: 18px; height: 18px; background: #8b4513; border-radius: 50%; cursor: pointer; border: 1px solid #5a2d0c; }
 .label-container { display: flex; justify-content: space-between; margin-top: 6px; }
-.label-text { font-size: 0.8em; color: #6a5a4a; } /* Slightly larger labels */
+.label-text { font-size: 0.8em; color: #6a5a4a; }
 .value-text { margin-top: 10px; text-align: center; font-size: 0.9em; font-weight: 500; }
-
-/* RE-ADDED Slider Feedback Style (Under Slider) */
-.slider-feedback {
-    font-size: 0.9em;
-    color: #5a3a22; /* Darker brown */
-    background-color: #f5f0e1; /* Matches container bg */
-    border: 1px dashed #c8b89a; /* Dashed border */
-    border-radius: 4px;
-    padding: 8px 12px;
-    margin-top: 15px; /* Space above feedback */
-    min-height: 2.5em; /* Ensure space */
-    text-align: left; /* Align text left */
-    line-height: 1.4;
-}
-
-
-/* Radio/Checkbox within the new block */
-.radio-options, .checkbox-options {
-    width: 100%;
-    max-width: 400px; /* Adjust if needed */
-    margin: 0; /* Reset margin */
-    text-align: left;
-}
+.slider-feedback { font-size: 0.9em; color: #5a3a22; background-color: #f5f0e1; border: 1px dashed #c8b89a; border-radius: 4px; padding: 8px 12px; margin-top: 15px; min-height: 2.5em; text-align: left; line-height: 1.4; }
+.radio-options, .checkbox-options { width: 100%; max-width: 400px; margin: 0; text-align: left; }
 .radio-options div, .checkbox-options div { margin-bottom: 8px; }
-.radio-options label, .checkbox-options label {
-    display: block;
-    background-color: #f5f0e1; /* Slightly darker bg */
-    padding: 10px 12px;
-    border-radius: 5px;
-    border: 1px solid #d3c0a0;
-    cursor: pointer;
-    transition: background-color 0.2s ease, box-shadow 0.2s ease;
-    font-size: 0.95em;
-}
+.radio-options label, .checkbox-options label { display: block; background-color: #f5f0e1; padding: 10px 12px; border-radius: 5px; border: 1px solid #d3c0a0; cursor: pointer; transition: background-color 0.2s ease, box-shadow 0.2s ease; font-size: 0.95em; }
 .radio-options input[type="radio"], .checkbox-options input[type="checkbox"] { position: absolute; opacity: 0; pointer-events: none; }
-.radio-options input[type="radio"]:checked + label,
-.checkbox-options input[type="checkbox"]:checked + label {
-    background-color: #f0e68c;
-    border-color: #a09060;
-    color: #4a3e33;
-    font-weight: bold;
-    box-shadow: inset 0 0 3px rgba(0,0,0,0.1); /* Add subtle inset shadow */
-}
-
-/* Questionnaire Footer */
+.radio-options input[type="radio"]:checked + label, .checkbox-options input[type="checkbox"]:checked + label { background-color: #f0e68c; border-color: #a09060; color: #4a3e33; font-weight: bold; box-shadow: inset 0 0 3px rgba(0,0,0,0.1); }
 #questionnaireScreen footer { margin-top: 25px; display: flex; justify-content: space-between; padding: 0 10px;}
-
 
 /* My Persona Screen */
 .persona-screen { background-color: #faf0e6; }
@@ -232,111 +99,64 @@ hr { border: none; border-top: 1px dashed #c8b89a; margin: 15px 0; }
 .persona-constellation { flex: 1 1 450px; background-color: #e8e4d8; padding: 20px; border-radius: 5px; border: 1px solid #c8b89a;}
 .persona-elements-detailed h2, .persona-constellation h2 { text-align: left; border: none; margin-bottom: 10px; font-size: 1.3em;}
 .persona-elements-detailed > p, .persona-constellation > p { text-align: left; font-size: 0.9em; color: #666; margin-bottom: 20px; }
-
-/* Element Details on Persona Page - With Color Coding */
-.element-detail-entry {
-    margin-bottom: 15px;
-    padding-bottom: 10px;
-    border-bottom: 1px dotted #c8b89a;
-    /* Add subtle left border using the variable */
-    border-left: 4px solid var(--element-color, #ccc); /* Use variable, fallback grey */
-    padding-left: 10px; /* Add padding for the border */
-    border-radius: 0 4px 4px 0; /* Optional: round corners opposite the border */
-    /* transition: background-color 0.2s ease; */ /* Optional: transition background */
-}
-/* Optional: Hover effect using color variable */
-/* .element-detail-entry:hover {
-    background-color: rgba(from var(--element-color, #ccc) r g b / 0.05);
-} */
-
-.element-detail-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    cursor: pointer;
-    margin-bottom: 5px;
-    padding: 5px 8px 5px 0; /* Remove left padding */
-    border-radius: 0 4px 4px 0; /* Match parent rounding */
-    position: relative;
-}
-.element-detail-header:hover {
-    background-color: rgba(238, 233, 221, 0.9);
-}
+.element-detail-entry { margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px dotted #c8b89a; border-left: 4px solid var(--element-color, #ccc); padding-left: 10px; border-radius: 0 4px 4px 0; }
+.element-detail-header { display: flex; align-items: center; justify-content: space-between; cursor: pointer; margin-bottom: 5px; padding: 5px 8px 5px 0; border-radius: 0 4px 4px 0; position: relative; }
+.element-detail-header:hover { background-color: rgba(238, 233, 221, 0.9); }
 .element-detail-header strong { font-size: 1.1em; color: #5a3a22;}
 .element-detail-header span { font-weight: bold; color: #8b4513; font-size: 1.1em;}
 .element-detail-header .score-label { font-style: italic; margin-left: 5px; color: #7a5230; font-size: 0.9em;}
-/* Persona score bar container */
-.element-detail-header .score-bar-container {
-    height: 10px;
-    max-width: 100px;
-    background-color: #d3c0a0;
-    border-radius: 5px;
-    overflow: hidden;
-}
-/* Persona score bar fill uses direct style from JS */
-
+.element-detail-header .score-bar-container { height: 10px; max-width: 100px; background-color: #d3c0a0; border-radius: 5px; overflow: hidden; }
 .element-description { font-size: 0.9em; color: #4a3e33; margin-top: 10px; background: rgba(255,255,255,0.4); padding: 12px; border-radius: 4px; border: 1px solid #eee9dd; }
 .element-description p { text-align: left; margin-bottom: 8px; }
 .element-description strong { color: #8b4513;}
 .element-description small { color: #6a5a4a; font-size: 0.9em; display: block; margin-top: 5px;}
-
-/* Essence Display (Persona Screen) */
-#elementEssenceDisplayPersona { margin-top: 15px; padding-top: 10px; border-top: 1px dashed #c8b89a;}
-#elementEssenceDisplayPersona .essence-item { display: flex; align-items: center; margin-bottom: 5px; font-size: 0.9em;}
-#elementEssenceDisplayPersona .essence-icon { width: 15px; height: 15px; border-radius: 50%; margin-right: 8px; border: 1px solid rgba(0,0,0,0.2);}
-#elementEssenceDisplayPersona .essence-name { width: 90px; font-weight: 500; }
-#elementEssenceDisplayPersona .essence-value { font-weight: bold; }
-
-/* Attunement Display */
+#userInsightDisplayPersona { font-weight: bold; color: #5a2d0c; } /* Style for Insight display */
+.insight-icon { color: #8A2BE2; margin-left: 3px; } /* Cognitive color for Insight icon */
 #elementAttunementDisplay { margin-top: 10px; font-size: 0.9em; padding-top: 10px; border-top: 1px dashed #c8b89a;}
 #elementAttunementDisplay .attunement-item { margin-bottom: 3px; display: flex; align-items: center;}
 #elementAttunementDisplay .attunement-name { width: 100px; font-weight: 500;}
 #elementAttunementDisplay .attunement-bar-container { flex-grow: 1; height: 8px; background-color: #d3c0a0; border-radius: 4px; overflow: hidden; margin-left: 10px;}
 #elementAttunementDisplay .attunement-bar { height: 100%; background-color: #b8860b; width: 0%; border-radius: 4px; transition: width 0.5s ease;}
-
-/* Tapestry Area */
 .tapestry-area { background-color: #fffefa; border: 1px solid #d3c0a0; border-radius: 5px; min-height: 200px; padding: 15px; margin-bottom: 20px; }
-.tapestry-area h4 { border-bottom: 1px solid #e8e4d8; padding-bottom: 5px; text-align: left; }
-.core-concepts-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin-top: 10px; }
-.core-concept-item { background-color: #fff8e7; border: 1px solid #d3c0a0; border-radius: 4px; padding: 8px 10px; font-size: 0.9em; text-align: center; cursor: pointer; transition: background-color 0.2s ease; }
-.core-concept-item:hover { background-color: #f5eecf; }
-.core-concept-item i { font-size: 1.2em; margin-bottom: 5px; color: #b8860b; display: block; }
-.core-concept-item .name { font-weight: bold; display: block; font-size: 0.95em; }
-.core-concept-item .type { font-size: 0.8em; color: #6a5a4a; font-style: italic; }
-.core-concepts-grid li { list-style: none; font-style: italic; color: #777; text-align: center; grid-column: 1 / -1; /* Span full width */}
-
-/* Grimoire Insights */
+/* Focus Concepts Header */
+#focusedConceptsHeader { border-bottom: 1px solid #e8e4d8; padding-bottom: 5px; text-align: left; margin-bottom: 10px; }
+/* Focus Concepts Grid (Renamed) */
+.focus-concepts-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin-top: 10px; }
+.focus-concept-item { background-color: #fff8e7; border: 1px solid #d3c0a0; border-radius: 4px; padding: 8px 10px; font-size: 0.9em; text-align: center; cursor: pointer; transition: background-color 0.2s ease; }
+.focus-concept-item:hover { background-color: #f5eecf; }
+.focus-concept-item i { font-size: 1.2em; margin-bottom: 5px; color: #b8860b; display: block; }
+.focus-concept-item .name { font-weight: bold; display: block; font-size: 0.95em; }
+.focus-concept-item .type { font-size: 0.8em; color: #6a5a4a; font-style: italic; }
+.focus-concepts-grid li { list-style: none; font-style: italic; color: #777; text-align: center; grid-column: 1 / -1; /* Span full width */}
 .grimoire-insights h3 { font-size: 1.1em; text-align: left; border-bottom: 1px solid #d3c0a0; padding-bottom: 3px; }
 #personaThemesList { list-style: none; padding-left: 0; margin-top: 10px; font-size: 0.95em; }
 #personaThemesList li { margin-bottom: 6px; padding-left: 20px; position: relative; }
 #personaThemesList li::before { content: '✧'; position: absolute; left: 0; top: 1px; color: #b8860b; }
-
-/* Milestones Display */
 .milestones-section { margin-top: 20px; padding-top: 15px; border-top: 1px solid #c8b89a; }
 .milestones-section h3 { font-size: 1.1em; text-align: left; border: none; margin-bottom: 5px;}
 #milestonesDisplay { list-style: none; padding-left: 0; font-size: 0.9em; }
 #milestonesDisplay li { background-color: #fffefa; border-left: 3px solid #b8860b; padding: 5px 8px; margin-bottom: 5px; border-radius: 0 3px 3px 0;}
 #milestonesDisplay li:first-child:empty { display:none; }
 
-
 /* Main Study Screen */
-.study-screen {}
 .study-layout-container { display: flex; flex-wrap: wrap; gap: 30px; }
-.essence-shelf { flex: 1 1 280px; max-width: 350px; background-color: #deb887; padding: 20px; border-radius: 8px; border: 3px ridge #8b4513; box-shadow: inset 0 0 10px rgba(0,0,0,0.2); min-height: 300px; }
+.study-resources { /* New container for left column */ flex: 1 1 300px; max-width: 380px; background-color: #deb887; padding: 20px; border-radius: 8px; border: 3px ridge #8b4513; box-shadow: inset 0 0 10px rgba(0,0,0,0.2); }
 .research-bench { flex: 3 1 500px; background-color: #eee8aa; padding: 20px; border-radius: 8px; border: 1px solid #b8a880; min-height: 300px; }
-.essence-shelf h2, .research-bench h2 { margin-top: 0; border-bottom-color: #a08460; }
-.essence-shelf p, .research-bench p { text-align: left; font-size: 0.9em; margin-bottom: 10px; }
-
-/* Essence Display (Study Screen) */
-#elementEssenceDisplayStudy { margin-top: 15px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;}
-.essence-counter { background-color: rgba(255, 248, 220, 0.7); border: 1px solid #b8a880; border-radius: 5px; padding: 10px; text-align: center; cursor: pointer; transition: background-color 0.2s ease, transform 0.1s ease; }
-.essence-counter:hover:not(.disabled) { background-color: rgba(255, 248, 220, 1); transform: scale(1.03); }
-.essence-counter.disabled { cursor: not-allowed; opacity: 0.6; background-color: rgba(200, 200, 200, 0.5); transform: none; }
-.essence-counter .essence-icon { display: block; width: 20px; height: 20px; border-radius: 50%; margin: 0 auto 8px auto; border: 1px solid rgba(0,0,0,0.2);}
-.essence-counter .essence-name { font-weight: bold; font-size: 0.9em; display: block; color: #5a2d0c; }
-.essence-counter .essence-value { font-size: 1.1em; font-weight: bold; color: #8b4513; }
-.essence-cost { font-size: 0.75em; color: #777; margin-top: 3px; }
-
+.study-resources h2, .research-bench h2 { margin-top: 0; border-bottom-color: #a08460; }
+.study-resources p, .research-bench p { text-align: left; font-size: 0.9em; margin-bottom: 10px; }
+#userInsightDisplayStudy { font-weight: bold; color: #5a2d0c; } /* Style for Insight display */
+/* Research Buttons Area */
+.research-buttons { display: grid; grid-template-columns: 1fr 1fr; /* Two columns */ gap: 10px; margin-top: 15px; }
+.research-button { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 8px 5px; font-size: 0.85em; height: 80px; /* Fixed height */ text-align: center; border-radius: 5px; background-color: #faf0e6; /* Light base color */ border: 1px solid #b8a880; color: #5a3a22; text-shadow: none; }
+.research-button:hover:not(:disabled) { background-color: #fff8dc; border-color: #8b4513; }
+.research-button.disabled { background-color: #eee; border-color: #ccc; color: #999; opacity: 0.7; cursor: not-allowed; }
+.research-el-icon { font-size: 1.4em; margin-bottom: 5px; }
+.research-el-name { font-weight: bold; line-height: 1.2; }
+.research-el-cost { font-size: 0.9em; color: #7a5230; margin-top: 3px; }
+.research-el-cost .insight-icon { font-size: 0.9em; }
+.free-research-button { width: 100%; margin-bottom: 15px; background-color: #66cdaa; border-color: #3cb371; } /* Style for free button */
+.free-research-button:hover:not(:disabled) { background-color: #98fb98; }
+.free-research-button:disabled { background-color: #aaa; border-color: #888; color: #eee; cursor: default; text-shadow: none; }
 /* Rituals Display */
 .rituals-section { margin-top: 20px; padding-top: 15px; border-top: 1px dashed #a08460;}
 .rituals-section h3 { font-size: 1.1em; text-align: left; border: none; margin-bottom: 5px;}
@@ -344,126 +164,41 @@ hr { border: none; border-top: 1px dashed #c8b89a; margin: 15px 0; }
 #dailyRitualsDisplay li { background-color: rgba(255, 248, 220, 0.7); padding: 8px; margin-bottom: 6px; border-radius: 4px; border: 1px solid #b8a880;}
 #dailyRitualsDisplay li.completed { text-decoration: line-through; color: #777; background-color: rgba(220, 220, 200, 0.7);}
 #dailyRitualsDisplay .ritual-reward { font-size: 0.85em; color: #5a3a22; margin-left: 5px; font-style: italic;}
-
-/* Research Bench */
 #researchStatus { background-color: rgba(255, 248, 220, 0.8); border: 1px dashed #b8860b; padding: 10px; margin-bottom: 15px; border-radius: 4px; text-align: center; font-weight: bold; color: #5a3a22; min-height: 1.5em;}
 .research-output-area { min-height: 100px; text-align: center; color: #666;}
 
-
-/* Card Grid Layout (Used in Grimoire, Research Results) */
+/* Card Grid Layout */
 .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px; padding: 10px 5px 10px 10px; }
 
-/* Concept Card Basic Style & Rarity */
-.concept-card {
-    background-color: #fff8dc; /* Default Common BG */
-    border: 2px solid #b8860b; /* Default Common Border */
-    border-radius: 8px;
-    padding: 10px;
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.25s ease; /* Slightly longer transition */
-    position: relative;
-    box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
-    display: flex;
-    flex-direction: column;
-    height: 270px; /* Keep consistent height */
-    overflow: hidden;
-}
-
-/* Rarity: Uncommon */
-.concept-card.rarity-uncommon {
-    border-color: #999; /* Medium Grey border */
-    background-color: #f7f7f0; /* Slightly greyish BG */
-    box-shadow: 2px 2px 5px rgba(0,0,0,0.1), inset 0 0 5px rgba(150, 150, 150, 0.1); /* Inset shadow */
-}
-/* Optional: Subtle texture for Uncommon */
-.concept-card.rarity-uncommon::after {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="4" height="4" viewBox="0 0 4 4"><path fill="%23cccccc" fill-opacity="0.1" d="M1 3h1v1H1V3zm2-2h1v1H3V1z"></path></svg>');
-    pointer-events: none;
-    opacity: 0.5;
-    z-index: 0;
-}
-
-/* Rarity: Rare */
-.concept-card.rarity-rare {
-    border-color: #DAA520; /* Brighter Gold border */
-    border-width: 3px; /* Thicker border */
-    background: linear-gradient(160deg, #fff8dc 0%, #fffacd 50%, #faf0e6 100%); /* More complex gradient */
-    box-shadow: 0 0 10px rgba(255, 215, 0, 0.7), 0 4px 7px rgba(0,0,0,0.18); /* Stronger glow */
-    /* Add a top highlight element */
-}
-.concept-card.rarity-rare::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 5%; /* Indent slightly */
-    right: 5%;
-    height: 5px; /* Height of the highlight */
-    background: linear-gradient(to right, rgba(255,255,255,0), rgba(255, 238, 170, 0.8), rgba(255,255,255,0)); /* Gold highlight */
-    border-radius: 5px 5px 0 0 / 5px 5px 0 0; /* Curve top */
-    opacity: 0.8;
-    z-index: 1; /* Above texture */
-}
-/* Optional: Subtle pulse animation on rare cards */
-@keyframes rarePulse {
-  0% { box-shadow: 0 0 10px rgba(255, 215, 0, 0.7), 0 4px 7px rgba(0,0,0,0.18); }
-  50% { box-shadow: 0 0 14px rgba(255, 215, 0, 0.9), 0 4px 7px rgba(0,0,0,0.18); }
-  100% { box-shadow: 0 0 10px rgba(255, 215, 0, 0.7), 0 4px 7px rgba(0,0,0,0.18); }
-}
-/* Uncomment to enable pulse */
+/* Concept Card Basic Style & Rarity - Rarity v7 */
+.concept-card { background-color: #fff8dc; border: 2px solid #b8860b; border-radius: 8px; padding: 10px; text-align: center; cursor: pointer; transition: all 0.25s ease; position: relative; box-shadow: 2px 2px 5px rgba(0,0,0,0.1); display: flex; flex-direction: column; height: 270px; overflow: hidden; }
+.concept-card.rarity-uncommon { border-color: #999; background-color: #f7f7f0; box-shadow: 2px 2px 5px rgba(0,0,0,0.1), inset 0 0 5px rgba(150, 150, 150, 0.1); }
+.concept-card.rarity-uncommon::after { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="4" height="4" viewBox="0 0 4 4"><path fill="%23cccccc" fill-opacity="0.1" d="M1 3h1v1H1V3zm2-2h1v1H3V1z"></path></svg>'); pointer-events: none; opacity: 0.5; z-index: 0; }
+.concept-card.rarity-rare { border-color: #DAA520; border-width: 3px; background: linear-gradient(160deg, #fff8dc 0%, #fffacd 50%, #faf0e6 100%); box-shadow: 0 0 10px rgba(255, 215, 0, 0.7), 0 4px 7px rgba(0,0,0,0.18); }
+.concept-card.rarity-rare::before { content: ''; position: absolute; top: 0; left: 5%; right: 5%; height: 5px; background: linear-gradient(to right, rgba(255,255,255,0), rgba(255, 238, 170, 0.8), rgba(255,255,255,0)); border-radius: 5px 5px 0 0 / 5px 5px 0 0; opacity: 0.8; z-index: 1; }
+/* @keyframes rarePulse { 0% { box-shadow: 0 0 10px rgba(255, 215, 0, 0.7), 0 4px 7px rgba(0,0,0,0.18); } 50% { box-shadow: 0 0 14px rgba(255, 215, 0, 0.9), 0 4px 7px rgba(0,0,0,0.18); } 100% { box-shadow: 0 0 10px rgba(255, 215, 0, 0.7), 0 4px 7px rgba(0,0,0,0.18); } } */
 /* .concept-card.rarity-rare { animation: rarePulse 3s infinite ease-in-out; } */
-
-/* Card Hover Effects */
-.concept-card:hover {
-    transform: translateY(-4px) scale(1.03); /* Slightly more lift/scale */
-    box-shadow: 0 6px 14px rgba(0,0,0,0.22);
-    z-index: 10; /* Ensure hovered card is on top */
-}
-.concept-card:hover.rarity-uncommon {
-    border-color: #666;
-    box-shadow: 0 6px 14px rgba(0,0,0,0.22), inset 0 0 6px rgba(100, 100, 100, 0.15);
-}
-.concept-card:hover.rarity-rare {
-    border-color: #b8860b; /* Darker gold on hover */
-    box-shadow: 0 0 18px rgba(255, 215, 0, 1), 0 6px 10px rgba(0,0,0,0.25); /* Intense glow */
-    /* animation-play-state: paused; */ /* Optional: pause pulse on hover */
-}
-
-
-/* Card Content Styling */
+.concept-card:hover { transform: translateY(-4px) scale(1.03); box-shadow: 0 6px 14px rgba(0,0,0,0.22); z-index: 10; }
+.concept-card:hover.rarity-uncommon { border-color: #666; box-shadow: 0 6px 14px rgba(0,0,0,0.22), inset 0 0 6px rgba(100, 100, 100, 0.15); }
+.concept-card:hover.rarity-rare { border-color: #b8860b; box-shadow: 0 0 18px rgba(255, 215, 0, 1), 0 6px 10px rgba(0,0,0,0.25); /* animation-play-state: paused; */ }
 .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; height: 20px; }
 .card-header .card-type-icon { font-size: 0.9em; color: #7a5230; margin-right: 5px; }
 .card-header .card-name { font-weight: bold; font-size: 1.05em; color: #8B4513; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; flex-grow: 1; text-align: left; }
 .card-header .card-stamps { font-size: 0.9em; white-space: nowrap; display: flex; align-items: center; }
 .card-header .card-stamps span { margin-left: 4px; }
 .card-header .grimoire-stamp { color: #8b4513; opacity: 0.7;}
-.card-header .core-indicator { color: #FFD700; text-shadow: 1px 1px 0px #b8860b; }
-
-.card-visual {
-    flex-grow: 1; display: flex; align-items: center; justify-content: center;
-    background-color: #eee8aa; margin: 5px 0; border-radius: 4px; min-height: 100px;
-    overflow: hidden; /* Ensure image fits */
-}
+/* Focus Indicator Style (Renamed from core) */
+.card-header .focus-indicator { color: #FFD700; text-shadow: 1px 1px 0px #b8860b; }
+.card-visual { flex-grow: 1; display: flex; align-items: center; justify-content: center; background-color: #eee8aa; margin: 5px 0; border-radius: 4px; min-height: 100px; overflow: hidden; }
 .card-visual .card-visual-placeholder { font-size: 3em; color: #b8a880; }
 .card-visual .card-art-unlocked { font-size: 3.5em; color: #8B4513; }
-.card-visual .card-art-image { /* Style for unlocked art images */
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: cover; /* Cover the area, may crop */
-}
-
-
+.card-visual .card-art-image { display: block; width: 100%; height: 100%; object-fit: cover; }
 .card-footer { font-size: 0.8em; color: #6a5a4a; margin-top: 5px; height: 70px; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between;}
-.card-affinities { margin-bottom: 5px; line-height: 1.3; flex-wrap: wrap; /* Allow wrapping */ display: flex; /* Use flex for alignment */ justify-content: center; /* Center affinities */}
+.card-affinities { margin-bottom: 5px; line-height: 1.3; flex-wrap: wrap; display: flex; justify-content: center; }
 .card-affinities .affinity { display: inline-flex; align-items: center; border: 1px solid; border-radius: 10px; padding: 1px 5px; margin: 1px 2px; font-size: 0.85em; }
-.card-affinities .affinity i { margin-right: 3px; font-size: 0.9em; /* Adjust icon size */ }
+.card-affinities .affinity i { margin-right: 3px; font-size: 0.9em; }
 .card-affinities .affinity-high { font-weight: bold; }
 .card-brief-desc { font-style: italic; font-size: 0.9em; line-height: 1.3; text-align: center; }
-
 
 /* Grimoire Screen */
 .grimoire-screen { background-color: #d2b48c; }
@@ -471,7 +206,6 @@ hr { border: none; border-top: 1px dashed #c8b89a; margin: 15px 0; }
 #grimoireControls label { margin: 0 5px 0 10px; font-weight: bold; color: #5a3a22;}
 #grimoireControls select { padding: 5px; border-radius: 4px; border: 1px solid #a08460; background-color: #fff8e7;}
 #grimoireContent { background-color: #fff8e7; padding: 15px; border-radius: 5px; border: 1px solid #a08460; margin-top: 10px; max-height: calc(100vh - 220px); overflow-y: auto; }
-
 
 /* Popups & Overlay */
 .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.7); z-index: 99; }
@@ -485,15 +219,10 @@ hr { border: none; border-top: 1px dashed #c8b89a; margin: 15px 0; }
 .card-popup .popup-header h3 { margin: 0; color: #5a3a22; font-size: 1.4em; font-family: 'Garamond', serif;}
 .card-popup .popup-header p { font-size: 0.9em; color: #6a5a4a; margin: 0; text-align: center; font-style: italic;}
 .card-popup .popup-content { display: flex; flex: 1; overflow-y: auto; padding: 20px; gap: 20px; }
-/* Use ID selector for container */
-.card-popup #popupVisualContainer {
-    flex: 1; display: flex; align-items: center; justify-content: center; min-width: 180px;
-    background-color: #f5f0e1; border: 1px solid #d3c0a0; border-radius: 5px; overflow: hidden;
-}
+.card-popup #popupVisualContainer { flex: 1; display: flex; align-items: center; justify-content: center; min-width: 180px; background-color: #f5f0e1; border: 1px solid #d3c0a0; border-radius: 5px; overflow: hidden; }
 .card-popup #popupVisualContainer .card-visual-placeholder { font-size: 5em; color: #c8b89a; }
 .card-popup #popupVisualContainer .card-art-unlocked { font-size: 6em; color: #8B4513; }
-.card-popup #popupVisualContainer .card-art-image { display: block; width: 100%; height: 100%; object-fit: contain; /* Contain keeps aspect ratio */ }
-
+.card-popup #popupVisualContainer .card-art-image { display: block; width: 100%; height: 100%; object-fit: contain; }
 .card-popup .popup-details { flex: 2; }
 .card-popup .detailed-description { font-size: 0.95em; margin-bottom: 15px; max-height: 150px; overflow-y: auto; padding-right: 5px; text-align: left; }
 .card-popup .resonance-summary { font-weight: bold; margin-bottom: 10px; font-size: 1.1em; background-color: rgba(255,255,255,0.4); padding: 8px; border-radius: 4px; border: 1px solid #eee9dd; text-align: center; }
@@ -510,23 +239,15 @@ hr { border: none; border-top: 1px dashed #c8b89a; margin: 15px 0; }
 .card-popup .element-details summary:hover { background-color: #e8e4d8; }
 .card-popup .profile-comparison { display: flex; justify-content: space-around; text-align: left; gap: 15px; padding: 10px;}
 .card-popup .profile-column h5 { text-align: center;}
-/* Popup profile bars */
 .card-popup #popupConceptProfile div, .card-popup #popupUserComparisonProfile div { font-size: 0.9em; margin: 3px 0; display: flex; align-items: center; }
 .card-popup #popupConceptProfile strong, .card-popup #popupUserComparisonProfile strong { width: 90px; color: #6a5a4a; font-weight: normal; flex-shrink: 0; }
 .card-popup #popupConceptProfile span, .card-popup #popupUserComparisonProfile span { font-weight: bold; color: #8b4513; margin-right: 5px; }
-.card-popup #popupConceptProfile .score-bar-container, .card-popup #popupUserComparisonProfile .score-bar-container {
-    margin-left: auto; height: 8px; width: 60px; /* Fixed width */ flex-shrink: 0; display: inline-block; vertical-align: middle;
-    background-color: #d3c0a0; border-radius: 4px; overflow: hidden;
-}
+.card-popup #popupConceptProfile .score-bar-container, .card-popup #popupUserComparisonProfile .score-bar-container { margin-left: auto; height: 8px; width: 60px; flex-shrink: 0; display: inline-block; vertical-align: middle; background-color: #d3c0a0; border-radius: 4px; overflow: hidden; }
 .card-popup #popupConceptProfile .score-bar-container div, .card-popup #popupUserComparisonProfile .score-bar-container div { height: 100%; border-radius: 4px;}
-
-
 .card-popup .related-concepts h4 { font-size: 1em; margin-top: 15px; margin-bottom: 8px; color: #5a2d0c; text-align: left; }
 .card-popup #relatedConceptsList { list-style: none; padding: 0; text-align: left; }
 .card-popup #relatedConceptsList li { display: inline-block; background-color: #eee9dd; border: 1px solid #d3c0a0; border-radius: 15px; padding: 3px 10px; margin: 3px; font-size: 0.9em; cursor: pointer; color: #6a5a4a;}
 .card-popup #relatedConceptsList li:hover { background-color: #f0e68c; color: #4a3e33;}
-
-/* Evolution Section Styling */
 .evolution-section { margin-top: 10px; padding-top: 10px; }
 .evolution-section.hidden { display: none; }
 .evolution-section h4 { font-size: 1em; margin-bottom: 8px; text-align: left; }
@@ -535,23 +256,23 @@ hr { border: none; border-top: 1px dashed #c8b89a; margin: 15px 0; }
 .evolve-button:hover:not(:disabled) { background-color: #5a9bd3; }
 .evolve-eligibility-text { font-size: 0.85em; color: #777; margin-top: 5px; font-style: italic; text-align: left; }
 .evolve-eligibility-text.hidden { display: none; }
-.evolve-eligibility-text ul { padding-left: 20px; margin: 5px 0 0 0; list-style: '• '; } /* Simple bullet list */
+.evolve-eligibility-text ul { padding-left: 20px; margin: 5px 0 0 0; list-style: '• '; }
 .evolve-eligibility-text ul li i.fa-check { color: green; margin-right: 5px; }
-
 .card-popup .popup-actions { padding: 10px 20px; border-top: 1px solid #d3c0a0; background-color: #f5f0e1; text-align: right; }
 .card-popup .add-grimoire-button { background-color: #2e8b57; border-color: #1e5a3a; }
 .card-popup .add-grimoire-button:hover { background-color: #3cb371; }
 .card-popup .add-grimoire-button.added { background-color: #aaa; border-color: #888; cursor: default; }
-.card-popup .core-button { background-color: #ffc107; border-color: #b8860b; color: #333; text-shadow: none;}
-.card-popup .core-button:hover { background-color: #e0a800; }
-.card-popup .core-button.marked { background-color: #ffaa00; border-color: #cc8400; }
-.card-popup .core-button.hidden { display: none; }
+/* Focus Button Style (Renamed from core) */
+.card-popup .focus-button { background-color: #ffc107; border-color: #b8860b; color: #333; text-shadow: none;}
+.card-popup .focus-button:hover { background-color: #e0a800; }
+.card-popup .focus-button.marked { background-color: #ffaa00; border-color: #cc8400; }
+.card-popup .focus-button.hidden { display: none; }
 
 /* Research Modal */
 .research-modal { max-width: 800px; }
 .research-modal h3 { text-align: center; margin-bottom: 10px;}
 .research-modal p { text-align: center; margin-bottom: 15px; }
-.research-results-grid { max-height: 60vh; overflow-y: auto; padding: 5px;} /* Add padding */
+.research-results-grid { max-height: 60vh; overflow-y: auto; padding: 5px;}
 
 /* Reflection Modal */
 .reflection-modal { max-width: 500px; }
@@ -560,6 +281,12 @@ hr { border: none; border-top: 1px dashed #c8b89a; margin: 15px 0; }
 .reflection-modal .prompt-text { font-style: italic; background-color: #fffefa; padding: 10px; border-radius: 4px; border: 1px solid #eee9dd; margin-top: 10px; text-align: left;}
 .reflection-confirm { margin: 15px 0; text-align: center; }
 .reflection-confirm label { cursor: pointer; margin-left: 5px; }
+.score-nudge-label { /* Style for the nudge checkbox label */
+    font-size: 0.9em;
+    font-style: italic;
+    margin-left: 5px;
+    color: #6a5a4a;
+}
 #confirmReflectionButton { display: block; margin: 10px auto 0 auto; }
 
 /* Milestone Alert */
@@ -567,7 +294,6 @@ hr { border: none; border-top: 1px dashed #c8b89a; margin: 15px 0; }
 .milestone-alert.hidden { opacity: 0; transform: translate(-50%, 100px); pointer-events: none;}
 #milestoneAlertText { margin-right: 15px; font-weight: bold; }
 #closeMilestoneAlertButton { background: none; border: 1px solid #8B4513; color: #8B4513; border-radius: 50%; width: 20px; height: 20px; line-height: 18px; text-align: center; cursor: pointer; padding: 0;}
-
 
 /* Buttons */
 .button { display: inline-block; padding: 10px 20px; border: 1px solid #5a2d0c; border-radius: 5px; font-size: 1em; font-weight: bold; cursor: pointer; transition: background-color 0.2s ease, transform 0.1s ease; color: #ffffff; text-shadow: 1px 1px 1px rgba(0,0,0,0.3); background-color: #8b4513; }
@@ -579,12 +305,9 @@ hr { border: none; border-top: 1px dashed #c8b89a; margin: 15px 0; }
 .back-button:hover { background-color: #8a8478; }
 .next-button { /* Use default button styles */ }
 
-/* Resonance Indicators (General) */
-.resonance-indicator { font-size: 0.7em; padding: 2px 5px; border-radius: 10px; color: white; font-weight: bold; text-shadow: 1px 1px 1px rgba(0,0,0,0.4); display: inline-block; vertical-align: middle; margin-left: 5px; /* Space from label */ }
+/* Resonance Indicators */
+.resonance-indicator { font-size: 0.7em; padding: 2px 5px; border-radius: 10px; color: white; font-weight: bold; text-shadow: 1px 1px 1px rgba(0,0,0,0.4); display: inline-block; vertical-align: middle; margin-left: 5px; }
 .resonance-high { background-color: #28a745; }
 .resonance-medium { background-color: #ffc107; color: #333; text-shadow: none;}
 .resonance-low { background-color: #dc3545; }
-/* Card specific placement */
-/* .concept-card .resonance-indicator { display: none; } */ /* Handled via stamps */
-/* Pop-up specific placement */
 .resonance-summary .resonance-indicator { margin-left: 8px; }
