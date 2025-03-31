@@ -1,4 +1,4 @@
-/* style.css - COMPLETE VERSION v9 (Based on v8 - Insight UI, Focus Slots, Research Buttons) */
+/* style.css - COMPLETE VERSION v10 (Research Output Area, Milestone Info, Focus Color, Moved Insights) */
 
 /* Basic Reset & Body */
 body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; background-color: #e8e4d8; color: #4a3e33; line-height: 1.5; }
@@ -83,7 +83,7 @@ hr { border: none; border-top: 1px dashed #c8b89a; margin: 15px 0; }
 .persona-elements-detailed { flex: 1 1 400px; background-color: #fff8e7; padding: 20px; border-radius: 5px; border: 1px solid #d3c0a0;}
 .persona-constellation { flex: 1 1 450px; background-color: #e8e4d8; padding: 20px; border-radius: 5px; border: 1px solid #c8b89a;}
 .persona-elements-detailed h2, .persona-constellation h2 { text-align: left; border: none; margin-bottom: 10px; font-size: 1.3em;}
-.persona-elements-detailed > p, .persona-constellation > p { text-align: left; font-size: 0.9em; color: #666; margin-bottom: 10px; /* Reduced margin */}
+.persona-elements-detailed > p, .persona-constellation > p { text-align: left; font-size: 0.9em; color: #666; margin-bottom: 10px; }
 .element-detail-entry { margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px dotted #c8b89a; border-left: 4px solid var(--element-color, #ccc); padding-left: 10px; border-radius: 0 4px 4px 0; }
 .element-detail-header { display: flex; align-items: center; justify-content: space-between; cursor: pointer; margin-bottom: 5px; padding: 5px 8px 5px 0; border-radius: 0 4px 4px 0; position: relative; }
 .element-detail-header:hover { background-color: rgba(238, 233, 221, 0.9); }
@@ -95,8 +95,8 @@ hr { border: none; border-top: 1px dashed #c8b89a; margin: 15px 0; }
 .element-description p { text-align: left; margin-bottom: 8px; }
 .element-description strong { color: #8b4513;}
 .element-description small { color: #6a5a4a; font-size: 0.9em; display: block; margin-top: 5px;}
-#userInsightDisplayPersona { font-weight: bold; color: #5a2d0c; display: inline-block; /* Align icon better */ }
-.insight-icon { color: #8A2BE2; margin-left: 3px; }
+#userInsightDisplayPersona { font-weight: bold; color: #5a2d0c; display: inline-block; }
+.insight-icon { color: #8A2BE2; margin-left: 3px; } /* Cognitive color */
 #elementAttunementDisplay { margin-top: 10px; font-size: 0.9em; padding-top: 10px; border-top: 1px dashed #c8b89a;}
 #elementAttunementDisplay .attunement-item { margin-bottom: 3px; display: flex; align-items: center;}
 #elementAttunementDisplay .attunement-name { width: 100px; font-weight: 500;}
@@ -105,21 +105,43 @@ hr { border: none; border-top: 1px dashed #c8b89a; margin: 15px 0; }
 .tapestry-area { background-color: #fffefa; border: 1px solid #d3c0a0; border-radius: 5px; min-height: 200px; padding: 15px; margin-bottom: 20px; }
 #focusedConceptsHeader { border-bottom: 1px solid #e8e4d8; padding-bottom: 5px; text-align: left; margin-bottom: 10px; font-size: 1.1em;}
 .focus-concepts-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin-top: 10px; }
-.focus-concept-item { background-color: #fff8e7; border: 1px solid #d3c0a0; border-radius: 4px; padding: 8px 10px; font-size: 0.9em; text-align: center; cursor: pointer; transition: background-color 0.2s ease; }
+/* Focus Concept Item - Color Coded */
+.focus-concept-item {
+    background-color: #fff8e7;
+    border: 1px solid #d3c0a0;
+    /* Apply color coding via left border */
+    border-left-width: 4px;
+    border-left-color: var(--focus-item-color, #ccc); /* Use variable set by JS */
+    border-radius: 4px;
+    padding: 8px 10px;
+    font-size: 0.9em;
+    text-align: center;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    position: relative; /* For potential future effects */
+}
 .focus-concept-item:hover { background-color: #f5eecf; }
 .focus-concept-item i { font-size: 1.2em; margin-bottom: 5px; color: #b8860b; display: block; }
 .focus-concept-item .name { font-weight: bold; display: block; font-size: 0.95em; }
 .focus-concept-item .type { font-size: 0.8em; color: #6a5a4a; font-style: italic; }
 .focus-concepts-grid li { list-style: none; font-style: italic; color: #777; text-align: center; grid-column: 1 / -1; }
-.grimoire-insights h3 { font-size: 1.1em; text-align: left; border-bottom: 1px solid #d3c0a0; padding-bottom: 3px; }
-#personaThemesList { list-style: none; padding-left: 0; margin-top: 10px; font-size: 0.95em; }
-#personaThemesList li { margin-bottom: 6px; padding-left: 20px; position: relative; }
-#personaThemesList li::before { content: '✧'; position: absolute; left: 0; top: 1px; color: #b8860b; }
+/* Removed .grimoire-insights styles from Persona page */
+/* Milestones Section (Now collapsible) */
 .milestones-section { margin-top: 20px; padding-top: 15px; border-top: 1px solid #c8b89a; }
-.milestones-section h3 { font-size: 1.1em; text-align: left; border: none; margin-bottom: 5px;}
+.milestones-section summary { cursor: pointer; font-weight: bold; }
+.milestones-section summary h3 { display: inline; font-size: 1.1em; text-align: left; border: none; margin-bottom: 5px; }
+.milestones-section[open] summary { margin-bottom: 10px; } /* Add space when open */
 #milestonesDisplay { list-style: none; padding-left: 0; font-size: 0.9em; }
-#milestonesDisplay li { background-color: #fffefa; border-left: 3px solid #b8860b; padding: 5px 8px; margin-bottom: 5px; border-radius: 0 3px 3px 0;}
+#milestonesDisplay li { background-color: #fffefa; border-left: 3px solid #b8860b; padding: 5px 8px; margin-bottom: 5px; border-radius: 0 3px 3px 0; display: flex; align-items: center; justify-content: space-between; }
 #milestonesDisplay li:first-child:empty { display:none; }
+/* Milestone Info Icon Style */
+.milestone-info-icon {
+    font-size: 0.9em;
+    color: #7a746a; /* Subdued color */
+    margin-left: 8px;
+    cursor: help; /* Indicate it's clickable/hoverable for info */
+}
+.milestone-info-icon:hover { color: #4a3e33; }
 
 /* Main Study Screen */
 .study-layout-container { display: flex; flex-wrap: wrap; gap: 30px; }
@@ -134,8 +156,13 @@ hr { border: none; border-top: 1px dashed #c8b89a; margin: 15px 0; }
 .research-button.disabled { background-color: #eee; border-color: #ccc; color: #999; opacity: 0.7; cursor: not-allowed; }
 .research-el-icon { font-size: 1.4em; margin-bottom: 5px; }
 .research-el-name { font-weight: bold; line-height: 1.2; }
-.research-el-cost { font-size: 0.9em; color: #7a5230; margin-top: 3px; }
-.research-el-cost .insight-icon { font-size: 0.9em; }
+.research-el-cost {
+    font-size: 1em; /* Make cost larger */
+    font-weight: bold; /* Make cost bold */
+    color: #8b4513; /* Darker, more prominent color */
+    margin-top: 4px;
+}
+.research-el-cost .insight-icon { font-size: 0.9em; color: #8A2BE2; /* Ensure icon retains its color */ }
 .free-research-button { width: 100%; margin-bottom: 15px; background-color: #66cdaa; border-color: #3cb371; }
 .free-research-button:hover:not(:disabled) { background-color: #98fb98; }
 .free-research-button:disabled { background-color: #aaa; border-color: #888; color: #eee; cursor: default; text-shadow: none; }
@@ -146,7 +173,31 @@ hr { border: none; border-top: 1px dashed #c8b89a; margin: 15px 0; }
 #dailyRitualsDisplay li.completed { text-decoration: line-through; color: #777; background-color: rgba(220, 220, 200, 0.7);}
 #dailyRitualsDisplay .ritual-reward { font-size: 0.85em; color: #5a3a22; margin-left: 5px; font-style: italic;}
 #researchStatus { background-color: rgba(255, 248, 220, 0.8); border: 1px dashed #b8860b; padding: 10px; margin-bottom: 15px; border-radius: 4px; text-align: center; font-weight: bold; color: #5a3a22; min-height: 1.5em;}
-.research-output-area { min-height: 100px; text-align: center; color: #666;}
+/* Research Output Area (replaces modal) */
+.research-output-area {
+    min-height: 300px; /* Ensure space for cards */
+    background-color: rgba(255, 248, 220, 0.5); /* Slightly different bg */
+    border: 1px dashed #b8a880;
+    border-radius: 5px;
+    padding: 15px;
+    margin-top: 10px;
+    /* Uses card-grid for layout */
+}
+.research-output-area .concept-card {
+    height: auto; /* Allow height to adjust */
+    min-height: 280px; /* Minimum height */
+}
+.research-output-area .card-footer {
+    height: auto; /* Allow footer to expand */
+    min-height: 70px;
+}
+/* Choose Button for Research Results */
+.research-choose-button {
+    display: block;
+    margin: 10px auto 0 auto;
+    padding: 5px 10px;
+    font-size: 0.9em;
+}
 
 /* Card Grid Layout */
 .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px; padding: 10px 5px 10px 10px; }
@@ -173,7 +224,7 @@ hr { border: none; border-top: 1px dashed #c8b89a; margin: 15px 0; }
 .card-visual .card-visual-placeholder { font-size: 3em; color: #b8a880; }
 .card-visual .card-art-unlocked { font-size: 3.5em; color: #8B4513; }
 .card-visual .card-art-image { display: block; width: 100%; height: 100%; object-fit: cover; }
-.card-footer { font-size: 0.8em; color: #6a5a4a; margin-top: 5px; height: 70px; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between;}
+.card-footer { font-size: 0.8em; color: #6a5a4a; margin-top: 5px; min-height: 70px; /* Use min-height */ display: flex; flex-direction: column; justify-content: space-between;} /* Allow expansion */
 .card-affinities { margin-bottom: 5px; line-height: 1.3; flex-wrap: wrap; display: flex; justify-content: center; }
 .card-affinities .affinity { display: inline-flex; align-items: center; border: 1px solid; border-radius: 10px; padding: 1px 5px; margin: 1px 2px; font-size: 0.85em; }
 .card-affinities .affinity i { margin-right: 3px; font-size: 0.9em; }
@@ -185,7 +236,29 @@ hr { border: none; border-top: 1px dashed #c8b89a; margin: 15px 0; }
 #grimoireControls { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 10px; margin-bottom: 15px; background-color: rgba(255,255,255,0.3); padding: 8px; border-radius: 5px;}
 #grimoireControls label { margin: 0 5px 0 10px; font-weight: bold; color: #5a3a22;}
 #grimoireControls select { padding: 5px; border-radius: 4px; border: 1px solid #a08460; background-color: #fff8e7;}
-#grimoireContent { background-color: #fff8e7; padding: 15px; border-radius: 5px; border: 1px solid #a08460; margin-top: 10px; max-height: calc(100vh - 220px); overflow-y: auto; }
+/* Grimoire Insights Section */
+#grimoireInsightsDisplay {
+    background-color: #fff8e7;
+    padding: 15px;
+    border-radius: 5px;
+    border: 1px solid #a08460;
+    margin-top: 10px;
+    margin-bottom: 15px; /* Space before card grid */
+}
+#grimoireInsightsDisplay h3 {
+    font-size: 1.1em;
+    text-align: left;
+    border-bottom: 1px solid #d3c0a0;
+    padding-bottom: 3px;
+    margin-bottom: 10px;
+}
+#grimoireInsightsDisplay #personaThemesList { /* Use existing ID */
+    list-style: none; padding-left: 0; margin-top: 10px; font-size: 0.95em;
+}
+#grimoireInsightsDisplay #personaThemesList li { margin-bottom: 6px; padding-left: 20px; position: relative; }
+#grimoireInsightsDisplay #personaThemesList li::before { content: '✧'; position: absolute; left: 0; top: 1px; color: #b8860b; }
+
+#grimoireContent { background-color: #fff8e7; padding: 15px; border-radius: 5px; border: 1px solid #a08460; margin-top: 10px; max-height: calc(100vh - 280px); /* Adjust height */ overflow-y: auto; }
 
 /* Popups & Overlay */
 .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.7); z-index: 99; }
@@ -247,7 +320,7 @@ hr { border: none; border-top: 1px dashed #c8b89a; margin: 15px 0; }
 .card-popup .focus-button.marked { background-color: #ffaa00; border-color: #cc8400; }
 .card-popup .focus-button.hidden { display: none; }
 
-/* Research Modal */
+/* Research Modal (No longer used for results, keep for potential future use) */
 .research-modal { max-width: 800px; }
 .research-modal h3 { text-align: center; margin-bottom: 10px;}
 .research-modal p { text-align: center; margin-bottom: 15px; }
@@ -260,8 +333,8 @@ hr { border: none; border-top: 1px dashed #c8b89a; margin: 15px 0; }
 .reflection-modal .prompt-text { font-style: italic; background-color: #fffefa; padding: 10px; border-radius: 4px; border: 1px solid #eee9dd; margin-top: 10px; text-align: left;}
 .reflection-confirm { margin: 15px 0; text-align: center; }
 .reflection-confirm label { cursor: pointer; margin-left: 5px; }
-.score-nudge-label { font-size: 0.9em; font-style: italic; margin-left: 5px; color: #6a5a4a; cursor: pointer; }
-.score-nudge-label.hidden, #scoreNudgeCheckbox.hidden { display: none; } /* Hide nudge elements */
+.score-nudge-label { font-size: 0.9em; font-style: italic; margin-left: 5px; color: #6a5a4a; cursor: pointer; display: block; /* Make label block for layout */ margin-top: 8px;}
+.score-nudge-label.hidden, #scoreNudgeCheckbox.hidden { display: none; }
 #confirmReflectionButton { display: block; margin: 10px auto 0 auto; }
 
 /* Milestone Alert */
