@@ -1,4 +1,5 @@
 // script.js - COMPLETE VERSION v11.2 (Added Data Availability Checks)
+console.log("script.js starting..."); // Log for debugging load order
 
 // --- Global State ---
 let currentElementIndex = 0;
@@ -219,6 +220,7 @@ function clearGameState() {
 let dataLoaded = false;
 function checkDataLoaded() {
     if (!dataLoaded) {
+        // Check if all expected global constants from data.js are defined
         dataLoaded = typeof elementDetails !== 'undefined' &&
                      typeof concepts !== 'undefined' &&
                      typeof questionnaireGuided !== 'undefined' &&
@@ -229,7 +231,9 @@ function checkDataLoaded() {
                      typeof elementKeyToFullName !== 'undefined';
         if (!dataLoaded) {
             console.error("CRITICAL: Data from data.js not loaded!");
-            alert("Error initializing application data. Please refresh.");
+            // Displaying an alert might be too disruptive if it's a temporary flicker,
+            // but logging is essential. The functions calling this will return early.
+            // alert("Error initializing application data. Please refresh.");
         }
     }
     return dataLoaded;
@@ -507,7 +511,7 @@ function displayMilestones() {
 }
 function updateMilestoneProgress(trackType, currentValue) {
     if (!checkDataLoaded()) return;
-    let milestoneAchieved = false; milestones.forEach(m => { if (!achievedMilestones.has(m.id)) { let achieved = false; if (m.track.action === trackType) { if (typeof currentValue === 'number' && currentValue >= (m.track.count || 1)) { achieved = true; } else if (m.track.count === 1 && currentValue) { achieved = true; } } else if (m.track.state === trackType) { const threshold = m.track.threshold; if (m.track.condition === "any") { if (typeof currentValue === 'object' && currentValue !== null) { for (const key in currentValue) { if ((elementAttunement.hasOwnProperty(key) || unlockedDeepDiveLevels.hasOwnProperty(key)) && currentValue[key] >= threshold) { achieved = true; break; } } } } else if (m.track.condition === "all") { if (typeof currentValue === 'object' && currentValue !== null) { let allMet = true; let targetObject = (trackType === 'elementAttunement' ? elementAttunement : unlockedDeepDiveLevels); for (const key in targetObject) { if (!(currentValue.hasOwnProperty(key) && currentValue[key] >= threshold)) { allMet = false; break; } } if (allMet) achieved = true; } } else { if (typeof currentValue === 'number' && currentValue >= threshold) { achieved = true; } } } if (achieved) { console.log("Milestone Achieved!", m.description); achievedMilestones.add(m.id); milestoneAchieved = true; displayMilestones(); showMilestoneAlert(m.description); if (m.reward) { if (m.reward.type === 'insight') { gainInsight(m.reward.amount || 0, `Milestone: ${m.description}`); } else if (m.reward.type === 'attunement') { gainAttunementForAction('milestone', m.reward.element || 'All', m.reward.amount || 0); } else if (m.reward.type === 'increaseFocusSlots') { const increaseAmount = m.reward.amount || 1; if (focusSlotsTotal < MAX_FOCUS_SLOTS) { focusSlotsTotal = Math.min(MAX_FOCUS_SLOTS, focusSlotsTotal + increaseAmount); console.log(`Focus Slots increased by ${increaseAmount}. New: ${focusSlotsTotal}`); updateFocusSlotsDisplay(); } } else if (m.reward.type === 'discoverCard') { const cardIdToDiscover = m.reward.cardId; if (cardIdToDiscover && !discoveredConcepts.has(cardIdToDiscover)) { const conceptToDiscover = concepts.find(c => c.id === cardIdToDiscover); if (conceptToDiscover) { addConceptToGrimoireInternal(cardIdToDiscover); showTemporaryMessage(`Milestone Reward: Discovered ${conceptToDiscover.name}!`, 3500); } } } } } } }); if (['focusedConcepts.size', 'increaseFocusSlots'].includes(trackType)) { updateMilestoneProgress('focusSlotsTotal', focusSlotsTotal); } if (milestoneAchieved) { saveGameState(); }
+    let milestoneAchieved = false; milestones.forEach(m => { if (!achievedMilestones.has(m.id)) { let achieved = false; if (m.track.action === trackType) { if (typeof currentValue === 'number' && currentValue >= (m.track.count || 1)) { achieved = true; } else if (m.track.count === 1 && currentValue) { achieved = true; } } else if (m.track.state === trackType) { const threshold = m.track.threshold; if (m.track.condition === "any") { if (typeof currentValue === 'object' && currentValue !== null) { for (const key in currentValue) { if ((elementAttunement.hasOwnProperty(key) || unlockedDeepDiveLevels.hasOwnProperty(key)) && currentValue[key] >= threshold) { achieved = true; break; } } } } else if (m.track.condition === "all") { if (typeof currentValue === 'object' && currentValue !== null) { let allMet = true; let targetObject = (trackType === 'elementAttunement' ? elementAttunement : unlockedDeepDiveLevels); for (const key in targetObject) { if (!(currentValue.hasOwnProperty(key) && currentValue[key] >= threshold)) { allMet = false; break; } } if (allMet) achieved = true; } } else { if (typeof currentValue === 'number' && currentValue >= threshold) { achieved = true; } } } if (achieved) { console.log("Milestone Achieved!", m.description); achievedMilestones.add(m.id); milestoneAchieved = true; displayMilestones(); showMilestoneAlert(m.description); if (m.reward) { if (m.reward.type === 'insight') { gainInsight(m.reward.amount || 0, `Milestone: ${m.description}`); } else if (m.reward.type === 'attunement') { gainAttunementForAction('milestone', m.reward.element || 'All', m.reward.amount || 0); } else if (m.reward.type === 'increaseFocusSlots') { const increaseAmount = m.reward.amount || 1; if (focusSlotsTotal < MAX_FOCUS_SLOTS) { focusSlotsTotal = Math.min(MAX_FOCUS_SLOTS, focusSlotsTotal + increaseAmount); console.log(`Focus Slots increased by ${increaseAmount}. New: ${focusSlotsTotal}`); updateFocusSlotsDisplay(); } } else if (m.reward.type === 'discoverCard') { const cardIdToDiscover = m.reward.cardId; if (cardIdToDiscover && !discoveredConcepts.has(cardIdToDiscover)) { const conceptToDiscover = concepts.find(c => c.id === cardIdToDiscover); if (conceptToDiscover) { addConceptToGrimoireInternal(cardIdToDiscover); showTemporaryMessage(`Milestone Reward: Discovered ${conceptToDiscover.name}!`, 3500); } } } } } } }); if (['focusedConcepts.size', 'increaseFocusSlots', 'unlockedDeepDiveLevels'].includes(trackType)) { updateMilestoneProgress('focusSlotsTotal', focusSlotsTotal); } if (milestoneAchieved) { saveGameState(); }
 }
 function showMilestoneAlert(text) { if (!milestoneAlert || !milestoneAlertText) return; milestoneAlertText.textContent = `Milestone: ${text}`; milestoneAlert.classList.remove('hidden'); setTimeout(hideMilestoneAlert, 5000); }
 function hideMilestoneAlert() { if (milestoneAlert) milestoneAlert.classList.add('hidden'); }
@@ -516,8 +520,7 @@ function hideMilestoneAlert() { if (milestoneAlert) milestoneAlert.classList.add
 function displayElementLibrary() {
     if (!checkDataLoaded() || !elementLibraryButtonsDiv || !elementLibraryContentDiv) return;
     elementLibraryButtonsDiv.innerHTML = ''; elementNames.forEach(elName => { const key = elementNameToKey[elName]; const button = document.createElement('button'); button.classList.add('button', 'small-button'); button.textContent = elementDetails[elName]?.name || elName; button.style.borderColor = getElementColor(elName); button.onclick = () => displayElementDeepDive(key); elementLibraryButtonsDiv.appendChild(button); });
-    // Keep existing content or clear it? Let's clear for now.
-    elementLibraryContentDiv.innerHTML = '<p>Select an Element above to view its deep dive content.</p>';
+    if (!elementLibraryContentDiv.querySelector('.library-level') && !elementLibraryContentDiv.querySelector('.library-unlock')) { elementLibraryContentDiv.innerHTML = '<p>Select an Element above to view its deep dive content.</p>'; }
 }
 function displayElementDeepDive(elementKey) {
     if (!checkDataLoaded() || !elementLibraryContentDiv) return;
@@ -543,7 +546,7 @@ function showSettings() { if(settingsPopup) settingsPopup.classList.remove('hidd
 // --- Event Listeners (v11.2) ---
 document.addEventListener('DOMContentLoaded', () => {
     console.log("DOM Fully Loaded. Initializing Persona Alchemy Lab v11.2...");
-    if (!checkDataLoaded()) { return; } // Essential check before adding listeners
+    if (!checkDataLoaded()) { return; } // Essential check
 
     // --- Navigation & Core Actions ---
     navButtons.forEach(button => { button.addEventListener('click', () => { const targetScreenId = button.dataset.target; if (!document.getElementById(targetScreenId)) { return; } if (targetScreenId === 'personaScreen') { displayPersonaScreen(); } if (targetScreenId === 'studyScreen') { displayStudyScreenContent(); } if (targetScreenId === 'grimoireScreen') { displayGrimoire(grimoireTypeFilter.value, grimoireElementFilter.value, grimoireSortOrder.value, grimoireRarityFilter.value); } showScreen(targetScreenId); }); });
@@ -563,7 +566,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Concept Interaction & Notes ---
     if (addToGrimoireButton) addToGrimoireButton.addEventListener('click', addToGrimoire); else console.error("Add to Grimoire button not found!");
     if (markAsFocusButton) markAsFocusButton.addEventListener('click', toggleFocusConcept); else console.error("Mark as Focus button not found!");
-    // Note save listener added dynamically
+    // Note save listener added dynamically in showConceptDetailPopup
 
     // --- Grimoire Filters ---
     const grimoireRefresh = () => { if (!grimoireScreen.classList.contains('hidden')) { displayGrimoire(grimoireTypeFilter.value, grimoireElementFilter.value, grimoireSortOrder.value, grimoireRarityFilter.value); } };
