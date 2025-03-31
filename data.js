@@ -317,7 +317,240 @@ const reflectionPrompts = {
         { id: "pD4", text: "How might integrating or simply understanding this concept broaden your perspective on your own sexuality or the diverse experiences of others?" }
     ]
 };
+const reflectionPrompts = {
+    "Attraction": [ /* ... (Keep existing prompts) ... */
+        { id: "pA1", text: "Think about someone or something you found intensely attractive recently. What specific qualities (physical, personality, dynamic) drew you in the most?" },
+        { id: "pA2", text: "When has attraction felt confusing or unexpected for you? What did you learn from that experience?" },
+        { id: "pA3", text: "Does your level of emotional connection to someone strongly influence your sexual attraction? How so?" },
+        { id: "pA4", text: "Consider an attraction that faded. What changed? Was it about them, you, or the context?" },
+    ],
+    "Interaction": [ /* ... (Keep existing prompts) ... */
+        { id: "pI1", text: "Describe a time you felt most comfortable in a sexual interaction. Were you leading, following, or collaborating? What made it comfortable?" },
+        { id: "pI2", text: "Imagine an ideal sexual encounter. What kind of energy exchange are you looking for (playful, intense, nurturing, commanding, yielding)?" },
+        { id: "pI3", text: "How important is verbal communication vs non-verbal cues in your preferred interaction style?" },
+        { id: "pI4", text: "If you enjoy power dynamics, what is the appeal of holding power? What is the appeal of yielding it?" },
+    ],
+    "Sensory": [ /* ... (Keep existing prompts) ... */
+        { id: "pS1", text: "What type of physical touch (light, firm, rough, specific texture) feels most arousing or connecting to you, separate from orgasm?" },
+        { id: "pS2", text: "Are there any specific sensations (temperature, pressure, pain, specific sounds/smells) that strongly enhance or detract from your arousal?" },
+        { id: "pS3", text: "How does your desire for sensory input change depending on your mood or partner?" },
+        { id: "pS4", text: "Think about a purely sensory experience (sexual or not) that felt transcendent or deeply satisfying. What were its key elements?" },
+    ],
+    "Psychological": [ /* ... (Keep existing prompts) ... */
+        { id: "pP1", text: "Beyond physical pleasure, what core emotional need (e.g., connection, validation, control, escape) does sexuality most often fulfill for you?" },
+        { id: "pP2", text: "Think about a time sex felt psychologically fulfilling. What underlying needs were met?" },
+        { id: "pP3", text: "Conversely, when has sex felt psychologically unfulfilling, even if physically pleasurable? What might have been missing?" },
+        { id: "pP4", text: "How does vulnerability play a role in your psychologically satisfying sexual experiences?" },
+    ],
+    "Cognitive": [ /* ... (Keep existing prompts) ... */
+        { id: "pC1", text: "How much do you rely on fantasy or specific scenarios to become aroused? Are you more 'in your head' or 'in the moment'?" },
+        { id: "pC2", text: "Describe a fantasy or scenario (even vaguely) that you find particularly potent. What elements make it work for you?" },
+        { id: "pC3", text: "Does the intellectual or psychological aspect of a dynamic (e.g., power plays, witty banter, understanding motivations) contribute significantly to your arousal?" },
+        { id: "pC4", text: "How does anticipation or memory shape your sexual experiences?" },
+    ],
+    "Relational": [ /* ... (Keep existing prompts) ... */
+        { id: "pR1", text: "In what context do you feel most free to express your sexuality (e.g., alone, committed partner, casual encounter, group setting)?" },
+        { id: "pR2", text: "How important are explicit agreements, rules, or boundaries regarding exclusivity or openness in your ideal sexual relationships?" },
+        { id: "pR3", text: "What level of emotional intimacy do you typically prefer or require in your sexual connections?" },
+        { id: "pR4", text: "How do concepts like jealousy or compersion (finding joy in a partner's joy with others) manifest in your relational landscape?" },
+    ],
+    "Dissonance": [ /* ... (Keep existing prompts) ... */
+        { id: "pD1", text: "This concept seems quite different from your current profile. What aspect of it intrigues you or makes you curious, even if it feels unfamiliar?" },
+        { id: "pD2", text: "Exploring unfamiliar territory can be revealing. What potential does engaging with this concept hold for you, even if it feels challenging or uncomfortable at first glance?" },
+        { id: "pD3", text: "Sometimes, what we resist holds a key. Is there an underlying need or desire this concept touches upon, perhaps indirectly, that you haven't fully acknowledged?" },
+        { id: "pD4", text: "How might integrating or simply understanding this concept broaden your perspective on your own sexuality or the diverse experiences of others?" }
+    ],
+    // --- NEW Guided Prompts Section ---
+    "Guided": {
+        "LowAttunement": [ // Category for when overall attunement is low
+            { id: "gLA1", text: "You're just beginning your exploration. Which core element feels most intriguing or confusing to you right now, and why?" },
+            { id: "gLA2", text: "Consider your initial scores. Was there anything that surprised you? How does it feel to start putting names to these aspects of yourself?" }
+        ],
+        "HighAttunementElement": [ // Category when a specific element is high (script needs to pass element name)
+            { id: "gHE1", text: "You show a strong resonance with [Element Name]. How does this element manifest in your fantasies or experiences? What nuances are emerging?" },
+            { id: "gHE2", text: "Where might the 'shadow' or challenge lie within your strong connection to [Element Name]? Are there potential downsides or areas for growth?" }
+        ],
+        "ConceptSynergy": [ // Category when focusing related concepts (script needs concept names)
+             { id: "gCS1", text: "You're focusing on both [Concept A] and [Concept B], which have potential synergy. How do these concepts interact or influence each other in your mind?" },
+             { id: "gCS2", text: "What new possibilities or dynamics emerge when you consider [Concept A] and [Concept B] together? Does their combination create something unique?" }
+        ]
+        // Add more categories: e.g., "MilestoneReached", "LowScoreElement", "FullFocusSlots"
+    }
+};
 
+// --- NEW Element Deep Dive Content ---
+const elementDeepDive = {
+    "A": [ // Attraction
+        {
+            level: 1,
+            title: "Foundations of Attraction",
+            insightCost: 5,
+            content: "<p>Attraction is the spark. It dictates *what* or *who* initially draws your erotic attention. Level 1 explores the difference between primary attraction (often immediate, based on sensory cues like appearance or scent) and secondary attraction (developing after knowing someone, like demisexuality). It also touches on the spectrum from specific focus (fetishistic) to broad acceptance (pansexual).</p><ul><li>Primary vs. Secondary Attraction</li><li>Spectrum of Specificity</li><li>Common Orientations Overview</li></ul>"
+        },
+        {
+            level: 2,
+            title: "Beyond Gender: Nuances & Paraphilias",
+            insightCost: 10,
+            content: "<p>Level 2 delves deeper. How do aesthetics, personality archetypes, power dynamics, or even specific concepts become attractive? We introduce the idea of paraphilias (including fetishes) not as disorders, but as specific, intense focuses of attraction that can be integrated into a healthy sexuality. The key is understanding the *why* behind the *what*.</p><ul><li>Attraction to Dynamics (Power, Intellect)</li><li>Aesthetic Attraction</li><li>Understanding Paraphilias & Fetishes</li><li>Consent & Ethics in Niche Attractions</li></ul>"
+        },
+        {
+             level: 3,
+             title: "The Attraction-Arousal Link",
+             insightCost: 15,
+             content: "<p>Attraction doesn't always equal arousal, and arousal can occur without classic attraction (responsive desire). Level 3 explores this link. How does your specific Attraction Focus translate into physical or mental arousal? What role does context play? How does your attraction profile interact with other elements like Sensory input or Cognitive fantasy?</p><ul><li>Spontaneous vs. Responsive Desire</li><li>Context-Dependent Attraction</li><li>Interplay with Other Elements</li><li>Managing Unwanted Attractions</li></ul>"
+        }
+    ],
+    "I": [ // Interaction
+        {
+            level: 1,
+            title: "Roles & Energy Exchange",
+            insightCost: 5,
+            content: "<p>Interaction is the dance. Level 1 covers the fundamental roles: leading (Dominant, Top), following (submissive, bottom), and collaborating (Switch, Versatile). It's about the flow of energy – who initiates, who directs, who receives? How do you *prefer* to engage?</p><ul><li>Core Roles: Dom/sub, Top/Bottom</li><li>Switching & Versatility</li><li>Energy Flow: Giving vs. Receiving</li></ul>"
+        },
+        {
+            level: 2,
+            title: "Styles of Power Dynamics",
+            insightCost: 10,
+            content: "<p>Power exchange isn't monolithic. Level 2 explores different *styles*. Is it psychological command/control, nurturing caregiving/receiving, service-based, playful teasing, or intense protocol? Understanding your preferred style clarifies the *how* of your interaction.</p><ul><li>Psychological vs. Physical Dominance</li><li>Service & Worship Dynamics</li><li>Caregiver/Nurturing Roles</li><li>Playful vs. Formal Power Exchange</li></ul>"
+        },
+         {
+             level: 3,
+             title: "Communication & Negotiation in Interaction",
+             insightCost: 15,
+             content: "<p>Effective interaction, especially involving power dynamics or specific roles, relies heavily on communication. Level 3 focuses on negotiation, setting boundaries, using safewords, and the importance of enthusiastic consent. How do you communicate your needs and limits within your preferred interaction style?</p><ul><li>Negotiation & Scene Setting</li><li>Safewords & Limits</li><li>Consent Models (Enthusiastic, SSC, RACK)</li><li>Aftercare in Power Dynamics</li></ul>"
+        }
+    ],
+    "S": [ // Sensory
+        {
+            level: 1,
+            title: "The Spectrum of Sensation",
+            insightCost: 5,
+            content: "<p>Sensory input is the language of the body. Level 1 introduces the vast spectrum – from the gentlest caress to intense impact. It covers different types of touch (light, firm, sharp, dull), textures, temperatures, and the concept of erogenous zones beyond the obvious.</p><ul><li>Types of Touch</li><li>Temperature & Texture Play (Intro)</li><li>Mapping Your Erogenous Zones</li></ul>"
+        },
+        {
+            level: 2,
+            title: "Intensity, Pain & Pleasure",
+            insightCost: 10,
+            content: "<p>Why do some find intense sensation, even pain, arousing? Level 2 explores the pain/pleasure connection, endorphin release, and the psychological aspects of sensation play (BDSM). It covers impact play, restriction, and non-impact intensity like biting or pinching.</p><ul><li>Pain/Pleasure Paradox</li><li>Impact Play Fundamentals (Safety First!)</li><li>Restriction & Bondage Sensations</li><li>Non-Impact Intensity</li></ul>"
+        },
+        {
+             level: 3,
+             title: "Beyond Touch: Full Sensory Integration",
+             insightCost: 15,
+             content: "<p>Sexuality engages all senses. Level 3 explores the role of sight (visual cues, aesthetics), sound (music, voice tone, moans), smell (pheromones, scents), and even taste. How can you consciously incorporate or manipulate these other senses? This level also covers sensory deprivation and overload.</p><ul><li>Visual & Auditory Triggers</li><li>Olfactory & Gustatory Elements</li><li>Sensory Deprivation & Overload</li><li>Integrating Multiple Senses</li></ul>"
+        }
+    ],
+    "P": [ // Psychological
+        {
+            level: 1,
+            title: "Core Motivations",
+            insightCost: 5,
+            content: "<p>Why do you engage? Level 1 unpacks the common psychological drivers: connection/intimacy, validation/desirability, stress relief/escape, power/control (giving or receiving), self-expression/exploration, and simple fun/recreation. Identifying your primary drivers is key.</p><ul><li>Identifying Your Primary Drivers</li><li>Connection vs. Validation Needs</li><li>Sex for Escape vs. Expression</li></ul>"
+        },
+        {
+            level: 2,
+            title: "Vulnerability, Trust & Catharsis",
+            insightCost: 10,
+            content: "<p>Deeper psychological needs often involve vulnerability. Level 2 explores how trust is built and why surrendering control or sharing deep emotions can be profoundly fulfilling. It also examines how intense experiences or specific dynamics can lead to emotional release (catharsis).</p><ul><li>The Role of Vulnerability</li><li>Building Trust in Intimacy</li><li>Catharsis Through Intensity</li><li>Emotional Safety & Aftercare</li></ul>"
+        },
+         {
+             level: 3,
+             title: "Shadow Work & Integration",
+             insightCost: 15,
+             content: "<p>Our psychology has 'shadow' aspects – fears, insecurities, or desires we might repress. Level 3 explores how sexuality can sometimes bring these to the surface. How can understanding your psychological drivers help integrate these aspects? This involves looking at recurring themes, triggers, and potential links to past experiences (use caution, not therapy).</p><ul><li>Recognizing Psychological Themes</li><li>Sexuality and Self-Esteem</li><li>Potential 'Shadow' Manifestations</li><li>Integration vs. Repression</li></ul>"
+        }
+    ],
+    "C": [ // Cognitive
+        {
+            level: 1,
+            title: "Fantasy & Imagination",
+            insightCost: 5,
+            content: "<p>The mind is a powerful erotic engine. Level 1 introduces the role of fantasy – from fleeting thoughts to elaborate internal narratives. How active is your imagination during sex? Do you prefer being 'present' or 'in your head'?</p><ul><li>Spectrum of Mental Engagement</li><li>Common Fantasy Archetypes</li><li>Using Fantasy to Enhance Arousal</li></ul>"
+        },
+        {
+            level: 2,
+            title: "Scenarios, Role-Play & Scripting",
+            insightCost: 10,
+            content: "<p>Level 2 focuses on structured mental play. This includes specific role-playing scenarios (doctor/patient, etc.), understanding and playing with psychological dynamics (mind games, teasing), using dirty talk to build narrative, and the appeal of pre-planned or scripted scenes.</p><ul><li>Types of Role-Play</li><li>Psychological Games & Teasing</li><li>Narrative Through Language</li><li>Anticipation & Scripting</li></ul>"
+        },
+         {
+             level: 3,
+             title: "Intellect, Meaning & Transcendence",
+             insightCost: 15,
+             content: "<p>For some, the cognitive element goes deeper. Level 3 explores attraction to intelligence (sapiosexuality), finding meaning in symbolic acts or complex protocols, and using mental focus or altered states (like hypnosis play or edge play) to achieve transcendence or intense psychological shifts. How does intellect or conceptual understanding fuel your desire?</p><ul><li>Sapiosexuality & Intellectual Connection</li><li>Symbolism & Ritual in Play</li><li>Mind Games & Psychological Edge Play</li><li>Cognitive Paths to Altered States</li></ul>"
+        }
+    ],
+    "R": [ // Relational
+        {
+            level: 1,
+            title: "Structures & Numbers",
+            insightCost: 5,
+            content: "<p>How do you structure your intimate life? Level 1 covers the basics: solitary practice, monogamy (serial or lifelong), and the various forms of consensual non-monogamy (CNM) like open relationships and polyamory. What structure feels most natural or desirable?</p><ul><li>Solitary Sexuality</li><li>Monogamy vs. CNM Overview</li><li>Common CNM Structures (Open, Poly)</li></ul>"
+        },
+        {
+            level: 2,
+            title: "Commitment, Intimacy & Anonymity",
+            insightCost: 10,
+            content: "<p>Relationships exist on a spectrum of emotional depth. Level 2 explores the desired level of commitment and emotional intimacy within your preferred structure(s). Do you prefer deep bonds with few, shallower connections with many, or something else? What role does familiarity vs. anonymity play?</p><ul><li>Defining Commitment</li><li>Emotional Intimacy Levels</li><li>Familiarity vs. Anonymity</li><li>Friends With Benefits Dynamics</li></ul>"
+        },
+         {
+             level: 3,
+             title: "Hierarchy, Rules & Communication",
+             insightCost: 15,
+             content: "<p>How are multiple relationships managed (if applicable)? Level 3 discusses hierarchy (primary/secondary partners), the role of rules and agreements, and the crucial importance of communication, managing jealousy, and potentially experiencing compersion (joy in a partner's joy with others). It also touches on Relationship Anarchy's rejection of imposed structure.</p><ul><li>Hierarchy in Polyamory</li><li>Rules vs. Agreements</li><li>Communication Strategies in CNM</li><li>Jealousy & Compersion</li><li>Relationship Anarchy Principles</li></ul>"
+        }
+    ]
+};
+
+
+// --- Rituals & Milestones Data ---
+const dailyRituals = [ // ... (Keep existing rituals - no changes here) ...
+    { id: "dr01", description: "Perform your Daily Meditation (Free Research).", reward: { type: "insight", amount: 2 }, track: { action: "freeResearch", count: 1, period: "daily" } },
+    { id: "dr02", description: "Add 1 Concept to your Grimoire.", reward: { type: "insight", amount: 3 }, track: { action: "addToGrimoire", count: 1, period: "daily" } },
+    { id: "dr03", description: "Complete a Reflection Prompt.", reward: { type: "insight", amount: 5 }, track: { action: "completeReflection", count: 1, period: "daily" } },
+    { id: "dr04", description: "Focus on a new Concept.", reward: { type: "insight", amount: 4 }, track: { action: "markFocus", count: 1, period: "daily" } },
+    { id: "dr05", description: "Conduct paid Research in any Element.", reward: { type: "attunement", element: "All", amount: 0.2 }, track: { action: "conductResearch", count: 1, period: "daily" } },
+];
+
+const milestones = [ // ... (Keep existing milestones - no changes here) ...
+    // Early Game & Discovery
+    { id: "ms01", description: "First Concept Added!", reward: { type: "insight", amount: 5 }, track: { state: "discoveredConcepts.size", threshold: 1 } },
+    { id: "ms02", description: "Curator I: Added 5 Concepts", reward: { type: "insight", amount: 10 }, track: { state: "discoveredConcepts.size", threshold: 5 } },
+    { id: "ms15", description: "Curator II: Added 15 Concepts", reward: { type: "insight", amount: 15 }, track: { state: "discoveredConcepts.size", threshold: 15 } },
+    { id: "ms25", description: "Curator III: Added 25 Concepts", reward: { type: "increaseFocusSlots", amount: 1 }, track: { state: "discoveredConcepts.size", threshold: 25 } },
+    { id: "ms40", description: "Curator IV: Added 40 Concepts", reward: { type: "insight", amount: 25 }, track: { state: "discoveredConcepts.size", threshold: 40 } },
+    { id: "ms55", description: "Curator V: Added 55 Concepts", reward: { type: "increaseFocusSlots", amount: 1 }, track: { state: "discoveredConcepts.size", threshold: 55 } },
+    { id: "ms75", description: "Grand Curator: Added 75 Concepts", reward: { type: "insight", amount: 40 }, track: { state: "discoveredConcepts.size", threshold: 75 } },
+    // Focus & Tapestry
+    { id: "ms03", description: "First Focus Concept Marked", reward: { type: "insight", amount: 8 }, track: { state: "focusedConcepts.size", threshold: 1 } },
+    { id: "ms04", description: "Tapestry Weaver I: Marked 3 Focus Concepts", reward: { type: "attunement", element: "All", amount: 1 }, track: { state: "focusedConcepts.size", threshold: 3 } },
+    { id: "ms08", description: "Tapestry Weaver II: Marked 5 Focus Concepts", reward: { type: "increaseFocusSlots", amount: 1 }, track: { state: "focusedConcepts.size", threshold: 5 } },
+    { id: "ms18", description: "Tapestry Weaver III: Filled 7 Focus Slots", reward: { type: "insight", amount: 25 }, track: { state: "focusedConcepts.size", threshold: 7 } },
+    { id: "ms35", description: "Tapestry Weaver IV: Filled 9 Focus Slots", reward: { type: "increaseFocusSlots", amount: 1 }, track: { state: "focusedConcepts.size", threshold: 9 } },
+    { id: "ms48", description: "Tapestry Master: Filled 12 Focus Slots", reward: { type: "insight", amount: 50 }, track: { state: "focusedConcepts.size", threshold: 12 } },
+    // Research & Attunement
+    { id: "ms05", description: "First Research Conducted", reward: { type: "insight", amount: 5 }, track: { action: "conductResearch", count: 1 } },
+    { id: "ms06", description: "Elementalist I: Reached Attunement 10 in one Element", reward: { type: "insight", amount: 15 }, track: { state: "elementAttunement", threshold: 10, condition: "any" } },
+    { id: "ms13", description: "Well Rounded I: Attunement 5+ in all Elements", reward: { type: "insight", amount: 20 }, track: { state: "elementAttunement", threshold: 5, condition: "all" } },
+    { id: "ms20", description: "Elementalist II: Reached Attunement 50 in one Element", reward: { type: "increaseFocusSlots", amount: 1 }, track: { state: "elementAttunement", threshold: 50, condition: "any" } },
+    { id: "ms30", description: "Elementalist III: Reached Attunement 90 in one Element", reward: { type: "insight", amount: 40 }, track: { state: "elementAttunement", threshold: 90, condition: "any" } },
+    { id: "ms45", description: "Well Rounded II: Attunement 25+ in all Elements", reward: { type: "increaseFocusSlots", amount: 1 }, track: { state: "elementAttunement", threshold: 25, condition: "all" } },
+    // Reflection & Growth
+    { id: "ms07", description: "First Reflection Completed", reward: { type: "insight", amount: 5 }, track: { action: "completeReflection", count: 1 } },
+    { id: "ms12", description: "Dissonance Embraced: Completed a Dissonance Reflection", reward: { type: "attunement", element: "All", amount: 1.5 }, track: { action: "completeReflectionDissonance", count: 1 } },
+    { id: "ms22", description: "Self-Awareness: Completed 5 Reflections", reward: { type: "insight", amount: 20 }, track: { action: "completeReflection", count: 5 } },
+    { id: "ms23", description: "Growth Mindset: Allowed Score Nudge after Reflection", reward: { type: "insight", amount: 10 }, track: { action: "scoreNudgeApplied", count: 1 } },
+    { id: "ms38", description: "Deep Reflection: Completed 10 Reflections", reward: { type: "increaseFocusSlots", amount: 1 }, track: { action: "completeReflection", count: 10 } },
+    // Specific Discoveries & Evolution
+    { id: "ms09", description: "Attuned to Interaction: Reached Attunement 20 in Interaction", reward: { type: "discoverCard", cardId: 6 }, track: { state: "elementAttunement", element: "I", threshold: 20 } },
+    { id: "ms10", description: "Deep Thinker: Reached Attunement 20 in Cognitive", reward: { type: "discoverCard", cardId: 14 }, track: { state: "elementAttunement", element: "C", threshold: 20 } },
+    { id: "ms11", description: "First Art Evolution", reward: { type: "insight", amount: 20 }, track: { action: "evolveArt", count: 1 } },
+    { id: "ms21", description: "Rare Find: Discovered a Rare Concept Card", reward: { type: "insight", amount: 15 }, track: { action: "discoverRareCard", count: 1 } },
+    { id: "ms33", description: "Sensory Seeker: Reached Attunement 30 in Sensory", reward: { type: "discoverCard", cardId: 88 }, track: { state: "elementAttunement", element: "S", threshold: 30 } },
+    { id: "ms42", description: "Art Appreciator: Evolved Art for 3 Concepts", reward: { type: "insight", amount: 30 }, track: { action: "evolveArt", count: 3 } },
+    // Questionnaire Completion
+    { id: "ms50", description: "Initial Experiment Complete", reward: { type: "insight", amount: 10 }, track: { action: "completeQuestionnaire", count: 1 } }
+];
 // --- Rituals & Milestones Data (Updated Rewards) ---
 const dailyRituals = [
     { id: "dr01", description: "Perform your Daily Meditation (Free Research).", reward: { type: "insight", amount: 2 }, track: { action: "freeResearch", count: 1, period: "daily" } },
