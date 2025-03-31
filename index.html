@@ -4,8 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Persona Alchemy Lab</title>
-    <link rel="stylesheet" href="style.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Merriweather:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="style.css">
     <link rel="icon" href="data:,"> <!-- Prevent favicon error -->
 </head>
 <body>
@@ -58,22 +64,24 @@
                      <p>Current Insight: <strong id="userInsightDisplayPersona">0.0</strong> <i class="fas fa-brain insight-icon"></i></p>
                      <hr>
                      <h2>Element Attunement</h2>
-                     <p>Grows passively. Higher levels improve Research.</p> <!-- Updated description -->
+                     <p>Grows passively through interaction and reflection.</p>
                      <div id="elementAttunementDisplay"></div>
                  </div>
                  <div class="persona-constellation">
                       <h2>Persona Tapestry</h2>
-                      <!-- REMOVED Limit Text -->
-                      <h4 id="focusedConceptsHeader">Focused Concepts</h4>
-                      <p>Your curated selection shaping your active persona.</p>
-                      <div id="focusedConceptsDisplay" class="focus-concepts-grid"></div>
-                      <hr>
-                       <!-- UPDATED: Milestones in Details Element -->
-                      <details class="milestones-section">
-                          <summary><h3>Milestones Achieved</h3></summary>
+                      <p>Visualizing your Focused Concepts & Grimoire Insights</p>
+                      <div class="tapestry-area" id="tapestryArea">
+                           <h4 id="focusedConceptsHeader">Focused Concepts (0 / 5)</h4>
+                           <div id="focusedConceptsDisplay" class="focus-concepts-grid"></div>
+                      </div>
+                      <div class="grimoire-insights">
+                          <h3>Grimoire Insights</h3>
+                          <ul id="personaThemesList"></ul>
+                      </div>
+                      <div class="milestones-section">
+                          <h3>Milestones Achieved</h3>
                           <ul id="milestonesDisplay"><li>None yet</li></ul>
-                      </details>
-                      <!-- REMOVED Grimoire Insights Section -->
+                      </div>
                  </div>
              </div>
               <button id="restartButtonPersona" class="button small-button back-button">Restart Setup</button>
@@ -99,9 +107,8 @@
                  <div class="research-bench">
                      <h2>Research Notes</h2>
                      <div id="researchStatus">Select an Element to focus on...</div>
-                     <!-- UPDATED: Research results appear here directly -->
-                     <div id="researchOutput" class="research-output-area card-grid">
-                        <p><i>Research results will appear here. Choose one to add to your Grimoire.</i></p>
+                     <div id="researchOutput" class="research-output-area">
+                        <p><i>Research results will appear in a pop-up window.</i></p>
                      </div>
                  </div>
              </div>
@@ -130,12 +137,6 @@
                       <option value="rarity">Rarity</option>
                   </select>
               </div>
-              <!-- ADDED: Div for Grimoire Insights -->
-              <div id="grimoireInsightsDisplay" class="grimoire-insights">
-                    <h3>Grimoire Insights (Themes based on Focused Concepts)</h3>
-                    <ul id="personaThemesList"></ul>
-              </div>
-              <hr style="margin: 20px 0;">
               <div id="grimoireContent" class="card-grid"></div>
          </div>
 
@@ -183,7 +184,13 @@
               </div>
         </div>
 
-         <!-- REMOVED Research Results Modal -->
+         <!-- === Research Results Modal === -->
+         <div id="researchModal" class="popup hidden research-modal">
+             <button id="closeResearchModalButton" class="close-button">×</button>
+             <h3>Research Discovery</h3>
+             <p id="researchModalStatus">Status...</p>
+             <div id="researchModalContent" class="card-grid research-results-grid"></div>
+         </div>
 
          <!-- === Reflection Prompt Modal === -->
          <div id="reflectionModal" class="popup hidden reflection-modal">
@@ -207,6 +214,10 @@
              <button id="closeMilestoneAlertButton">×</button>
          </div>
 
+         <!-- === Temporary Message / Toast Notification === -->
+         <div id="toastNotification" class="toast hidden">
+             <span id="toastMessage">Message text here</span>
+         </div>
 
          <!-- Overlay for Popups -->
          <div id="popupOverlay" class="overlay hidden"></div>
