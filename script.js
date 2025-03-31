@@ -236,19 +236,21 @@ function displayElementQuestions(index) { // UPDATED to add feedback area
         questions.forEach(q => {
             let inputHTML = `<div class="question-block" id="block_${q.qId}"><h3 class="question-title">${q.text}</h3><div class="input-container">`;
             const savedAnswer = currentElementAnswers[q.qId];
-            if (q.type === "slider") {
-                const val = savedAnswer !== undefined ? savedAnswer : q.defaultValue;
-                // *** ADDED id="feedback_${q.qId}" ***
-                inputHTML += `
-                    <div class="slider-container">
-                        <input type="range" id="${q.qId}" class="slider q-input" min="${q.minValue}" max="${q.maxValue}" step="${q.step || 0.5}" value="${val}" data-question-id="${q.qId}" data-type="slider">
-                        <div class="label-container">
-                            <span class="label-text">${q.minLabel}</span>
-                            <span class="label-text">${q.maxLabel}</span>
-                        </div>
-                        <p class="value-text">Selected: <span id="display_${q.qId}">${parseFloat(val).toFixed(1)}</span></p>
-                        <p class="slider-feedback" id="feedback_${q.qId}"></p> {/* Feedback Area */}
-                    </div>`;
+          if (q.type === "slider") {
+    const val = savedAnswer !== undefined ? savedAnswer : q.defaultValue;
+    inputHTML += `
+        <div class="slider-container">
+            <input type="range" id="${q.qId}" class="slider q-input" min="${q.minValue}" max="${q.maxValue}" step="${q.step || 0.5}" value="${val}" data-question-id="${q.qId}" data-type="slider">
+            <div class="label-container">
+                <span class="label-text">${q.minLabel}</span>
+                <span class="label-text">${q.maxLabel}</span>
+            </div>
+            <p class="value-text">Selected: <span id="display_${q.qId}">${parseFloat(val).toFixed(1)}</span></p>
+
+            {/* *** RE-ADD Feedback Area Under Slider *** */}
+            <p class="slider-feedback" id="feedback_${q.qId}"></p>
+        </div>`;
+}
             } else if (q.type === "radio") {
                 inputHTML += `<div class="radio-options">`;
                 q.options.forEach(opt => { const checked = savedAnswer === opt.value ? 'checked' : ''; inputHTML += `<div><input type="radio" id="${q.qId}_${opt.value}" class="q-input" name="${q.qId}" value="${opt.value}" ${checked} data-question-id="${q.qId}" data-type="radio"><label for="${q.qId}_${opt.value}">${opt.value}</label></div>`; });
@@ -278,7 +280,7 @@ function displayElementQuestions(index) { // UPDATED to add feedback area
     questionContentElement.querySelectorAll('input[type="checkbox"].q-input').forEach(checkbox => { checkbox.addEventListener('change', (event) => enforceMaxChoices(checkbox.name, parseInt(checkbox.dataset.maxChoices || 2), event)); });
 
     // *** ADDED: Populate initial slider feedback ***
-    questionContentElement.querySelectorAll('.slider.q-input').forEach(slider => {
+   questionContentElement.querySelectorAll('.slider.q-input').forEach(slider => {
         updateSliderFeedbackText(slider);
     });
 
@@ -290,7 +292,6 @@ function displayElementQuestions(index) { // UPDATED to add feedback area
     if (nextElementButton) nextElementButton.textContent = (index === elementNames.length - 1) ? "View My Persona" : "Next Element";
 }
 
-// *** ADDED: New function to update slider feedback text ***
 function updateSliderFeedbackText(sliderElement) {
     if (!sliderElement || sliderElement.type !== 'range') return;
 
@@ -316,19 +317,19 @@ function updateSliderFeedbackText(sliderElement) {
     feedbackElement.title = `Meaning of score ${currentValue.toFixed(1)} (${scoreLabel})`; // Add tooltip
 }
 
-
 function handleQuestionnaireInputChange(event) { // UPDATED to call slider feedback update
     const input = event.target;
     const type = input.dataset.type;
     const elementName = elementNames[currentElementIndex];
 
-    if (type === 'slider') {
+     if (type === 'slider') {
         const qId = input.dataset.questionId;
         const display = document.getElementById(`display_${qId}`);
         if (display) display.textContent = parseFloat(input.value).toFixed(1);
-        // *** UPDATE slider feedback text on change ***
+        // *** RE-ADD call on change ***
         updateSliderFeedbackText(input);
     }
+
     // No feedback needed for radio/checkbox currently
 
     collectCurrentElementAnswers(); // Collects all answers for the element
@@ -344,9 +345,46 @@ function collectCurrentElementAnswers() { /* ... no changes needed ... */
     questions.forEach(q => { const qId = q.qId; const container = questionContent || document; if (q.type === 'slider') { const input = container.querySelector(`#${qId}.q-input`); if (input) currentElementAnswers[qId] = parseFloat(input.value); } else if (q.type === 'radio') { const checked = container.querySelector(`input[name="${qId}"]:checked`); if (checked) currentElementAnswers[qId] = checked.value; } else if (q.type === 'checkbox') { const checked = container.querySelectorAll(`input[name="${qId}"]:checked`); currentElementAnswers[qId] = Array.from(checked).map(cb => cb.value); } });
     userAnswers[elementName] = { ...currentElementAnswers };
 }
-function updateDynamicFeedback(elementName) { /* ... no changes needed ... */
-    if (!dynamicScoreFeedback || !feedbackElementSpan || !feedbackScoreSpan || !feedbackScoreBar) return; const tempScore = calculateElementScore(elementName, currentElementAnswers); feedbackElementSpan.textContent = elementDetails[elementName]?.name || elementName; feedbackScoreSpan.textContent = tempScore.toFixed(1); let labelSpan = dynamicScoreFeedback.querySelector('.score-label'); if (!labelSpan) { labelSpan = document.createElement('span'); labelSpan.classList.add('score-label'); feedbackScoreSpan.parentNode.insertBefore(document.createTextNode(' '), feedbackScoreSpan.nextSibling); feedbackScoreSpan.parentNode.insertBefore(labelSpan, feedbackScoreSpan.nextSibling.nextSibling); } labelSpan.textContent = `(${getScoreLabel(tempScore)})`; feedbackScoreBar.style.width = `${tempScore * 10}%`;
+function updateDynamicFeedback(elementName) {
+    // Check if elementDetails exists early
+    const elementData = elementDetails?.[elementName];
+    if (!elementData) {
+        console.warn(`Element details not found for: ${elementName}`);
+        return; // Exit if no details
+    }
+
+    // Ensure all DOM elements exist
+    if (!dynamicScoreFeedback || !feedbackElementSpan || !feedbackScoreSpan || !feedbackScoreBar) {
+        console.warn("Dynamic feedback DOM elements missing.");
+        return;
+    }
+
+    const tempScore = calculateElementScore(elementName, currentElementAnswers);
+    const scoreLabel = getScoreLabel(tempScore);
+
+    feedbackElementSpan.textContent = elementData.name || elementName;
+    feedbackScoreSpan.textContent = tempScore.toFixed(1);
+
+    // Update or create the score label span
+    let labelSpan = dynamicScoreFeedback.querySelector('.score-label');
+    if (!labelSpan) {
+        labelSpan = document.createElement('span');
+        labelSpan.classList.add('score-label');
+        feedbackScoreSpan.parentNode.insertBefore(document.createTextNode(' '), feedbackScoreSpan.nextSibling); // Add space
+        feedbackScoreSpan.parentNode.insertBefore(labelSpan, feedbackScoreSpan.nextSibling.nextSibling);
+    }
+    labelSpan.textContent = `(${scoreLabel})`;
+
+    // Update score bar width
+    feedbackScoreBar.style.width = `${tempScore * 10}%`;
+
+    // *** REMOVE interpretation paragraph handling from header ***
+    let interpretationP = dynamicScoreFeedback.querySelector('.interpretation-text');
+    if (interpretationP) {
+        interpretationP.remove(); // Remove it if it exists from previous version
+    }
 }
+
 function calculateElementScore(elementName, answersForElement) { /* ... no changes needed ... */
     const questions = questionnaireGuided[elementName] || []; let score = 5.0;
     questions.forEach(q => { const answer = answersForElement[q.qId]; let pointsToAdd = 0; if (q.type === 'slider') { const value = (answer !== undefined) ? answer : q.defaultValue; pointsToAdd = (value - q.defaultValue) * (q.scoreWeight || 1.0); } else if (q.type === 'radio') { const opt = q.options.find(o => o.value === answer); pointsToAdd = opt ? (opt.points || 0) * (q.scoreWeight || 1.0) : 0; } else if (q.type === 'checkbox' && Array.isArray(answer)) { answer.forEach(val => { const opt = q.options.find(o => o.value === val); pointsToAdd += opt ? (opt.points || 0) * (q.scoreWeight || 1.0) : 0; }); } score += pointsToAdd; });
