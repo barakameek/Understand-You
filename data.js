@@ -1,3 +1,4 @@
+// data.js - COMPLETE VERSION v12.1 (Sell Cards, Focus Unlocks, Info Icons Prep)
 console.log("data.js starting..."); // Log for debugging load order
 
 const elementDetails = {
@@ -263,72 +264,64 @@ const questionnaireGuided = {
     ]
 };
 
-// --- Reflection Prompts (CORRECTED STRUCTURE - V2) ---
+// --- Reflection Prompts (Corrected Structure) ---
 const reflectionPrompts = {
-    // --- Standard Prompts ---
     "Attraction": [
         { id: "pA1", text: "Think about someone or something you found intensely attractive recently. What specific qualities (physical, personality, dynamic) drew you in the most?" },
         { id: "pA2", text: "When has attraction felt confusing or unexpected for you? What did you learn from that experience?" },
         { id: "pA3", text: "Does your level of emotional connection to someone strongly influence your sexual attraction? How so?" },
         { id: "pA4", text: "Consider an attraction that faded. What changed? Was it about them, you, or the context?" },
-    ], // Comma OK
+    ],
     "Interaction": [
         { id: "pI1", text: "Describe a time you felt most comfortable in a sexual interaction. Were you leading, following, or collaborating? What made it comfortable?" },
         { id: "pI2", text: "Imagine an ideal sexual encounter. What kind of energy exchange are you looking for (playful, intense, nurturing, commanding, yielding)?" },
         { id: "pI3", text: "How important is verbal communication vs non-verbal cues in your preferred interaction style?" },
         { id: "pI4", text: "If you enjoy power dynamics, what is the appeal of holding power? What is the appeal of yielding it?" },
-    ], // Comma OK
+    ],
     "Sensory": [
         { id: "pS1", text: "What type of physical touch (light, firm, rough, specific texture) feels most arousing or connecting to you, separate from orgasm?" },
         { id: "pS2", text: "Are there any specific sensations (temperature, pressure, pain, specific sounds/smells) that strongly enhance or detract from your arousal?" },
         { id: "pS3", text: "How does your desire for sensory input change depending on your mood or partner?" },
         { id: "pS4", text: "Think about a purely sensory experience (sexual or not) that felt transcendent or deeply satisfying. What were its key elements?" },
-    ], // Comma OK
+    ],
     "Psychological": [
         { id: "pP1", text: "Beyond physical pleasure, what core emotional need (e.g., connection, validation, control, escape) does sexuality most often fulfill for you?" },
         { id: "pP2", text: "Think about a time sex felt psychologically fulfilling. What underlying needs were met?" },
         { id: "pP3", text: "Conversely, when has sex felt psychologically unfulfilling, even if physically pleasurable? What might have been missing?" },
         { id: "pP4", text: "How does vulnerability play a role in your psychologically satisfying sexual experiences?" },
-    ], // Comma OK
+    ],
     "Cognitive": [
         { id: "pC1", text: "How much do you rely on fantasy or specific scenarios to become aroused? Are you more 'in your head' or 'in the moment'?" },
         { id: "pC2", text: "Describe a fantasy or scenario (even vaguely) that you find particularly potent. What elements make it work for you?" },
         { id: "pC3", text: "Does the intellectual or psychological aspect of a dynamic (e.g., power plays, witty banter, understanding motivations) contribute significantly to your arousal?" },
         { id: "pC4", text: "How does anticipation or memory shape your sexual experiences?" },
-    ], // Comma OK
+    ],
     "Relational": [
         { id: "pR1", text: "In what context do you feel most free to express your sexuality (e.g., alone, committed partner, casual encounter, group setting)?" },
         { id: "pR2", text: "How important are explicit agreements, rules, or boundaries regarding exclusivity or openness in your ideal sexual relationships?" },
         { id: "pR3", text: "What level of emotional intimacy do you typically prefer or require in your sexual connections?" },
         { id: "pR4", text: "How do concepts like jealousy or compersion (finding joy in a partner's joy with others) manifest in your relational landscape?" },
-    ], // Comma OK
-
-    // --- Dissonance Prompts ---
+    ],
     "Dissonance": [
         { id: "pD1", text: "This concept seems quite different from your current profile. What aspect of it intrigues you or makes you curious, even if it feels unfamiliar?" },
         { id: "pD2", text: "Exploring unfamiliar territory can be revealing. What potential does engaging with this concept hold for you, even if it feels challenging or uncomfortable at first glance?" },
         { id: "pD3", text: "Sometimes, what we resist holds a key. Is there an underlying need or desire this concept touches upon, perhaps indirectly, that you haven't fully acknowledged?" },
         { id: "pD4", text: "How might integrating or simply understanding this concept broaden your perspective on your own sexuality or the diverse experiences of others?" }
-    ], // Comma OK
-
-    // --- Guided Prompts Section ---
+    ],
     "Guided": {
         "LowAttunement": [
             { id: "gLA1", text: "You're just beginning your exploration. Which core element feels most intriguing or confusing to you right now, and why?" },
             { id: "gLA2", text: "Consider your initial scores. Was there anything that surprised you? How does it feel to start putting names to these aspects of yourself?" }
-        ], // Comma OK
+        ],
         "HighAttunementElement": [
             { id: "gHE1", text: "You show a strong resonance with [Element Name]. How does this element manifest in your fantasies or experiences? What nuances are emerging?" },
             { id: "gHE2", text: "Where might the 'shadow' or challenge lie within your strong connection to [Element Name]? Are there potential downsides or areas for growth?" }
-        ], // Comma OK
+        ],
         "ConceptSynergy": [
              { id: "gCS1", text: "You're focusing on both [Concept A] and [Concept B], which have potential synergy. How do these concepts interact or influence each other in your mind?" },
              { id: "gCS2", text: "What new possibilities or dynamics emerge when you consider [Concept A] and [Concept B] together? Does their combination create something unique?" }
         ]
-        // Add more categories as needed // Comment
-    }, // <<< Comma NEEDED HERE
-
-    // --- RareConcept Prompts (MOVED INSIDE) ---
+    },
     "RareConcept": {
         "rP08": { id: "rP08", text: "Heavy Impact often involves intense sensation and trust. What draws you to this level of intensity? Is it the physical feeling, the marks, the power exchange, or something else?" },
         "rP09": { id: "rP09", text: "Non-impact pain (needles, wax, clamps) offers different sensations. What specific quality of these sensations appeals to you? Is there a psychological component beyond the physical?" },
@@ -338,7 +331,6 @@ const reflectionPrompts = {
         "rP16": { id: "rP16", text: "Shibari blends restriction with aesthetics. Is your interest more in the visual beauty, the feeling of the ropes, the helplessness, or the connection with the rigger?" },
         "rP17": { id: "rP17", text: "The feeling of helplessness can be potent. What emotions or psychological states does being restricted evoke in you? Is it surrender, vulnerability, excitement, or something else?" },
         "rP20": { id: "rP20", text: "Focusing on materials like latex shifts attraction away from the person. What is it about the look, feel, sound, or smell of this material that triggers arousal for you?" },
-        // ... Add prompts for other rare card IDs (rP21, rP25, etc.) ...
         "rP21": { id: "rP21", text: "Uniforms carry strong associations. What specific uniform/clothing triggers arousal, and what power, role, or fantasy does it represent for you?" },
         "rP25": { id: "rP25", text: "Polyamory involves managing multiple intimate connections. What are the unique joys or challenges you anticipate or experience in this structure?" },
         "rP27": { id: "rP27", text: "Relationship Anarchy rejects pre-defined rules. How do you navigate building unique relationship agreements based purely on individual desires and consent?" },
@@ -367,20 +359,15 @@ const reflectionPrompts = {
         "rP123": { id: "rP123", text: "Using BDSM for exposure therapy requires careful navigation. How can scene work facilitate processing trauma without re-traumatizing, and what professional support might be needed?" },
         "rP124": { id: "rP124", text: "Sensory overstimulation torture focuses on overwhelming input. Is the goal disorientation, endurance, breaking down defenses, or something else?" },
         "rP125": { id: "rP125", text: "Advanced breath control involves significant risk and trust. What is the allure of playing so close to this particular edge? (Reflect on safety practices if exploring this.)" }
-    }, // <<< Comma NEEDED HERE
-
-    // --- SceneMeditation Prompts (MOVED INSIDE) ---
+    },
     "SceneMeditation": {
         "SCN001": { id: "scnP001", text: "Meditating on 'The Blindfolded Tasting': Imagine focusing solely on taste and texture without sight. How might this heighten other senses or feelings of vulnerability and trust?" },
         "SCN002": { id: "scnP002", text: "Meditating on 'The Negotiated Power Shift': Consider the process of explicitly discussing and shifting control mid-scene. What communication skills are needed? How might this build intimacy or excitement?" },
         "SCN003": { id: "scnP003", text: "Meditating on 'Sensory Storytelling': Reflect on how linking narrative words to physical sensations could blur the lines between mind and body. What kind of story would be most potent for you?"}
-        // ... Add prompts corresponding to sceneBlueprint IDs ...
-    } // <<< NO COMMA HERE as it's the last property
+    }
+};
 
-}; // --- END of reflectionPrompts object definition ---
-
-
-// --- Element Deep Dive Content (Costs Updated) ---
+// --- Element Deep Dive Content ---
 const elementDeepDive = {
     "A": [
         { level: 1, title: "Foundations of Attraction", insightCost: 10, content: "<p>Explores common attraction patterns like gender and presentation, the role of symmetry and health cues (often subconscious), and introduces the concept of spectrums (e.g., the asexual spectrum).</p><ul><li>Defining Orientation vs. Attraction</li><li>Common Cues: Visual, Auditory, Olfactory</li><li>Introduction to Asexuality and Demisexuality</li></ul>" },
@@ -414,73 +401,78 @@ const elementDeepDive = {
     ]
 };
 
-// --- NEW Focus Rituals Data ---
-// Rituals that become available ONLY when specific concept(s) are Focused
+// --- Focus Rituals Data ---
 const focusRituals = [
-    { id: "fr01", requiredFocusIds: [4], // Dominance (Psychological)
-      description: "Focus Ritual: Reflect on a time you successfully guided a partner's experience.",
-      reward: { type: "insight", amount: 3 },
-      track: { action: "completeReflection", count: 1, period: "daily", contextMatch: "FocusRitual_fr01" } // Needs specific context trigger
-    },
-    { id: "fr02", requiredFocusIds: [5], // Submission (Psychological)
-      description: "Focus Ritual: Meditate on the feeling of trust required for surrender.",
-      reward: { type: "insight", amount: 3 },
-      track: { action: "completeReflection", count: 1, period: "daily", contextMatch: "FocusRitual_fr02" }
-    },
-    { id: "fr03", requiredFocusIds: [15], // Deep Emotional Intimacy
-      description: "Focus Ritual: Contemplate an act that deepens vulnerability with a partner.",
-      reward: { type: "attunement", element: "P", amount: 0.5 },
-      track: { action: "completeReflection", count: 1, period: "daily", contextMatch: "FocusRitual_fr03" }
-    },
-    { id: "fr04", requiredFocusIds: [16, 17], // Rope Bondage AND Restriction/Helplessness
-      description: "Focus Ritual: Analyze the interplay between aesthetic form and restricted sensation in rope.",
-      reward: { type: "insight", amount: 5 },
-      track: { action: "completeReflection", count: 1, period: "daily", contextMatch: "FocusRitual_fr04" }
-    }
-    // Add more focus rituals...
+    { id: "fr01", requiredFocusIds: [4], description: "Focus Ritual: Reflect on a time you successfully guided a partner's experience.", reward: { type: "insight", amount: 3 }, track: { action: "completeReflection", count: 1, period: "daily", contextMatch: "FocusRitual_fr01" } },
+    { id: "fr02", requiredFocusIds: [5], description: "Focus Ritual: Meditate on the feeling of trust required for surrender.", reward: { type: "insight", amount: 3 }, track: { action: "completeReflection", count: 1, period: "daily", contextMatch: "FocusRitual_fr02" } },
+    { id: "fr03", requiredFocusIds: [15], description: "Focus Ritual: Contemplate an act that deepens vulnerability with a partner.", reward: { type: "attunement", element: "P", amount: 0.5 }, track: { action: "completeReflection", count: 1, period: "daily", contextMatch: "FocusRitual_fr03" } },
+    { id: "fr04", requiredFocusIds: [16, 17], description: "Focus Ritual: Analyze the interplay between aesthetic form and restricted sensation in rope.", reward: { type: "insight", amount: 5 }, track: { action: "completeReflection", count: 1, period: "daily", contextMatch: "FocusRitual_fr04" } }
 ];
 
-// --- NEW Repository Item Data ---
+// --- Repository Item Data ---
 const sceneBlueprints = [
     { id: "SCN001", name: "The Blindfolded Tasting", element: "S", description: "One partner is blindfolded and fed various foods/drinks with different textures and temperatures, focusing solely on taste, texture, and the intimacy of being fed.", meditationCost: 10, reflectionPromptId: "scnP001" },
     { id: "SCN002", name: "The Negotiated Power Shift", element: "I", description: "Start a scene with agreed-upon roles (e.g., Dom/sub). Partway through, use a specific safeword or signal to pause and explicitly renegotiate who holds the power for the remainder of the scene.", meditationCost: 10, reflectionPromptId: "scnP002" },
-    { id: "SCN003", name: "Sensory Storytelling", element: "C", description: "One partner tells an erotic story while simultaneously providing corresponding light sensory input (e.g., describing wind with a feather, warmth with a warm cloth). Focus on synchronizing narrative and sensation.", meditationCost: 10, reflectionPromptId: "scnP003" }, // Need corresponding prompt in reflectionPrompts.SceneMeditation
-    // Add more blueprints...
+    { id: "SCN003", name: "Sensory Storytelling", element: "C", description: "One partner tells an erotic story while simultaneously providing corresponding light sensory input (e.g., describing wind with a feather, warmth with a warm cloth). Focus on synchronizing narrative and sensation.", meditationCost: 10, reflectionPromptId: "scnP003" },
+    { id: "SCN004", name: "Mirror Gazing Intimacy", element: "P", description: "Partners sit facing each other, maintaining eye contact, perhaps while holding hands or with light touch. Focus on observing micromovements and shared vulnerability without speaking.", meditationCost: 8, reflectionPromptId: "scnP004" }, // Add prompt scnP004 to reflections
 ];
 
 const alchemicalExperiments = [
-    { id: "EXP01", name: "Sensory Amplification", requiredElement: "S", requiredAttunement: 75, insightCost: 30, requiredFocusConceptTypes: ["Practice/Kink"], // Example: Need at least one Sensory Practice focused
-      description: "Attempt to heighten all sensory input through focused meditation and deliberate stimulation, risking temporary overload but potentially achieving heightened awareness.",
-      successReward: { type: "attunement", element: "S", amount: 5 }, failureConsequence: "Slight temporary decrease in Sensory attunement.", successRate: 0.6 }, // 60% success base
-    { id: "EXP02", name: "Command Resonance", requiredElement: "I", requiredAttunement: 80, insightCost: 40, requiredFocusConceptIds: [11], // Example: Requires Command/Control Dynamics focused
-      description: "Channel intense focus into the act of command or obedience, seeking perfect resonance and understanding within a power dynamic.",
-      successReward: { type: "insight", amount: 20 }, failureConsequence: "Temporary inability to focus Interaction concepts.", successRate: 0.5 },
-    { id: "EXP03", name: "Intimacy Catalyst", requiredElement: "P", requiredAttunement: 85, insightCost: 50, requiredFocusConceptIds: [15], // Requires Deep Emotional Intimacy
-      description: "Attempt a ritualistic sharing of vulnerabilities to rapidly deepen a perceived emotional connection, risking discomfort or misinterpretation.",
-      successReward: { type: "attunement", element: "P", amount: 6 }, failureConsequence: "Increased feeling of psychological dissonance for a time.", successRate: 0.4 },
-    // Add more experiments...
+    { id: "EXP01", name: "Sensory Amplification", requiredElement: "S", requiredAttunement: 75, insightCost: 30, requiredFocusConceptTypes: ["Practice/Kink"], description: "Attempt to heighten all sensory input through focused meditation and deliberate stimulation, risking temporary overload but potentially achieving heightened awareness.", successReward: { type: "attunement", element: "S", amount: 5 }, failureConsequence: "Slight temporary decrease in Sensory attunement.", successRate: 0.6 },
+    { id: "EXP02", name: "Command Resonance", requiredElement: "I", requiredAttunement: 80, insightCost: 40, requiredFocusConceptIds: [11], description: "Channel intense focus into the act of command or obedience, seeking perfect resonance and understanding within a power dynamic.", successReward: { type: "insight", amount: 20 }, failureConsequence: "Temporary inability to focus Interaction concepts.", successRate: 0.5 },
+    { id: "EXP03", name: "Intimacy Catalyst", requiredElement: "P", requiredAttunement: 85, insightCost: 50, requiredFocusConceptIds: [15], description: "Attempt a ritualistic sharing of vulnerabilities to rapidly deepen a perceived emotional connection, risking discomfort or misinterpretation.", successReward: { type: "attunement", element: "P", amount: 6 }, failureConsequence: "Increased feeling of psychological dissonance for a time.", successRate: 0.4 },
+    { id: "EXP04", name: "Conceptual Weaving", requiredElement: "C", requiredAttunement: 70, insightCost: 35, requiredFocusConceptTypes: ["Cognitive"], description: "Attempt to mentally blend two focused Cognitive concepts into a coherent, novel fantasy scenario, potentially unlocking a new perspective or fragment.", successReward: { type: "insightFragment", count: 1, element: "C" }, failureConsequence: "Mental fatigue, slight Insight loss.", successRate: 0.55 } // Add insightFragment reward type
 ];
 
-const elementalInsights = [ // Short text fragments
+const elementalInsights = [
     { id: "EI_A01", element: "A", text: "Attraction is a compass, not always pointing north." },
     { id: "EI_A02", element: "A", text: "What repels reveals as much as what attracts." },
     { id: "EI_A03", element: "A", text: "Sometimes, the strongest pull is towards the unfamiliar edge." },
+    { id: "EI_A04", element: "A", text: "A scent, a glance, a word - the spark can ignite anywhere." },
     { id: "EI_I01", element: "I", text: "Every interaction is a negotiation, spoken or unspoken." },
     { id: "EI_I02", element: "I", text: "Silence, too, is a form of dialogue in the dance." },
     { id: "EI_I03", element: "I", text: "True power lies not in control, but in the consent to be controlled." },
+    { id: "EI_I04", element: "I", text: "The rhythm of giving and receiving creates the music." },
     { id: "EI_S01", element: "S", text: "The skin remembers sensations the mind forgets." },
     { id: "EI_S02", element: "S", text: "Pain is but intense sensation; its meaning is chosen." },
     { id: "EI_S03", element: "S", text: "Deprive one sense, and the others awaken hungrily." },
+    { id: "EI_S04", element: "S", text: "Contrast sharpens awareness: hot/cold, rough/smooth, tight/loose." },
     { id: "EI_P01", element: "P", text: "Need is the hidden current beneath the waves of desire." },
     { id: "EI_P02", element: "P", text: "Vulnerability offered is strength transformed." },
     { id: "EI_P03", element: "P", text: "Catharsis burns away the dross, leaving purified feeling." },
+    { id: "EI_P04", element: "P", text: "Trust is the vessel; intimacy is the elixir." },
     { id: "EI_C01", element: "C", text: "Fantasy is the laboratory where reality is tested." },
     { id: "EI_C02", element: "C", text: "The most intricate scenes are mapped first in the mind." },
     { id: "EI_C03", element: "C", text: "Meaning elevates sensation; intellect sharpens the edge." },
+    { id: "EI_C04", element: "C", text: "Anticipation is the sweetest spice." },
     { id: "EI_R01", element: "R", text: "A dyad is a universe, a network a galaxy." },
     { id: "EI_R02", element: "R", text: "Rules bind, agreements connect." },
     { id: "EI_R03", element: "R", text: "Exclusivity is a choice, not a default setting of the heart." },
-    // Add more insights...
+    { id: "EI_R04", element: "R", text: "Compersion requires seeing beyond the self." }
+];
+
+// --- NEW: Focus-Driven Unlocks Data ---
+// Defines items unlocked when specific combinations of concepts are focused.
+const focusDrivenUnlocks = [
+    {
+        id: "FDU001", // Unique ID for this unlock definition
+        requiredFocusIds: [4, 9], // Requires Dominance (Psychological) AND Pain Play (Non-Impact)
+        unlocks: { type: "scene", id: "SCN005", name: "Precision Sensation Scene" }, // Unlocks a new Scene Blueprint (add SCN005 to sceneBlueprints)
+        description: "Focusing on Control and Precise Sensation has revealed the 'Precision Sensation Scene' Blueprint!" // Message shown to user
+    },
+    {
+        id: "FDU002",
+        requiredFocusIds: [15, 16], // Requires Deep Emotional Intimacy AND Rope Bondage
+        unlocks: { type: "insightFragment", id: "EI_P05", element: "P", text: "Binding the body can free the heart, if trust holds the knot." }, // Unlocks a specific Insight Fragment (add EI_P05 to elementalInsights)
+        description: "Focusing on Intimacy and Trust within Restriction has revealed a new Psychological Insight!"
+    },
+    {
+        id: "FDU003",
+        requiredFocusIds: [13, 21], // Requires Role-Playing AND Uniform Fetish
+        unlocks: { type: "experiment", id: "EXP05", name: "Persona Integration Test" }, // Unlocks a new Experiment (add EXP05 to alchemicalExperiments)
+        description: "Focusing on assumed Roles and Symbolic Attire has unlocked the 'Persona Integration Test' Experiment!"
+    }
+    // Add more unlock combinations...
 ];
 
 
@@ -494,7 +486,7 @@ const dailyRituals = [
     { id: "dr06", description: "Unlock an Element Library level.", reward: { type: "attunement", element: "All", amount: 0.5 }, track: { action: "unlockLibrary", count: 1, period: "daily"} }
 ];
 
-const milestones = [ // Unchanged from v11.2
+const milestones = [
     // Early Game & Discovery
     { id: "ms01", description: "First Concept Added!", reward: { type: "insight", amount: 5 }, track: { state: "discoveredConcepts.size", threshold: 1 } },
     { id: "ms02", description: "Curator I: Added 5 Concepts", reward: { type: "insight", amount: 10 }, track: { state: "discoveredConcepts.size", threshold: 5 } },
@@ -537,10 +529,33 @@ const milestones = [ // Unchanged from v11.2
     { id: "ms61", description: "Elemental Scholar: Unlocked Level 2 in one Element", reward: { type: "insight", amount: 10 }, track: { state: "unlockedDeepDiveLevels", threshold: 2, condition: "any"} },
     { id: "ms62", description: "Dedicated Scholar: Unlocked Level 3 in one Element", reward: { type: "insight", amount: 15 }, track: { state: "unlockedDeepDiveLevels", threshold: 3, condition: "any"} },
     { id: "ms63", description: "Omniscient Scholar: Unlocked Level 1 in all Elements", reward: { type: "increaseFocusSlots", amount: 1 }, track: { state: "unlockedDeepDiveLevels", threshold: 1, condition: "all"} },
-    // Repository Milestones (New)
+    // Repository Milestones
     { id: "ms70", description: "Scene Contemplated: Meditated on a Scene Blueprint", reward: { type: "insight", amount: 10 }, track: { action: "meditateScene", count: 1 } },
     { id: "ms71", description: "Experiment Attempted: Braved an Alchemical Experiment", reward: { type: "insight", amount: 15 }, track: { action: "attemptExperiment", count: 1 } },
     { id: "ms72", description: "Insight Gatherer: Collected 3 Elemental Insights", reward: { type: "attunement", element: "All", amount: 1.0 }, track: { state: "repositoryInsightsCount", threshold: 3 } },
+    { id: "ms73", description: "Repository Explorer: Collected 1 item of each type (Scene, Experiment, Insight)", reward: { type: "insight", amount: 20 }, track: { state: "repositoryContents", condition: "allTypesPresent" } }, // Need custom check in updateMilestoneProgress
+    // NEW: Sell Milestone
+    { id: "ms80", description: "Resource Management: Sold a Concept Card", reward: { type: "insight", amount: 5 }, track: { action: "sellConcept", count: 1 } },
 ];
+
+
+// --- Helper function to ensure all data objects exist (Check new ones) ---
+function checkAllDataObjects() {
+    const dataObjects = {
+        elementDetails, concepts, questionnaireGuided, reflectionPrompts,
+        elementDeepDive, focusRituals, sceneBlueprints, alchemicalExperiments,
+        elementalInsights, focusDrivenUnlocks, dailyRituals, milestones,
+        elementKeyToFullName
+    };
+    for (const key in dataObjects) {
+        if (typeof dataObjects[key] === 'undefined') {
+            console.error(`CRITICAL ERROR: Data object "${key}" is missing from data.js!`);
+            return false;
+        }
+    }
+    console.log("All core data objects present.");
+    return true;
+}
+checkAllDataObjects(); // Run check immediately
 
 console.log("data.js finished.");
