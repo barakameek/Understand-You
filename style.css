@@ -1,4 +1,4 @@
-/* style.css - COMPLETE VERSION v8 (Insight UI, Focus Slots, Research Buttons) */
+/* style.css - COMPLETE VERSION v9 (Based on v8 - Insight UI, Focus Slots, Research Buttons) */
 
 /* Basic Reset & Body */
 body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; background-color: #e8e4d8; color: #4a3e33; line-height: 1.5; }
@@ -83,7 +83,7 @@ hr { border: none; border-top: 1px dashed #c8b89a; margin: 15px 0; }
 .persona-elements-detailed { flex: 1 1 400px; background-color: #fff8e7; padding: 20px; border-radius: 5px; border: 1px solid #d3c0a0;}
 .persona-constellation { flex: 1 1 450px; background-color: #e8e4d8; padding: 20px; border-radius: 5px; border: 1px solid #c8b89a;}
 .persona-elements-detailed h2, .persona-constellation h2 { text-align: left; border: none; margin-bottom: 10px; font-size: 1.3em;}
-.persona-elements-detailed > p, .persona-constellation > p { text-align: left; font-size: 0.9em; color: #666; margin-bottom: 20px; }
+.persona-elements-detailed > p, .persona-constellation > p { text-align: left; font-size: 0.9em; color: #666; margin-bottom: 10px; /* Reduced margin */}
 .element-detail-entry { margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px dotted #c8b89a; border-left: 4px solid var(--element-color, #ccc); padding-left: 10px; border-radius: 0 4px 4px 0; }
 .element-detail-header { display: flex; align-items: center; justify-content: space-between; cursor: pointer; margin-bottom: 5px; padding: 5px 8px 5px 0; border-radius: 0 4px 4px 0; position: relative; }
 .element-detail-header:hover { background-color: rgba(238, 233, 221, 0.9); }
@@ -95,7 +95,7 @@ hr { border: none; border-top: 1px dashed #c8b89a; margin: 15px 0; }
 .element-description p { text-align: left; margin-bottom: 8px; }
 .element-description strong { color: #8b4513;}
 .element-description small { color: #6a5a4a; font-size: 0.9em; display: block; margin-top: 5px;}
-#userInsightDisplayPersona { font-weight: bold; color: #5a2d0c; }
+#userInsightDisplayPersona { font-weight: bold; color: #5a2d0c; display: inline-block; /* Align icon better */ }
 .insight-icon { color: #8A2BE2; margin-left: 3px; }
 #elementAttunementDisplay { margin-top: 10px; font-size: 0.9em; padding-top: 10px; border-top: 1px dashed #c8b89a;}
 #elementAttunementDisplay .attunement-item { margin-bottom: 3px; display: flex; align-items: center;}
@@ -103,7 +103,7 @@ hr { border: none; border-top: 1px dashed #c8b89a; margin: 15px 0; }
 #elementAttunementDisplay .attunement-bar-container { flex-grow: 1; height: 8px; background-color: #d3c0a0; border-radius: 4px; overflow: hidden; margin-left: 10px;}
 #elementAttunementDisplay .attunement-bar { height: 100%; background-color: #b8860b; width: 0%; border-radius: 4px; transition: width 0.5s ease;}
 .tapestry-area { background-color: #fffefa; border: 1px solid #d3c0a0; border-radius: 5px; min-height: 200px; padding: 15px; margin-bottom: 20px; }
-#focusedConceptsHeader { border-bottom: 1px solid #e8e4d8; padding-bottom: 5px; text-align: left; margin-bottom: 10px; font-size: 1.1em;} /* Style for focus header */
+#focusedConceptsHeader { border-bottom: 1px solid #e8e4d8; padding-bottom: 5px; text-align: left; margin-bottom: 10px; font-size: 1.1em;}
 .focus-concepts-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin-top: 10px; }
 .focus-concept-item { background-color: #fff8e7; border: 1px solid #d3c0a0; border-radius: 4px; padding: 8px 10px; font-size: 0.9em; text-align: center; cursor: pointer; transition: background-color 0.2s ease; }
 .focus-concept-item:hover { background-color: #f5eecf; }
@@ -127,7 +127,7 @@ hr { border: none; border-top: 1px dashed #c8b89a; margin: 15px 0; }
 .research-bench { flex: 3 1 500px; background-color: #eee8aa; padding: 20px; border-radius: 8px; border: 1px solid #b8a880; min-height: 300px; }
 .study-resources h2, .research-bench h2 { margin-top: 0; border-bottom-color: #a08460; }
 .study-resources p, .research-bench p { text-align: left; font-size: 0.9em; margin-bottom: 10px; }
-#userInsightDisplayStudy { font-weight: bold; color: #5a2d0c; }
+#userInsightDisplayStudy { font-weight: bold; color: #5a2d0c; display: inline-block; }
 .research-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
 .research-button { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 8px 5px; font-size: 0.85em; height: 80px; text-align: center; border-radius: 5px; background-color: #faf0e6; border: 1px solid #b8a880; color: #5a3a22; text-shadow: none; }
 .research-button:hover:not(:disabled) { background-color: #fff8dc; border-color: #8b4513; }
@@ -242,7 +242,7 @@ hr { border: none; border-top: 1px dashed #c8b89a; margin: 15px 0; }
 .card-popup .add-grimoire-button { background-color: #2e8b57; border-color: #1e5a3a; }
 .card-popup .add-grimoire-button:hover { background-color: #3cb371; }
 .card-popup .add-grimoire-button.added { background-color: #aaa; border-color: #888; cursor: default; }
-.card-popup .focus-button { background-color: #ffc107; border-color: #b8860b; color: #333; text-shadow: none;} /* Renamed class */
+.card-popup .focus-button { background-color: #ffc107; border-color: #b8860b; color: #333; text-shadow: none;}
 .card-popup .focus-button:hover { background-color: #e0a800; }
 .card-popup .focus-button.marked { background-color: #ffaa00; border-color: #cc8400; }
 .card-popup .focus-button.hidden { display: none; }
@@ -261,7 +261,7 @@ hr { border: none; border-top: 1px dashed #c8b89a; margin: 15px 0; }
 .reflection-confirm { margin: 15px 0; text-align: center; }
 .reflection-confirm label { cursor: pointer; margin-left: 5px; }
 .score-nudge-label { font-size: 0.9em; font-style: italic; margin-left: 5px; color: #6a5a4a; cursor: pointer; }
-.score-nudge-label.hidden { display: none; } /* Hide nudge elements */
+.score-nudge-label.hidden, #scoreNudgeCheckbox.hidden { display: none; } /* Hide nudge elements */
 #confirmReflectionButton { display: block; margin: 10px auto 0 auto; }
 
 /* Milestone Alert */
