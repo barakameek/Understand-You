@@ -365,3 +365,32 @@ hr { border: none; border-top: 1px dashed #c8b89a; margin: 15px 0; }
 .concept-card:hover { transform: translateY(-3px) scale(1.02); box-shadow: 0 5px 12px rgba(0,0,0,0.2); } /* General hover */
 .concept-card:hover.rarity-uncommon { border-color: #555; box-shadow: 0 5px 12px rgba(0,0,0,0.2), inset 0 0 4px rgba(0,0,0,0.1); }
 .concept-card:hover.rarity-rare { border-color: #b8860b; box-shadow: 0 0 12px rgba(255, 215, 0, 0.8), 0 4px 8px rgba(0,0,0,0.2); }
+
+/* Element Details on Persona Page */
+.element-detail-entry {
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px dotted #c8b89a;
+    /* Add subtle left border using the variable */
+    border-left: 4px solid var(--element-color, #ccc); /* Use variable, fallback grey */
+    padding-left: 10px; /* Add padding for the border */
+    border-radius: 0 4px 4px 0; /* Optional: round corners opposite the border */
+}
+
+.element-detail-header {
+    /* Optional: Add a subtle background color tint */
+    /* background-color: rgba(from var(--element-color, #ccc) r g b / 0.05); */ /* Very subtle background */
+    /* The variable is set inline via JS now */
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    margin-bottom: 5px;
+    padding: 5px 8px;
+    border-radius: 4px;
+    position: relative; /* For potential pseudo-elements */
+}
+.element-detail-header:hover {
+    background-color: rgba(238, 233, 221, 0.9);
+}
+/* Score bar already uses the color */
