@@ -1,23 +1,8 @@
 /* style.css - COMPLETE VERSION v8 (Insight UI, Focus Slots, Research Buttons) */
 
 /* Basic Reset & Body */
-body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    margin: 0;
-    background-color: #e8e4d8; /* Parchment background */
-    color: #4a3e33; /* Dark brown text */
-    line-height: 1.5;
-}
-
-.app-container {
-    max-width: 1300px;
-    margin: 20px auto;
-    background-color: #f5f0e1; /* Lighter parchment for container */
-    border-radius: 8px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-    border: 1px solid #d3c0a0; /* Slightly darker border */
-    overflow: hidden; /* Prevent content spill */
-}
+body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; background-color: #e8e4d8; color: #4a3e33; line-height: 1.5; }
+.app-container { max-width: 1300px; margin: 20px auto; background-color: #f5f0e1; border-radius: 8px; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2); border: 1px solid #d3c0a0; overflow: hidden; }
 
 /* Screen Management */
 .screen { padding: 20px 30px; box-sizing: border-box; min-height: calc(100vh - 40px - 50px); }
@@ -38,7 +23,7 @@ hr { border: none; border-top: 1px dashed #c8b89a; margin: 15px 0; }
 /* --- Study Theme --- */
 .study-theme { background: linear-gradient(to bottom, #f5f0e1, #e8e4d8); }
 .study-theme .button { background-color: #8b4513; border: 1px solid #5a2d0c; box-shadow: 0 2px 3px rgba(0,0,0,0.2); color: #fff; text-shadow: 1px 1px 1px rgba(0,0,0,0.3);}
-.study-theme .button:hover { background-color: #a0522d; }
+.study-theme .button:hover:not(:disabled) { background-color: #a0522d; }
 .study-theme .back-button { background-color: #a09a8e; border-color: #7a746a; color: #333; text-shadow: none;}
 .study-theme .back-button:hover { background-color: #8a8478; }
 
@@ -110,24 +95,22 @@ hr { border: none; border-top: 1px dashed #c8b89a; margin: 15px 0; }
 .element-description p { text-align: left; margin-bottom: 8px; }
 .element-description strong { color: #8b4513;}
 .element-description small { color: #6a5a4a; font-size: 0.9em; display: block; margin-top: 5px;}
-#userInsightDisplayPersona { font-weight: bold; color: #5a2d0c; } /* Style for Insight display */
-.insight-icon { color: #8A2BE2; margin-left: 3px; } /* Cognitive color for Insight icon */
+#userInsightDisplayPersona { font-weight: bold; color: #5a2d0c; }
+.insight-icon { color: #8A2BE2; margin-left: 3px; }
 #elementAttunementDisplay { margin-top: 10px; font-size: 0.9em; padding-top: 10px; border-top: 1px dashed #c8b89a;}
 #elementAttunementDisplay .attunement-item { margin-bottom: 3px; display: flex; align-items: center;}
 #elementAttunementDisplay .attunement-name { width: 100px; font-weight: 500;}
 #elementAttunementDisplay .attunement-bar-container { flex-grow: 1; height: 8px; background-color: #d3c0a0; border-radius: 4px; overflow: hidden; margin-left: 10px;}
 #elementAttunementDisplay .attunement-bar { height: 100%; background-color: #b8860b; width: 0%; border-radius: 4px; transition: width 0.5s ease;}
 .tapestry-area { background-color: #fffefa; border: 1px solid #d3c0a0; border-radius: 5px; min-height: 200px; padding: 15px; margin-bottom: 20px; }
-/* Focus Concepts Header */
-#focusedConceptsHeader { border-bottom: 1px solid #e8e4d8; padding-bottom: 5px; text-align: left; margin-bottom: 10px; }
-/* Focus Concepts Grid (Renamed) */
+#focusedConceptsHeader { border-bottom: 1px solid #e8e4d8; padding-bottom: 5px; text-align: left; margin-bottom: 10px; font-size: 1.1em;} /* Style for focus header */
 .focus-concepts-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin-top: 10px; }
 .focus-concept-item { background-color: #fff8e7; border: 1px solid #d3c0a0; border-radius: 4px; padding: 8px 10px; font-size: 0.9em; text-align: center; cursor: pointer; transition: background-color 0.2s ease; }
 .focus-concept-item:hover { background-color: #f5eecf; }
 .focus-concept-item i { font-size: 1.2em; margin-bottom: 5px; color: #b8860b; display: block; }
 .focus-concept-item .name { font-weight: bold; display: block; font-size: 0.95em; }
 .focus-concept-item .type { font-size: 0.8em; color: #6a5a4a; font-style: italic; }
-.focus-concepts-grid li { list-style: none; font-style: italic; color: #777; text-align: center; grid-column: 1 / -1; /* Span full width */}
+.focus-concepts-grid li { list-style: none; font-style: italic; color: #777; text-align: center; grid-column: 1 / -1; }
 .grimoire-insights h3 { font-size: 1.1em; text-align: left; border-bottom: 1px solid #d3c0a0; padding-bottom: 3px; }
 #personaThemesList { list-style: none; padding-left: 0; margin-top: 10px; font-size: 0.95em; }
 #personaThemesList li { margin-bottom: 6px; padding-left: 20px; position: relative; }
@@ -140,24 +123,22 @@ hr { border: none; border-top: 1px dashed #c8b89a; margin: 15px 0; }
 
 /* Main Study Screen */
 .study-layout-container { display: flex; flex-wrap: wrap; gap: 30px; }
-.study-resources { /* New container for left column */ flex: 1 1 300px; max-width: 380px; background-color: #deb887; padding: 20px; border-radius: 8px; border: 3px ridge #8b4513; box-shadow: inset 0 0 10px rgba(0,0,0,0.2); }
+.study-resources { flex: 1 1 300px; max-width: 380px; background-color: #deb887; padding: 20px; border-radius: 8px; border: 3px ridge #8b4513; box-shadow: inset 0 0 10px rgba(0,0,0,0.2); }
 .research-bench { flex: 3 1 500px; background-color: #eee8aa; padding: 20px; border-radius: 8px; border: 1px solid #b8a880; min-height: 300px; }
 .study-resources h2, .research-bench h2 { margin-top: 0; border-bottom-color: #a08460; }
 .study-resources p, .research-bench p { text-align: left; font-size: 0.9em; margin-bottom: 10px; }
-#userInsightDisplayStudy { font-weight: bold; color: #5a2d0c; } /* Style for Insight display */
-/* Research Buttons Area */
-.research-buttons { display: grid; grid-template-columns: 1fr 1fr; /* Two columns */ gap: 10px; margin-top: 15px; }
-.research-button { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 8px 5px; font-size: 0.85em; height: 80px; /* Fixed height */ text-align: center; border-radius: 5px; background-color: #faf0e6; /* Light base color */ border: 1px solid #b8a880; color: #5a3a22; text-shadow: none; }
+#userInsightDisplayStudy { font-weight: bold; color: #5a2d0c; }
+.research-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
+.research-button { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 8px 5px; font-size: 0.85em; height: 80px; text-align: center; border-radius: 5px; background-color: #faf0e6; border: 1px solid #b8a880; color: #5a3a22; text-shadow: none; }
 .research-button:hover:not(:disabled) { background-color: #fff8dc; border-color: #8b4513; }
 .research-button.disabled { background-color: #eee; border-color: #ccc; color: #999; opacity: 0.7; cursor: not-allowed; }
 .research-el-icon { font-size: 1.4em; margin-bottom: 5px; }
 .research-el-name { font-weight: bold; line-height: 1.2; }
 .research-el-cost { font-size: 0.9em; color: #7a5230; margin-top: 3px; }
 .research-el-cost .insight-icon { font-size: 0.9em; }
-.free-research-button { width: 100%; margin-bottom: 15px; background-color: #66cdaa; border-color: #3cb371; } /* Style for free button */
+.free-research-button { width: 100%; margin-bottom: 15px; background-color: #66cdaa; border-color: #3cb371; }
 .free-research-button:hover:not(:disabled) { background-color: #98fb98; }
 .free-research-button:disabled { background-color: #aaa; border-color: #888; color: #eee; cursor: default; text-shadow: none; }
-/* Rituals Display */
 .rituals-section { margin-top: 20px; padding-top: 15px; border-top: 1px dashed #a08460;}
 .rituals-section h3 { font-size: 1.1em; text-align: left; border: none; margin-bottom: 5px;}
 #dailyRitualsDisplay { list-style: none; padding-left: 0; font-size: 0.9em; }
@@ -187,7 +168,6 @@ hr { border: none; border-top: 1px dashed #c8b89a; margin: 15px 0; }
 .card-header .card-stamps { font-size: 0.9em; white-space: nowrap; display: flex; align-items: center; }
 .card-header .card-stamps span { margin-left: 4px; }
 .card-header .grimoire-stamp { color: #8b4513; opacity: 0.7;}
-/* Focus Indicator Style (Renamed from core) */
 .card-header .focus-indicator { color: #FFD700; text-shadow: 1px 1px 0px #b8860b; }
 .card-visual { flex-grow: 1; display: flex; align-items: center; justify-content: center; background-color: #eee8aa; margin: 5px 0; border-radius: 4px; min-height: 100px; overflow: hidden; }
 .card-visual .card-visual-placeholder { font-size: 3em; color: #b8a880; }
@@ -262,8 +242,7 @@ hr { border: none; border-top: 1px dashed #c8b89a; margin: 15px 0; }
 .card-popup .add-grimoire-button { background-color: #2e8b57; border-color: #1e5a3a; }
 .card-popup .add-grimoire-button:hover { background-color: #3cb371; }
 .card-popup .add-grimoire-button.added { background-color: #aaa; border-color: #888; cursor: default; }
-/* Focus Button Style (Renamed from core) */
-.card-popup .focus-button { background-color: #ffc107; border-color: #b8860b; color: #333; text-shadow: none;}
+.card-popup .focus-button { background-color: #ffc107; border-color: #b8860b; color: #333; text-shadow: none;} /* Renamed class */
 .card-popup .focus-button:hover { background-color: #e0a800; }
 .card-popup .focus-button.marked { background-color: #ffaa00; border-color: #cc8400; }
 .card-popup .focus-button.hidden { display: none; }
@@ -281,12 +260,8 @@ hr { border: none; border-top: 1px dashed #c8b89a; margin: 15px 0; }
 .reflection-modal .prompt-text { font-style: italic; background-color: #fffefa; padding: 10px; border-radius: 4px; border: 1px solid #eee9dd; margin-top: 10px; text-align: left;}
 .reflection-confirm { margin: 15px 0; text-align: center; }
 .reflection-confirm label { cursor: pointer; margin-left: 5px; }
-.score-nudge-label { /* Style for the nudge checkbox label */
-    font-size: 0.9em;
-    font-style: italic;
-    margin-left: 5px;
-    color: #6a5a4a;
-}
+.score-nudge-label { font-size: 0.9em; font-style: italic; margin-left: 5px; color: #6a5a4a; cursor: pointer; }
+.score-nudge-label.hidden { display: none; } /* Hide nudge elements */
 #confirmReflectionButton { display: block; margin: 10px auto 0 auto; }
 
 /* Milestone Alert */
