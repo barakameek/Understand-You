@@ -13,7 +13,7 @@ const elementDetails = {
         },
         examples: "Asexuality, Demisexuality, Heterosexuality, Homosexuality, Bisexuality, Pansexuality, Sapiosexuality, Fetishes (e.g., latex, feet, uniforms), attraction to specific body types, attraction based on D/s roles.",
         personaConnection: "Defines the fundamental 'object' or condition of your sexual desire."
-    }, // Comma BETWEEN elements
+    },
     "Interaction": {
         name: "Interaction Style",
         coreQuestion: "How do you prefer to engage and exchange energy during sexual encounters?",
@@ -28,7 +28,7 @@ const elementDetails = {
         },
         examples: "Dominance/submission (D/s), Master/slave (M/s), Top/Bottom/Versatile roles, Primal play (instinctive interaction), Service dynamics, Exhibitionism/Voyeurism (performance/observation roles), Teacher/student roles, Caregiver/Little dynamics (DDlg, MDlb).",
         personaConnection: "Defines your preferred social and power 'dance' within sexuality."
-    }, // Comma BETWEEN elements
+    },
     "Sensory": {
         name: "Sensory Emphasis",
         coreQuestion: "What physical Feelings are most important or sought after?",
@@ -43,7 +43,7 @@ const elementDetails = {
         },
         examples: "Gentle massage, passionate kissing, cuddling, BDSM impact play (flogging, caning), wax play, ice play, rope bondage, Shibari, sensory deprivation hoods, electrostimulation, specific material fetishes (focus on the feel).",
         personaConnection: "Defines how your body interfaces with sexuality and what physical input it craves or avoids."
-    }, // Comma BETWEEN elements
+    },
     "Psychological": {
         name: "Psychological Driver",
         coreQuestion: "Why do you engage with sexuality? What underlying needs does it fulfill?",
@@ -58,7 +58,7 @@ const elementDetails = {
         },
         examples: "Using sex primarily for stress relief (Low/Moderate), seeking deep emotional intimacy through partnered sex (High), using BDSM for catharsis or power exchange (High/Very High), seeking validation through performance (High), using intense experiences for transcendence (Very High).",
         personaConnection: "Defines the emotional and motivational core of your sexual expression – its deeper purpose for you."
-    }, // Comma BETWEEN elements
+    },
     "Cognitive": {
         name: "Cognitive Engagement",
         coreQuestion: "How important is the Mind – fantasy, intellect, scenarios – in your arousal?",
@@ -73,7 +73,7 @@ const elementDetails = {
         },
         examples: "Mindful sensual touch (Low), enjoying descriptions during dirty talk (Moderate), elaborate D/s protocol scenes (High/Very High), historical or fantasy LARP-style sex (High/Very High), writing/reading erotica focused on complex plots (High/Very High), deep psychological edge play (Very High).",
         personaConnection: "Defines how much and in what way your thoughts, imagination, and intellect participate in your sexuality."
-    }, // Comma BETWEEN elements
+    },
     "Relational": {
         name: "Relational Context",
         coreQuestion: "In what Structure or with whom do you ideally express your sexuality?",
@@ -88,9 +88,10 @@ const elementDetails = {
         },
         examples: "Masturbation (Solitary), Serial Monogamy, Lifelong Monogamy, Friends With Benefits (Casual), Open Relationships, Swinging, Triads/Quads, Hierarchical Polyamory, Egalitarian Polyamory, Solo Polyamory, Relationship Anarchy, Group Sex, Anonymous Encounters.",
         personaConnection: "Defines the preferred social constellation or lack thereof for your sexual life."
-    } // NO Comma after the LAST element
-}; 
-// --- Concepts Data (Expanded to ~60) ---
+    }
+};
+
+// --- Concepts Data (Expanded to ~65) ---
 const concepts = [
     // --- Common Concepts --- (~20)
     { id: 1, name: "Vanilla Sex", cardType: "Practice/Kink", visualHandle: "common_vanilla", primaryElement: "S", elementScores: { A: 5, I: 5, S: 3, P: 4, C: 3, R: 4 }, briefDescription: "Conventional sexual activity.", detailedDescription: "Refers to sexual expression generally considered within conventional norms, often focused on penile-vaginal intercourse or mutual masturbation without specific power dynamics, intense sensations, or elaborate scenarios.", relatedIds: [2, 3, 33], rarity: 'common', canUnlockArt: false },
@@ -141,7 +142,7 @@ const concepts = [
     { id: 61, name: "Body Worship", cardType: "Practice/Kink", visualHandle: "uncommon_bodyworship", primaryElement: "P", elementScores: { A: 6, I: 4, S: 6, P: 8, C: 3, R: 6 }, briefDescription: "Reverential focus on partner's body.", detailedDescription: "Expressing adoration or reverence for a partner's body through acts like kissing, licking, massaging, or simply admiring specific parts, often within a power exchange dynamic.", relatedIds: [5, 10, 12, 62], rarity: 'uncommon', canUnlockArt: false },
     { id: 62, name: "Foot Fetish / Podophilia", cardType: "Orientation", visualHandle: "uncommon_footfetish", primaryElement: "A", elementScores: { A: 8, I: 4, S: 7, P: 5, C: 3, R: 4 }, briefDescription: "Sexual interest focused on feet.", detailedDescription: "A specific paraphilia involving sexual arousal derived from feet. This can include kissing, licking, massaging, or incorporating feet into other sexual acts.", relatedIds: [61, 12], rarity: 'uncommon', canUnlockArt: false }, // Example paraphilia
 
-    // --- Rare Concepts --- (~15)
+    // --- Rare Concepts --- (~20)
     { id: 8, name: "Impact Play (Heavy)", cardType: "Practice/Kink", visualHandle: "rare_impact_heavy", primaryElement: "S", elementScores: { A: 5, I: 7, S: 9, P: 7, C: 4, R: 6 }, briefDescription: "Intense impact, pain/marks focus.", detailedDescription: "Utilizes implements like canes, whips, heavy paddles, or fists to deliver strong, often painful sensations. Focus can be on endurance, marking, or the psychological aspects of receiving intense impact.", relatedIds: [7, 9, 4, 5, 44], rarity: 'rare', canUnlockArt: true, visualHandleUnlocked: "rare_impact_heavy_art" },
     { id: 9, name: "Pain Play (Non-Impact)", cardType: "Practice/Kink", visualHandle: "rare_pain", primaryElement: "S", elementScores: { A: 4, I: 6, S: 8, P: 7, C: 5, R: 6 }, briefDescription: "Pinching, biting, wax, needles.", detailedDescription: "Focuses on creating intense sensations through means other than direct impact, such as pinching, biting, scratching, temperature play (wax, ice), clamps, or potentially needles (use extreme caution).", relatedIds: [7, 8, 16, 17, 37, 44], rarity: 'rare', canUnlockArt: true, visualHandleUnlocked: "rare_pain_art" },
     { id: 11, name: "Command/Control Dynamics", cardType: "Psychological/Goal", visualHandle: "rare_control", primaryElement: "I", elementScores: { A: 6, I: 9, S: 5, P: 8, C: 8, R: 6 }, briefDescription: "Explicit orders given/obeyed.", detailedDescription: "A power dynamic characterized by one partner giving clear commands or instructions and the other partner deriving pleasure or fulfillment from obeying them precisely.", relatedIds: [4, 5, 10, 30, 38, 45], rarity: 'rare', canUnlockArt: true, visualHandleUnlocked: "rare_control_art" },
@@ -157,17 +158,18 @@ const concepts = [
     { id: 41, name: "Erotic Hypnosis / Mind Control Play", cardType: "Practice/Kink", visualHandle: "rare_hypno", primaryElement: "C", elementScores: { A: 5, I: 7, S: 3, P: 8, C: 9, R: 6 }, briefDescription: "Using suggestion/perceived control.", detailedDescription: "Consensual play involving altered states of consciousness, hypnotic suggestion, triggers, or the *illusion* of one partner controlling the other's mind or actions for erotic purposes. Safety and consent are paramount.", relatedIds: [14, 4, 5, 11, 45], rarity: 'rare', canUnlockArt: false },
     { id: 42, name: "Transformation Fetish", cardType: "Orientation", visualHandle: "rare_transform", primaryElement: "C", elementScores: { A: 7, I: 4, S: 5, P: 7, C: 8, R: 4 }, briefDescription: "Arousal from transformation themes.", detailedDescription: "A fetish centered on the concept of transformation, which can include physical changes (e.g., into animals, objects, different genders), mental changes (e.g., bimbofication, personality alteration), or forced changes within a power dynamic.", relatedIds: [20, 21, 12, 41, 14], rarity: 'rare', canUnlockArt: false },
     { id: 43, name: "Medical Play", cardType: "Practice/Kink", visualHandle: "rare_medical", primaryElement: "C", elementScores: { A: 5, I: 6, S: 7, P: 7, C: 7, R: 6 }, briefDescription: "Role-playing medical scenarios.", detailedDescription: "Consensual role-playing involving medical themes, settings, or equipment. Can range from simple doctor/patient scenarios to more clinical interactions involving mock examinations, implements (speculums, needles - potentially real/blunt), restraints, or power dynamics inherent in medical settings.", relatedIds: [13, 9, 17, 4, 5], rarity: 'rare', canUnlockArt: false },
-    { id: 44, name: "Edge Play", cardType: "Practice/Kink", visualHandle: "rare_edge", primaryElement: "S", elementScores: { A: 5, I: 6, S: 9, P: 8, C: 5, R: 6 }, briefDescription: "Pushing boundaries near limits.", detailedDescription: "Activities that intentionally push physical, psychological, or emotional boundaries close to perceived limits. Often involves negotiation, high trust, and managing real or perceived risk (e.g., breath play, knife play, extreme sensation, fear play). Requires significant caution, expertise, and communication.", relatedIds: [8, 9, 16, 17, 37, 38, 41], rarity: 'rare', canUnlockArt: false },
+    { id: 44, name: "Edge Play", cardType: "Practice/Kink", visualHandle: "rare_edge", primaryElement: "S", elementScores: { A: 5, I: 6, S: 9, P: 8, C: 5, R: 6 }, briefDescription: "Pushing boundaries near limits.", detailedDescription: "Activities that intentionally push physical, psychological, or emotional boundaries close to perceived limits. Often involves negotiation, high trust, and managing real or perceived risk (e.g., breath play, knife play, extreme sensation, fear play). Requires significant caution, expertise, and communication.", relatedIds: [8, 9, 16, 17, 37, 38, 41, 63], rarity: 'rare', canUnlockArt: false },
     { id: 45, name: "Humiliation / Degradation", cardType: "Psychological/Goal", visualHandle: "rare_humiliation", primaryElement: "P", elementScores: { A: 5, I: 7, S: 4, P: 9, C: 6, R: 6 }, briefDescription: "Pleasure from embarrassment/degradation.", detailedDescription: "Consensual play where one partner derives pleasure from performing or receiving acts or words intended to cause embarrassment, shame, or degradation. Can range from light teasing to intense psychological scenarios. Consent and aftercare are critical.", relatedIds: [4, 5, 10, 11, 12, 38, 41], rarity: 'rare', canUnlockArt: false },
     { id: 63, name: "Breath Play", cardType: "Practice/Kink", visualHandle: "rare_breath", primaryElement: "S", elementScores: { A: 4, I: 7, S: 9, P: 8, C: 4, R: 6 }, briefDescription: "Restricting airflow for sensation.", detailedDescription: "Consensual practice involving the restriction of airflow (erotic asphyxiation) to create intense physical sensations and altered mental states. Carries significant risks and requires extreme caution, knowledge, and trust.", relatedIds: [44, 17, 9, 5], rarity: 'rare', canUnlockArt: false },
     { id: 64, name: "CNC (Consensual Non-Consent)", cardType: "Practice/Kink", visualHandle: "rare_cnc", primaryElement: "C", elementScores: { A: 6, I: 7, S: 7, P: 8, C: 9, R: 6 }, briefDescription: "Role-playing lack of consent.", detailedDescription: "Consensual role-playing scenarios where participants act out a scene involving simulated non-consent or coercion (e.g., simulated rape fantasy, abduction). Requires meticulous negotiation, clear boundaries, safewords, and trust.", relatedIds: [13, 4, 5, 17, 44], rarity: 'rare', canUnlockArt: false },
+    { id: 65, name: "Chemsex / Party & Play (PnP)", cardType: "Practice/Kink", visualHandle: "rare_chemsex", primaryElement: "S", elementScores: { A: 6, I: 6, S: 8, P: 7, C: 3, R: 7 }, briefDescription: "Using drugs to enhance sex.", detailedDescription: "Intentionally combining sexual activity with the use of psychoactive drugs (like methamphetamine, GHB, mephedrone) to sustain activity, reduce inhibitions, or intensify sensations. Carries health risks and potential for addiction.", relatedIds: [34, 24, 44], rarity: 'rare', canUnlockArt: false },
 
 ];
 
 // --- Utility Maps ---
 const elementKeyToFullName = { A: "Attraction", I: "Interaction", S: "Sensory", P: "Psychological", C: "Cognitive", R: "Relational" };
 
-// --- Questionnaire Data --- (Restored)
+// --- Questionnaire Data ---
 const questionnaireGuided = {
     "Attraction": [
         { qId: "a1", type: "slider", text: "How specific are the triggers for your sexual attraction? (e.g., Very broad vs. Very specific types/situations)", minValue: 0, maxValue: 10, defaultValue: 5, minLabel: "Very Broad / Few Specifics", maxLabel: "Very Specific / Narrow Focus", scoreWeight: 1.0 },
@@ -203,14 +205,43 @@ const questionnaireGuided = {
 
 // --- Reflection Prompts (with Dissonance) ---
 const reflectionPrompts = {
-    "Attraction": [ /* ... */ ], "Interaction": [ /* ... */ ], "Sensory": [ /* ... */ ], "Psychological": [ /* ... */ ], "Cognitive": [ /* ... */ ], "Relational": [ /* ... */ ],
+    "Attraction": [
+        { id: "pA1", text: "Think about someone or something you found intensely attractive recently. What specific qualities (physical, personality, dynamic) drew you in the most?" },
+        { id: "pA2", text: "When has attraction felt confusing or unexpected for you? What did you learn from that experience?" },
+        { id: "pA3", text: "Does your level of emotional connection to someone strongly influence your sexual attraction? How so?" },
+    ],
+    "Interaction": [
+        { id: "pI1", text: "Describe a time you felt most comfortable in a sexual interaction. Were you leading, following, or collaborating? What made it comfortable?" },
+        { id: "pI2", text: "Imagine an ideal sexual encounter. What kind of energy exchange are you looking for (playful, intense, nurturing, commanding, yielding)?" },
+        { id: "pI3", text: "How important is verbal communication vs non-verbal cues in your preferred interaction style?" },
+    ],
+    "Sensory": [
+        { id: "pS1", text: "What type of physical touch (light, firm, rough, specific texture) feels most arousing or connecting to you, separate from orgasm?" },
+        { id: "pS2", text: "Are there any specific sensations (temperature, pressure, pain, specific sounds/smells) that strongly enhance or detract from your arousal?" },
+        { id: "pS3", text: "How does your desire for sensory input change depending on your mood or partner?" },
+    ],
+    "Psychological": [
+        { id: "pP1", text: "Beyond physical pleasure, what core emotional need (e.g., connection, validation, control, escape) does sexuality most often fulfill for you?" },
+        { id: "pP2", text: "Think about a time sex felt psychologically fulfilling. What underlying needs were met?" },
+        { id: "pP3", text: "Conversely, when has sex felt psychologically unfulfilling, even if physically pleasurable? What might have been missing?" },
+    ],
+    "Cognitive": [
+        { id: "pC1", text: "How much do you rely on fantasy or specific scenarios to become aroused? Are you more 'in your head' or 'in the moment'?" },
+        { id: "pC2", text: "Describe a fantasy or scenario (even vaguely) that you find particularly potent. What elements make it work for you?" },
+        { id: "pC3", text: "Does the intellectual or psychological aspect of a dynamic (e.g., power plays, witty banter, understanding motivations) contribute significantly to your arousal?" },
+    ],
+    "Relational": [
+        { id: "pR1", text: "In what context do you feel most free to express your sexuality (e.g., alone, committed partner, casual encounter, group setting)?" },
+        { id: "pR2", text: "How important are explicit agreements, rules, or boundaries regarding exclusivity or openness in your ideal sexual relationships?" },
+        { id: "pR3", text: "What level of emotional intimacy do you typically prefer or require in your sexual connections?" },
+    ],
     "Dissonance": [
         { id: "pD1", text: "This concept seems quite different from your current profile. What aspect of it intrigues you or makes you curious?" },
         { id: "pD2", text: "Exploring unfamiliar territory can be revealing. What potential does engaging with this concept hold for you, even if it feels challenging?" },
         { id: "pD3", text: "Sometimes, what we resist holds a key. Is there an underlying need or desire this concept touches upon that you haven't fully acknowledged?" },
         { id: "pD4", text: "How might integrating or understanding this concept broaden your perspective on your own sexuality or that of others?" }
     ]
-}; // (Ensure previous element prompts are filled in)
+};
 
 // --- Rituals & Milestones Data (Updated Rewards) ---
 const dailyRituals = [
@@ -226,32 +257,31 @@ const milestones = [
     { id: "ms02", description: "Curator I: Added 5 Concepts", reward: { type: "insight", amount: 10 }, track: { state: "discoveredConcepts.size", threshold: 5 } },
     { id: "ms15", description: "Curator II: Added 15 Concepts", reward: { type: "increaseFocusSlots", amount: 1 }, track: { state: "discoveredConcepts.size", threshold: 15 } }, // 5->6 slots
     { id: "ms25", description: "Curator III: Added 25 Concepts", reward: { type: "insight", amount: 20 }, track: { state: "discoveredConcepts.size", threshold: 25 } },
-    { id: "ms40", description: "Grand Curator: Added 40 Concepts", reward: { type: "increaseFocusSlots", amount: 1 }, track: { state: "discoveredConcepts.size", threshold: 40 } }, // 6->7 slots? (adjust thresholds)
+    { id: "ms40", description: "Grand Curator: Added 40 Concepts", reward: { type: "increaseFocusSlots", amount: 1 }, track: { state: "discoveredConcepts.size", threshold: 40 } }, // 6->7 slots
 
     // Focus & Tapestry
     { id: "ms03", description: "First Focus Concept Marked", reward: { type: "insight", amount: 8 }, track: { state: "focusedConcepts.size", threshold: 1 } },
     { id: "ms04", description: "Tapestry Weaver I: Marked 3 Focus Concepts", reward: { type: "attunement", element: "All", amount: 1 }, track: { state: "focusedConcepts.size", threshold: 3 } },
-    { id: "ms08", description: "Tapestry Weaver II: Marked 5 Focus Concepts", reward: { type: "increaseFocusSlots", amount: 1 }, track: { state: "focusedConcepts.size", threshold: 5 } }, // Should trigger with initial limit if ms04 met
+    { id: "ms08", description: "Tapestry Weaver II: Marked 5 Focus Concepts", reward: { type: "increaseFocusSlots", amount: 1 }, track: { state: "focusedConcepts.size", threshold: 5 } }, // 5->6 slots? Check if this works with ms15 trigger
     { id: "ms18", description: "Tapestry Weaver III: Filled 7 Focus Slots", reward: { type: "insight", amount: 25 }, track: { state: "focusedConcepts.size", threshold: 7 } },
+    { id: "ms35", description: "Tapestry Master: Filled 10 Focus Slots", reward: { type: "increaseFocusSlots", amount: 1 }, track: { state: "focusedConcepts.size", threshold: 10 } }, // Example
 
     // Research & Attunement
     { id: "ms05", description: "First Research Conducted", reward: { type: "insight", amount: 5 }, track: { action: "conductResearch", count: 1 } },
     { id: "ms06", description: "Elementalist I: Reached Attunement 10 in one Element", reward: { type: "insight", amount: 15 }, track: { state: "elementAttunement", threshold: 10, condition: "any" } },
     { id: "ms13", description: "Well Rounded: Attunement 5+ in all Elements", reward: { type: "insight", amount: 25 }, track: { state: "elementAttunement", threshold: 5, condition: "all" } },
-    { id: "ms20", description: "Elementalist II: Reached Attunement 50 in one Element", reward: { type: "increaseFocusSlots", amount: 1 }, track: { state: "elementAttunement", threshold: 50, condition: "any" } }, // Slot increase
+    { id: "ms20", description: "Elementalist II: Reached Attunement 50 in one Element", reward: { type: "increaseFocusSlots", amount: 1 }, track: { state: "elementAttunement", threshold: 50, condition: "any" } },
     { id: "ms30", description: "Master Elementalist: Reached Attunement 90 in one Element", reward: { type: "insight", amount: 50 }, track: { state: "elementAttunement", threshold: 90, condition: "any" } },
 
     // Reflection & Growth
     { id: "ms07", description: "First Reflection Completed", reward: { type: "insight", amount: 5 }, track: { action: "completeReflection", count: 1 } },
     { id: "ms12", description: "Dissonance Embraced: Completed a Dissonance Reflection", reward: { type: "attunement", element: "All", amount: 1.5 }, track: { action: "completeReflectionDissonance", count: 1 } },
-    { id: "ms22", description: "Self-Awareness: Completed 5 Reflections", reward: { type: "insight", amount: 20 }, track: { action: "completeReflection", count: 5 } }, // Needs counter for total reflections
-    { id: "ms23", description: "Growth Mindset: Allowed Score Nudge after Reflection", reward: { type: "insight", amount: 10 }, track: { action: "scoreNudgeApplied", count: 1 } }, // Needs tracking in handleConfirmReflection
+    { id: "ms22", description: "Self-Awareness: Completed 5 Reflections", reward: { type: "insight", amount: 20 }, track: { action: "completeReflection", count: 5 } },
+    { id: "ms23", description: "Growth Mindset: Allowed Score Nudge after Reflection", reward: { type: "insight", amount: 10 }, track: { action: "scoreNudgeApplied", count: 1 } },
 
     // Specific Discoveries & Evolution
-    { id: "ms09", description: "Attuned to Interaction: Reached Attunement 20 in Interaction", reward: { type: "discoverCard", cardId: 6 }, track: { state: "elementAttunement", element: "I", threshold: 20 } },
-    { id: "ms10", description: "Deep Thinker: Reached Attunement 20 in Cognitive", reward: { type: "discoverCard", cardId: 14 }, track: { state: "elementAttunement", element: "C", threshold: 20 } },
+    { id: "ms09", description: "Attuned to Interaction: Reached Attunement 20 in Interaction", reward: { type: "discoverCard", cardId: 6 }, track: { state: "elementAttunement", element: "I", threshold: 20 } }, // Discover Switching
+    { id: "ms10", description: "Deep Thinker: Reached Attunement 20 in Cognitive", reward: { type: "discoverCard", cardId: 14 }, track: { state: "elementAttunement", element: "C", threshold: 20 } }, // Discover Fantasy Immersion
     { id: "ms11", description: "First Art Evolution", reward: { type: "insight", amount: 20 }, track: { action: "evolveArt", count: 1 } },
-    { id: "ms21", description: "Rare Find: Discovered a Rare Concept Card", reward: { type: "insight", amount: 15 }, track: { action: "discoverRareCard", count: 1 } }, // Needs tracking in research/add
-
-    // Add more milestones for higher counts, other actions, etc.
+    { id: "ms21", description: "Rare Find: Discovered a Rare Concept Card", reward: { type: "insight", amount: 15 }, track: { action: "discoverRareCard", count: 1 } },
 ];
