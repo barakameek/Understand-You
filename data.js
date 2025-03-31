@@ -163,7 +163,6 @@ const concepts = [
     { id: 63, name: "Breath Play", cardType: "Practice/Kink", visualHandle: "rare_breath", primaryElement: "S", elementScores: { A: 4, I: 7, S: 9, P: 8, C: 4, R: 6 }, briefDescription: "Restricting airflow for sensation.", detailedDescription: "Consensual practice involving the restriction of airflow (erotic asphyxiation) to create intense physical sensations and altered mental states. Carries significant risks and requires extreme caution, knowledge, and trust.", relatedIds: [44, 17, 9, 5], rarity: 'rare', canUnlockArt: false },
     { id: 64, name: "CNC (Consensual Non-Consent)", cardType: "Practice/Kink", visualHandle: "rare_cnc", primaryElement: "C", elementScores: { A: 6, I: 7, S: 7, P: 8, C: 9, R: 6 }, briefDescription: "Role-playing lack of consent.", detailedDescription: "Consensual role-playing scenarios where participants act out a scene involving simulated non-consent or coercion (e.g., simulated rape fantasy, abduction). Requires meticulous negotiation, clear boundaries, safewords, and trust.", relatedIds: [13, 4, 5, 17, 44], rarity: 'rare', canUnlockArt: false },
     { id: 65, name: "Chemsex / Party & Play (PnP)", cardType: "Practice/Kink", visualHandle: "rare_chemsex", primaryElement: "S", elementScores: { A: 6, I: 6, S: 8, P: 7, C: 3, R: 7 }, briefDescription: "Using drugs to enhance sex.", detailedDescription: "Intentionally combining sexual activity with the use of psychoactive drugs (like methamphetamine, GHB, mephedrone) to sustain activity, reduce inhibitions, or intensify sensations. Carries health risks and potential for addiction.", relatedIds: [34, 24, 44], rarity: 'rare', canUnlockArt: false },
-
 ];
 
 // --- Utility Maps ---
@@ -252,36 +251,37 @@ const dailyRituals = [
 ];
 
 const milestones = [
+    // Milestones now include 'summary' field for info icon tooltips
     // Early Game & Discovery
-    { id: "ms01", description: "First Concept Added!", reward: { type: "insight", amount: 5 }, track: { state: "discoveredConcepts.size", threshold: 1 } },
-    { id: "ms02", description: "Curator I: Added 5 Concepts", reward: { type: "insight", amount: 10 }, track: { state: "discoveredConcepts.size", threshold: 5 } },
-    { id: "ms15", description: "Curator II: Added 15 Concepts", reward: { type: "increaseFocusSlots", amount: 1 }, track: { state: "discoveredConcepts.size", threshold: 15 } }, // 5->6 slots
-    { id: "ms25", description: "Curator III: Added 25 Concepts", reward: { type: "insight", amount: 20 }, track: { state: "discoveredConcepts.size", threshold: 25 } },
-    { id: "ms40", description: "Grand Curator: Added 40 Concepts", reward: { type: "increaseFocusSlots", amount: 1 }, track: { state: "discoveredConcepts.size", threshold: 40 } }, // 6->7 slots
+    { id: "ms01", description: "First Concept Added!", summary: "Begin your collection by adding the first Concept Card to your Grimoire.", reward: { type: "insight", amount: 5 }, track: { state: "discoveredConcepts.size", threshold: 1 } },
+    { id: "ms02", description: "Curator I: Added 5 Concepts", summary: "Expand your knowledge base by discovering 5 distinct Concept Cards.", reward: { type: "insight", amount: 10 }, track: { state: "discoveredConcepts.size", threshold: 5 } },
+    { id: "ms15", description: "Curator II: Added 15 Concepts", summary: "Your library grows! Unlock an additional Focus Slot for discovering 15 concepts.", reward: { type: "increaseFocusSlots", amount: 1 }, track: { state: "discoveredConcepts.size", threshold: 15 } }, // 5->6 slots
+    { id: "ms25", description: "Curator III: Added 25 Concepts", summary: "Demonstrate significant exploration by discovering 25 concepts.", reward: { type: "insight", amount: 20 }, track: { state: "discoveredConcepts.size", threshold: 25 } },
+    { id: "ms40", description: "Grand Curator: Added 40 Concepts", summary: "A truly impressive collection! Unlock another Focus Slot.", reward: { type: "increaseFocusSlots", amount: 1 }, track: { state: "discoveredConcepts.size", threshold: 40 } }, // 6->7 slots
 
     // Focus & Tapestry
-    { id: "ms03", description: "First Focus Concept Marked", reward: { type: "insight", amount: 8 }, track: { state: "focusedConcepts.size", threshold: 1 } },
-    { id: "ms04", description: "Tapestry Weaver I: Marked 3 Focus Concepts", reward: { type: "attunement", element: "All", amount: 1 }, track: { state: "focusedConcepts.size", threshold: 3 } },
-    { id: "ms08", description: "Tapestry Weaver II: Marked 5 Focus Concepts", reward: { type: "increaseFocusSlots", amount: 1 }, track: { state: "focusedConcepts.size", threshold: 5 } }, // 5->6 slots? Check if this works with ms15 trigger
-    { id: "ms18", description: "Tapestry Weaver III: Filled 7 Focus Slots", reward: { type: "insight", amount: 25 }, track: { state: "focusedConcepts.size", threshold: 7 } },
-    { id: "ms35", description: "Tapestry Master: Filled 10 Focus Slots", reward: { type: "increaseFocusSlots", amount: 1 }, track: { state: "focusedConcepts.size", threshold: 10 } }, // Example
+    { id: "ms03", description: "First Focus Concept Marked", summary: "Choose the first Concept to actively shape your Persona Tapestry.", reward: { type: "insight", amount: 8 }, track: { state: "focusedConcepts.size", threshold: 1 } },
+    { id: "ms04", description: "Tapestry Weaver I: Marked 3 Focus Concepts", summary: "Begin weaving your Tapestry by focusing on 3 core concepts.", reward: { type: "attunement", element: "All", amount: 1 }, track: { state: "focusedConcepts.size", threshold: 3 } },
+    { id: "ms08", description: "Tapestry Weaver II: Marked 5 Focus Concepts", summary: "Deepen your Tapestry's definition. Unlock another Focus Slot.", reward: { type: "increaseFocusSlots", amount: 1 }, track: { state: "focusedConcepts.size", threshold: 5 } }, // Slot increases trigger this
+    { id: "ms18", description: "Tapestry Weaver III: Filled 7 Focus Slots", summary: "Your core persona is taking clear shape with 7 focused concepts.", reward: { type: "insight", amount: 25 }, track: { state: "focusedConcepts.size", threshold: 7 } }, // Depends on previous slot increases
+    { id: "ms35", description: "Tapestry Master: Filled 10 Focus Slots", summary: "Achieve mastery in defining your persona. Unlock the final Focus Slot.", reward: { type: "increaseFocusSlots", amount: 1 }, track: { state: "focusedConcepts.size", threshold: 10 } }, // Max depends on slot milestones
 
     // Research & Attunement
-    { id: "ms05", description: "First Research Conducted", reward: { type: "insight", amount: 5 }, track: { action: "conductResearch", count: 1 } },
-    { id: "ms06", description: "Elementalist I: Reached Attunement 10 in one Element", reward: { type: "insight", amount: 15 }, track: { state: "elementAttunement", threshold: 10, condition: "any" } },
-    { id: "ms13", description: "Well Rounded: Attunement 5+ in all Elements", reward: { type: "insight", amount: 25 }, track: { state: "elementAttunement", threshold: 5, condition: "all" } },
-    { id: "ms20", description: "Elementalist II: Reached Attunement 50 in one Element", reward: { type: "increaseFocusSlots", amount: 1 }, track: { state: "elementAttunement", threshold: 50, condition: "any" } },
-    { id: "ms30", description: "Master Elementalist: Reached Attunement 90 in one Element", reward: { type: "insight", amount: 50 }, track: { state: "elementAttunement", threshold: 90, condition: "any" } },
+    { id: "ms05", description: "First Research Conducted", summary: "Take the first step into focused introspection via Research.", reward: { type: "insight", amount: 5 }, track: { action: "conductResearch", count: 1 } },
+    { id: "ms06", description: "Elementalist I: Reached Attunement 10", summary: "Develop a beginning affinity (Attunement 10) with any single Element.", reward: { type: "insight", amount: 15 }, track: { state: "elementAttunement", threshold: 10, condition: "any" } },
+    { id: "ms13", description: "Well Rounded: Attunement 5+ in all Elements", summary: "Show breadth in your understanding across all 6 Elements (Attunement 5+).", reward: { type: "insight", amount: 25 }, track: { state: "elementAttunement", threshold: 5, condition: "all" } },
+    { id: "ms20", description: "Elementalist II: Reached Attunement 50", summary: "Gain significant expertise (Attunement 50) in one Element. Unlock another Focus Slot.", reward: { type: "increaseFocusSlots", amount: 1 }, track: { state: "elementAttunement", threshold: 50, condition: "any" } },
+    { id: "ms30", description: "Master Elementalist: Reached Attunement 90", summary: "Achieve near-mastery (Attunement 90) in an Element.", reward: { type: "insight", amount: 50 }, track: { state: "elementAttunement", threshold: 90, condition: "any" } },
 
     // Reflection & Growth
-    { id: "ms07", description: "First Reflection Completed", reward: { type: "insight", amount: 5 }, track: { action: "completeReflection", count: 1 } },
-    { id: "ms12", description: "Dissonance Embraced: Completed a Dissonance Reflection", reward: { type: "attunement", element: "All", amount: 1.5 }, track: { action: "completeReflectionDissonance", count: 1 } },
-    { id: "ms22", description: "Self-Awareness: Completed 5 Reflections", reward: { type: "insight", amount: 20 }, track: { action: "completeReflection", count: 5 } },
-    { id: "ms23", description: "Growth Mindset: Allowed Score Nudge after Reflection", reward: { type: "insight", amount: 10 }, track: { action: "scoreNudgeApplied", count: 1 } },
+    { id: "ms07", description: "First Reflection Completed", summary: "Engage in self-reflection based on a presented prompt.", reward: { type: "insight", amount: 5 }, track: { action: "completeReflection", count: 1 } },
+    { id: "ms12", description: "Dissonance Embraced: Completed a Dissonance Reflection", summary: "Confront and reflect upon a concept significantly different from your current profile.", reward: { type: "attunement", element: "All", amount: 1.5 }, track: { action: "completeReflectionDissonance", count: 1 } },
+    { id: "ms22", description: "Self-Awareness: Completed 5 Reflections", summary: "Demonstrate commitment to introspection through 5 reflections.", reward: { type: "insight", amount: 20 }, track: { action: "completeReflection", count: 5 } }, // Requires total reflection counter
+    { id: "ms23", description: "Growth Mindset: Allowed Score Nudge", summary: "Choose to allow a challenging reflection to subtly influence your core understanding.", reward: { type: "insight", amount: 10 }, track: { action: "scoreNudgeApplied", count: 1 } }, // Needs tracking
 
     // Specific Discoveries & Evolution
-    { id: "ms09", description: "Attuned to Interaction: Reached Attunement 20 in Interaction", reward: { type: "discoverCard", cardId: 6 }, track: { state: "elementAttunement", element: "I", threshold: 20 } }, // Discover Switching
-    { id: "ms10", description: "Deep Thinker: Reached Attunement 20 in Cognitive", reward: { type: "discoverCard", cardId: 14 }, track: { state: "elementAttunement", element: "C", threshold: 20 } }, // Discover Fantasy Immersion
-    { id: "ms11", description: "First Art Evolution", reward: { type: "insight", amount: 20 }, track: { action: "evolveArt", count: 1 } },
-    { id: "ms21", description: "Rare Find: Discovered a Rare Concept Card", reward: { type: "insight", amount: 15 }, track: { action: "discoverRareCard", count: 1 } },
+    { id: "ms09", description: "Attuned to Interaction: Reached Attunement 20", summary: "Develop your understanding of Interaction (Attunement 20) and discover 'Switching'.", reward: { type: "discoverCard", cardId: 6 }, track: { state: "elementAttunement", element: "I", threshold: 20 } },
+    { id: "ms10", description: "Deep Thinker: Reached Attunement 20", summary: "Explore the Cognitive realm (Attunement 20) and discover 'Fantasy Immersion'.", reward: { type: "discoverCard", cardId: 14 }, track: { state: "elementAttunement", element: "C", threshold: 20 } },
+    { id: "ms11", description: "First Art Evolution", summary: "Deepen your understanding of a Focused Concept enough to unlock its enhanced art.", reward: { type: "insight", amount: 20 }, track: { action: "evolveArt", count: 1 } },
+    { id: "ms21", description: "Rare Find: Discovered a Rare Concept", summary: "Uncover a more complex or niche aspect of sexuality (Rare Card).", reward: { type: "insight", amount: 15 }, track: { action: "discoverRareCard", count: 1 } }, // Needs tracking
 ];
