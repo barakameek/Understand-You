@@ -206,11 +206,9 @@ function determineStarterHandAndEssence() {
 // --- Core Actions (Research, Reflection, Focus, etc.) ---
 // Wrappers for triggering screen display logic (called from main.js nav)
  function displayPersonaScreenLogic() {
-    // FIX: Use the correct function name
     calculateTapestryNarrative(true); // Ensure analysis is current
     UI.displayPersonaScreen();
-    // TODO: Add UI.updateTapestryDeepDiveButton(); if it exists later
-    // UI.updateTapestryDeepDiveButton(); // Update button state
+    UI.updateTapestryDeepDiveButton(); // Update button state (Add this call)
 }
  function displayStudyScreenLogic() {
     UI.displayStudyScreenContent();
@@ -334,6 +332,9 @@ function determineStarterHandAndEssence() {
     if (result === 'not_discovered') { UI.showTemporaryMessage("Cannot focus undiscovered concept.", 3000); }
     else if (result === 'slots_full') { UI.showTemporaryMessage(`Focus slots full (${State.getFocusSlots()}).`, 3000); }
     else { // 'added' or 'removed'
+     UI.refreshGrimoireDisplay();
+         UI.updateTapestryDeepDiveButton(); // Update Deep Dive button state
+       
          if (result === 'removed') {
               UI.showTemporaryMessage(`${conceptName} removed from Focus.`, 2500); checkAndUpdateRituals('removeFocus');
          } else { // added
@@ -700,14 +701,13 @@ const DEEP_DIVE_NODE_COST = 1; // Insight cost to view a node first time
 const CONTEMPLATION_COST = 3; // Insight cost for contemplation
 const CONTEMPLATION_COOLDOWN = 1000 * 60 * 60 * 4; // 4 hours in milliseconds
 
+// In gameLogic.js
 function showTapestryDeepDive() {
     if (State.getFocusedConcepts().size === 0) { UI.showTemporaryMessage("Focus on concepts first to explore the tapestry.", 3000); return; }
     calculateTapestryNarrative(true); // Ensure analysis is current
     if (!currentTapestryAnalysis) { console.error("Failed to generate tapestry analysis for Deep Dive."); return; }
-    // TODO: Update UI call if needed
-    // UI.displayTapestryDeepDive(currentTapestryAnalysis);
+    UI.displayTapestryDeepDive(currentTapestryAnalysis); // *** UNCOMMENT OR ADD THIS LINE ***
 }
-
 function handleDeepDiveNodeClick(nodeId) {
     if (!currentTapestryAnalysis) return;
     // TODO: Add logic when Deep Dive UI is implemented
