@@ -300,10 +300,11 @@ function addConceptToGrimoireInternal(conceptId) {
         // ... (handle state add fail) ...
     }
 }
-  function handleToggleFocusConcept() {
+  // In gameLogic.js
+ function handleToggleFocusConcept() {
     if (currentlyDisplayedConceptId === null) return;
     const conceptId = currentlyDisplayedConceptId;
-    const result = State.toggleFocusConcept(conceptId); // State handles logic, saving, and Deep Dive state reset check
+    const result = State.toggleFocusConcept(conceptId);
 
     const conceptName = State.getDiscoveredConceptData(conceptId)?.concept?.name || `ID ${conceptId}`;
 
@@ -317,18 +318,16 @@ function addConceptToGrimoireInternal(conceptId) {
               const concept = State.getDiscoveredConceptData(conceptId)?.concept; if (concept?.primaryElement) gainAttunementForAction('markFocus', concept.primaryElement, 1.0);
               updateMilestoneProgress('markFocus', 1); updateMilestoneProgress('focusedConcepts.size', State.getFocusedConcepts().size); checkAndUpdateRituals('markFocus');
          }
-         // Update UI for both add/remove
+         // --- Update UI for both add/remove ---
          UI.updateFocusButtonStatus(conceptId);
-         UI.displayFocusedConceptsPersona();
-         // *** CORRECTED LINE BELOW ***
-         UI.updateFocusElementalResonance(); // Call through UI module
-         // *** END CORRECTION ***
-         calculateTapestryNarrative(true); // Recalculate narrative & store analysis
-         UI.synthesizeAndDisplayThemesPersona();
+         UI.displayFocusedConceptsPersona(); // Updates the grid of focused concepts
+         UI.updateFocusElementalResonance();   // Updates resonance bars
+         calculateTapestryNarrative(true);     // Recalculates narrative analysis in logic
+         UI.generateTapestryNarrative();       // *** ADD THIS: Explicitly tell UI to update the narrative paragraph ***
+         UI.synthesizeAndDisplayThemesPersona(); // Updates themes list
          checkForFocusUnlocks();
          UI.refreshGrimoireDisplay();
-         // TODO: Add UI.updateTapestryDeepDiveButton(); if it exists later
-         // UI.updateTapestryDeepDiveButton(); // Update Deep Dive button state
+         // UI.updateTapestryDeepDiveButton(); // Update Deep Dive button state if exists
     }
 }
 function checkTriggerReflectionPrompt(triggerAction = 'other') {
