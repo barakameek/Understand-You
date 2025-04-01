@@ -565,27 +565,28 @@ export function synthesizeAndDisplayThemesPersona() {
 }
 
 // Modified to log more details and handle data loading issues
+// In ui.js
 export function displayPersonaSummary() {
     if (!summaryContentDiv) return;
     summaryContentDiv.innerHTML = '<p>Generating summary...</p>'; // Show loading state
-    console.log("UI: displayPersonaSummary called.");
+    console.log("UI: displayPersonaSummary called."); // Log entry
 
     const scores = State.getScores();
     const focused = State.getFocusedConcepts();
-    console.log("UI: Summary View - Focused Count:", focused.size);
+    console.log("UI: Summary View - Focused Count:", focused.size); // Log focus count
 
     const narrative = GameLogic.calculateTapestryNarrative(); // Recalculates narrative if needed
     const themes = GameLogic.calculateFocusThemes();
-    console.log("UI: Summary View - Narrative:", narrative);
-    console.log("UI: Summary View - Themes:", themes);
+    console.log("UI: Summary View - Narrative:", narrative); // Log narrative
+    console.log("UI: Summary View - Themes:", themes); // Log themes
 
     let html = '<h3>Core Essence</h3><div class="summary-section">';
-    // Core Essence Part (ensure elementDetails and maps are loaded)
+    // Core Essence Part
     if (elementDetails && elementNameToKey && elementKeyToFullName) {
         elementNames.forEach(elName => {
             const key = elementNameToKey[elName];
             const score = scores[key];
-            if (typeof score === 'number') { // Check if score exists
+            if (typeof score === 'number') {
                 const label = Utils.getScoreLabel(score);
                 const interpretation = elementDetails[elName]?.scoreInterpretations?.[label] || "N/A";
                 html += `<p><strong>${elementDetails[elName]?.name || elName} (${score.toFixed(1)} - ${label}):</strong> ${interpretation}</p>`;
@@ -598,29 +599,32 @@ export function displayPersonaSummary() {
         html += "<p>Error: Element details not loaded.</p>";
         console.error("UI: Cannot generate Core Essence summary - elementDetails/maps missing.");
     }
-    html += '</div><hr><h3>Focused Tapestry</h3><div class="summary-section">';
+    // --- Make sure the div closes correctly ---
+    html += '</div>'; // Close summary-section for Core Essence
+    html += '<hr><h3>Focused Tapestry</h3><div class="summary-section">'; // Start new section for Tapestry
 
     // Focused Tapestry Part
     if (focused.size > 0) {
         html += `<p><em>${narrative || "No narrative generated."}</em></p>`; // Display narrative
 
         // Explicitly add Focused Concepts list
-        html += '<strong>Focused Concepts:</strong><ul>';
+        html += '<strong>Focused Concepts:</strong><ul>'; // Open UL
         const discovered = State.getDiscoveredConcepts();
         focused.forEach(id => {
             const name = discovered.get(id)?.concept?.name || `ID ${id}`;
-            html += `<li>${name}</li>`;
+            html += `<li>${name}</li>`; // Add LI
         });
-        html += '</ul>';
+        html += '</ul>'; // Close UL for Concepts
 
         // Add Themes
         if (themes.length > 0) {
-            html += '<strong>Dominant Themes:</strong><ul>';
-            themes.slice(0, 3).forEach(theme => { html += `<li>${theme.name} Focus (${theme.count} concept${theme.count > 1 ? 's' : ''})</li>`; });
-            html += '</ul>';
+            html += '<strong>Dominant Themes:</strong><ul>'; // Open UL
+            themes.slice(0, 3).forEach(theme => { html += `<li>${theme.name} Focus (${theme.count} concept${theme.count > 1 ? 's' : ''})</li>`; }); // Add LI
+            html += '</ul>'; // Close UL for Themes
         } else { html += '<strong>Dominant Themes:</strong><p>No strong themes detected.</p>'; }
     } else { html += '<p>No concepts are currently focused.</p>'; }
-    html += '</div>';
+    // --- Make sure the div closes correctly ---
+    html += '</div>'; // Close summary-section for Tapestry
 
     console.log("UI: Summary View - Final HTML being set.");
     summaryContentDiv.innerHTML = html;
