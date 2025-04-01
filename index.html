@@ -107,18 +107,21 @@
                                <p>Average elemental scores of your focused concepts.</p>
                                <div id="focusResonanceBars"></div>
                           </div>
-                          <div class="tapestry-narrative-section">
-                              <h3>Tapestry Narrative <i class="fas fa-info-circle info-icon" title="A dynamically generated interpretation based on your Focused Concepts, highlighting dominant elements and potential synergies between them."></i></h3>
-                              <p id="tapestryNarrative">Mark concepts as "Focus" to generate narrative...</p>
-                          </div>
-                          <div class="grimoire-insights">
-                              <h3>Focus Themes <i class="fas fa-info-circle info-icon" title="Identifies the dominant Elements (those with high scores) appearing most frequently among your Focused Concepts."></i></h3>
-                              <p>Themes emerging from your focused concepts.</p>
-                              <ul id="personaThemesList"></ul>
-                          </div>
-                     </div>
-                 </div>
-             </div>
+                                  <!-- Inside #personaDetailedView -> .persona-constellation -->
+         <div class="tapestry-narrative-section">
+             <h3>Tapestry Narrative <i class="fas fa-info-circle info-icon" title="A dynamically generated interpretation based on your Focused Concepts, highlighting dominant elements and potential synergies between them."></i></h3>
+             <p id="tapestryNarrative">Mark concepts as "Focus" to generate narrative...</p>
+             <!-- ADD THE BUTTON HERE -->
+             <button id="exploreTapestryButton" class="button small-button" style="margin-top: 10px;" title="Explore a deeper analysis of your focused tapestry. (Feature WIP)">Explore Tapestry</button>
+         </div>
+         <div class="grimoire-insights">
+             <h3>Focus Themes <i class="fas fa-info-circle info-icon" title="Identifies the dominant Elements (those with high scores) appearing most frequently among your Focused Concepts."></i></h3>
+             <p>Themes emerging from your focused concepts.</p>
+             <ul id="personaThemesList"></ul>
+         </div>
+      </div>
+   </div>
+</div>
 
              <!-- Summary View -->
              <div id="personaSummaryView" class="persona-view hidden">
