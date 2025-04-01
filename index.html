@@ -89,37 +89,36 @@
                      </div>
 
                     <!-- Right Column: Tapestry -->
-                     <div class="persona-column persona-constellation">
-                          <h2>Persona Tapestry - Focus <i class="fas fa-info-circle info-icon" title="Mark Concepts from your Grimoire as 'Focus' here. This shapes your Tapestry Narrative, influences Focus Resonance, and may unlock unique content based on combinations."></i></h2>
-                          <p>Curate concepts to shape your active Persona.</p>
-                          <div class="tapestry-area" id="tapestryArea">
-                               <h4 id="focusedConceptsHeader">Focused Concepts (0 / 5) <i class="fas fa-info-circle info-icon" title="The number of Concepts currently marked as Focus out of your total available slots. Slots can be increased via Milestones."></i></h4>
-                               <div id="focusedConceptsDisplay" class="focus-concepts-grid">
-                                   <li class="focus-placeholder">Focus Concepts from your Grimoire</li>
-                               </div>
-                               <!-- *** NEW: Deep Dive Button *** -->
-                               <button id="exploreTapestryButton" class="button hidden-by-flow" disabled title="Focus on concepts first">
-                                   <i class="fas fa-search-plus"></i> Explore Tapestry Deep Dive
-                               </button>
-                          </div>
-                          <div id="focusElementalResonance" class="focus-resonance-section">
-                               <h3>Focus Resonance <i class="fas fa-info-circle info-icon" title="Shows the average elemental scores calculated ONLY from the Concepts currently marked as 'Focus'. This reflects the overall elemental balance of your curated Tapestry."></i></h3>
-                               <p>Average elemental scores of your focused concepts.</p>
-                               <div id="focusResonanceBars"></div>
-                          </div>
-                                  <!-- Inside #personaDetailedView -> .persona-constellation -->
-         <div class="tapestry-narrative-section">
-             <h3>Tapestry Narrative <i class="fas fa-info-circle info-icon" title="A dynamically generated interpretation based on your Focused Concepts, highlighting dominant elements and potential synergies between them."></i></h3>
-             <p id="tapestryNarrative">Mark concepts as "Focus" to generate narrative...</p>
-             <!-- ADD THE BUTTON HERE -->
-             <button id="exploreTapestryButton" class="button small-button" style="margin-top: 10px;" title="Explore a deeper analysis of your focused tapestry. (Feature WIP)">Explore Tapestry</button>
-         </div>
-         <div class="grimoire-insights">
-             <h3>Focus Themes <i class="fas fa-info-circle info-icon" title="Identifies the dominant Elements (those with high scores) appearing most frequently among your Focused Concepts."></i></h3>
-             <p>Themes emerging from your focused concepts.</p>
-             <ul id="personaThemesList"></ul>
-         </div>
-      </div>
+                   <div class="persona-column persona-constellation">
+     <h2>Persona Tapestry - Focus <i class="fas fa-info-circle info-icon" title="..."></i></h2>
+     <p>Curate concepts to shape your active Persona.</p>
+     <div class="tapestry-area" id="tapestryArea">
+          <h4 id="focusedConceptsHeader">Focused Concepts (0 / 5) <i class="fas fa-info-circle info-icon" title="..."></i></h4>
+          <div id="focusedConceptsDisplay" class="focus-concepts-grid">
+              <li class="focus-placeholder">Focus Concepts from your Grimoire</li>
+          </div>
+          <!-- *** REMOVE THE OLD BUTTON FROM HERE if it exists *** -->
+          <!-- <button id="exploreTapestryButton" class="button hidden-by-flow" disabled title="Focus on concepts first">
+               <i class="fas fa-search-plus"></i> Explore Tapestry Deep Dive
+          </button> -->
+     </div>
+     <div id="focusElementalResonance" class="focus-resonance-section">
+          <h3>Focus Resonance <i class="fas fa-info-circle info-icon" title="..."></i></h3>
+          <p>Average elemental scores of your focused concepts.</p>
+          <div id="focusResonanceBars"></div>
+     </div>
+     <div class="tapestry-narrative-section">
+         <h3>Tapestry Narrative <i class="fas fa-info-circle info-icon" title="..."></i></h3>
+         <p id="tapestryNarrative">Mark concepts as "Focus" to generate narrative...</p>
+         <!-- *** KEEP THIS BUTTON *** -->
+         <button id="exploreTapestryButton" class="button small-button" style="margin-top: 10px;" title="Explore a deeper analysis of your focused tapestry. (Feature WIP)">Explore Tapestry</button>
+     </div>
+     <div class="grimoire-insights">
+         <h3>Focus Themes <i class="fas fa-info-circle info-icon" title="..."></i></h3>
+         <p>Themes emerging from your focused concepts.</p>
+         <ul id="personaThemesList"></ul>
+     </div>
+</div>
    </div>
 </div>
 
