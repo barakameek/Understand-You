@@ -476,13 +476,22 @@ export function loadGameState() {
                          console.warn("Loaded pendingRarePrompts is not an array, resetting.");
                          newState.pendingRarePrompts = [];
                     }
+                     // --- START MODIFICATION ---
+                     else if (key === 'lastLoginDate' && (typeof loadedState.lastLoginDate === 'string' || loadedState.lastLoginDate === null)) {
+                          // Allow string or null for lastLoginDate
+                          newState.lastLoginDate = loadedState.lastLoginDate;
+                     }
+                     // --- END MODIFICATION ---
                      else {
                         // Directly assign other primitive types or plain objects if type matches default
                         // This prevents loading e.g. a string into a number field if save format changed drastically
                          if (loadedState[key] !== undefined && loadedState[key] !== null && typeof loadedState[key] === typeof newState[key]) {
                            newState[key] = loadedState[key];
                          } else if (loadedState[key] !== undefined && loadedState[key] !== null) {
-                            console.warn(`Type mismatch for key "${key}" during load. Loaded: ${typeof loadedState[key]}, Expected: ${typeof newState[key]}. Using default.`);
+                            // Don't warn specifically for lastLoginDate mismatch now handled above
+                            if (key !== 'lastLoginDate') {
+                                console.warn(`Type mismatch for key "${key}" during load. Loaded: ${typeof loadedState[key]}, Expected: ${typeof newState[key]}. Using default.`);
+                            }
                          } else {
                              // Key exists in loaded data but is null/undefined, keep default
                              // console.log(`Key "${key}" is null/undefined in loaded data, keeping default.`);
