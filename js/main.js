@@ -2,11 +2,9 @@
 import * as State from './state.js';
 import * as UI from './ui.js';
 import * as GameLogic from './gameLogic.js';
-// Utils, Config, Data are mostly used by other modules, no direct import needed here usually
-import * as Config from './config.js'; // <--- ADD THIS LINE
+import * as Config from './config.js'; // Ensure Config is imported
 
 console.log("main.js loading...");
-
 
 // --- Initialization ---
 function initializeApp() {
@@ -21,12 +19,13 @@ function initializeApp() {
               console.log("Continuing session...");
               GameLogic.checkForDailyLogin(); // Check daily status *after* loading state
               UI.applyOnboardingPhaseUI(State.getOnboardingPhase()); // Apply UI visibility
-              // *** Corrected Line Below ***
               GameLogic.calculateTapestryNarrative(true); // Ensure analysis is current for UI updates
               UI.updateInsightDisplays(); // Update displays with loaded insight
               UI.updateFocusSlotsDisplay();
               UI.updateGrimoireCounter();
               UI.populateGrimoireFilters(); // Populate filters
+              // Prepare Grimoire display data *before* showing screen
+              UI.refreshGrimoireDisplay(); // Call this to ensure grimoire is ready
               // Initial screen display will be handled by showScreen
               UI.showScreen('personaScreen'); // Default to Persona screen after load
               UI.hidePopups(); // Ensure no popups are stuck open
@@ -77,11 +76,12 @@ function attachEventListeners() {
                     // Re-run necessary post-load setup within this handler too
                     GameLogic.checkForDailyLogin();
                     UI.applyOnboardingPhaseUI(State.getOnboardingPhase());
-                    GameLogic.calculateTapestryNarrative(true); // Corrected call here too
+                    GameLogic.calculateTapestryNarrative(true); // Recalculate narrative
                     UI.updateInsightDisplays();
                     UI.updateFocusSlotsDisplay();
                     UI.updateGrimoireCounter();
                     UI.populateGrimoireFilters();
+                    UI.refreshGrimoireDisplay(); // Render grimoire content after load
                     UI.showScreen('personaScreen');
                     UI.hidePopups();
                 }
@@ -99,7 +99,23 @@ function attachEventListeners() {
 
     // Main Navigation
     const navButtons = document.querySelectorAll('.nav-button');
-    navButtons.forEach(button => { if(!button.classList.contains('settings-button')) { button.addEventListener('click', () => { const target = button.dataset.target; if (target) UI.showScreen(target); }); } });
+    navButtons.forEach(button => {
+        if(!button.classList.contains('settings-button')) {
+            button.addEventListener('click', () => {
+                const target = button.dataset.target;
+                if (target) {
+                    // Call specific logic wrappers if needed before showing screen
+                    if (target === 'personaScreen') {
+                        GameLogic.displayPersonaScreenLogic(); // Use logic wrapper
+                    } else if (target === 'studyScreen') {
+                        GameLogic.displayStudyScreenLogic(); // Use logic wrapper
+                    }
+                    // Let showScreen handle the actual screen switch and other general updates
+                    UI.showScreen(target);
+                }
+            });
+        }
+    });
     const settingsBtn = document.getElementById('settingsButton');
     if (settingsBtn) settingsBtn.addEventListener('click', UI.showSettings);
 
@@ -204,8 +220,17 @@ function attachEventListeners() {
      const personaSummaryDiv = document.getElementById('personaSummaryView');
      if(detailedViewBtn && summaryViewBtn && personaDetailedDiv && personaSummaryDiv) {
           detailedViewBtn.addEventListener('click', () => { personaDetailedDiv.classList.add('current'); personaDetailedDiv.classList.remove('hidden'); personaSummaryDiv.classList.add('hidden'); personaSummaryDiv.classList.remove('current'); detailedViewBtn.classList.add('active'); summaryViewBtn.classList.remove('active'); });
-          summaryViewBtn.addEventListener('click', () => { personaSummaryDiv.classList.add('current'); personaSummaryDiv.classList.remove('hidden'); personaDetailedDiv.classList.add('hidden'); personaDetailedDiv.classList.remove('current'); summaryViewBtn.classList.add('active'); detailedViewBtn.classList.remove('active'); UI.displayPersonaSummary(); });
+          summaryViewBtn.addEventListener('click', () => { personaSummaryDiv.classList.add('current'); personaSummaryDiv.classList.remove('hidden'); personaDetailedDiv.classList.add('hidden'); personaDetailedDiv.classList.remove('current'); summaryViewBtn.classList.add('active'); detailedViewBtn.classList.remove('active'); UI.displayPersonaSummary(); }); // Refresh summary when switching to it
      }
+
+    // Tapestry Deep Dive Button
+    const exploreTapestryBtn = document.getElementById('exploreTapestryButton');
+    if (exploreTapestryBtn) {
+        exploreTapestryBtn.addEventListener('click', GameLogic.showTapestryDeepDive);
+    } else {
+        console.warn("Explore Tapestry Button not found.");
+    }
+
 
     console.log("Event listeners attached.");
 }
