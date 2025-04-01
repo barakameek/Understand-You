@@ -1092,13 +1092,8 @@ function displayReflectionPrompt(context = 'Standard', targetId = null, promptCa
     if (reflectionCheckbox) reflectionCheckbox.checked = false;
     if (scoreNudgeCheckbox && scoreNudgeLabel) { scoreNudgeCheckbox.checked = false; scoreNudgeCheckbox.classList.toggle('hidden', context !== 'Dissonance'); scoreNudgeLabel.classList.toggle('hidden', context !== 'Dissonance'); }
     if (confirmReflectionButton) confirmReflectionButton.disabled = true;
-    const rewardAmount = (currentReflectionContext === 'Guided') 
-    ? GUIDED_REFLECTION_COST + 2 
-    : (currentReflectionContext === 'RareConcept') 
-    ? 7.0 
-    : (currentReflectionContext === 'SceneMeditation') 
-    ? (sceneBlueprints.find(s => s.reflectionPromptId === currentPromptId)?.meditationCost || 0) + 5 
-    : 5.0;
+    const rewardAmount = (currentReflectionContext === 'Guided') ? GUIDED_REFLECTION_COST + 2 : (currentReflectionContext === 'RareConcept') ? 7.0 : (currentReflectionContext === 'SceneMeditation') ? (sceneBlueprints.find(s => s.reflectionPromptId === currentPromptId)?.meditationCost || 0) + 5 : 5.0;
+
     if (reflectionRewardAmount) reflectionRewardAmount.textContent = `${rewardAmount.toFixed(1)} Insight`; // Ensure fixed decimal
     if (reflectionModal) reflectionModal.classList.remove('hidden');
     if (popupOverlay) popupOverlay.classList.remove('hidden');
@@ -1108,7 +1103,8 @@ function handleConfirmReflection() {
     if (!currentPromptId || !reflectionCheckbox || !reflectionCheckbox.checked) return;
     console.log(`Reflection confirmed: ${currentReflectionContext}, prompt: ${currentPromptId}`);
     seenPrompts.add(currentPromptId);
-    const rewardAmount = (context === 'Guided') ? GUIDED_REFLECTION_COST + 2 : (context === 'RareConcept') ? 7.0 : (context === 'SceneMeditation') ? (sceneBlueprints.find(s => s.reflectionPromptId === currentPromptId)?.meditationCost || 0) + 5 : 5.0; // Adjusted reward logic
+    const rewardAmount = (currentReflectionContext === 'Guided') ? GUIDED_REFLECTION_COST + 2 : (currentReflectionContext === 'RareConcept') ? 7.0 : (currentReflectionContext === 'SceneMeditation') ? (sceneBlueprints.find(s => s.reflectionPromptId === currentPromptId)?.meditationCost || 0) + 5 : 5.0;
+
 
     let attunementKey = null;
     let attunementAmount = 1.0;
