@@ -88,7 +88,7 @@
                               <p>Unlock deeper knowledge about each core element.</p>
                               <div id="elementLibraryButtons" class="library-buttons"></div>
                               <div id="elementLibraryContent" class="library-content">
-                                  <p>Achieve milestones to unlock the Library.</p>
+                                  <p>Achieve milestones or increase Attunement to unlock the Library.</p>
                               </div>
                          </div>
                      </div>
@@ -134,7 +134,7 @@
          <!-- === Grimoire Screen === -->
          <div id="grimoireScreen" class="screen hidden grimoire-screen">
               <h1>The Grand Grimoire <i class="fas fa-info-circle info-icon" title="Your personal collection of discovered Concept Cards. Filter, sort, view details, mark Concepts for Focus, or sell unwanted Concepts for Insight."></i></h1>
-              <!-- Grimoire controls (Initially simplified by flow) -->
+              <!-- Grimoire controls (Filters initially hidden) -->
               <div id="grimoireControls">
                   <label for="grimoireSortOrder">Sort:</label>
                   <select id="grimoireSortOrder">
@@ -187,7 +187,7 @@
                  <!-- Right Column: Research Bench -->
                  <div class="study-column-right research-bench">
                      <h2>Research Notes <i class="fas fa-info-circle info-icon" title="Results from your Research appear here. Concepts remain until you Add them to your Grimoire or Sell them for Insight. You might also find Repository items here."></i></h2>
-                     <div id="researchStatus">Select an Element or perform Meditation...</div>
+                     <div id="researchStatus">Visit The Study to begin research...</div>
                      <div id="researchOutput" class="research-output-area card-grid">
                         <p><i>Research results will appear here.</i></p>
                      </div>
@@ -332,16 +332,16 @@
 
     </div> <!-- End app-container -->
 
-    <!-- SCRIPTS AT THE END (with defer and type="module") -->
-    <!-- Load Data First -->
-    <script src="data.js" defer></script>
-    <!-- Load Modules -->
+    <!-- SCRIPTS AT THE END (with type="module" and correct order) -->
+    <!-- Data loaded first as module -->
+    <script src="data.js" type="module" defer></script>
+    <!-- Modules loaded next -->
     <script src="js/config.js" type="module" defer></script>
     <script src="js/utils.js" type="module" defer></script>
     <script src="js/state.js" type="module" defer></script>
     <script src="js/ui.js" type="module" defer></script>
     <script src="js/gameLogic.js" type="module" defer></script>
-    <!-- Load Main Entry Point Last -->
+    <!-- Main entry point last -->
     <script src="js/main.js" type="module" defer></script>
 
 </body>
