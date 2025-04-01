@@ -149,17 +149,37 @@ function calculateElementScore(elementName, answersForElement) {
     }
 }
  function finalizeQuestionnaire() {
-    console.log("Finalizing scores..."); const finalScores = {}; const allAnswers = State.getState().userAnswers;
-    elementNames.forEach(elementName => { const score = calculateElementScore(elementName, allAnswers[elementName] || {}); const key = elementNameToKey[elementName]; if (key) finalScores[key] = score; else console.warn(`No key for ${elementName}`); });
-    State.updateScores(finalScores); State.setQuestionnaireComplete(); State.saveAllAnswers(allAnswers);
-    determineStarterHandAndEssence();
-    updateMilestoneProgress('completeQuestionnaire', 1); checkForDailyLogin();
-    UI.updateInsightDisplays(); UI.updateFocusSlotsDisplay(); UI.updateGrimoireCounter(); UI.populateGrimoireFilters(); UI.displayDailyRituals(); UI.refreshGrimoireDisplay(); UI.applyOnboardingPhaseUI(State.getOnboardingPhase());
-    console.log("Final User Scores:", State.getScores());
-    displayPersonaScreenLogic(); // Ensure persona screen data is calculated
-    UI.showScreen('personaScreen'); UI.showTemporaryMessage("Experiment Complete! Explore results.", 4000);
-}
+    console.log("Finalizing scores...");
+    const finalScores = {};
+    const allAnswers = State.getState().userAnswers;
+    elementNames.forEach(elementName => {
+        const score = calculateElementScore(elementName, allAnswers[elementName] || {});
+        const key = elementNameToKey[elementName];
+        if (key) finalScores[key] = score; else console.warn(`No key for ${elementName}`);
+    });
+  State.updateScores(finalScores);
+    State.setQuestionnaireComplete(); // Sets state, advances phase synchronously now
+    State.saveAllAnswers(allAnswers); // Save answers
+    determineStarterHandAndEssence(); // Adds starter concepts
+    updateMilestoneProgress('completeQuestionnaire', 1);
+    checkForDailyLogin();
+    UI.updateInsightDisplays();
+    UI.updateFocusSlotsDisplay();
+    UI.updateGrimoireCounter();
+    UI.populateGrimoireFilters(); // Populate filters
+    UI.displayDailyRituals();
+    UI.refreshGrimoireDisplay(); // Call this to render the grimoire content *before* showing any screen
+    calculateTapestryNarrative(true); // Calculate narrative *before* showing persona
+    UI.displayPersonaSummary(); // Calculate summary *before* showing persona
+    // --- End Prepare UI Data ---
 
+    UI.applyOnboardingPhaseUI(State.getOnboardingPhase()); // Ensure UI matches final phase
+    console.log("Final User Scores:", State.getScores());
+
+    // Now show the default screen
+    UI.showScreen('personaScreen');
+    UI.showTemporaryMessage("Experiment Complete! Explore results.", 4000);
+}
 
 // --- Starter Hand ---
 function determineStarterHandAndEssence() {
