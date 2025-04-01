@@ -275,24 +275,30 @@ function determineStarterHandAndEssence() {
     else { addConceptToGrimoireInternal(conceptId); }
      if (buttonElement) UI.updateResearchButtonAfterAction(conceptId, 'add');
 }
- function addConceptToGrimoireInternal(conceptId) {
-     const concept = concepts.find(c => c.id === conceptId); if (!concept) { console.error("Internal add fail: Not found. ID:", conceptId); return; } if (State.getDiscoveredConcepts().has(conceptId)) return;
-     console.log(`Adding ${concept.name} internally.`);
-     if (State.addDiscoveredConcept(concept.id, concept)) {
-         let insightRwd = Config.CONCEPT_DISCOVERY_INSIGHT[concept.rarity] || Config.CONCEPT_DISCOVERY_INSIGHT.default; gainInsight(insightRwd, `Discovered ${concept.rarity} ${concept.name}`);
-         gainAttunementForAction('addToGrimoire', concept.primaryElement, 0.6); UI.updateGrimoireCounter();
-         if (concept.rarity === 'rare' && concept.uniquePromptId && reflectionPrompts.RareConcept?.[concept.uniquePromptId]) { State.addPendingRarePrompt(concept.uniquePromptId); console.log(`Queued rare prompt ${concept.uniquePromptId}`); }
-         if (currentlyDisplayedConceptId === conceptId) {
-             UI.updateGrimoireButtonStatus(conceptId, false); UI.updateFocusButtonStatus(conceptId);
-             const discoveredData = State.getDiscoveredConceptData(conceptId);
-             UI.updatePopupSellButton(conceptId, concept, true, false);
-             const notesSect = document.getElementById('myNotesSection'); if(notesSect && State.getOnboardingPhase() >= Config.ONBOARDING_PHASE.STUDY_INSIGHT) notesSect.classList.remove('hidden');
-             const evoSec = document.getElementById('popupEvolutionSection'); if(evoSec && State.getOnboardingPhase() >= Config.ONBOARDING_PHASE.ADVANCED) UI.displayEvolutionSection(concept, discoveredData);
-         }
-          UI.updateResearchButtonAfterAction(conceptId, 'add');
-         checkTriggerReflectionPrompt('add'); updateMilestoneProgress('addToGrimoire', 1); updateMilestoneProgress('discoveredConcepts.size', State.getDiscoveredConcepts().size);
-         checkAndUpdateRituals('addToGrimoire'); UI.refreshGrimoireDisplay(); UI.showTemporaryMessage(`${concept.name} added to Grimoire!`, 3000);
-     } else { console.warn(`State add fail ${concept.name}.`); UI.showTemporaryMessage(`Error adding ${concept.name}.`, 3000); }
+// In gameLogic.js - addConceptToGrimoireInternal
+function addConceptToGrimoireInternal(conceptId) {
+    // ... (find concept, check if already exists) ...
+    console.log(`Adding ${concept.name} internally.`);
+    if (State.addDiscoveredConcept(concept.id, concept)) { // State update happens here
+        // ... (gain insight, attunement, update counter, queue prompt) ...
+
+        // --- Update UI AFTER successful state update ---
+        if (currentlyDisplayedConceptId === conceptId) {
+            // Update popup buttons/sections if the added concept is currently open
+            UI.updateGrimoireButtonStatus(conceptId, false);
+            UI.updateFocusButtonStatus(conceptId);
+            const discoveredData = State.getDiscoveredConceptData(conceptId);
+            UI.updatePopupSellButton(conceptId, concept, true, false);
+            const notesSect = document.getElementById('myNotesSection'); if(notesSect && State.getOnboardingPhase() >= Config.ONBOARDING_PHASE.STUDY_INSIGHT) notesSect.classList.remove('hidden');
+            const evoSec = document.getElementById('popupEvolutionSection'); if(evoSec && State.getOnboardingPhase() >= Config.ONBOARDING_PHASE.ADVANCED) UI.displayEvolutionSection(concept, discoveredData);
+        }
+        // Update the research note UI specifically
+        UI.updateResearchButtonAfterAction(conceptId, 'add'); // THIS IS THE KEY CALL for the bug
+
+        // ... (trigger reflection, update milestones, rituals, refresh grimoire display, show message) ...
+    } else {
+        // ... (handle state add fail) ...
+    }
 }
   function handleToggleFocusConcept() {
     if (currentlyDisplayedConceptId === null) return;
