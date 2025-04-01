@@ -3,8 +3,10 @@ import * as State from './state.js';
 import * as UI from './ui.js';
 import * as GameLogic from './gameLogic.js';
 // Utils, Config, Data are mostly used by other modules, no direct import needed here usually
+import * as Config from './config.js'; // <--- ADD THIS LINE
 
 console.log("main.js loading...");
+
 
 // --- Initialization ---
 function initializeApp() {
