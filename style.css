@@ -1,373 +1,341 @@
-/* style.css - COMPLETE VERSION v12 (Rarity, Focus, Repository) */
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Persona Alchemy Lab</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Merriweather:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="data:,"> <!-- Prevent favicon error -->
+</head>
+<body>
+    <div class="app-container study-theme">
 
-/* --- Basic Reset & Body --- */
-body { font-family: 'Merriweather', serif; margin: 0; background-color: #f0e7d8; color: #4a392c; line-height: 1.6; }
-.app-container { max-width: 1400px; margin: 20px auto; background: linear-gradient(to bottom, #fdf8f0, #f5f0e1); border-radius: 12px; box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15); border: 1px solid #d3c0a0; overflow: hidden; position: relative; }
-/* --- Saving Indicator --- */
-.save-indicator { position: fixed; top: 65px; right: 20px; background-color: rgba(40, 167, 69, 0.85); color: white; padding: 5px 12px; border-radius: 4px; font-size: 0.8em; z-index: 120; opacity: 0; transition: opacity 0.3s ease; pointer-events: none; }
-.save-indicator:not(.hidden) { opacity: 1; }
-.save-indicator i { margin-right: 5px; }
-/* --- Screen Management --- */
-.screen { padding: 25px 35px; box-sizing: border-box; min-height: calc(100vh - 40px - 50px); }
-.hidden { display: none !important; }
-.current { display: block; }
-/* --- Headings and Text --- */
-h1, h2, h3, h4, h5 { font-family: 'Cinzel Decorative', cursive; letter-spacing: 0.5px; margin-top: 0; }
-h1 { color: #6a3906; text-align: center; margin-bottom: 25px; font-size: 2em; text-shadow: 1px 1px 2px rgba(0,0,0,0.1); }
-h2 { text-align: center; color: #8b4513; margin-bottom: 25px; font-size: 1.6em; border-bottom: 1px solid #c8b89a; padding-bottom: 8px; }
-h3 { font-size: 1.3em; font-weight: bold; margin-bottom: 18px; color: #5a2d0c; font-family: 'Garamond', serif; }
-h4 { font-size: 1.15em; margin-bottom: 12px; color: #5a2d0c; text-align: left; font-family: 'Garamond', serif; }
-h5 { font-size: 1.05em; margin-bottom: 10px; color: #6a5a4a; text-align: center; border-bottom: 1px dashed #d3c0a0; padding-bottom: 5px; }
-p { margin-bottom: 18px; color: #5a4a3a; font-size: 1em; text-align: left; }
-#welcomeScreen p, .reflection-modal p { text-align: center; }
-hr { border: none; border-top: 1px dashed #c8b89a; margin: 20px 0; }
-.popup-hr { border-top: 1px solid #d3c0a0; margin: 12px 0; }
-.info-icon { color: #aaa; margin-left: 8px; cursor: help; }
-/* --- Study Theme --- */
-.study-theme .button { background-color: #8b4513; border: 1px solid #5a2d0c; box-shadow: 0 3px 5px rgba(0,0,0,0.15); color: #fff; text-shadow: 1px 1px 1px rgba(0,0,0,0.2); }
-.study-theme .button:hover:not(:disabled) { background-color: #a0522d; }
-.study-theme .back-button { background-color: #a8a296; border-color: #7a746a; color: #333; text-shadow: none; }
-.study-theme .back-button:hover:not(:disabled) { background-color: #948e82; }
-.study-theme .secondary-button { background-color: #b0a48a; border-color: #8b7d6b; color: #3f372e; text-shadow: none; }
-.study-theme .secondary-button:hover:not(:disabled) { background-color: #c4bba8; }
-/* --- Navigation Bar --- */
-.main-nav { display: flex; justify-content: center; background-color: #d2b48c; padding: 5px 0; border-bottom: 2px solid #8b4513; position: sticky; top: 0; z-index: 50; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-.nav-button { background-color: transparent; border: none; color: #5a2d0c; padding: 10px 20px; font-size: 1em; font-weight: bold; cursor: pointer; border-bottom: 3px solid transparent; margin: 0 5px; transition: border-color 0.2s ease, color 0.2s ease; font-family: 'Merriweather', serif; }
-.nav-button:hover { border-bottom-color: #a0522d; color: #a0522d; }
-.nav-button.active { color: #8b4513; border-bottom-color: #8b4513; font-weight: bold; }
-.nav-button.settings-button { margin-left: auto; margin-right: 15px; padding: 10px 15px; font-size: 1.1em; }
-.main-nav.hidden { display: none !important; }
-/* --- Welcome Screen --- */
-#welcomeScreen { text-align: center; padding: 60px 30px; }
-#welcomeScreen .button { margin: 10px; }
-/* --- Questionnaire Screen --- */
-#questionnaireScreen { text-align: center; }
-#questionnaireScreen header { padding: 10px 20px 15px 20px; border-bottom: 1px solid #d3c0a0; margin-bottom: 25px; position: sticky; top: 0; background: rgba(245, 240, 225, 0.98); backdrop-filter: blur(3px); z-index: 10; box-shadow: 0 3px 8px rgba(0,0,0,0.1); }
-.element-progress-header { display: flex; flex-wrap: wrap; justify-content: center; margin-bottom: 10px; padding: 5px; background-color: rgba(232, 228, 216, 0.5); border-radius: 5px; border: 1px solid #d3c0a0; }
-.element-tab { padding: 6px 12px; border-radius: 4px; font-size: 0.8em; color: #7a5230; border: 1px solid transparent; margin: 2px 4px; text-align: center; white-space: nowrap; flex-shrink: 0; transition: background-color 0.3s ease, color 0.3s ease; font-family: 'Merriweather', serif;}
-.element-tab.active { background-color: #f0e68c; color: #5a3a22; border-color: #b8a880; font-weight: bold; }
-.element-tab.completed { background-color: #d4ffd4; color: #006400; opacity: 0.8; }
-#progressText { text-align: center; color: #5a4a3a; font-size: 1.1em; font-weight: bold; margin-bottom: 5px; font-family: 'Merriweather', serif;}
-#dynamicScoreFeedback { text-align: center; font-size: 0.95em; color: #555; background-color: #eee9dd; padding: 8px 15px; border-radius: 4px; margin-top: 10px; border: 1px solid #d3c0a0; }
-#dynamicScoreFeedback > div:first-of-type { margin-bottom: 8px; }
-#feedbackElement { font-weight: bold; color: #8b4513; }
-#feedbackScore { font-weight: bold; color: #8b4513; font-size: 1.1em; margin: 0 3px; }
-#dynamicScoreFeedback .score-label { font-style: italic; color: #6a5a4a; margin-left: 5px; }
-.score-bar-container { height: 8px; background-color: #d3c0a0; border-radius: 4px; margin-top: 5px; max-width: 200px; margin-left: auto; margin-right: auto; overflow: hidden; border: 1px solid #b8a880;}
-#feedbackScoreBar { height: 100%; background-color: #8b4513; width: 50%; border-radius: 4px; transition: width 0.3s ease; }
-#questionnaireScreen main { padding: 0 10px; }
-.element-intro { background-color: #faf8f0; padding: 20px 25px; border-radius: 8px; margin: 0 auto 30px auto; border-left: 6px solid #8b4513; max-width: 750px; box-shadow: 0 2px 5px rgba(0,0,0,0.07); }
-.element-intro h2 { text-align: left; margin-bottom: 10px; color: #5a3a22; font-size: 1.4em; font-family: 'Cinzel Decorative', cursive; border: none;}
-.element-intro p { text-align: left; font-size: 1em; color: #444; margin-bottom: 12px; }
-.element-intro p em { color: #7a5230; font-weight: bold; font-style: normal; }
-.element-intro p small { color: #6a5a4a; display: block; margin-top: 8px; font-size: 0.9em; }
-.question-block { margin: 0 auto 40px auto; padding: 30px; border: 1px solid #e0d8c8; background-color: #fffefa; border-radius: 10px; max-width: 700px; box-shadow: 0 3px 7px rgba(0,0,0,0.08); display: flex; flex-direction: column; align-items: center; }
-.question-title { font-size: 1.25em; font-weight: 600; margin-bottom: 30px; color: #4a3e33; text-align: center; max-width: 90%; line-height: 1.5; font-family: 'Merriweather', serif; }
-.input-container { margin-top: 10px; width: 100%; display: flex; justify-content: center; padding: 0 15px; box-sizing: border-box; }
-.slider-container { width: 100%; max-width: 480px; margin: 0; }
-.slider { width: 100%; cursor: pointer; appearance: none; height: 10px; background: #d3c0a0; border-radius: 5px; outline: none; border: 1px solid #b8a880; }
-.slider::-webkit-slider-thumb { appearance: none; width: 20px; height: 20px; background: #a0522d; border-radius: 50%; cursor: pointer; border: 2px solid #fdf5e6; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
-.slider::-moz-range-thumb { width: 20px; height: 20px; background: #a0522d; border-radius: 50%; cursor: pointer; border: 2px solid #fdf5e6; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
-.label-container { display: flex; justify-content: space-between; margin-top: 8px; }
-.label-text { font-size: 0.85em; color: #6a5a4a; }
-.value-text { margin-top: 12px; text-align: center; font-size: 0.95em; font-weight: 500; }
-.slider-feedback { font-size: 0.9em; color: #5a3a22; background-color: #f5f0e1; border: 1px dashed #c8b89a; border-radius: 4px; padding: 10px 15px; margin-top: 18px; min-height: 3em; text-align: left; line-height: 1.45; }
-.radio-options, .checkbox-options { width: 100%; max-width: 450px; margin: 0; text-align: left; }
-.radio-options div, .checkbox-options div { margin-bottom: 10px; }
-.radio-options label, .checkbox-options label { display: block; background-color: #f5f0e1; padding: 12px 15px; border-radius: 6px; border: 1px solid #d3c0a0; cursor: pointer; transition: background-color 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease; font-size: 1em; }
-.radio-options input[type="radio"], .checkbox-options input[type="checkbox"] { position: absolute; opacity: 0; pointer-events: none; }
-.radio-options input[type="radio"]:checked + label, .checkbox-options input[type="checkbox"]:checked + label { background-color: #eaddb3; border-color: #b8860b; color: #4a3e33; font-weight: bold; box-shadow: inset 0 1px 3px rgba(0,0,0,0.1); }
-#questionnaireScreen footer { margin-top: 30px; display: flex; justify-content: space-between; padding: 0 15px; }
+        <!-- === Saving Indicator === -->
+        <div id="saveIndicator" class="save-indicator hidden"><i class="fas fa-save"></i> Saving...</div>
 
-/* --- My Persona Screen --- */
-.persona-screen { background-color: #faf0e6; }
-.persona-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap;} /* Allow wrap */
-.persona-header h1 { margin-bottom: 10px; text-align: left; flex-grow: 1; /* Take available space */ }
-.view-toggle-buttons { margin-left: 15px; flex-shrink: 0; /* Prevent shrinking */ }
-.view-toggle-buttons .view-toggle-btn { margin-left: 10px; background-color: #b0a48a; border-color: #8b7d6b; color: #3f372e; text-shadow: none;}
-.view-toggle-buttons .view-toggle-btn:hover:not(:disabled) { background-color: #c4bba8; }
-.view-toggle-buttons .view-toggle-btn.active { background-color: #8b4513; border-color: #5a2d0c; color: #fff; text-shadow: 1px 1px 1px rgba(0,0,0,0.2); }
-.persona-view { display: block; }
-.persona-view.hidden { display: none; }
-.persona-overview { display: flex; flex-wrap: wrap; gap: 35px; }
-.persona-elements-detailed { flex: 1 1 420px; background-color: rgba(255, 248, 231, 0.7); padding: 25px; border-radius: 8px; border: 1px solid #d3c0a0; }
-.persona-constellation { flex: 1 1 480px; background-color: rgba(232, 228, 216, 0.6); padding: 25px; border-radius: 8px; border: 1px solid #c8b89a; }
-.persona-elements-detailed h2, .persona-constellation h2 { text-align: left; border: none; margin-bottom: 15px; font-size: 1.4em; }
-.persona-elements-detailed > p, .persona-constellation > p { text-align: left; font-size: 0.95em; color: #666; margin-bottom: 12px; }
-/* Integrated Attunement Display */
-.attunement-display { margin-top: 15px; }
-.attunement-display .attunement-item { margin-bottom: 4px; display: flex; align-items: center; }
-.attunement-display .attunement-name { width: 90px; /* Adjusted width */ font-weight: 500; font-size: 0.9em; font-family: 'Merriweather', serif;}
-.attunement-display .attunement-bar-container { flex-grow: 1; height: 10px; background-color: #d3c0a0; border-radius: 5px; overflow: hidden; margin-left: 5px; border: 1px solid #b8a880;}
-.attunement-display .attunement-bar { height: 100%; background-color: #b8860b; width: 0%; border-radius: 4px; transition: width 0.5s ease; }
+        <!-- === Welcome Screen === -->
+        <div id="welcomeScreen" class="screen current">
+             <h1>Welcome to the Persona Alchemy Lab! <i class="fas fa-info-circle info-icon" title="This is the entry point to the application. Start a new 'Experiment' (questionnaire) or load your previous session."></i></h1>
+             <p>Discover Concept Cards that resonate with your essence and curate your unique Persona Tapestry.</p>
+             <button id="startGuidedButton" class="button">Begin Experimentation</button>
+             <button id="loadButton" class="button secondary-button hidden">Load Previous Session</button>
+        </div>
 
-.element-detail-entry { margin-bottom: 18px; padding-bottom: 12px; border-bottom: 1px dotted #c8b89a; border-left: 5px solid var(--element-color, #ccc); padding-left: 12px; border-radius: 0 4px 4px 0; transition: background-color 0.2s ease; }
-.element-detail-entry:hover { background-color: rgba(255,255,255,0.3); }
-.element-detail-header { display: flex; align-items: center; justify-content: space-between; cursor: pointer; margin-bottom: 8px; padding: 6px 10px 6px 0; border-radius: 0 4px 4px 0; position: relative; }
-.element-detail-header strong { font-size: 1.1em; color: #5a3a22; font-family: 'Merriweather', serif; font-weight: 700;}
-.element-detail-header span { font-weight: bold; color: #8b4513; font-size: 1.1em; }
-.element-detail-header .score-label { font-style: italic; margin-left: 6px; color: #7a5230; font-size: 0.9em; }
-.element-detail-header .score-bar-container { height: 10px; max-width: 120px; background-color: #d3c0a0; border-radius: 5px; overflow: hidden; border: 1px solid #b8a880;}
-.element-description { font-size: 0.95em; color: #4a3e33; margin-top: 12px; background: rgba(255,255,255,0.5); padding: 15px; border-radius: 4px; border: 1px solid #eee9dd; }
-.element-description p { text-align: left; margin-bottom: 10px; }
-.element-description strong { color: #8b4513; font-weight: bold; }
-.element-description small { color: #6a5a4a; font-size: 0.9em; display: block; margin-top: 6px; font-style: italic; }
-#userInsightDisplayPersona { font-weight: bold; color: #5a2d0c; display: inline-block; }
-.insight-icon { color: #8A2BE2; margin-left: 4px; font-size: 1.1em; vertical-align: middle;}
-.tapestry-area { background-color: #fffefa; border: 1px solid #d3c0a0; border-radius: 8px; min-height: 180px; padding: 20px; margin-bottom: 25px; }
-#focusedConceptsHeader { border-bottom: 1px solid #e8e4d8; padding-bottom: 6px; text-align: left; margin-bottom: 12px; font-size: 1.2em; }
-.focus-concepts-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; margin-top: 12px; }
-.focus-concept-item { background-color: #fff8e7; border: 1px solid #d3c0a0; border-radius: 6px; padding: 10px 12px; font-size: 0.95em; text-align: center; cursor: pointer; transition: background-color 0.2s ease, transform 0.1s ease; }
-.focus-concept-item:hover { background-color: #f5eecf; transform: translateY(-2px); }
-.focus-concept-item i { font-size: 1.3em; margin-bottom: 6px; color: #b8860b; display: block; }
-.focus-concept-item .name { font-weight: bold; display: block; font-size: 1em; font-family: 'Merriweather', serif; }
-.focus-concept-item .type { font-size: 0.85em; color: #6a5a4a; font-style: italic; }
-.focus-concepts-grid li { list-style: none; font-style: italic; color: #777; text-align: center; grid-column: 1 / -1; padding: 10px;}
-.focus-resonance-section { margin-top: 20px; padding-top: 15px; border-top: 1px dashed #c8b89a; }
-.focus-resonance-section h3 { font-size: 1.2em; text-align: left; border: none; margin-bottom: 5px; font-family: 'Garamond', serif; }
-#focusResonanceBars { font-size: 0.9em; }
-#focusResonanceBars .focus-resonance-item { margin-bottom: 4px; display: flex; align-items: center; }
-#focusResonanceBars .focus-resonance-name { width: 110px; font-weight: 500; font-family: 'Merriweather', serif; }
-#focusResonanceBars .focus-resonance-bar-container { flex-grow: 1; height: 10px; background-color: #d3c0a0; border-radius: 5px; overflow: hidden; margin-left: 10px; border: 1px solid #b8a880; }
-#focusResonanceBars .focus-resonance-bar { height: 100%; background-color: #8b4513; width: 0%; border-radius: 4px; transition: width 0.5s ease; }
-.tapestry-narrative-section { margin-top: 20px; padding-top: 15px; border-top: 1px dashed #c8b89a; }
-.tapestry-narrative-section h3 { font-size: 1.2em; text-align: left; border: none; margin-bottom: 5px; font-family: 'Garamond', serif; }
-#tapestryNarrative { font-style: italic; color: #5a3a22; background-color: rgba(255, 250, 240, 0.7); padding: 10px; border-radius: 4px; border: 1px solid #eee9dd;}
-.grimoire-insights { margin-top: 20px; padding-top: 15px; border-top: 1px dashed #c8b89a; }
-.grimoire-insights h3 { font-size: 1.2em; text-align: left; border-bottom: none; padding-bottom: 4px; font-family: 'Garamond', serif; margin-bottom: 5px; }
-.grimoire-insights p { font-size: 0.9em; color: #666; margin-bottom: 8px; }
-#personaThemesList { list-style: none; padding-left: 0; margin-top: 10px; font-size: 1em; }
-#personaThemesList li { margin-bottom: 8px; padding-left: 25px; position: relative; }
-#personaThemesList li::before { content: '✧'; position: absolute; left: 0; top: 1px; color: #b8860b; font-size: 1.2em; }
-#personaThemesList li:empty { display: none; }
-.milestones-section { margin-top: 25px; padding-top: 20px; border-top: 1px solid #c8b89a; }
-.milestones-section h3 { font-size: 1.2em; text-align: left; border: none; margin-bottom: 8px; font-family: 'Garamond', serif;}
-#milestonesDisplay { list-style: none; padding-left: 0; font-size: 0.95em; }
-#milestonesDisplay li { background-color: #fffefa; border-left: 4px solid #b8860b; padding: 8px 12px; margin-bottom: 6px; border-radius: 0 4px 4px 0; }
-#milestonesDisplay li:first-child:empty { display:none; }
-#personaSummaryView h2 { text-align: left; border-bottom: none; }
-#summaryContent { background-color: rgba(255, 248, 231, 0.7); padding: 20px; border-radius: 8px; border: 1px solid #d3c0a0; }
-#summaryContent h3 { font-size: 1.3em; margin-bottom: 15px; }
-#summaryContent p { margin-bottom: 10px; }
-#summaryContent ul { list-style: disc; padding-left: 25px; margin-bottom: 15px; }
+        <!-- === Questionnaire Screen === -->
+        <div id="questionnaireScreen" class="screen hidden">
+             <header>
+                 <div id="elementProgressHeader"></div>
+                 <p id="progressText"></p>
+                 <div id="dynamicScoreFeedback">
+                    Current <span id="feedbackElement">Element</span> Score: <span id="feedbackScore">5.0</span> (<span class="score-label">Moderate</span>)
+                    <i class="fas fa-info-circle info-icon" title="This shows your approximate score for the current element based on your answers so far. It helps visualize how your choices influence the outcome. Final scores are calculated at the end."></i>
+                    <div class="score-bar-container">
+                        <div id="feedbackScoreBar" style="width: 50%;"></div>
+                    </div>
+                 </div>
+             </header>
+             <main id="questionContent"></main>
+             <footer>
+                 <button id="prevElementButton" class="button back-button hidden">Previous</button>
+                 <button id="nextElementButton" class="button next-button">Next / View Persona</button>
+             </footer>
+        </div>
 
-/* --- Main Study Screen --- */
-.study-layout-container { display: flex; flex-wrap: wrap; gap: 35px; }
-.study-column-left { flex: 1 1 350px; max-width: 420px; display: flex; flex-direction: column; gap: 30px; }
-.study-resources { background-color: #deb887; padding: 25px; border-radius: 10px; border: 3px ridge #8b4513; box-shadow: inset 0 0 15px rgba(0,0,0,0.25); }
-.element-library { background-color: #e8d8c0; padding: 25px; border-radius: 10px; border: 1px solid #a08460; }
-.study-resources h2, .element-library h2 { margin-top: 0; border-bottom-color: #a08460; font-size: 1.4em; }
-.study-resources p, .element-library p { text-align: left; font-size: 1em; margin-bottom: 12px; }
-#userInsightDisplayStudy { font-weight: bold; color: #5a2d0c; display: inline-block; }
-.research-buttons { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 12px; margin-top: 18px; }
-.research-button { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px 8px; font-size: 0.9em; height: 90px; text-align: center; border-radius: 8px; background-color: #faf0e6; border: 1px solid #b8a880; color: #5a3a22; text-shadow: none; transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.1s ease; cursor: pointer;}
-.research-button:hover:not(:disabled) { background-color: #fff8dc; border-color: #8b4513; transform: translateY(-2px); }
-.research-button.disabled { background-color: #eee; border-color: #ccc; color: #999; opacity: 0.7; cursor: not-allowed; transform: none; }
-.research-el-icon { font-size: 1.6em; margin-bottom: 6px; }
-.research-el-name { font-weight: bold; line-height: 1.25; font-family: 'Merriweather', serif; }
-.research-el-cost { font-size: 0.9em; color: #7a5230; margin-top: 4px; }
-.free-research-button { width: 100%; margin-bottom: 18px; background-color: #66cdaa; border-color: #3cb371; font-size: 1em; }
-.free-research-button:hover:not(:disabled) { background-color: #98fb98; }
-.free-research-button:disabled { background-color: #aaa; border-color: #888; color: #eee; cursor: default; text-shadow: none; }
-.guidance-button { width: 100%; margin-top: 10px; background-color: #87CEEB; border-color: #4682B4; }
-.guidance-button:hover:not(:disabled) { background-color: #add8e6; }
-.rituals-section { margin-top: 25px; padding-top: 18px; border-top: 1px dashed #a08460; }
-.rituals-section h3 { font-size: 1.2em; text-align: left; border: none; margin-bottom: 8px; font-family: 'Garamond', serif; }
-#dailyRitualsDisplay { list-style: none; padding-left: 0; font-size: 0.95em; }
-#dailyRitualsDisplay li { background-color: rgba(255, 248, 220, 0.8); padding: 10px 12px; margin-bottom: 8px; border-radius: 5px; border: 1px solid #b8a880; transition: background-color 0.3s ease; }
-#dailyRitualsDisplay li.completed { text-decoration: line-through; color: #777; background-color: rgba(220, 220, 200, 0.8); }
-#dailyRitualsDisplay li.focus-ritual { border-left: 4px solid #b8860b; } /* Style for focus rituals */
-#dailyRitualsDisplay .ritual-reward { font-size: 0.9em; color: #5a3a22; margin-left: 8px; font-style: italic; }
-.library-buttons { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 15px;}
-.library-buttons .button { font-size: 0.8em; padding: 6px 4px; height: 50px; }
-.library-content { background-color: #fffefa; border: 1px solid #b8a880; border-radius: 5px; padding: 15px; min-height: 150px; max-height: 400px; overflow-y: auto; }
-.library-content .level-title { font-weight: bold; font-size: 1.1em; color: #5a2d0c; margin-bottom: 5px; border-bottom: 1px solid #eee; padding-bottom: 3px;}
-.library-content .level-content { font-size: 0.95em; margin-bottom: 15px; }
-.library-content .unlock-button { margin-top: 10px; }
-.library-content .unlock-error { color: #c82333; font-size: 0.85em; margin-top: 5px; }
-.study-column-right { flex: 3 1 550px; min-width: 400px; background-color: #eee8aa; padding: 25px; border-radius: 10px; border: 1px solid #b8a880; min-height: 500px; display: flex; flex-direction: column;}
-.research-bench h2 { margin-top: 0; border-bottom-color: #b8a880; }
-#researchStatus { background-color: rgba(255, 248, 220, 0.9); border: 1px dashed #b8860b; padding: 12px; margin-bottom: 18px; border-radius: 5px; text-align: center; font-weight: bold; color: #5a3a22; min-height: 1.8em; }
-.research-output-area { flex-grow: 1; overflow-y: auto; background-color: rgba(255,250,240, 0.5); padding: 15px; border-radius: 5px; border: 1px solid #d3c0a0; }
-.research-output-area .concept-card { height: auto; min-height: 250px; margin-bottom: 0; }
-.research-output-area .research-result-item { margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px dashed #c8b89a; }
-.research-output-area .research-result-item:last-child { border-bottom: none; margin-bottom: 0;}
-.research-output-area .research-action-button { display: block; margin: 10px auto 0 auto; }
-.research-output-area .duplicate-message { background-color: #eee; border: 1px solid #ccc; color: #666; padding: 10px; border-radius: 5px; text-align: center; margin: 10px 0 15px 0; }
-.repository-item-discovery { background-color: #fff8dc; border: 2px dashed #b8860b; padding: 15px; border-radius: 5px; text-align: center; }
-.repository-item-discovery h4 { margin-bottom: 10px; color: #8b4513; }
-.repository-item-discovery h4 i { margin-right: 8px; }
+        <!-- === Navigation Bar === -->
+        <nav id="mainNavBar" class="main-nav hidden">
+             <button class="nav-button active" data-target="personaScreen">Persona Tapestry</button>
+             <!-- Swapped Grimoire and Study -->
+             <button class="nav-button" data-target="grimoireScreen">Grimoire (<span id="grimoireCount">0</span>)</button>
+             <button class="nav-button" data-target="studyScreen">The Study</button>
+             <button class="nav-button" data-target="repositoryScreen">Repository</button>
+             <button id="settingsButton" class="nav-button settings-button" title="Settings & Save/Load Options"><i class="fas fa-cog"></i></button>
+        </nav>
 
-/* --- Card Grid Layout --- */
-.card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 18px; padding: 15px 10px 15px 15px; }
-#grimoireContent { background-color: #fff8e7; padding: 20px; border-radius: 8px; border: 1px solid #a08460; margin-top: 10px; max-height: calc(100vh - 240px); overflow-y: auto; }
+        <!-- === My Persona Screen ("Persona Tapestry") === -->
+        <div id="personaScreen" class="screen hidden persona-screen">
+             <div class="persona-header">
+                 <h1>My Persona Tapestry <i class="fas fa-info-circle info-icon" title="This screen summarizes your calculated persona based on the questionnaire and provides tools to refine it by focusing on specific Concepts."></i></h1>
+                 <div class="view-toggle-buttons">
+                     <button id="showDetailedViewBtn" class="button small-button view-toggle-btn active">Detailed View</button>
+                     <button id="showSummaryViewBtn" class="button small-button view-toggle-btn">Summary View</button>
+                 </div>
+             </div>
 
-/* --- Concept Card Basic Style & Rarity --- */
-.concept-card { border-radius: 10px; padding: 12px; text-align: center; cursor: pointer; position: relative; display: flex; flex-direction: column; height: 290px; overflow: hidden; background: linear-gradient(145deg, #fffaf0, #fdf5e6); border: 1px solid #d3c0a0; box-shadow: 0 4px 8px rgba(80, 50, 20, 0.15); transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); }
-.concept-card:hover { transform: translateY(-5px) scale(1.04); box-shadow: 0 10px 20px rgba(80, 50, 20, 0.25); z-index: 10; }
-.concept-card.rarity-common { border-left: 6px solid #cd7f32; }
-.concept-card.rarity-uncommon { border-left: 6px solid #c0c0c0; background: linear-gradient(145deg, #f8f8f8, #efefef); box-shadow: 0 4px 8px rgba(80, 50, 20, 0.15), inset 0 0 4px rgba(150, 150, 150, 0.1); }
-.concept-card.rarity-rare { border-left: 6px solid #ffd700; background: radial-gradient(ellipse at top left, #fffacd, #faf0e6); box-shadow: 0 4px 8px rgba(80, 50, 20, 0.15), 0 0 8px rgba(255, 215, 0, 0.4); }
-.concept-card:hover.rarity-rare { box-shadow: 0 10px 20px rgba(80, 50, 20, 0.25), 0 0 18px rgba(255, 215, 0, 0.7); }
-.card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; height: 22px; }
-.card-header .card-type-icon { font-size: 1em; color: #7a5230; margin-right: 6px; }
-.card-header .card-name { font-weight: bold; font-size: 1.1em; color: #8B4513; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; flex-grow: 1; text-align: left; font-family: 'Garamond', serif; }
-.card-header .card-stamps { font-size: 1em; white-space: nowrap; display: flex; align-items: center; }
-.card-header .card-stamps span { margin-left: 5px; }
-.card-header .grimoire-stamp { color: #8b4513; opacity: 0.7; }
-.card-header .focus-indicator { color: #FFD700; text-shadow: 1px 1px 0px #b8860b; font-size: 1.1em; }
-.card-visual { flex-grow: 1; display: flex; align-items: center; justify-content: center; background-color: #ede8d8; margin: 8px 0; border-radius: 6px; min-height: 110px; overflow: hidden; border: 1px solid #d3c0a0; }
-.card-visual .card-visual-placeholder { font-size: 3.5em; color: #b8a880; }
-.card-visual .card-art-unlocked { font-size: 4em; color: #8B4513; }
-.card-visual .card-art-image { display: block; width: 100%; height: 100%; object-fit: cover; }
-.card-footer { font-size: 0.85em; color: #6a5a4a; margin-top: 8px; height: 85px; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; }
-.card-affinities { margin-bottom: 6px; line-height: 1.4; flex-wrap: wrap; display: flex; justify-content: center; gap: 3px;}
-.card-affinities .affinity { display: inline-flex; align-items: center; border: 1px solid; border-radius: 12px; padding: 2px 6px; font-size: 0.9em; }
-.card-affinities .affinity i { margin-right: 4px; font-size: 0.9em; }
-.card-affinities .affinity-high { font-weight: bold; }
-.card-brief-desc { font-style: italic; font-size: 0.9em; line-height: 1.4; text-align: center; font-family: 'Merriweather', serif; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; max-height: calc(1.4em * 3); flex-grow: 1; }
+             <!-- Detailed View -->
+             <div id="personaDetailedView" class="persona-view current">
+                 <div class="persona-overview">
+                     <div class="persona-elements-detailed">
+                         <h2>Core Foundation <i class="fas fa-info-circle info-icon" title="Your scores across the 6 core elements, based on the initial questionnaire. Expand each for details, interpretations, and your current Attunement level."></i></h2>
+                         <p>Your fundamental attributes and elemental attunement. Expand each element.</p>
+                         <div id="personaElementDetails">
+                            <!-- Element details with integrated attunement bars will be injected here -->
+                         </div>
+                         <hr>
+                         <h2>Resources <i class="fas fa-info-circle info-icon" title="Insight is the primary currency, earned through discovery, reflection, and rituals. Spend it in The Study to research new Concepts or unlock deeper knowledge."></i></h2>
+                         <p>Gain Insight <i class="fas fa-brain insight-icon"></i> through discovery and reflection. Spend it in The Study.</p>
+                         <p>Current Insight: <strong id="userInsightDisplayPersona">0.0</strong> <i class="fas fa-brain insight-icon"></i></p>
 
-/* --- Grimoire Screen --- */
-.grimoire-screen { background-color: #d2b48c; }
-#grimoireControls { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 12px; margin-bottom: 20px; background-color: rgba(255,255,255,0.35); padding: 10px 15px; border-radius: 8px; border: 1px solid #a08460;}
-#grimoireControls label { margin: 0 6px 0 12px; font-weight: bold; color: #5a3a22; font-family: 'Merriweather', serif;}
-#grimoireControls select { padding: 6px 8px; border-radius: 5px; border: 1px solid #a08460; background-color: #fff8e7; font-family: 'Merriweather', serif;}
+                         <!-- MOVED: Element Library Section -->
+                         <div id="elementLibrary" class="element-library">
+                              <h2>Element Library <i class="fas fa-info-circle info-icon" title="Unlock deeper written insights about each core element by spending Insight. Higher levels reveal more complex nuances."></i></h2>
+                              <p>Unlock deeper knowledge about each core element.</p>
+                              <div id="elementLibraryButtons" class="library-buttons"></div>
+                              <div id="elementLibraryContent" class="library-content">
+                                  <p>Select an Element above to view its deep dive content.</p>
+                              </div>
+                         </div>
+                     </div>
 
-/* --- Repository Screen --- */
-.repository-screen { background-color: #e0d8c8; }
-.repository-screen h1 { color: #5a3a22; }
-.repository-layout { margin-top: 20px; }
-.repository-section { background-color: #fffefa; padding: 20px; border-radius: 8px; margin-bottom: 25px; border: 1px solid #c8b89a;}
-.repository-section h2 { text-align: left; border-bottom: 1px solid #d3c0a0; padding-bottom: 8px; margin-bottom: 15px; }
-.repository-section h2 i { margin-right: 10px; color: #8b4513; }
-.repo-list { display: grid; gap: 15px; }
-.repo-list > p { font-style: italic; color: #777; }
-.repository-item { background-color: #f8f4e8; padding: 15px; border-radius: 5px; border: 1px solid #d3c0a0; border-left: 5px solid #a0522d; }
-.repository-item.completed { border-left-color: #28a745; background-color: #e8f4e8; }
-.repository-item h4 { margin-bottom: 8px; font-family: 'Garamond', serif; }
-.repository-item p { margin-bottom: 10px; font-size: 0.95em; }
-.repo-actions { margin-top: 10px; }
-.repo-actions .button { margin-right: 10px; }
-.repo-actions .completed-text { font-style: italic; color: green; font-weight: bold; }
-.repo-actions .req-missing { font-size: 0.85em; color: #c82333; font-style: italic; margin-left: 5px;}
-#repositoryInsights ul { list-style: none; padding-left: 0; }
-#repositoryInsights li { background-color: #f8f4e8; padding: 8px 12px; margin-bottom: 8px; border-radius: 4px; border: 1px dashed #b8a880; font-style: italic; }
-#repositoryInsights h5 { margin-top: 15px; color: #5a2d0c;}
+                     <div class="persona-constellation">
+                          <h2>Persona Tapestry - Focus <i class="fas fa-info-circle info-icon" title="Mark Concepts from your Grimoire as 'Focus' here. This shapes your Tapestry Narrative, influences Focus Resonance, and may unlock unique content based on combinations."></i></h2>
+                          <p>Curate concepts to shape your active Persona.</p>
+                          <div class="tapestry-area" id="tapestryArea">
+                               <h4 id="focusedConceptsHeader">Focused Concepts (0 / 5) <i class="fas fa-info-circle info-icon" title="The number of Concepts currently marked as Focus out of your total available slots. Slots can be increased via Milestones."></i></h4>
+                               <div id="focusedConceptsDisplay" class="focus-concepts-grid"></div>
+                          </div>
+                          <div id="focusElementalResonance" class="focus-resonance-section">
+                               <h3>Focus Resonance <i class="fas fa-info-circle info-icon" title="Shows the average elemental scores calculated ONLY from the Concepts currently marked as 'Focus'. This reflects the overall elemental balance of your curated Tapestry."></i></h3>
+                               <p>Average elemental scores of your focused concepts.</p>
+                               <div id="focusResonanceBars"></div>
+                          </div>
+                          <div class="tapestry-narrative-section">
+                              <h3>Tapestry Narrative <i class="fas fa-info-circle info-icon" title="A dynamically generated interpretation based on your Focused Concepts, highlighting dominant elements and potential synergies between them."></i></h3>
+                              <p id="tapestryNarrative">Mark concepts as "Focus" to generate narrative...</p>
+                          </div>
+                          <div class="grimoire-insights">
+                              <h3>Focus Themes <i class="fas fa-info-circle info-icon" title="Identifies the dominant Elements (those with high scores) appearing most frequently among your Focused Concepts."></i></h3>
+                              <p>Themes emerging from your focused concepts.</p>
+                              <ul id="personaThemesList"></ul>
+                          </div>
+                          <!-- MOVED: Milestones Section Removed -->
+                     </div>
+                 </div>
+             </div>
+
+             <!-- Summary View -->
+             <div id="personaSummaryView" class="persona-view hidden">
+                  <h2>Persona Summary <i class="fas fa-info-circle info-icon" title="A concise text overview combining your Core Foundation scores, Tapestry Narrative, and Focus Themes."></i></h2>
+                  <div id="summaryContent">
+                      <p>Generating summary...</p>
+                  </div>
+             </div>
+        </div>
+
+         <!-- === Grimoire Screen === -->
+         <div id="grimoireScreen" class="screen hidden grimoire-screen">
+              <h1>The Grand Grimoire <i class="fas fa-info-circle info-icon" title="Your personal collection of discovered Concept Cards. Filter, sort, view details, mark Concepts for Focus, or sell unwanted Concepts for Insight."></i></h1>
+              <div id="grimoireControls">
+                  <label for="grimoireTypeFilter">Type:</label>
+                  <select id="grimoireTypeFilter"><option value="All">All Types</option></select>
+                  <label for="grimoireElementFilter">Element:</label>
+                  <select id="grimoireElementFilter"><option value="All">All Elements</option></select>
+                   <label for="grimoireRarityFilter">Rarity:</label>
+                  <select id="grimoireRarityFilter">
+                      <option value="All">All Rarities</option>
+                      <option value="common">Common</option>
+                      <option value="uncommon">Uncommon</option>
+                      <option value="rare">Rare</option>
+                  </select>
+                  <label for="grimoireSortOrder">Sort:</label>
+                  <select id="grimoireSortOrder">
+                      <option value="discovered">Date Added</option>
+                      <option value="name">Name</option>
+                      <option value="type">Type</option>
+                      <option value="rarity">Rarity</option>
+                  </select>
+                  <i class="fas fa-info-circle info-icon" title="Use these controls to filter and sort the Concepts displayed in your Grimoire below."></i>
+              </div>
+              <div id="grimoireContent" class="card-grid"></div>
+         </div>
 
 
-/* --- Popups & Overlay --- */
-.overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.75); z-index: 99; backdrop-filter: blur(2px); }
-.popup { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: linear-gradient(to bottom, #fdf5e6, #faf0e6); border: 1px solid #a08460; padding: 0; border-radius: 12px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25); z-index: 100; width: 90%; max-width: 800px; max-height: 90vh; overflow: hidden; display: flex; flex-direction: column; }
-.close-button { position: absolute; top: 10px; right: 15px; background: none; border: none; font-size: 2em; color: #b8a880; cursor: pointer; line-height: 1; z-index: 101; transition: color 0.2s ease; }
-.close-button:hover { color: #8b4513; }
+        <!-- === Main Study Screen === -->
+        <div id="studyScreen" class="screen hidden study-screen">
+             <!-- Layout container adjusted for only two columns now -->
+             <div class="study-layout-container">
+                 <!-- Left Column: Resources & Actions -->
+                 <div class="study-column-left study-resources"> <!-- Combined class -->
+                      <h2>Resources & Actions <i class="fas fa-info-circle info-icon" title="Manage your Insight and perform core actions like Researching specific Elements, taking Guided Reflections, or performing your free Daily Meditation."></i></h2>
+                      <p>Current Insight: <strong id="userInsightDisplayStudy">0.0</strong> <i class="fas fa-brain insight-icon"></i></p>
+                      <hr>
+                      <p>Focus your Insight <i class="fas fa-brain insight-icon"></i> to deepen understanding:</p>
+                      <button id="freeResearchButton" class="button free-research-button hidden" title="Once per day, perform research on your least attuned element for free.">Perform Daily Meditation</button>
+                      <div id="researchButtonContainer" class="research-buttons" title="Spend Insight to research a specific Element, potentially discovering new Concepts or Repository items. Cost may decrease slightly with high Attunement in that Element."></div>
+                      <button id="seekGuidanceButton" class="button guidance-button" title="Spend Insight for a randomly selected Guided Reflection prompt, offering deeper insights or exploring specific themes.">Seek Guided Reflection (Cost: <span id="guidedReflectionCostDisplay">10</span> <i class="fas fa-brain insight-icon"></i>)</button>
+                      <hr>
+                      <div class="rituals-section">
+                          <h3>Daily Rituals <i class="fas fa-info-circle info-icon" title="Complete these tasks each day for bonus Insight or Attunement. They reset daily. Special Focus Rituals appear here when their required Concepts are focused."></i></h3>
+                          <ul id="dailyRitualsDisplay"><li>Loading...</li></ul>
+                      </div>
+                 </div>
 
-/* --- Concept Detail Pop-up --- */
-.card-popup .popup-header { background-color: #e8e4d8; padding: 12px 45px 12px 25px; border-bottom: 1px solid #d3c0a0; text-align: center; position: relative; border-radius: 11px 11px 0 0; }
-.card-popup .popup-header .card-type-icon { position: absolute; left: 20px; top: 50%; transform: translateY(-50%); font-size: 1.4em; color: #7a5230; }
-.card-popup .popup-header h3 { margin: 0; color: #5a3a22; font-size: 1.5em; font-family: 'Cinzel Decorative', cursive; }
-.card-popup .popup-header p { font-size: 0.95em; color: #6a5a4a; margin: 2px 0 0 0; text-align: center; font-style: italic; font-family: 'Merriweather', serif;}
-.card-popup .popup-content { display: flex; flex: 1; overflow-y: auto; padding: 25px; gap: 25px; flex-wrap: wrap;}
-.card-popup #popupVisualContainer { flex: 1 1 200px; display: flex; align-items: center; justify-content: center; min-width: 200px; background-color: #f5f0e1; border: 1px solid #d3c0a0; border-radius: 8px; overflow: hidden; min-height: 200px;}
-.card-popup #popupVisualContainer .card-visual-placeholder { font-size: 6em; color: #c8b89a; }
-.card-popup #popupVisualContainer .card-art-unlocked { font-size: 7em; color: #8B4513; }
-.card-popup #popupVisualContainer .card-art-image { display: block; max-width: 100%; max-height: 400px; object-fit: contain; }
-.card-popup .popup-details { flex: 2 1 400px; min-width: 300px;}
-.card-popup .detailed-description { font-size: 1em; margin-bottom: 18px; max-height: 180px; overflow-y: auto; padding-right: 8px; text-align: left; }
-.card-popup .resonance-summary { font-weight: bold; margin-bottom: 12px; font-size: 1.1em; background-color: rgba(255,255,255,0.5); padding: 10px 12px; border-radius: 5px; border: 1px solid #eee9dd; text-align: center; }
-.card-popup .resonance-summary .resonance-indicator { margin-left: 10px; font-size: 0.9em; }
-.resonance-summary small { font-size: 0.85em; color: #666; display: block; margin-top: 3px; font-weight: normal;}
-.card-popup .recipe-view h4 { font-size: 1.2em; margin-top: 18px; margin-bottom: 10px; color: #5a2d0c; text-align: left; border: none; padding: 0; font-family: 'Garamond', serif;}
-.card-popup #popupComparisonHighlights { text-align: left; margin: 12px 0; font-size: 1em; background-color: rgba(255,255,255,0.6); padding: 15px; border-radius: 5px; border: 1px solid #eee9dd; }
-.card-popup #popupComparisonHighlights p { text-align: left; margin: 5px 0; line-height: 1.45; }
-.card-popup #popupComparisonHighlights strong { font-weight: bold; }
-.card-popup #popupComparisonHighlights strong.match { color: #1e7e34; }
-.card-popup #popupComparisonHighlights strong.mismatch { color: #c82333; }
-.card-popup .element-details { margin-top: 18px; text-align: left; border: 1px solid #d3c0a0; border-radius: 5px; background: #fffefa; }
-.card-popup .element-details summary { cursor: pointer; padding: 10px 12px; font-weight: bold; color: #7a5230; background-color: #eee9dd; border-radius: 4px 4px 0 0; font-family: 'Merriweather', serif;}
-.card-popup .element-details summary:hover { background-color: #e8e4d8; }
-.card-popup .profile-comparison { display: flex; justify-content: space-around; text-align: left; gap: 20px; padding: 12px 15px; }
-.card-popup .profile-column h5 { text-align: center; font-family: 'Garamond', serif; }
-.card-popup #popupConceptProfile div, .card-popup #popupUserComparisonProfile div { font-size: 0.95em; margin: 4px 0; display: flex; align-items: center; }
-.card-popup #popupConceptProfile strong, .card-popup #popupUserComparisonProfile strong { width: 95px; color: #6a5a4a; font-weight: normal; flex-shrink: 0; }
-.card-popup #popupConceptProfile span, .card-popup #popupUserComparisonProfile span { font-weight: bold; color: #8b4513; margin-right: 6px; }
-.card-popup #popupConceptProfile .score-bar-container, .card-popup #popupUserComparisonProfile .score-bar-container { margin-left: auto; height: 9px; width: 70px; flex-shrink: 0; display: inline-block; vertical-align: middle; background-color: #d3c0a0; border-radius: 4px; overflow: hidden; border: 1px solid #b8a880;}
-.card-popup #popupConceptProfile .score-bar-container div, .card-popup #popupUserComparisonProfile .score-bar-container div { height: 100%; border-radius: 4px; }
-.card-popup .related-concepts h4 { font-size: 1.1em; margin-top: 18px; margin-bottom: 10px; color: #5a2d0c; text-align: left; font-family: 'Garamond', serif;}
-.card-popup #relatedConceptsList { list-style: none; padding: 0; text-align: left; }
-.card-popup #relatedConceptsList li { display: inline-block; background-color: #eee9dd; border: 1px solid #d3c0a0; border-radius: 15px; padding: 4px 12px; margin: 4px; font-size: 0.95em; cursor: pointer; color: #6a5a4a; transition: background-color 0.2s ease, color 0.2s ease; }
-.card-popup #relatedConceptsList li:hover { background-color: #f0e68c; color: #4a3e33; }
-.my-notes-section { margin-top: 15px; }
-.my-notes-section h4 { font-size: 1.1em; margin-bottom: 8px; text-align: left; font-family: 'Garamond', serif; }
-.my-notes-section textarea { width: 95%; display: block; margin-bottom: 8px; padding: 8px; border: 1px solid #c8b89a; border-radius: 4px; background-color: #fffefa; font-family: 'Merriweather', serif; font-size: 0.95em;}
-.my-notes-section .note-status { font-size: 0.85em; color: green; margin-left: 10px; font-style: italic; }
-.my-notes-section .note-status.error { color: red; }
-.evolution-section { margin-top: 12px; padding-top: 12px; }
-.evolution-section.hidden { display: none; }
-.evolution-section h4 { font-size: 1.1em; margin-bottom: 10px; text-align: left; font-family: 'Garamond', serif;}
-.evolve-button { background-color: #4682B4; border-color: #2a5275; }
-.evolve-button:disabled { background-color: #aaa; border-color: #888; }
-.evolve-button:hover:not(:disabled) { background-color: #5a9bd3; }
-.evolve-eligibility-text { font-size: 0.9em; color: #777; margin-top: 8px; font-style: italic; text-align: left; }
-.evolve-eligibility-text.hidden { display: none; }
-.evolve-eligibility-text ul { padding-left: 22px; margin: 6px 0 0 0; list-style: '• '; }
-.evolve-eligibility-text ul li i.fa-check { color: green; margin-right: 6px; }
-.card-popup .popup-actions { padding: 12px 25px; border-top: 1px solid #d3c0a0; background-color: #f5f0e1; text-align: right; }
-.card-popup .add-grimoire-button { background-color: #2e8b57; border-color: #1e5a3a; }
-.card-popup .add-grimoire-button:hover:not(:disabled) { background-color: #3cb371; }
-.card-popup .add-grimoire-button.added { background-color: #aaa; border-color: #888; cursor: default; }
-.card-popup .focus-button { background-color: #ffc107; border-color: #b8860b; color: #333; text-shadow: none; }
-.card-popup .focus-button:hover:not(:disabled) { background-color: #e0a800; }
-.card-popup .focus-button.marked { background-color: #ffaa00; border-color: #cc8400; }
-.card-popup .focus-button.hidden { display: none; }
+                 <!-- MOVED: Element Library Removed -->
 
-/* --- Reflection Modal --- */
-.reflection-modal { max-width: 550px; }
-.reflection-modal h3 { text-align: center; font-size: 1.4em;}
-.reflection-modal p { text-align: center; }
-.reflection-modal .prompt-text { font-style: italic; background-color: #fffefa; padding: 15px; border-radius: 6px; border: 1px solid #eee9dd; margin-top: 15px; text-align: left; line-height: 1.5;}
-.reflection-confirm { margin: 20px 0; text-align: center; }
-.reflection-confirm label { cursor: pointer; margin-left: 8px; font-size: 1.05em; }
-.reflection-confirm input[type="checkbox"] { transform: scale(1.1); margin-right: 3px; vertical-align: middle;}
-.score-nudge-label { font-size: 0.9em; font-style: italic; margin-left: 8px; color: #6a5a4a; cursor: pointer; display: inline-block;}
-.score-nudge-label.hidden, #scoreNudgeCheckbox.hidden { display: none; }
-#confirmReflectionButton { display: block; margin: 15px auto 0 auto; }
+                 <!-- Right Column: Research Bench -->
+                 <div class="study-column-right research-bench">
+                     <h2>Research Notes <i class="fas fa-info-circle info-icon" title="Results from your Research appear here. Concepts remain until you Add them to your Grimoire or Sell them for Insight. You might also find Repository items here."></i></h2>
+                     <div id="researchStatus">Select an Element or perform Meditation...</div>
+                     <div id="researchOutput" class="research-output-area card-grid">
+                        <p><i>Research results will appear here.</i></p>
+                     </div>
+                 </div>
+             </div>
+        </div>
 
-/* --- Settings Popup --- */
-.settings-popup { max-width: 450px; }
-.settings-popup h3 { text-align: center; font-size: 1.4em; }
-.settings-content { padding: 15px 20px; text-align: center; }
-.settings-content p { text-align: center; margin-bottom: 15px; }
-.settings-content button { margin: 5px 10px; }
-.reset-warning { color: #c82333; font-size: 0.9em; margin-top: 15px; font-weight: bold;}
 
-/* --- Milestone Alert --- */
-.milestone-alert { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background-color: #ffd700; color: #333; padding: 12px 25px; border-radius: 6px; box-shadow: 0 3px 10px rgba(0,0,0,0.25); z-index: 105; display: flex; align-items: center; transition: opacity 0.5s ease, transform 0.5s ease; }
-.milestone-alert.hidden { opacity: 0; transform: translate(-50%, 100px); pointer-events: none; }
-#milestoneAlertText { margin-right: 18px; font-weight: bold; }
-#closeMilestoneAlertButton { background: none; border: 1px solid #8B4513; color: #8B4513; border-radius: 50%; width: 22px; height: 22px; line-height: 20px; text-align: center; cursor: pointer; padding: 0; transition: background-color 0.2s ease; }
-#closeMilestoneAlertButton:hover { background-color: rgba(139, 69, 19, 0.1); }
+         <!-- === Repository Screen === -->
+         <div id="repositoryScreen" class="screen hidden repository-screen">
+             <h1>Repository <i class="fas fa-info-circle info-icon" title="A collection of rare discoveries beyond standard Concepts: Scene Blueprints for meditation, Alchemical Experiments requiring high Attunement, collected Elemental Insight fragments, and special unlocks driven by your Focused Concepts. Milestones are also tracked here."></i></h1>
+             <p>A collection of rare discoveries, focus-driven unlocks, and achieved milestones.</p>
+             <div class="repository-layout">
+                 <section id="repositoryFocusUnlocks" class="repository-section">
+                     <h2><i class="fas fa-link"></i> Focus-Driven Discoveries <i class="fas fa-info-circle info-icon" title="Special items (Scenes, Insights, Experiments) unlocked automatically by having specific combinations of Concepts marked as 'Focus' on your Persona Tapestry."></i></h2>
+                     <div class="repo-list focus-unlocks-list">
+                         <p>Focus on synergistic combinations of Concepts to unlock special items here.</p>
+                         <!-- Focus unlock items injected here -->
+                     </div>
+                 </section>
+                 <hr>
+                 <section id="repositoryScenes" class="repository-section">
+                     <h2><i class="fas fa-scroll"></i> Scene Blueprints <i class="fas fa-info-circle info-icon" title="Rare textual scenarios found during Research. Meditate on them (costs Insight) to trigger unique Reflection prompts and gain deeper understanding."></i></h2>
+                     <div class="repo-list">
+                         <p>Conduct research for a chance to discover scene blueprints.</p>
+                         <!-- Scene items injected here -->
+                     </div>
+                 </section>
+                 <hr>
+                 <section id="repositoryExperiments" class="repository-section">
+                     <h2><i class="fas fa-flask"></i> Alchemical Experiments <i class="fas fa-info-circle info-icon" title="Challenging procedures unlocked by high Attunement in specific Elements. Attempting them costs Insight and may require specific Focused Concepts. Success yields rewards, failure may have minor consequences."></i></h2>
+                     <div class="repo-list">
+                         <p>Achieve high Attunement in elements to unlock challenging experiments.</p>
+                         <!-- Experiment items injected here -->
+                     </div>
+                 </section>
+                 <hr>
+                 <section id="repositoryInsights" class="repository-section">
+                     <h2><i class="fas fa-lightbulb"></i> Elemental Insights <i class="fas fa-info-circle info-icon" title="Short, evocative text fragments related to specific Elements, occasionally discovered during Research. They offer flavor and deepen the lore."></i></h2>
+                     <div class="repo-list">
+                         <p>Rare fragments of knowledge occasionally found during research.</p>
+                         <!-- Insight items injected here -->
+                     </div>
+                 </section>
+                 <hr>
+                  <!-- MOVED: Milestones Section -->
+                 <section id="milestonesSection" class="repository-section">
+                      <h2><i class="fas fa-award"></i> Milestones Achieved <i class="fas fa-info-circle info-icon" title="Significant accomplishments tracked throughout your journey. Achieving milestones often grants rewards like Insight or increased Focus Slots."></i></h2>
+                      <ul id="milestonesDisplay"><li>None yet</li></ul>
+                 </section>
+             </div>
+         </div>
 
-/* --- Toast Notification --- */
-.toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background-color: rgba(40, 40, 40, 0.9); color: #fff; padding: 12px 25px; border-radius: 25px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); z-index: 110; font-size: 0.95em; opacity: 0; transition: opacity 0.4s ease, transform 0.4s ease; white-space: nowrap; pointer-events: none; font-family: 'Merriweather', serif; }
-.toast.hidden { opacity: 0; transform: translate(-50%, 20px); }
-.toast.visible { opacity: 1; transform: translateX(-50%); }
-#toastMessage { display: block; text-align: center; }
 
-/* --- Buttons --- */
-.button { display: inline-block; padding: 10px 25px; border: 1px solid #5a2d0c; border-radius: 20px; font-size: 0.9em; font-weight: bold; cursor: pointer; transition: background-color 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease; color: #ffffff; text-shadow: 1px 1px 1px rgba(0,0,0,0.2); background-color: #8b4513; box-shadow: 0 3px 5px rgba(0,0,0,0.15); text-transform: uppercase; letter-spacing: 0.8px; font-family: 'Merriweather', serif; }
-.button:hover:not(:disabled) { background-color: #a0522d; box-shadow: 0 4px 8px rgba(0,0,0,0.2); transform: translateY(-2px); }
-.button:active:not(:disabled) { transform: translateY(0px); box-shadow: 0 2px 4px rgba(0,0,0,0.15); }
-.button:disabled { background-color: #aaa; border-color: #888; color: #eee; cursor: default; text-shadow: none; transform: none; box-shadow: none; opacity: 0.7; }
-.small-button { padding: 7px 15px; font-size: 0.8em; border-radius: 15px; letter-spacing: 0.5px; }
-.back-button { background-color: #a8a296; border-color: #7a746a; color: #333; text-shadow: none; }
-.back-button:hover:not(:disabled) { background-color: #948e82; }
-.next-button {}
-.secondary-button { background-color: #b0a48a; border-color: #8b7d6b; color: #3f372e; text-shadow: none; }
-.secondary-button:hover:not(:disabled) { background-color: #c4bba8; }
+        <!-- === Concept Detail Pop-up === -->
+        <div id="conceptDetailPopup" class="popup hidden card-popup">
+              <button id="closePopupButton" class="close-button">×</button>
+              <div class="popup-header">
+                  <span id="popupCardTypeIcon" class="card-type-icon"></span>
+                  <h3 id="popupConceptName">Concept Name</h3>
+                  <p id="popupConceptType">Card Type</p>
+              </div>
+              <div class="popup-content">
+                  <div id="popupVisualContainer" class="popup-visual">
+                      <i id="popupCardVisual" class="card-visual-placeholder fa-solid fa-image"></i>
+                  </div>
+                  <div class="popup-details">
+                      <p id="popupDetailedDescription" class="detailed-description">Detailed description...</p>
+                       <hr class="popup-hr">
+                      <div class="resonance-summary" id="popupResonanceSummary">Resonance info... <i class="fas fa-info-circle info-icon" title="How closely this Concept's elemental scores align with your current Core Foundation scores. High resonance suggests strong alignment, Dissonant suggests significant divergence."></i></div>
+                      <div class="recipe-view">
+                          <h4>Resonance Analysis <i class="fas fa-info-circle info-icon" title="A deeper look at the alignment between this Concept's elemental 'recipe' and your own, highlighting key similarities and differences."></i></h4>
+                          <div id="popupComparisonHighlights">Highlights...</div>
+                          <details class="element-details">
+                              <summary>View Full Recipe Comparison</summary>
+                              <div class="profile-comparison">
+                                  <div class="profile-column"><h5>Concept</h5><div id="popupConceptProfile"></div></div>
+                                  <div class="profile-column"><h5>You</h5><div id="popupUserComparisonProfile"></div></div>
+                              </div>
+                          </details>
+                      </div>
+                       <hr class="popup-hr">
+                       <!-- Updated Related Concepts to Details/Summary -->
+                       <div id="popupRelatedConcepts" class="related-concepts">
+                            <!-- Content generated by JS -->
+                       </div>
+                       <div id="myNotesSection" class="my-notes-section hidden">
+                            <hr class="popup-hr">
+                           <h4>My Notes <i class="fas fa-info-circle info-icon" title="Your personal space to jot down thoughts, reflections, or interpretations related to this Concept. Saved automatically."></i></h4>
+                           <textarea id="myNotesTextarea" rows="3" placeholder="Add your personal reflections here..."></textarea>
+                           <button id="saveMyNoteButton" class="button small-button">Save Note</button>
+                           <span id="noteSaveStatus" class="note-status"></span>
+                       </div>
+                      <div id="popupEvolutionSection" class="evolution-section hidden">
+                          <hr class="popup-hr">
+                          <h4>Deepen Understanding <i class="fas fa-info-circle info-icon" title="Unlock enhanced art for this Concept by meeting the requirements (Focusing it, having Reflected, sufficient Insight)."></i></h4>
+                          <button id="evolveArtButton" class="button small-button evolve-button" disabled>Unlock Enhanced Art (Cost: <span id="evolveCost">?</span>)</button>
+                          <p id="evolveEligibility" class="evolve-eligibility-text"></p>
+                      </div>
+                  </div>
+              </div>
+              <div class="popup-actions">
+                  <button id="addToGrimoireButton" class="button small-button add-grimoire-button" title="Add this Concept to your permanent Grimoire collection.">Add to Grimoire</button>
+                  <button id="markAsFocusButton" class="button small-button focus-button hidden" title="Toggle whether this Concept contributes to your Persona Tapestry.">Mark as Focus</button>
+                  <!-- Sell button added dynamically by renderCard if applicable -->
+              </div>
+        </div>
 
-/* --- Resonance Indicators --- */
-.resonance-indicator { font-size: 0.85em; padding: 3px 8px; border-radius: 12px; color: white; font-weight: bold; text-shadow: 1px 1px 1px rgba(0,0,0,0.4); display: inline-block; vertical-align: middle; margin-left: 8px; }
-.resonance-high { background-color: #28a745; }
-.resonance-medium { background-color: #ffc107; color: #333; text-shadow: none; }
-.resonance-low { background-color: #dc3545; }
-.resonance-summary .resonance-indicator { margin-left: 10px; }
+         <!-- === Reflection Prompt Modal === -->
+         <div id="reflectionModal" class="popup hidden reflection-modal">
+             <button id="closeReflectionModalButton" class="close-button">×</button>
+             <h3 id="reflectionModalTitle">Moment for Reflection <i class="fas fa-info-circle info-icon" title="Pause and consider the presented prompt. Check the box once you've genuinely reflected. Confirming grants Insight and potentially Attunement."></i></h3>
+             <p>Regarding <strong id="reflectionElement">Element/Concept</strong>:</p>
+             <p id="reflectionPromptText" class="prompt-text">Prompt text...</p>
+             <div class="reflection-confirm">
+                 <input type="checkbox" id="reflectionCheckbox">
+                 <label for="reflectionCheckbox">I have taken a moment to reflect on this.</label>
+                 <br>
+                 <input type="checkbox" id="scoreNudgeCheckbox" class="hidden">
+                 <label for="scoreNudgeCheckbox" id="scoreNudgeLabel" class="hidden score-nudge-label" title="If checked (only available for Dissonance reflections), completing this reflection may slightly adjust your Core Foundation scores towards this Concept's profile.">Allow this reflection to potentially nudge your core understanding?</label>
+             </div>
+             <button id="confirmReflectionButton" class="button small-button" disabled>Confirm Reflection (+<span id="reflectionRewardAmount">?</span>)</button>
+         </div>
+
+         <!-- === Settings Popup === -->
+         <div id="settingsPopup" class="popup hidden settings-popup">
+             <button id="closeSettingsPopupButton" class="close-button">×</button>
+             <h3>Settings <i class="fas fa-info-circle info-icon" title="Manage your session data. 'Force Save' manually triggers saving. 'Reset All Progress' completely wipes your saved data (use with caution!)."></i></h3>
+             <div class="settings-content">
+                  <p>Manage your session data.</p>
+                  <button id="forceSaveButton" class="button small-button">Force Save</button>
+                  <button id="resetAppButton" class="button small-button back-button">Reset All Progress</button>
+                  <p class="reset-warning"><strong>Warning:</strong> Resetting will erase all scores, discovered concepts, insight, and progress permanently.</p>
+             </div>
+         </div>
+
+          <!-- === Milestone Alert === -->
+         <div id="milestoneAlert" class="milestone-alert hidden">
+             <span id="milestoneAlertText">Milestone Reached!</span>
+             <button id="closeMilestoneAlertButton">×</button>
+         </div>
+
+         <!-- === Temporary Message / Toast Notification === -->
+         <div id="toastNotification" class="toast hidden">
+             <span id="toastMessage">Message text here</span>
+         </div>
+
+         <!-- Overlay for Popups -->
+         <div id="popupOverlay" class="overlay hidden"></div>
+
+    </div> <!-- End app-container -->
+
+    <!-- SCRIPTS AT THE END (with defer) -->
+    <script src="data.js" defer></script>
+    <script src="script.js" defer></script>
+</body>
+</html>
