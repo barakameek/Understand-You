@@ -676,7 +676,7 @@ export function handleDeepDiveNodeClick(nodeId) {
     UI.updateDeepDiveContent(content, nodeId); if (costApplied) UI.updateInsightDisplays();
 }
 
-export function handleContemplationNodeClick() {
+ function handleContemplationNodeClick() {
     const now = Date.now(); const cooldownEnd = State.getContemplationCooldownEnd();
     if (cooldownEnd && now < cooldownEnd) { const remaining = Math.ceil((cooldownEnd - now) / (1000 * 60)); UI.showTemporaryMessage(`Contemplation available in ${remaining} minutes.`, 3000); return; }
     if (spendInsight(CONTEMPLATION_COST, "Focused Contemplation")) { const contemplation = generateFocusedContemplation(); if (contemplation) { UI.displayContemplationTask(contemplation); State.setContemplationCooldown(CONTEMPLATION_COOLDOWN); } else { UI.updateDeepDiveContent("<p><em>Could not generate a contemplation task at this time.</em></p>", 'contemplation'); gainInsight(CONTEMPLATION_COST, "Refund: Contemplation Generation Failed"); } }
