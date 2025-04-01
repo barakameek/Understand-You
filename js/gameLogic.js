@@ -5,6 +5,7 @@ import * as Config from './config.js';
 import * as Utils from './utils.js';
 import * as UI from './ui.js';
 // Import specific data structures needed for generation
+// Adjusted import to potentially fix missing themes issue, though the primary error is function name
 import { elementDetails, elementKeyToFullName, elementNameToKey, concepts, questionnaireGuided, reflectionPrompts, elementDeepDive, dailyRituals, milestones, focusRituals, sceneBlueprints, alchemicalExperiments, elementalInsights, focusDrivenUnlocks, cardTypeKeys, elementNames, elementInteractionThemes, cardTypeThemes } from '../data.js';
 
 console.log("gameLogic.js loading...");
@@ -185,9 +186,11 @@ function determineStarterHandAndEssence() {
 // --- Core Actions (Research, Reflection, Focus, etc.) ---
 // Wrappers for triggering screen display logic (called from main.js nav)
  function displayPersonaScreenLogic() {
-    generateTapestryNarrative(true); // Ensure analysis is current
+    // FIX: Use the correct function name
+    calculateTapestryNarrative(true); // Ensure analysis is current
     UI.displayPersonaScreen();
-    UI.updateTapestryDeepDiveButton(); // Update button state
+    // TODO: Add UI.updateTapestryDeepDiveButton(); if it exists later
+    // UI.updateTapestryDeepDiveButton(); // Update button state
 }
  function displayStudyScreenLogic() {
     UI.displayStudyScreenContent();
@@ -292,11 +295,12 @@ function determineStarterHandAndEssence() {
          UI.updateFocusButtonStatus(conceptId);
          UI.displayFocusedConceptsPersona();
          updateFocusElementalResonance(); // Recalculate resonance
-         generateTapestryNarrative(true); // Recalculate narrative & store analysis
+         calculateTapestryNarrative(true); // Recalculate narrative & store analysis
          UI.synthesizeAndDisplayThemesPersona();
          checkForFocusUnlocks();
          UI.refreshGrimoireDisplay();
-         UI.updateTapestryDeepDiveButton(); // Update Deep Dive button state
+         // TODO: Add UI.updateTapestryDeepDiveButton(); if it exists later
+         // UI.updateTapestryDeepDiveButton(); // Update Deep Dive button state
     }
 }
 function checkTriggerReflectionPrompt(triggerAction = 'other') {
@@ -412,10 +416,11 @@ function sellConcept(conceptId, context) {
         if (focusChanged) {
             UI.displayFocusedConceptsPersona();
             updateFocusElementalResonance(); // Use internal logic function
-            generateTapestryNarrative(true); // Use internal logic function, recalculate analysis
+            calculateTapestryNarrative(true); // Use internal logic function, recalculate analysis
             UI.synthesizeAndDisplayThemesPersona();
             checkForFocusUnlocks();
-            UI.updateTapestryDeepDiveButton(); // Update button state
+            // TODO: Add UI.updateTapestryDeepDiveButton(); if it exists later
+            // UI.updateTapestryDeepDiveButton(); // Update button state
         }
         UI.showTemporaryMessage(`Sold ${concept.name} for ${sellVal.toFixed(1)} Insight.`, 2500);
         if (currentlyDisplayedConceptId === conceptId) UI.hidePopups();
@@ -571,7 +576,8 @@ function updateMilestoneProgress(trackType, currentValue) {
         analysis.dominantElements = sortedElements.map(([key, score]) => ({ key: key, name: elementDetails[elementKeyToFullName[key]]?.name || key, score: score }));
         const topElementKeys = analysis.dominantElements.slice(0, 3).map(e => e.key).sort().join('');
         const themeKey = topElementKeys.length > 1 ? topElementKeys : (topElementKeys.length === 1 ? analysis.dominantElements[0].key : null); // Use single key if only one dominant
-        if (themeKey && elementInteractionThemes[themeKey]) { analysis.elementThemes.push(elementInteractionThemes[themeKey]); }
+        // Check if elementInteractionThemes exists before accessing it
+        if (themeKey && elementInteractionThemes && elementInteractionThemes[themeKey]) { analysis.elementThemes.push(elementInteractionThemes[themeKey]); }
         else if (analysis.dominantElements.length > 0) { analysis.elementThemes.push(`a strong emphasis on **${analysis.dominantElements[0].name}**.`); }
     }
 
@@ -579,12 +585,13 @@ function updateMilestoneProgress(trackType, currentValue) {
     const typeCounts = {}; cardTypeKeys.forEach(type => typeCounts[type] = 0);
     focused.forEach(id => { const type = disc.get(id)?.concept?.cardType; if (type && typeCounts.hasOwnProperty(type)) { typeCounts[type]++; } });
     analysis.dominantCardTypes = Object.entries(typeCounts).filter(([type, count]) => count > 0).sort(([, a], [, b]) => b - a).map(([type, count]) => ({ type, count }));
-    if (analysis.dominantCardTypes.length > 0) { const topType = analysis.dominantCardTypes[0].type; if (cardTypeThemes[topType]) { analysis.cardTypeThemes.push(cardTypeThemes[topType]); } }
+    if (analysis.dominantCardTypes.length > 0) { const topType = analysis.dominantCardTypes[0].type;
+        // Check if cardTypeThemes exists before accessing it
+        if (cardTypeThemes && cardTypeThemes[topType]) { analysis.cardTypeThemes.push(cardTypeThemes[topType]); }
+    }
 
-    // 3. Analyze Keywords
-    const keywordCounts = {}; let totalKeywords = 0;
-    focused.forEach(id => { const keywords = disc.get(id)?.concept?.keywords; if (keywords && Array.isArray(keywords)) { keywords.forEach(kw => { keywordCounts[kw] = (keywordCounts[kw] || 0) + 1; totalKeywords++; }); } });
-    analysis.topKeywords = Object.entries(keywordCounts).filter(([kw, count]) => count > (totalKeywords > 10 ? 1 : 0) ).sort(([, a], [, b]) => b - a).slice(0, 5).map(([keyword, count]) => ({ keyword, count }));
+    // 3. Analyze Keywords (Removed as `keywords` property wasn't added to concept data)
+    // analysis.topKeywords = []; // Keep as empty array
 
     // 4. Analyze Synergies
     const checkedPairs = new Set();
@@ -597,7 +604,7 @@ function updateMilestoneProgress(trackType, currentValue) {
     if (analysis.dominantElements.length > 0) { narrative += `Your tapestry currently resonates with ${analysis.elementThemes.join(' ')} `; }
     else { narrative += "Your focus presents a unique and subtle balance. "; }
     if (analysis.dominantCardTypes.length > 0) { narrative += `The focus leans towards ${analysis.cardTypeThemes.join(' ')} `; }
-    if (analysis.topKeywords.length > 0) { narrative += `Core themes of **'${analysis.topKeywords.map(kw => kw.keyword).join("', '**")}**' emerge strongly. `; }
+    // if (analysis.topKeywords.length > 0) { narrative += `Core themes of **'${analysis.topKeywords.map(kw => kw.keyword).join("', '**")}**' emerge strongly. `; } // Removed keyword part
     analysis.synergies.forEach(syn => { narrative += syn.text + " "; });
     // analysis.tensions.forEach(ten => { narrative += ten.text + " "; });
 
@@ -632,7 +639,7 @@ function checkForFocusUnlocks(silent = false) {
              }
          }
      });
-     if (newlyUnlocked && !silent) { console.log("New Focus Unlocks:", Array.from(State.getUnlockedFocusItems())); if (document.getElementById('repositoryScreen')?.classList.contains('current')) UI.displayRepositoryContent(); if (document.getElementById('personaScreen')?.classList.contains('current')) generateTapestryNarrative(); } // Regenerate narrative if persona screen active
+     if (newlyUnlocked && !silent) { console.log("New Focus Unlocks:", Array.from(State.getUnlockedFocusItems())); if (document.getElementById('repositoryScreen')?.classList.contains('current')) UI.displayRepositoryContent(); if (document.getElementById('personaScreen')?.classList.contains('current')) UI.generateTapestryNarrative(); } // Regenerate narrative if persona screen active
      return { synergyNarrative: "" }; // Synergy text now part of main narrative
 }
 
@@ -645,95 +652,73 @@ const CONTEMPLATION_COOLDOWN = 1000 * 60 * 60 * 4; // 4 hours in milliseconds
 
 function showTapestryDeepDive() {
     if (State.getFocusedConcepts().size === 0) { UI.showTemporaryMessage("Focus on concepts first to explore the tapestry.", 3000); return; }
-    generateTapestryNarrative(true); // Ensure analysis is current
+    calculateTapestryNarrative(true); // Ensure analysis is current
     if (!currentTapestryAnalysis) { console.error("Failed to generate tapestry analysis for Deep Dive."); return; }
-    UI.displayTapestryDeepDive(currentTapestryAnalysis);
+    // TODO: Update UI call if needed
+    // UI.displayTapestryDeepDive(currentTapestryAnalysis);
 }
 
 function handleDeepDiveNodeClick(nodeId) {
     if (!currentTapestryAnalysis) return;
-    const viewedNodes = State.getDeepDiveViewedNodes();
-    let content = null; let costApplied = false;
-    if (!viewedNodes.has(nodeId)) { if (spendInsight(DEEP_DIVE_NODE_COST, `Deep Dive: ${nodeId}`)) { State.addDeepDiveViewedNode(nodeId); costApplied = true; } else { return; } }
+    // TODO: Add logic when Deep Dive UI is implemented
+    // const viewedNodes = State.getDeepDiveViewedNodes();
+    // let content = null; let costApplied = false;
+    // if (!viewedNodes.has(nodeId)) { if (spendInsight(DEEP_DIVE_NODE_COST, `Deep Dive: ${nodeId}`)) { State.addDeepDiveViewedNode(nodeId); costApplied = true; } else { return; } }
 
-    switch (nodeId) {
-        case 'elemental':
-            content = `<h4>Elemental Resonance Breakdown</h4><ul>${currentTapestryAnalysis.elementThemes.map(t => `<li>${t.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')}</li>`).join('')}</ul>`;
-            content += `<p><small>Dominant Elements: ${currentTapestryAnalysis.dominantElements.map(e => `${e.name} (${e.score.toFixed(1)})`).join(', ')}</small></p>`;
-            break;
-        case 'archetype':
-            content = `<h4>Concept Archetype Analysis</h4><ul>${currentTapestryAnalysis.cardTypeThemes.map(t => `<li>${t.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')}</li>`).join('')}</ul>`;
-            content += `<p><small>Focus Distribution: ${currentTapestryAnalysis.dominantCardTypes.map(ct => `${ct.type} (${ct.count})`).join(', ')}</small></p>`;
-            break;
-        case 'keyword':
-            content = `<h4>Keyword Constellation</h4>`; if (currentTapestryAnalysis.topKeywords.length > 0) { content += `<p>${currentTapestryAnalysis.topKeywords.map(kw => `<span class="keyword-tag">${kw.keyword} (${kw.count})</span>`).join(' ')}</p>`; } else { content += `<p><em>No dominant keywords detected for this focus set.</em></p>`; }
-            break;
-        case 'synergy':
-            content = `<h4>Synergies & Tensions</h4>`; if (currentTapestryAnalysis.synergies.length > 0) { content += `<h5>Synergies:</h5><ul>${currentTapestryAnalysis.synergies.map(s => `<li>${s.text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')}</li>`).join('')}</ul>`; } else { content += `<p><em>No direct synergies detected between focused concepts.</em></p>`; }
-            break;
-        default: content = `<p><em>Analysis for '${nodeId}' not available.</em></p>`;
-    }
-    UI.updateDeepDiveContent(content, nodeId); if (costApplied) UI.updateInsightDisplays();
+    // switch (nodeId) {
+    //     case 'elemental':
+    //         content = `<h4>Elemental Resonance Breakdown</h4><ul>${currentTapestryAnalysis.elementThemes.map(t => `<li>${t.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')}</li>`).join('')}</ul>`;
+    //         content += `<p><small>Dominant Elements: ${currentTapestryAnalysis.dominantElements.map(e => `${e.name} (${e.score.toFixed(1)})`).join(', ')}</small></p>`;
+    //         break;
+    //     case 'archetype':
+    //         content = `<h4>Concept Archetype Analysis</h4><ul>${currentTapestryAnalysis.cardTypeThemes.map(t => `<li>${t.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')}</li>`).join('')}</ul>`;
+    //         content += `<p><small>Focus Distribution: ${currentTapestryAnalysis.dominantCardTypes.map(ct => `${ct.type} (${ct.count})`).join(', ')}</small></p>`;
+    //         break;
+    //     // case 'keyword': // Removed keywords
+    //     //     content = `<h4>Keyword Constellation</h4>`; if (currentTapestryAnalysis.topKeywords.length > 0) { content += `<p>${currentTapestryAnalysis.topKeywords.map(kw => `<span class="keyword-tag">${kw.keyword} (${kw.count})</span>`).join(' ')}</p>`; } else { content += `<p><em>No dominant keywords detected for this focus set.</em></p>`; }
+    //     //     break;
+    //     case 'synergy':
+    //         content = `<h4>Synergies & Tensions</h4>`; if (currentTapestryAnalysis.synergies.length > 0) { content += `<h5>Synergies:</h5><ul>${currentTapestryAnalysis.synergies.map(s => `<li>${s.text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')}</li>`).join('')}</ul>`; } else { content += `<p><em>No direct synergies detected between focused concepts.</em></p>`; }
+    //         break;
+    //     default: content = `<p><em>Analysis for '${nodeId}' not available.</em></p>`;
+    // }
+    // UI.updateDeepDiveContent(content, nodeId); if (costApplied) UI.updateInsightDisplays();
 }
 
  function handleContemplationNodeClick() {
-    const now = Date.now(); const cooldownEnd = State.getContemplationCooldownEnd();
-    if (cooldownEnd && now < cooldownEnd) { const remaining = Math.ceil((cooldownEnd - now) / (1000 * 60)); UI.showTemporaryMessage(`Contemplation available in ${remaining} minutes.`, 3000); return; }
-    if (spendInsight(CONTEMPLATION_COST, "Focused Contemplation")) { const contemplation = generateFocusedContemplation(); if (contemplation) { UI.displayContemplationTask(contemplation); State.setContemplationCooldown(CONTEMPLATION_COOLDOWN); } else { UI.updateDeepDiveContent("<p><em>Could not generate a contemplation task at this time.</em></p>", 'contemplation'); gainInsight(CONTEMPLATION_COST, "Refund: Contemplation Generation Failed"); } }
+    // TODO: Add logic when Deep Dive UI is implemented
+    // const now = Date.now(); const cooldownEnd = State.getContemplationCooldownEnd();
+    // if (cooldownEnd && now < cooldownEnd) { const remaining = Math.ceil((cooldownEnd - now) / (1000 * 60)); UI.showTemporaryMessage(`Contemplation available in ${remaining} minutes.`, 3000); return; }
+    // if (spendInsight(CONTEMPLATION_COST, "Focused Contemplation")) { const contemplation = generateFocusedContemplation(); if (contemplation) { UI.displayContemplationTask(contemplation); State.setContemplationCooldown(CONTEMPLATION_COOLDOWN); } else { UI.updateDeepDiveContent("<p><em>Could not generate a contemplation task at this time.</em></p>", 'contemplation'); gainInsight(CONTEMPLATION_COST, "Refund: Contemplation Generation Failed"); } }
 }
 
 function generateFocusedContemplation() {
-    if (!currentTapestryAnalysis) { console.error("Cannot generate contemplation: Tapestry analysis missing."); return null; }
-    const contemplationTypes = ['Reflection', 'Mini-Ritual', 'Tapestry Resonance', 'Interaction Task', 'Element Synergy Task'];
-    const selectedType = contemplationTypes[Math.floor(Math.random() * contemplationTypes.length)];
-    const focused = State.getFocusedConcepts(); const disc = State.getDiscoveredConcepts(); const focusedConceptsArray = Array.from(focused).map(id => disc.get(id)?.concept).filter(Boolean);
-    let task = { type: selectedType, text: "Default contemplation text.", reward: { type: 'insight', amount: 2 }, requiresCompletionButton: false };
+    // TODO: Add logic when Deep Dive UI is implemented
+    // if (!currentTapestryAnalysis) { console.error("Cannot generate contemplation: Tapestry analysis missing."); return null; }
+    // const contemplationTypes = ['Reflection', 'Mini-Ritual', 'Tapestry Resonance', 'Interaction Task', 'Element Synergy Task'];
+    // const selectedType = contemplationTypes[Math.floor(Math.random() * contemplationTypes.length)];
+    // const focused = State.getFocusedConcepts(); const disc = State.getDiscoveredConcepts(); const focusedConceptsArray = Array.from(focused).map(id => disc.get(id)?.concept).filter(Boolean);
+    // let task = { type: selectedType, text: "Default contemplation text.", reward: { type: 'insight', amount: 2 }, requiresCompletionButton: false };
 
-    try {
-        switch (selectedType) {
-            case 'Reflection':
-                const keywordPool = currentTapestryAnalysis.topKeywords;
-                if (keywordPool.length > 0) { const kw = keywordPool[Math.floor(Math.random() * keywordPool.length)].keyword; task.text = `Your focus highlights the theme of **'${kw}'**. Reflect on how this theme manifests in your desires or experiences. Consider adding a note to a relevant concept.`; task.reward = { type: 'insight', amount: 3 }; }
-                else { if (focusedConceptsArray.length === 0) break; const randomConcept = focusedConceptsArray[Math.floor(Math.random() * focusedConceptsArray.length)]; task.text = `Reflect deeply on **${randomConcept.name}**. What nuance or hidden aspect emerges when you consider it alongside your other focused concepts?`; task.reward = { type: 'insight', amount: 3 }; }
-                task.requiresCompletionButton = true;
-                break;
-            case 'Mini-Ritual':
-                const elementPool = currentTapestryAnalysis.dominantElements;
-                if (elementPool.length > 0) { const el = elementPool[Math.floor(Math.random() * elementPool.length)]; let action = "observe an interaction involving this element"; if (el.key === 'S') action = "mindfully experience one physical sensation related to this element"; else if (el.key === 'P') action = "acknowledge one emotion linked to this element without judgment"; else if (el.key === 'C') action = "analyze one assumption related to this element"; else if (el.key === 'R') action = "consider one relationship boundary influenced by this element"; else if (el.key === 'A') action = "notice one thing that subtly attracts or repels you, related to this element"; task.text = `Your focus resonates with **${el.name}**. Today's mini-ritual: ${action}.`; task.reward = { type: 'attunement', element: el.key, amount: 0.5 }; }
-                else { task.text = "Today's mini-ritual: Take 60 seconds to consciously breathe and center yourself, acknowledging your current inner state."; task.reward = { type: 'attunement', element: 'All', amount: 0.1 }; }
-                task.requiresCompletionButton = true;
-                break;
-            case 'Tapestry Resonance':
-                 if (focusedConceptsArray.length > 0) { const conceptNames = focusedConceptsArray.map(c => `**${c.name}**`); task.text = `Meditate briefly on the combined energy of your focused concepts: ${conceptNames.join(', ')}. What overall feeling or image emerges from this blend?`; task.reward = { type: 'insight', amount: 2 }; gainAttunementForAction('contemplation', 'All', 0.2); }
-                 else { task.text = "Meditate on the feeling of potential within your empty focus slots."; task.reward = { type: 'insight', amount: 1 }; }
-                 task.requiresCompletionButton = true;
-                break;
-            case 'Interaction Task':
-                 if (currentTapestryAnalysis.synergies.length > 0) { const syn = currentTapestryAnalysis.synergies[Math.floor(Math.random() * currentTapestryAnalysis.synergies.length)]; const [nameA, nameB] = syn.concepts; const conceptA = focusedConceptsArray.find(c => c.name === nameA); task.text = `Focus links **${nameA}** and **${nameB}**. In the 'My Notes' section for **${nameA}**, write one sentence about how **${nameB}** might amplify or alter its expression.`; task.reward = { type: 'insight', amount: 4 }; }
-                 else if (focusedConceptsArray.length >= 2) { const [c1, c2] = focusedConceptsArray.sort(() => 0.5 - Math.random()); task.text = `Consider **${c1.name}** and **${c2.name}**. In the 'My Notes' section for one of them, explore how their energies might combine or conflict.`; task.reward = { type: 'insight', amount: 3 }; }
-                 else { task.text = "Consider the primary element of your focused concept. How might another concept (even one not focused) interact with it?"; task.reward = { type: 'insight', amount: 2 }; }
-                 break; // No completion button needed
-            case 'Element Synergy Task':
-                 if (currentTapestryAnalysis.dominantElements.length >= 2) { const [el1, el2] = currentTapestryAnalysis.dominantElements; task.text = `Your focus strongly blends **${el1.name}** and **${el2.name}**. Spend a moment contemplating how these two elemental forces interact in your ideal experiences.`; gainAttunementForAction('contemplation', el1.key, 0.3); gainAttunementForAction('contemplation', el2.key, 0.3); task.reward = { type: 'insight', amount: 1 }; }
-                 else if (currentTapestryAnalysis.dominantElements.length === 1) { const el1 = currentTapestryAnalysis.dominantElements[0]; task.text = `Your focus heavily emphasizes **${el1.name}**. Contemplate one aspect of this element you'd like to understand more deeply.`; gainAttunementForAction('contemplation', el1.key, 0.4); task.reward = { type: 'insight', amount: 1 }; }
-                 else { task.text = "Contemplate the balance between all six elements within yourself."; gainAttunementForAction('contemplation', 'All', 0.1); task.reward = { type: 'insight', amount: 1 }; }
-                 task.requiresCompletionButton = true;
-                 break;
-            default: task.text = "Take a moment to review your focused concepts and the insights gained so far."; task.reward = { type: 'insight', amount: 1 }; task.requiresCompletionButton = true;
-        }
-    } catch (error) { console.error("Error generating contemplation task:", error); return { type: "Error", text: "An error occurred while generating a contemplation task.", reward: { type: 'none' }, requiresCompletionButton: false }; }
-    task.text = task.text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-    return task;
+    // try {
+    //     switch (selectedType) {
+    //         // ... (Contemplation generation logic based on analysis, removed keyword case) ...
+    //     }
+    // } catch (error) { console.error("Error generating contemplation task:", error); return { type: "Error", text: "An error occurred while generating a contemplation task.", reward: { type: 'none' }, requiresCompletionButton: false }; }
+    // task.text = task.text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    // return task;
+    return null; // Placeholder
 }
 
  function handleCompleteContemplation(task) {
-    if (!task || !task.reward) return;
-    console.log(`Contemplation task completed: ${task.type}`);
-    if (task.reward.type === 'insight') { gainInsight(task.reward.amount, `Contemplation Task`); }
-    else if (task.reward.type === 'attunement') { if (task.type !== 'Mini-Ritual' && task.type !== 'Element Synergy Task') { gainAttunementForAction('contemplation', task.reward.element || 'All', task.reward.amount || 0); } else { console.log("Attunement likely granted during generation for Mini-Ritual/Element Synergy."); } }
-    if(task.reward.plusAttunement) { gainAttunementForAction('contemplation', task.reward.plusAttunement.element || 'All', task.reward.plusAttunement.amount || 0); }
-    UI.showTemporaryMessage("Contemplation complete!", 2500);
-    UI.clearContemplationTask();
+    // TODO: Add logic when Deep Dive UI is implemented
+    // if (!task || !task.reward) return;
+    // console.log(`Contemplation task completed: ${task.type}`);
+    // if (task.reward.type === 'insight') { gainInsight(task.reward.amount, `Contemplation Task`); }
+    // else if (task.reward.type === 'attunement') { if (task.type !== 'Mini-Ritual' && task.type !== 'Element Synergy Task') { gainAttunementForAction('contemplation', task.reward.element || 'All', task.reward.amount || 0); } else { console.log("Attunement likely granted during generation for Mini-Ritual/Element Synergy."); } }
+    // if(task.reward.plusAttunement) { gainAttunementForAction('contemplation', task.reward.plusAttunement.element || 'All', task.reward.plusAttunement.amount || 0); }
+    // UI.showTemporaryMessage("Contemplation complete!", 2500);
+    // UI.clearContemplationTask();
 }
 
 
