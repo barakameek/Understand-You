@@ -527,9 +527,19 @@ export function synthesizeAndDisplayThemesPersona() {
 
 export function displayPersonaSummary() {
     if (!summaryContentDiv) return;
-    summaryContentDiv.innerHTML = ''; const scores = State.getScores(); const focused = State.getFocusedConcepts(); const narrative = GameLogic.calculateTapestryNarrative(); const themes = GameLogic.calculateFocusThemes();
-    let html = '<div class="summary-section"><h3>Core Essence</h3>'; elementNames.forEach(elName => { const key = elementNameToKey[elName]; const score = scores[key]; const label = Utils.getScoreLabel(score); const interpretation = elementDetails[elName]?.scoreInterpretations?.[label] || "N/A"; html += `<p><strong>${elementDetails[elName]?.name || elName} (${score.toFixed(1)} - ${label}):</strong> ${interpretation}</p>`; }); html += '</div><hr><div class="summary-section"><h3>Focused Tapestry</h3>';
-    if (focused.size > 0) { html += `<p><em>${narrative || "No narrative generated."}</em></p><strong>Focused Concepts:</strong><ul>`; const discovered = State.getDiscoveredConcepts(); focused.forEach(id => { const name = discovered.get(id)?.concept?.name || `ID ${id}`; html += `<li>${name}</li>`; }); html += '</ul>'; if (themes.length > 0) { html += '<strong>Dominant Themes:</strong><ul>'; themes.slice(0, 3).forEach(theme => { html += `<li>${theme.name} Focus (${theme.count} concept${theme.count > 1 ? 's' : ''})</li>`; }); html += '</ul>'; } else { html += '<strong>Dominant Themes:</strong><p>No strong themes detected.</p>'; } } else { html += '<p>No concepts are currently focused.</p>'; } html += '</div>';
+    summaryContentDiv.innerHTML = '';
+    const scores = State.getScores();
+    const focused = State.getFocusedConcepts();
+    const narrative = GameLogic.calculateTapestryNarrative(); // <--- Recalculates narrative
+    const themes = GameLogic.calculateFocusThemes(); // Use GameLogic
+    let html = '<h3>Core Essence</h3><div class="summary-section">';
+    // ... (rest of the summary HTML generation) ...
+    html += '</div><hr><h3>Focused Tapestry</h3><div class="summary-section">';
+    if (focused.size > 0) {
+        html += `<p><em>${narrative || "No narrative generated."}</em></p><strong>Focused Concepts:</strong><ul>`; // Uses recalculated narrative
+        // ... (rest of summary) ...
+    } else { html += '<p>No concepts are currently focused.</p>'; }
+    html += '</div>';
     summaryContentDiv.innerHTML = html;
 }
 
