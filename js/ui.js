@@ -197,28 +197,32 @@ export function hidePopups() {
 }
 
 // --- Screen Management ---
+// In ui.js
 export function showScreen(screenId) {
     console.log("UI: Showing screen:", screenId);
     const currentState = State.getState();
     const isPostQuestionnaire = currentState.questionnaireCompleted;
 
-    // Toggle visibility of all screens
     screens.forEach(screen => {
         screen?.classList.toggle('current', screen.id === screenId);
         screen?.classList.toggle('hidden', screen.id !== screenId);
     });
 
-    // Toggle main navigation bar visibility
     if (mainNavBar) {
         mainNavBar.classList.toggle('hidden', !isPostQuestionnaire || screenId === 'welcomeScreen' || screenId === 'questionnaireScreen');
     }
-
-    // Update active state of nav buttons
     navButtons.forEach(button => {
         if(button) button.classList.toggle('active', button.dataset.target === screenId);
     });
 
-    // Scroll to top for main content screens
+    // Refresh data on screen load *if* past questionnaire
+    if (isPostQuestionnaire) {
+        if (screenId === 'personaScreen') displayPersonaScreen(); // Already handled
+        else if (screenId === 'studyScreen') displayStudyScreenContent(); // Already handled
+        else if (screenId === 'grimoireScreen') refreshGrimoireDisplay(); // Ensure this calls displayGrimoire
+        else if (screenId === 'repositoryScreen') displayRepositoryContent(); // Already handled
+    }
+
     if (['questionnaireScreen', 'grimoireScreen', 'personaScreen', 'studyScreen', 'repositoryScreen'].includes(screenId)) {
         window.scrollTo(0, 0);
     }
