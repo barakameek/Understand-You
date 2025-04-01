@@ -760,7 +760,7 @@ export {
     handleSaveNote,
     handleSellConcept,
     // Reflection
-    checkTriggerReflectionPrompt, // Potentially internal, but safe to export
+    checkTriggerReflectionPrompt,
     triggerReflectionPrompt,
     handleConfirmReflection,
     triggerGuidedReflection,
@@ -771,12 +771,12 @@ export {
     handleAttemptExperiment,
     // Persona Calculation Helpers
     calculateFocusScores,
-    calculateTapestryNarrative, // Includes analysis storage
+    calculateTapestryNarrative,
     calculateFocusThemes,
     // Focus Unlocks
     checkForFocusUnlocks,
     // Daily Login
-    checkForDailyLogin, // <<< ENSURE THIS IS HERE
+    checkForDailyLogin,
     // Milestones & Rituals
     updateMilestoneProgress,
     checkAndUpdateRituals,
@@ -791,7 +791,7 @@ export {
     showTapestryDeepDive,
     handleDeepDiveNodeClick,
     handleContemplationNodeClick,
-    handleCompleteContemplation,
+    handleCompleteContemplation // <<< KEEP ONLY ONE ENTRY
     // Expose analysis if needed (usually not)
     // currentTapestryAnalysis
 };
