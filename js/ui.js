@@ -217,21 +217,20 @@ export function applyOnboardingPhaseUI(phase) {
     if (myNotesSection) myNotesSection.classList.toggle('hidden', !isPhase2);
     if (popupEvolutionSection) popupEvolutionSection.classList.toggle('hidden', !isPhase4);
 
-     // Update relevant UI elements if the current screen needs adjustment
-     // Note: Avoid calling displayPersonaScreen here to prevent loops.
-     // If the persona screen is current, its display logic will be called by showScreen anyway.
-     const currentScreen = document.querySelector('.screen.current');
-     if(currentScreen) {
-          // if(currentScreen.id === 'personaScreen') displayPersonaScreen(); // AVOID THIS CALL
-          if(currentScreen.id === 'studyScreen') displayStudyScreenContent();
-          if(currentScreen.id === 'repositoryScreen') displayRepositoryContent();
-          if(currentScreen.id === 'grimoireScreen') refreshGrimoireDisplay();
-     }
-     // Update popup buttons if open
+     // *** REMOVED RECURSIVE SCREEN REFRESH LOGIC ***
+     // The necessary updates will happen when the screen is navigated to via showScreen
+     // or during initialization/phase advancement in main.js/state.js.
+
+     // Update popup buttons if open, as phase change might affect them
      const popupConceptId = GameLogic.getCurrentPopupConceptId();
      if (popupConceptId !== null && conceptDetailPopup && !conceptDetailPopup.classList.contains('hidden')) {
           updateFocusButtonStatus(popupConceptId);
           updateGrimoireButtonStatus(popupConceptId, /* check research notes? */ false);
+          const concept = concepts.find(c => c.id === popupConceptId);
+          const discovered = State.getDiscoveredConceptData(popupConceptId);
+          const inResearch = !discovered && researchOutput?.querySelector(`.research-result-item[data-concept-id="${popupConceptId}"]`);
+          updatePopupSellButton(popupConceptId, concept, !!discovered, !!inResearch);
+          if(concept && discovered) displayEvolutionSection(concept, discovered);
      }
 }
 
@@ -464,7 +463,7 @@ export function displayPersonaScreen() {
     synthesizeAndDisplayThemesPersona();
     displayElementLibrary(); // Display library section
     displayPersonaSummary(); // Update summary view content
-    applyOnboardingPhaseUI(State.getOnboardingPhase()); // Ensure UI elements match phase
+    // applyOnboardingPhaseUI(State.getOnboardingPhase()); // DO NOT call recursively
 }
 
 export function displayElementAttunement() {
@@ -491,7 +490,7 @@ export function displayElementAttunement() {
                     </div>`;
                 descriptionDiv.appendChild(attunementDiv);
             } else { console.warn(`Element description div not found for key ${key}`); }
-        } else { console.warn(`Element detail entry not found for key ${key}`); }
+        } else { /* console.warn(`Element detail entry not found for key ${key}`); */ } // Silence warning as it can fire before element details are fully rendered initially
     });
 }
 
@@ -810,8 +809,9 @@ export function renderCard(concept, context = 'grimoire') {
     if (unlockedVisual) { // Display unlocked art if available
          visualContent = `<img src="placeholder_art/${unlockedVisual}.png" alt="${concept.name} Art" class="card-art-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"><i class="fas fa-star card-visual-placeholder card-art-unlocked" style="display: none;" title="Enhanced Art Placeholder"></i>`;
     } else if (baseVisual) { // Display base art/icon if available
+         // Corrected fallback icon for base visual load error
          visualContent = `<img src="placeholder_art/${baseVisual}.png" alt="${concept.name}" class="card-art-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"><i class="fas fa-image card-visual-placeholder" style="display: none;" title="Art Placeholder"></i>`;
-    } else { // Fallback placeholder
+    } else { // Fallback placeholder if no visual handles defined
          visualContent = `<i class="fas fa-question card-visual-placeholder" title="Visual Placeholder"></i>`;
     }
     let sellButtonHTML = '';
@@ -1112,6 +1112,7 @@ export function displayRepositoryContent() {
              if (exp.requiredFocusConceptTypes) { for (const typeReq of exp.requiredFocusConceptTypes) { let typeMet = false; const dMap = State.getDiscoveredConcepts(); for (const fId of focused) { const c = dMap.get(fId)?.concept; if (c?.cardType === typeReq) { typeMet = true; break; } } if (!typeMet) { canAttempt = false; unmetReqs.push(`Type: ${typeReq}`); } } }
              const cost = exp.insightCost || Config.EXPERIMENT_BASE_COST; const canAfford = insight >= cost; if (!canAfford) unmetReqs.push("Insight");
              // Render the experiment item, passing completion status and unmet requirements
+             // Corrected: `canAttempt` condition should check `!alreadyCompleted`
              repositoryExperimentsDiv.appendChild(renderRepositoryItem(exp, 'experiment', cost, canAfford && canAttempt && !alreadyCompleted, alreadyCompleted, unmetReqs)); experimentsDisplayed++;
          }
      });
@@ -1135,13 +1136,27 @@ export function displayRepositoryContent() {
 // Renders a single item for the Repository screen
 function renderRepositoryItem(item, type, cost, canAfford, completed = false, unmetReqs = []) {
      const div = document.createElement('div'); div.classList.add('repository-item', `repo-item-${type}`); if (completed) div.classList.add('completed');
-     let actionsHTML = ''; let buttonDisabled = !canAfford || completed || unmetReqs.length > 0; let buttonTitle = ''; let buttonText = '';
-     if (type === 'scene') { buttonText = `Meditate (${cost} <i class="fas fa-brain insight-icon"></i>)`; if (!canAfford) buttonTitle = `Requires ${cost} Insight`; actionsHTML = `<button class="button small-button" data-scene-id="${item.id}" ${buttonDisabled ? 'disabled' : ''} title="${buttonTitle}">${buttonText}</button>`; }
+     let actionsHTML = '';
+     // Determine if the button should be disabled
+     let buttonDisabled = completed || unmetReqs.length > 0 || !canAfford;
+     let buttonTitle = ''; let buttonText = '';
+
+     if (type === 'scene') {
+         buttonText = `Meditate (${cost} <i class="fas fa-brain insight-icon"></i>)`;
+         if (!canAfford) buttonTitle = `Requires ${cost} Insight`;
+         actionsHTML = `<button class="button small-button" data-scene-id="${item.id}" ${buttonDisabled ? 'disabled' : ''} title="${buttonTitle}">${buttonText}</button>`;
+     }
      else if (type === 'experiment') {
          buttonText = `Attempt (${cost} <i class="fas fa-brain insight-icon"></i>)`;
-         if (completed) buttonTitle = "Completed"; else if (unmetReqs.length > 0) buttonTitle = `Requires: ${unmetReqs.join(', ')}`; else if (!canAfford) buttonTitle = `Requires ${cost} Insight`;
+         if (completed) buttonTitle = "Completed";
+         else if (unmetReqs.length > 0 && unmetReqs[0] === "Insight") buttonTitle = `Requires ${cost} Insight`; // Prioritize insight message
+         else if (unmetReqs.length > 0) buttonTitle = `Requires: ${unmetReqs.join(', ')}`;
+         else if (!canAfford) buttonTitle = `Requires ${cost} Insight`; // Should be caught by unmetReqs check now
          actionsHTML = `<button class="button small-button" data-experiment-id="${item.id}" ${buttonDisabled ? 'disabled' : ''} title="${buttonTitle}">${buttonText}</button>`;
-         if (completed) actionsHTML += ` <span class="completed-text">(Completed)</span>`; else if (unmetReqs.length > 0) actionsHTML += ` <small class="req-missing">(Requires: ${unmetReqs.join(', ')})</small>`; else if (!canAfford) actionsHTML += ` <small class="req-missing">(Insufficient Insight)</small>`;
+         // Add requirement/completion text *after* the button
+         if (completed) actionsHTML += ` <span class="completed-text">(Completed)</span>`;
+         else if (unmetReqs.length > 0 && unmetReqs[0] === "Insight") actionsHTML += ` <small class="req-missing">(Insufficient Insight)</small>`;
+         else if (unmetReqs.length > 0) actionsHTML += ` <small class="req-missing">(Requires: ${unmetReqs.join(', ')})</small>`;
      }
      div.innerHTML = `<h4>${item.name} ${type === 'experiment' ? `(Req: ${item.requiredAttunement} ${elementKeyToFullName[item.requiredElement]} Attun.)` : ''}</h4><p>${item.description}</p><div class="repo-actions">${actionsHTML}</div>`;
      return div;
