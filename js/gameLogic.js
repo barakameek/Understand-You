@@ -21,7 +21,7 @@ let reflectionCooldownTimeout = null;
 let currentTapestryAnalysis = null; // Stores the breakdown from calculateTapestryNarrative
 
 
-export function clearPopupState() {
+ function clearPopupState() {
     currentlyDisplayedConceptId = null;
     currentReflectionContext = null;
     reflectionTargetConceptId = null;
@@ -29,12 +29,12 @@ export function clearPopupState() {
     currentPromptId = null;
     // Don't clear currentTapestryAnalysis here, it's linked to focus set
 }
-export function setCurrentPopupConcept(conceptId) { currentlyDisplayedConceptId = conceptId; }
-export function getCurrentPopupConceptId() { return currentlyDisplayedConceptId; }
+ function setCurrentPopupConcept(conceptId) { currentlyDisplayedConceptId = conceptId; }
+function getCurrentPopupConceptId() { return currentlyDisplayedConceptId; }
 
 
 // --- Insight & Attunement Management ---
-export function gainInsight(amount, source = "Unknown") {
+ function gainInsight(amount, source = "Unknown") {
     if (typeof amount !== 'number' || isNaN(amount) || amount === 0) return;
     const changed = State.changeInsight(amount);
     if (changed) {
@@ -45,7 +45,7 @@ export function gainInsight(amount, source = "Unknown") {
     }
 }
 
-export function spendInsight(amount, source = "Unknown") {
+ function spendInsight(amount, source = "Unknown") {
     if (typeof amount !== 'number' || isNaN(amount) || amount <= 0) return false;
     if (State.getInsight() >= amount) {
         gainInsight(-amount, source);
@@ -56,7 +56,7 @@ export function spendInsight(amount, source = "Unknown") {
     }
 }
 
-export function gainAttunementForAction(actionType, elementKey = null, amount = 0.5) {
+ function gainAttunementForAction(actionType, elementKey = null, amount = 0.5) {
     let targetKeys = [];
     let baseAmount = amount;
 
@@ -534,7 +534,7 @@ function updateMilestoneProgress(trackType, currentValue) {
 }
 
 // --- Persona Calculation Logic Helpers ---
-export function calculateFocusScores() {
+ function calculateFocusScores() {
      const scores = { A: 0, I: 0, S: 0, P: 0, C: 0, R: 0 }; const focused = State.getFocusedConcepts(); const disc = State.getDiscoveredConcepts(); const count = focused.size;
      if (count > 0) { focused.forEach(id => { const data = disc.get(id); if (data?.concept?.elementScores) { for (const key in scores) { if (data.concept.elementScores.hasOwnProperty(key)) scores[key] += data.concept.elementScores[key]; } } }); for (const key in scores) scores[key] /= count; } return { focusScores: scores, focusCount: count };
 }
@@ -618,7 +618,7 @@ export function calculateFocusScores() {
 }
 
 // --- Focus Unlocks ---
-export function checkForFocusUnlocks(silent = false) {
+function checkForFocusUnlocks(silent = false) {
      if (State.getOnboardingPhase() < Config.ONBOARDING_PHASE.ADVANCED) return { synergyNarrative: "" };
      console.log("Checking focus unlocks..."); let newlyUnlocked = false;
      const focused = State.getFocusedConcepts(); const unlocked = State.getUnlockedFocusItems();
