@@ -274,7 +274,7 @@ function determineStarterHandAndEssence() {
          checkAndUpdateRituals('addToGrimoire'); UI.refreshGrimoireDisplay(); UI.showTemporaryMessage(`${concept.name} added to Grimoire!`, 3000);
      } else { console.warn(`State add fail ${concept.name}.`); UI.showTemporaryMessage(`Error adding ${concept.name}.`, 3000); }
 }
- function handleToggleFocusConcept() {
+  function handleToggleFocusConcept() {
     if (currentlyDisplayedConceptId === null) return;
     const conceptId = currentlyDisplayedConceptId;
     const result = State.toggleFocusConcept(conceptId); // State handles logic, saving, and Deep Dive state reset check
@@ -294,7 +294,9 @@ function determineStarterHandAndEssence() {
          // Update UI for both add/remove
          UI.updateFocusButtonStatus(conceptId);
          UI.displayFocusedConceptsPersona();
-         updateFocusElementalResonance(); // Recalculate resonance
+         // *** CORRECTED LINE BELOW ***
+         UI.updateFocusElementalResonance(); // Call through UI module
+         // *** END CORRECTION ***
          calculateTapestryNarrative(true); // Recalculate narrative & store analysis
          UI.synthesizeAndDisplayThemesPersona();
          checkForFocusUnlocks();
