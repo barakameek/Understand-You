@@ -726,7 +726,7 @@ function generateFocusedContemplation() {
     return task;
 }
 
-export function handleCompleteContemplation(task) {
+ function handleCompleteContemplation(task) {
     if (!task || !task.reward) return;
     console.log(`Contemplation task completed: ${task.type}`);
     if (task.reward.type === 'insight') { gainInsight(task.reward.amount, `Contemplation Task`); }
