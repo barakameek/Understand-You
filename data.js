@@ -1,562 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Persona Alchemy Lab</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Merriweather:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="data:,"> <!-- Prevent favicon error -->
+</head>
+<body>
+    <div class="app-container study-theme">
 
-// data.js - COMPLETE VERSION v12.1 (Sell Cards, Focus Unlocks, Info Icons Prep)
-console.log("data.js starting..."); // Log for debugging load order
+        <!-- === Saving Indicator === -->
+        <div id="saveIndicator" class="save-indicator hidden"><i class="fas fa-save"></i> Saving...</div>
 
-const elementDetails = {
-    "Attraction": {
-        name: "Attraction Focus",
-        coreQuestion: "Who or What sparks your sexual interest and arousal?",
-        coreConcept: "This element defines the primary target, nature, or necessary conditions for your sexual attraction. It goes beyond simple gender orientation to include the importance of presentation, specific dynamics, concepts, objects, situations, or the level of emotional connection required.",
-        elaboration: "It encompasses traditional orientations (hetero-, homo-, bi-, pan-) but also acknowledges the Asexuality spectrum (lack of attraction) and Demisexuality (attraction requiring an emotional bond). It includes attractions focused on specific aesthetics, personality types, intellectual connection (Sapiosexuality), power dynamics, or even inanimate objects, materials, or scenarios (often termed fetishes or paraphilias, explored here non-judgmentally).",
-        scoreInterpretations: {
-            "Very Low": "Suggests very little or no specific sexual attraction (aligns strongly with the Asexuality spectrum). Arousal might be absent, rare, or triggered by non-specific stimuli.",
-            "Low": "Indicates less emphasis on specific external targets; attraction might be infrequent, require strong emotional bonds first (Demisexual leaning), or be primarily responsive rather than spontaneous.",
-            "Moderate": "Represents a common balance. Attraction might be geared towards familiar cues like gender or presentation, potentially broad (Pansexual leaning without intense focus), or require some connection without it being strictly Demisexual.",
-            "High": "Suggests a strong focus or pull towards particular targets. This could be specific gender(s)/presentations, specific dynamics (like intelligence or power), or the beginning of significant focus on specific objects, materials, or situations (fetishistic interests).",
-            "Very High": "Indicates a very strong, potentially primary, focus on specific triggers. This could be an intense orientation towards a narrow group, or a central role for specific objects, materials, scenarios, or conceptual dynamics in generating arousal (strong fetishistic or paraphilic focus)."
-        },
-        examples: "Asexuality, Demisexuality, Heterosexuality, Homosexuality, Bisexuality, Pansexuality, Sapiosexuality, Fetishes (e.g., latex, feet, uniforms), attraction to specific body types, attraction based on D/s roles.",
-        personaConnection: "Defines the fundamental 'object' or condition of your sexual desire."
-    },
-    "Interaction": {
-        name: "Interaction Style",
-        coreQuestion: "How do you prefer to engage and exchange energy during sexual encounters?",
-        coreConcept: "This element describes your preferred behavioral dynamics, roles, and energy flow when interacting sexually with others (or even in solo fantasy).",
-        elaboration: "It covers the spectrum from leading to following, the desire for collaboration versus power differentials, and specific energetic expressions like nurturing, service, playfulness, or performance. It's strongly linked to identities like Dominant, Submissive, Switch, Top, Bottom, Caregiver, etc.",
-        scoreInterpretations: {
-            "Very Low": "Strong preference for yielding control, following explicit direction, serving, or being cared for/guided (Strongly Submissive leaning). Comfort in passivity or receiving.",
-            "Low": "General comfort or preference for letting others take the lead, supportive roles, receiving attention/sensation more than directing it (Submissive or Bottom leaning).",
-            "Moderate": "Prefers collaborative, egalitarian dynamics with mutual give-and-take. May enjoy switching roles (Switch identity) or find balance in playful, reciprocal exchanges.",
-            "High": "Enjoys taking initiative, guiding the encounter, providing sensation/care, or being the center of attention (Dominant, Top, or Caregiver leaning).",
-            "Very High": "Strong preference or need to be in control, direct the scenario explicitly, command, or embody a significantly Dominant role. May involve performance or intense focus on the other's response."
-        },
-        examples: "Dominance/submission (D/s), Master/slave (M/s), Top/Bottom/Versatile roles, Primal play (instinctive interaction), Service dynamics, Exhibitionism/Voyeurism (performance/observation roles), Teacher/student roles, Caregiver/Little dynamics (DDlg, MDlb).",
-        personaConnection: "Defines your preferred social and power 'dance' within sexuality."
-    },
-    "Sensory": {
-        name: "Sensory Emphasis",
-        coreQuestion: "What physical Feelings are most important or sought after?",
-        coreConcept: "This element relates to the significance, type, and intensity of physical sensations in your sexual arousal and fulfillment.",
-        elaboration: "It encompasses the full range of senses – touch (light, firm, impact), temperature (hot, cold), texture (smooth, rough), pressure (binding, squeezing), vibration, internal sensations, as well as visual, auditory, and olfactory input. It also includes the spectrum from pure pleasure to the integration of pain or intense sensation (Sadomasochism).",
-        scoreInterpretations: {
-            "Very Low": "Physical sensation is largely secondary or even unimportant compared to emotional connection, psychological needs, or cognitive engagement. Strong aversion to intense stimuli likely.",
-            "Low": "Prefers subtle, gentle, affectionate, or 'vanilla' physical sensations. Comfort, warmth, and light touch may be prioritized. Intense sensations are generally avoided.",
-            "Moderate": "Enjoys a broad range of pleasurable physical sensations common in conventional sex. May be open to exploring mild intensity (e.g., light spanking, different textures) but it's not a primary driver.",
-            "High": "Actively seeks out distinct, strong, or specific types of physical input as a key part of arousal. This could include impact play, temperature, specific textures (latex, rope), light restriction, or intense pleasure focus.",
-            "Very High": "Strongly driven by, or requires, intense, specific, or even extreme physical sensations. This includes significant pain/pleasure play (heavy impact, needles, wax), intense restriction/bondage, sensory overload/deprivation, edge play, or a powerful focus on specific sensory triggers (e.g., specific materials against skin)."
-        },
-        examples: "Gentle massage, passionate kissing, cuddling, BDSM impact play (flogging, caning), wax play, ice play, rope bondage, Shibari, sensory deprivation hoods, electrostimulation, specific material fetishes (focus on the feel).",
-        personaConnection: "Defines how your body interfaces with sexuality and what physical input it craves or avoids."
-    },
-    "Psychological": {
-        name: "Psychological Driver",
-        coreQuestion: "Why do you engage with sexuality? What underlying needs does it fulfill?",
-        coreConcept: "This element explores the core emotional, psychological, or existential motivations, needs, and states that sexuality helps you access, express, or satisfy.",
-        elaboration: "This is about the deeper meaning or purpose behind the act. It includes needs for connection (intimacy, trust, vulnerability, belonging), power dynamics (control, dominance, surrender, objectification), self-expression (creativity, validation, exploration), state change (escape, transcendence, catharsis, stress relief), and comfort (security, care).",
-        scoreInterpretations: {
-            "Very Low": "Sexuality primarily serves physical functions or simple pleasure/recreation. Deep psychological needs are largely met elsewhere or aren't strongly linked to sex.",
-            "Low": "Emotional or psychological aspects are present but secondary. Focus might be on fun, physical release, or light connection without significant depth or weight.",
-            "Moderate": "A balanced approach where sexuality often fulfills needs like connection, stress relief, fun, and validation in fairly equal measure, integrated with physical pleasure.",
-            "High": "Sexuality is a significant and important channel for fulfilling specific, core psychological needs. These needs (e.g., Intimacy, Power, Validation, Catharsis) are consciously or unconsciously sought through sexual expression.",
-            "Very High": "Fulfilling one or more profound psychological needs is the primary driver and purpose of sexual engagement. The experience might feel incomplete or unsatisfying if these deep needs (e.g., total surrender, absolute control, deep vulnerability/trust, transcendental escape) are not met."
-        },
-        examples: "Using sex primarily for stress relief (Low/Moderate), seeking deep emotional intimacy through partnered sex (High), using BDSM for catharsis or power exchange (High/Very High), seeking validation through performance (High), using intense experiences for transcendence (Very High).",
-        personaConnection: "Defines the emotional and motivational core of your sexual expression – its deeper purpose for you."
-    },
-    "Cognitive": {
-        name: "Cognitive Engagement",
-        coreQuestion: "How important is the Mind – fantasy, intellect, scenarios – in your arousal?",
-        coreConcept: "This element measures the degree and style of mental involvement preferred or required during sexual experiences. It contrasts focus on immediate physical/emotional presence with reliance on imagination, narrative, psychological complexity, or intellectual stimulation.",
-        elaboration: "Includes everything from being fully 'in the moment' to elaborate fantasy worlds, scripted role-plays, psychological games, intellectual banter, or focusing on the conceptual meaning of dynamics.",
-        scoreInterpretations: {
-            "Very Low": "Strong preference for being completely present and embodied. Finds elaborate fantasy, role-play, or complex psychological analysis distracting or uninteresting. Focus is purely on the physical and immediate emotional connection.",
-            "Low": "Primarily enjoys the immediate experience. Mental constructs are minimal; perhaps light scenarios or appreciating a partner's mindset, but not reliant on internal narratives.",
-            "Moderate": "Appreciates a degree of mental engagement. May enjoy occasional role-play, dirty talk that builds a picture, understanding the psychological dynamic, or using fantasy to enhance arousal, but can also enjoy purely present experiences.",
-            "High": "Arousal is significantly enhanced or often triggered by mental elements. This includes enjoying detailed fantasies, specific role-playing scenarios, understanding and playing with psychological power dynamics, or engaging in witty/intellectual sexual banter.",
-            "Very High": "Deeply reliant on the mind for arousal and fulfillment. This involves intricate, potentially pre-scripted scenarios, complex world-building in fantasy, intense psychological manipulation or analysis (mind games), or finding the conceptual/intellectual aspect paramount. The mental narrative is the core experience."
-        },
-        examples: "Mindful sensual touch (Low), enjoying descriptions during dirty talk (Moderate), elaborate D/s protocol scenes (High/Very High), historical or fantasy LARP-style sex (High/Very High), writing/reading erotica focused on complex plots (High/Very High), deep psychological edge play (Very High).",
-        personaConnection: "Defines how much and in what way your thoughts, imagination, and intellect participate in your sexuality."
-    },
-    "Relational": {
-        name: "Relational Context",
-        coreQuestion: "In what Structure or with whom do you ideally express your sexuality?",
-        coreConcept: "This element describes your preferred social structure and context for sexual relationships and expression.",
-        elaboration: "It considers the number of partners involved, the desired level of commitment and emotional intimacy, the importance of familiarity versus anonymity, and the preference for dyadic versus group interactions. It covers the spectrum from solitary practice through various forms of monogamy and consensual non-monogamy (CNM).",
-        scoreInterpretations: {
-            "Very Low": "Strong preference for solitary sexual expression or a deeply bonded, strictly exclusive lifelong partnership (Traditional Monogamy). Discomfort with or disinterest in multiple partners or casual encounters.",
-            "Low": "Generally prefers and seeks monogamous, committed relationships as the ideal context for sexual expression. Casual sex is less appealing or infrequent.",
-            "Moderate": "Comfortable with committed dyads but potentially open to some flexibility (e.g., swinging in specific contexts, dating casually before commitment) or values deep connection without strict long-term exclusivity. Might be exploring CNM or identify as Solo Poly.",
-            "High": "Prefers or actively practices structures involving multiple partners or explicit openness, such as Open Relationships or common forms of Polyamory (hierarchical or not). Values communication around multiple connections.",
-            "Very High": "Strong preference for highly fluid, non-traditional structures. May identify with Relationship Anarchy, practice non-hierarchical Polyamory with many partners, enjoy group dynamics, or be comfortable with varying levels of commitment and anonymity across different connections. Rejects rigid rules or default exclusivity."
-        },
-        examples: "Masturbation (Solitary), Serial Monogamy, Lifelong Monogamy, Friends With Benefits (Casual), Open Relationships, Swinging, Triads/Quads, Hierarchical Polyamory, Egalitarian Polyamory, Solo Polyamory, Relationship Anarchy, Group Sex, Anonymous Encounters.",
-        personaConnection: "Defines the preferred social constellation or lack thereof for your sexual life."
-    }
-};
+        <!-- === Welcome Screen === -->
+        <div id="welcomeScreen" class="screen current">
+             <h1>Welcome to the Persona Alchemy Lab! <i class="fas fa-info-circle info-icon" title="This is the entry point to the application. Start a new 'Experiment' (questionnaire) or load your previous session."></i></h1>
+             <p>Discover Concept Cards that resonate with your essence and curate your unique Persona Tapestry.</p>
+             <button id="startGuidedButton" class="button">Begin Experimentation</button>
+             <button id="loadButton" class="button secondary-button hidden">Load Previous Session</button>
+        </div>
 
-const concepts = [ // Rarity reviewed, slight adjustments possible based on previous list
-    // --- Common Concepts (~40) ---
-    { id: 1, name: "Vanilla Sex", cardType: "Practice/Kink", visualHandle: "common_vanilla", primaryElement: "S", elementScores: { A: 5, I: 5, S: 3, P: 4, C: 3, R: 4 }, briefDescription: "Conventional sexual activity.", detailedDescription: "Refers to sexual expression generally considered within conventional norms, often focused on penile-vaginal intercourse or mutual masturbation without specific power dynamics, intense sensations, or elaborate scenarios.", relatedIds: [2, 3, 33], rarity: 'common', canUnlockArt: false },
-    { id: 2, name: "Sensual Touch", cardType: "Practice/Kink", visualHandle: "common_sensual", primaryElement: "S", elementScores: { A: 4, I: 4, S: 4, P: 5, C: 2, R: 4 }, briefDescription: "Gentle, affectionate touch.", detailedDescription: "Focus on gentle, affectionate, and pleasurable touch, emphasizing connection, warmth, and non-goal-oriented physical intimacy. Can include massage, caressing, holding.", relatedIds: [1, 15, 31, 3, 80, 102], rarity: 'common', canUnlockArt: true, visualHandleUnlocked: "common_sensual_art" },
-    { id: 3, name: "Passionate Kissing", cardType: "Practice/Kink", visualHandle: "common_kissing", primaryElement: "S", elementScores: { A: 6, I: 5, S: 5, P: 6, C: 3, R: 5 }, briefDescription: "Intense, emotional kissing.", detailedDescription: "Intense and emotionally charged kissing as a primary form of connection and arousal. Can range from deep and lingering to urgent and demanding.", relatedIds: [1, 2, 15, 47, 66, 85], rarity: 'common', canUnlockArt: false },
-    { id: 22, name: "Monogamy", cardType: "Relationship Style", visualHandle: "common_mono", primaryElement: "R", elementScores: { A: 5, I: 5, S: 5, P: 6, C: 5, R: 2 }, briefDescription: "One partner at a time.", detailedDescription: "The practice or preference for having only one sexual and/or romantic partner at a time, often within a committed, exclusive framework.", relatedIds: [23, 15, 29, 59, 76], rarity: 'common', canUnlockArt: true, visualHandleUnlocked: "common_mono_art" },
-    { id: 23, name: "Serial Monogamy", cardType: "Relationship Style", visualHandle: "common_serialmono", primaryElement: "R", elementScores: { A: 5, I: 5, S: 5, P: 5, C: 5, R: 3 }, briefDescription: "Sequence of exclusive relationships.", detailedDescription: "The pattern of engaging in sequential monogamous relationships over time, moving from one exclusive partnership to the next.", relatedIds: [22, 24], rarity: 'common', canUnlockArt: false },
-    { id: 24, name: "Casual Sex / Hookups", cardType: "Relationship Style", visualHandle: "common_casual", primaryElement: "R", elementScores: { A: 6, I: 4, S: 6, P: 3, C: 3, R: 5 }, briefDescription: "Sex without commitment.", detailedDescription: "Sexual encounters that occur outside of a committed romantic relationship, typically without expectations of long-term connection or deep emotional intimacy.", relatedIds: [23, 26, 35, 56, 65, 79, 84], rarity: 'common', canUnlockArt: false },
-    { id: 31, name: "Cuddling / Affection", cardType: "Practice/Kink", visualHandle: "common_cuddle", primaryElement: "P", elementScores: { A: 3, I: 3, S: 3, P: 6, C: 2, R: 4 }, briefDescription: "Non-sexual physical closeness.", detailedDescription: "Sharing physical closeness through hugging, holding, or lying together without explicit sexual intent, focusing on comfort, security, and platonic or romantic affection.", relatedIds: [2, 15, 48, 69, 80], rarity: 'common', canUnlockArt: false },
-    { id: 32, name: "Dirty Talk", cardType: "Practice/Kink", visualHandle: "common_dirtytalk", primaryElement: "C", elementScores: { A: 5, I: 6, S: 3, P: 5, C: 7, R: 5 }, briefDescription: "Explicit language during sex.", detailedDescription: "Verbally expressing desires, fantasies, commands, or descriptions of acts during sexual activity to increase arousal and connection. Can be suggestive or highly explicit.", relatedIds: [13, 11, 4, 5, 46, 49, 66, 74], rarity: 'common', canUnlockArt: false },
-    { id: 33, name: "Mutual Masturbation", cardType: "Practice/Kink", visualHandle: "common_mutualmast", primaryElement: "I", elementScores: { A: 5, I: 5, S: 6, P: 4, C: 4, R: 5 }, briefDescription: "Partners masturbating together.", detailedDescription: "Two or more partners engaging in simultaneous masturbation, potentially watching or manually stimulating each other to orgasm.", relatedIds: [1, 18, 19, 72], rarity: 'common', canUnlockArt: false },
-    { id: 46, name: "Compliments / Praise", cardType: "Practice/Kink", visualHandle: "common_praise", primaryElement: "P", elementScores: { A: 4, I: 5, S: 2, P: 7, C: 4, R: 5 }, briefDescription: "Verbal affirmation during intimacy.", detailedDescription: "Using positive verbal feedback, compliments, or praise related to appearance, performance, or desirability to enhance connection, confidence, and arousal.", relatedIds: [32, 15, 50], rarity: 'common', canUnlockArt: false },
-    { id: 47, name: "Eye Contact", cardType: "Practice/Kink", visualHandle: "common_eyecontact", primaryElement: "P", elementScores: { A: 5, I: 6, S: 2, P: 7, C: 3, R: 6 }, briefDescription: "Intense gazing during intimacy.", detailedDescription: "Maintaining direct and often intense eye contact during sexual activity to heighten intimacy, connection, vulnerability, or sometimes power dynamics.", relatedIds: [3, 15], rarity: 'common', canUnlockArt: false },
-    { id: 48, name: "Holding Hands", cardType: "Practice/Kink", visualHandle: "common_handholding", primaryElement: "P", elementScores: { A: 3, I: 4, S: 3, P: 5, C: 1, R: 4 }, briefDescription: "Simple physical connection.", detailedDescription: "The simple act of clasping hands, often signifying affection, connection, comfort, or partnership, whether during sexual activity or not.", relatedIds: [2, 31, 77], rarity: 'common', canUnlockArt: false },
-    { id: 49, name: "Shared Fantasy Talk", cardType: "Practice/Kink", visualHandle: "common_fantasytalk", primaryElement: "C", elementScores: { A: 5, I: 5, S: 3, P: 6, C: 6, R: 5 }, briefDescription: "Verbally sharing fantasies.", detailedDescription: "Partners verbally describing their sexual fantasies to each other, either as a form of mutual arousal or to build towards potential future play.", relatedIds: [32, 14], rarity: 'common', canUnlockArt: false },
-    { id: 50, name: "Validation Seeking", cardType: "Psychological/Goal", visualHandle: "common_validation", primaryElement: "P", elementScores: { A: 5, I: 6, S: 5, P: 7, C: 4, R: 5 }, briefDescription: "Sex motivated by feeling desired.", detailedDescription: "Engaging in sexual activity partly or primarily motivated by the need to feel desired, attractive, skilled, or validated by a partner's reactions or praise.", relatedIds: [18, 46, 91], rarity: 'common', canUnlockArt: false },
-    { id: 51, name: "Stress Relief Focus", cardType: "Psychological/Goal", visualHandle: "common_stressrelief", primaryElement: "P", elementScores: { A: 4, I: 4, S: 5, P: 6, C: 3, R: 4 }, briefDescription: "Using sex to unwind/relax.", detailedDescription: "Utilizing sexual activity, including orgasm, primarily as a means to release tension, reduce stress, and achieve a state of relaxation.", relatedIds: [1], rarity: 'common', canUnlockArt: false },
-    { id: 52, name: "Heterosexuality", cardType: "Orientation", visualHandle: "common_hetero", primaryElement: "A", elementScores: { A: 7, I: 5, S: 5, P: 5, C: 5, R: 5 }, briefDescription: "Attraction to different gender(s).", detailedDescription: "Sexual and/or romantic attraction primarily to individuals of a different gender identity than one's own.", relatedIds: [53, 54, 55], rarity: 'common', canUnlockArt: false },
-    { id: 53, name: "Homosexuality", cardType: "Orientation", visualHandle: "common_homo", primaryElement: "A", elementScores: { A: 7, I: 5, S: 5, P: 5, C: 5, R: 5 }, briefDescription: "Attraction to same gender(s).", detailedDescription: "Sexual and/or romantic attraction primarily to individuals of the same gender identity as one's own.", relatedIds: [52, 54, 55], rarity: 'common', canUnlockArt: false },
-    { id: 54, name: "Bisexuality", cardType: "Orientation", visualHandle: "common_bi", primaryElement: "A", elementScores: { A: 6, I: 5, S: 5, P: 5, C: 5, R: 5 }, briefDescription: "Attraction to two or more genders.", detailedDescription: "Sexual and/or romantic attraction to more than one gender identity, potentially including one's own and different genders.", relatedIds: [52, 53, 55], rarity: 'common', canUnlockArt: false },
-    { id: 55, name: "Pansexuality", cardType: "Orientation", visualHandle: "common_pan", primaryElement: "A", elementScores: { A: 5, I: 5, S: 5, P: 5, C: 5, R: 5 }, briefDescription: "Attraction regardless of gender.", detailedDescription: "Sexual and/or romantic attraction to individuals regardless of their gender identity or presentation. Attraction may be focused on other qualities.", relatedIds: [52, 53, 54, 103], rarity: 'common', canUnlockArt: false },
-    { id: 56, name: "Quickie", cardType: "Practice/Kink", visualHandle: "common_quickie", primaryElement: "I", elementScores: { A: 6, I: 6, S: 6, P: 3, C: 2, R: 4 }, briefDescription: "Brief, often spontaneous sex.", detailedDescription: "A short sexual encounter, often focused on achieving orgasm quickly due to time constraints or a desire for immediate gratification.", relatedIds: [1, 24, 79], rarity: 'common', canUnlockArt: false },
-    { id: 66, name: "Foreplay Focus", cardType: "Practice/Kink", visualHandle: "common_foreplay", primaryElement: "I", elementScores: { A: 5, I: 6, S: 5, P: 5, C: 4, R: 5 }, briefDescription: "Emphasis on pre-intercourse intimacy.", detailedDescription: "Placing significant importance on activities leading up to intercourse or the main sexual event, such as kissing, touching, oral sex, or dirty talk, to build arousal and connection.", relatedIds: [1, 2, 3, 32, 67, 83], rarity: 'common', canUnlockArt: false },
-    { id: 67, name: "Oral Sex (Giving/Receiving)", cardType: "Practice/Kink", visualHandle: "common_oral", primaryElement: "S", elementScores: { A: 6, I: 6, S: 7, P: 5, C: 3, R: 5 }, briefDescription: "Stimulation with mouth/tongue.", detailedDescription: "Engaging in oral stimulation of a partner's genitals (fellatio, cunnilingus) or other erogenous zones.", relatedIds: [1, 66, 73, 107], rarity: 'common', canUnlockArt: false },
-    { id: 68, name: "Romantic Gestures", cardType: "Psychological/Goal", visualHandle: "common_romantic", primaryElement: "P", elementScores: { A: 5, I: 5, S: 3, P: 7, C: 4, R: 6 }, briefDescription: "Expressing love/care non-sexually.", detailedDescription: "Actions taken to express love, affection, or care that are not explicitly sexual but enhance the relationship context, such as gift-giving, date nights, or thoughtful acts.", relatedIds: [15, 22, 31, 76], rarity: 'common', canUnlockArt: false },
-    { id: 69, name: "Aftercare (Basic)", cardType: "Practice/Kink", visualHandle: "common_aftercare", primaryElement: "P", elementScores: { A: 4, I: 5, S: 4, P: 6, C: 3, R: 6 }, briefDescription: "Post-sex connection/comfort.", detailedDescription: "Providing comfort, reassurance, and connection immediately following sexual activity, such as cuddling, talking, providing water, or checking in emotionally.", relatedIds: [31, 15, 70, 80, 123], rarity: 'common', canUnlockArt: false },
-    { id: 70, name: "Pillow Talk", cardType: "Practice/Kink", visualHandle: "common_pillowtalk", primaryElement: "P", elementScores: { A: 4, I: 4, S: 2, P: 7, C: 4, R: 7 }, briefDescription: "Intimate conversation after sex.", detailedDescription: "Engaging in relaxed, intimate, and often vulnerable conversation with a partner after sexual activity.", relatedIds: [69, 15], rarity: 'common', canUnlockArt: false },
-    { id: 71, name: "Shower/Bath Sex", cardType: "Practice/Kink", visualHandle: "common_showersex", primaryElement: "S", elementScores: { A: 5, I: 5, S: 6, P: 4, C: 3, R: 5 }, briefDescription: "Sexual activity in water.", detailedDescription: "Engaging in sexual acts in a shower or bath, often incorporating the sensations of water and steam.", relatedIds: [1], rarity: 'common', canUnlockArt: false },
-    { id: 72, name: "Using Sex Toys (Simple)", cardType: "Practice/Kink", visualHandle: "common_toys_simple", primaryElement: "S", elementScores: { A: 5, I: 5, S: 6, P: 4, C: 3, R: 4 }, briefDescription: "Incorporating basic vibrators/dildos.", detailedDescription: "Using common sex toys like simple vibrators or dildos for added stimulation during solo or partnered play.", relatedIds: [1, 33, 73], rarity: 'common', canUnlockArt: false },
-    { id: 73, name: "Lubricant Use", cardType: "Practice/Kink", visualHandle: "common_lube", primaryElement: "S", elementScores: { A: 4, I: 4, S: 5, P: 3, C: 2, R: 4 }, briefDescription: "Enhancing comfort/sensation.", detailedDescription: "Using personal lubricants to increase comfort, reduce friction, or enhance sensation during various sexual activities.", relatedIds: [1, 67, 72], rarity: 'common', canUnlockArt: false },
-    { id: 74, name: "Flirting / Banter", cardType: "Interaction", visualHandle: "common_flirt", primaryElement: "I", elementScores: { A: 6, I: 7, S: 3, P: 5, C: 6, R: 5 }, briefDescription: "Playful, suggestive communication.", detailedDescription: "Engaging in lighthearted, often witty or suggestive conversation aimed at building attraction and rapport.", relatedIds: [32, 60, 75], rarity: 'common', canUnlockArt: false },
-    { id: 75, name: "Shared Humor", cardType: "Psychological/Goal", visualHandle: "common_humor", primaryElement: "P", elementScores: { A: 5, I: 6, S: 2, P: 6, C: 5, R: 6 }, briefDescription: "Finding connection through laughter.", detailedDescription: "Valuing and enjoying shared laughter and humor within intimate interactions as a way to build connection and ease tension.", relatedIds: [74, 15], rarity: 'common', canUnlockArt: false },
-    { id: 76, name: "Date Nights", cardType: "Relationship Style", visualHandle: "common_datenight", primaryElement: "R", elementScores: { A: 4, I: 5, S: 4, P: 6, C: 4, R: 5 }, briefDescription: "Dedicated time for connection.", detailedDescription: "Setting aside specific time for shared activities aimed at fostering connection and intimacy within a relationship, which may or may not lead to sex.", relatedIds: [68, 15, 22], rarity: 'common', canUnlockArt: false },
-    { id: 77, name: "Public Display Affection (Mild)", cardType: "Practice/Kink", visualHandle: "common_pda", primaryElement: "R", elementScores: { A: 4, I: 5, S: 3, P: 5, C: 2, R: 5 }, briefDescription: "Holding hands, brief kisses in public.", detailedDescription: "Showing affection to a partner in public spaces through generally acceptable gestures like holding hands, brief kisses, or an arm around the shoulder.", relatedIds: [48, 3, 78], rarity: 'common', canUnlockArt: false },
-    { id: 79, name: "Spontaneity Seeker", cardType: "Psychological/Goal", visualHandle: "common_spontaneity", primaryElement: "P", elementScores: { A: 6, I: 6, S: 6, P: 5, C: 3, R: 5 }, briefDescription: "Enjoying unplanned encounters.", detailedDescription: "Deriving particular enjoyment from unexpected or spontaneous sexual encounters or expressions of desire.", relatedIds: [56, 24], rarity: 'common', canUnlockArt: false },
-    { id: 80, name: "Comfort Seeker", cardType: "Psychological/Goal", visualHandle: "common_comfort", primaryElement: "P", elementScores: { A: 3, I: 3, S: 4, P: 7, C: 2, R: 4 }, briefDescription: "Using intimacy for security/soothing.", detailedDescription: "Primarily seeking physical closeness and intimacy (not necessarily orgasm) for feelings of safety, security, and emotional soothing.", relatedIds: [31, 2, 69], rarity: 'common', canUnlockArt: false },
-    { id: 81, name: "Attraction to Confidence", cardType: "Orientation", visualHandle: "common_attr_conf", primaryElement: "A", elementScores: { A: 7, I: 6, S: 4, P: 6, C: 5, R: 5 }, briefDescription: "Finding self-assuredness attractive.", detailedDescription: "Being primarily attracted to individuals who exhibit strong self-confidence, assertiveness, or a commanding presence.", relatedIds: [4, 60], rarity: 'common', canUnlockArt: false },
-    { id: 82, name: "Attraction to Kindness", cardType: "Orientation", visualHandle: "common_attr_kind", primaryElement: "A", elementScores: { A: 5, I: 4, S: 4, P: 7, C: 4, R: 6 }, briefDescription: "Finding compassion/empathy attractive.", detailedDescription: "Being primarily attracted to individuals who exhibit kindness, empathy, compassion, and nurturing qualities.", relatedIds: [15, 58], rarity: 'common', canUnlockArt: false },
-    { id: 83, name: "Slow Burn", cardType: "Practice/Kink", visualHandle: "common_slowburn", primaryElement: "P", elementScores: { A: 5, I: 5, S: 5, P: 7, C: 5, R: 6 }, briefDescription: "Gradual build-up of intimacy/arousal.", detailedDescription: "Preferring a gradual, extended build-up of emotional intimacy and sexual tension over time or within an encounter, rather than immediate gratification.", relatedIds: [15, 66, 38], rarity: 'common', canUnlockArt: false },
-    { id: 85, name: "Make-up Sex", cardType: "Psychological/Goal", visualHandle: "common_makeupsex", primaryElement: "P", elementScores: { A: 6, I: 6, S: 6, P: 7, C: 3, R: 5 }, briefDescription: "Sex after conflict resolution.", detailedDescription: "Engaging in sexual activity following an argument or conflict, often characterized by heightened emotions and a sense of reconciliation.", relatedIds: [3], rarity: 'common', canUnlockArt: false },
+        <!-- === Questionnaire Screen === -->
+        <div id="questionnaireScreen" class="screen hidden">
+             <header>
+                 <div id="elementProgressHeader"></div>
+                 <p id="progressText"></p>
+                 <div id="dynamicScoreFeedback">
+                    Current <span id="feedbackElement">Element</span> Score: <span id="feedbackScore">5.0</span> (<span class="score-label">Moderate</span>)
+                    <i class="fas fa-info-circle info-icon" title="This shows your approximate score for the current element based on your answers so far. It helps visualize how your choices influence the outcome. Final scores are calculated at the end."></i>
+                    <div class="score-bar-container">
+                        <div id="feedbackScoreBar" style="width: 50%;"></div>
+                    </div>
+                 </div>
+             </header>
+             <main id="questionContent"></main>
+             <footer>
+                 <button id="prevElementButton" class="button back-button hidden">Previous</button>
+                 <button id="nextElementButton" class="button next-button">Next / View Persona</button>
+             </footer>
+        </div>
 
-    // --- Uncommon Concepts (~30) ---
-    { id: 4, name: "Dominance (Psychological)", cardType: "Identity/Role", visualHandle: "uncommon_dom", primaryElement: "I", elementScores: { A: 6, I: 9, S: 5, P: 8, C: 7, R: 6 }, briefDescription: "Taking psychological control.", detailedDescription: "Focuses on the mental and emotional aspects of control within a dynamic, potentially involving commands, tasks, setting rules, or managing a partner's experience.", relatedIds: [5, 6, 11, 30, 38, 81, 89, 90, 100, 104, 109, 123], rarity: 'uncommon', canUnlockArt: true, visualHandleUnlocked: "uncommon_dom_art" },
-    { id: 5, name: "Submission (Psychological)", cardType: "Identity/Role", visualHandle: "uncommon_sub", primaryElement: "I", elementScores: { A: 6, I: 1, S: 5, P: 8, C: 5, R: 6 }, briefDescription: "Yielding psychological control.", detailedDescription: "Focuses on the mental and emotional aspects of yielding control, finding pleasure or fulfillment in obedience, service, following directions, or surrendering decisions.", relatedIds: [4, 6, 17, 10, 12, 37, 39, 58, 61, 63, 87, 91, 98, 99, 109, 119, 123], rarity: 'uncommon', canUnlockArt: true, visualHandleUnlocked: "uncommon_sub_art" },
-    { id: 6, name: "Switching", cardType: "Identity/Role", visualHandle: "uncommon_switch", primaryElement: "I", elementScores: { A: 6, I: 5, S: 6, P: 7, C: 6, R: 6 }, briefDescription: "Moving between D/s roles.", detailedDescription: "Describes the ability and desire to fluidly shift between dominant and submissive roles or energies within sexual encounters, enjoying aspects of both leading and following.", relatedIds: [4, 5], rarity: 'uncommon', canUnlockArt: false },
-    { id: 7, name: "Impact Play (Light)", cardType: "Practice/Kink", visualHandle: "uncommon_impact_light", primaryElement: "S", elementScores: { A: 5, I: 6, S: 6, P: 5, C: 4, R: 5 }, briefDescription: "Spanking, light slapping/flogging.", detailedDescription: "Involves activities like spanking, slapping, or using paddles/floggers lightly, primarily for pleasurable stinging sensations or rhythmic input rather than intense pain.", relatedIds: [8, 9, 4, 5, 40, 57, 93, 96], rarity: 'uncommon', canUnlockArt: true, visualHandleUnlocked: "uncommon_impact_light_art" },
-    { id: 10, name: "Service Submission", cardType: "Psychological/Goal", visualHandle: "uncommon_service", primaryElement: "I", elementScores: { A: 5, I: 2, S: 4, P: 7, C: 4, R: 6 }, briefDescription: "Pleasure from serving a partner.", detailedDescription: "A form of submission focused on deriving pleasure and fulfillment from performing acts of service for a partner, which may be sexual or non-sexual within a dynamic.", relatedIds: [5, 4, 11, 58, 61, 98, 109], rarity: 'uncommon', canUnlockArt: false },
-    { id: 13, name: "Role-Playing (Scenario)", cardType: "Practice/Kink", visualHandle: "uncommon_roleplay", primaryElement: "C", elementScores: { A: 6, I: 6, S: 5, P: 6, C: 8, R: 6 }, briefDescription: "Adopting characters/personas.", detailedDescription: "Involves adopting specific character archetypes (e.g., doctor/patient, teacher/student, captor/captive) or personas to create a narrative framework for sexual interaction.", relatedIds: [14, 30, 21, 39, 64, 92, 98, 101, 117, 121, 43], rarity: 'uncommon', canUnlockArt: true, visualHandleUnlocked: "uncommon_roleplay_art" },
-    { id: 15, name: "Deep Emotional Intimacy", cardType: "Psychological/Goal", visualHandle: "uncommon_intimacy", primaryElement: "P", elementScores: { A: 7, I: 5, S: 4, P: 9, C: 5, R: 7 }, briefDescription: "Seeking profound connection.", detailedDescription: "Places a high value on using sexual expression as a way to build and deepen emotional connection, trust, vulnerability, and mutual understanding.", relatedIds: [2, 3, 22, 29, 47, 58, 68, 70, 75, 76, 82, 83, 123, 59], rarity: 'uncommon', canUnlockArt: true, visualHandleUnlocked: "uncommon_intimacy_art" },
-    { id: 18, name: "Exhibitionism", cardType: "Identity/Role", visualHandle: "uncommon_exhibit", primaryElement: "I", elementScores: { A: 6, I: 7, S: 5, P: 7, C: 6, R: 5 }, briefDescription: "Pleasure from being watched.", detailedDescription: "Finding sexual arousal and pleasure in the act of being watched by others during sexual activity, potentially involving performance or revealing oneself.", relatedIds: [19, 12, 34, 50, 78, 90, 91, 105, 33], rarity: 'uncommon', canUnlockArt: false },
-    { id: 19, name: "Voyeurism", cardType: "Identity/Role", visualHandle: "uncommon_voyeur", primaryElement: "A", elementScores: { A: 7, I: 2, S: 3, P: 6, C: 5, R: 3 }, briefDescription: "Pleasure from watching others.", detailedDescription: "Finding sexual arousal and pleasure primarily from the act of watching others engage in sexual activity, often without their knowledge (consensual voyeurism involves negotiated watching).", relatedIds: [18, 12, 34, 105, 118, 33], rarity: 'uncommon', canUnlockArt: false },
-    { id: 26, name: "Open Relationship", cardType: "Relationship Style", visualHandle: "uncommon_openrel", primaryElement: "R", elementScores: { A: 6, I: 5, S: 6, P: 5, C: 5, R: 7 }, briefDescription: "Primary couple + outside sex.", detailedDescription: "A relationship structure, typically involving a primary couple, where partners agree that one or both may have sexual relationships with other people, often with rules about emotional involvement.", relatedIds: [24, 25, 27, 35], rarity: 'uncommon', canUnlockArt: false },
-    { id: 28, name: "Asexuality", cardType: "Orientation", visualHandle: "uncommon_ace", primaryElement: "A", elementScores: { A: 0, I: 3, S: 2, P: 3, C: 3, R: 4 }, briefDescription: "Little or no sexual attraction.", detailedDescription: "Characterized by a persistent lack of sexual attraction towards any gender. Asexual individuals may still experience romantic attraction, desire intimacy, or engage in sexual activity for various reasons.", relatedIds: [29, 36], rarity: 'uncommon', canUnlockArt: false },
-    { id: 29, name: "Demisexuality", cardType: "Orientation", visualHandle: "uncommon_demi", primaryElement: "A", elementScores: { A: 3, I: 4, S: 4, P: 8, C: 5, R: 5 }, briefDescription: "Attraction requires emotional bond.", detailedDescription: "A sexual orientation where an individual only develops sexual attraction after forming a strong emotional connection with someone.", relatedIds: [15, 28, 22, 14], rarity: 'uncommon', canUnlockArt: false },
-    { id: 34, name: "Group Sex", cardType: "Practice/Kink", visualHandle: "uncommon_group", primaryElement: "R", elementScores: { A: 6, I: 6, S: 7, P: 5, C: 4, R: 8 }, briefDescription: "Sex involving 3+ people.", detailedDescription: "Engaging in sexual acts with three or more people simultaneously. Dynamics can vary widely from casual encounters to structured orgies or polyamorous group play.", relatedIds: [18, 19, 25, 26, 27, 35, 65, 105], rarity: 'uncommon', canUnlockArt: false },
-    { id: 35, name: "Swinging", cardType: "Relationship Style", visualHandle: "uncommon_swing", primaryElement: "R", elementScores: { A: 5, I: 5, S: 6, P: 4, C: 4, R: 7 }, briefDescription: "Couples swapping partners for sex.", detailedDescription: "A lifestyle where committed couples consensually engage in sexual activities with other couples or individuals, often at parties or planned events, typically with an emphasis on recreational sex over deep emotional connection with outside partners.", relatedIds: [26, 24, 34], rarity: 'uncommon', canUnlockArt: false },
-    { id: 36, name: "Aromanticism", cardType: "Orientation", visualHandle: "uncommon_aro", primaryElement: "A", elementScores: { A: 2, I: 3, S: 3, P: 4, C: 4, R: 3 }, briefDescription: "Little or no romantic attraction.", detailedDescription: "Characterized by a lack of romantic attraction. Aromantic individuals may still experience sexual attraction (allosexual) or not (aro/ace), and may desire platonic partnerships or other relationship structures.", relatedIds: [28, 27, 59], rarity: 'uncommon', canUnlockArt: false },
-    { id: 37, name: "Sensory Deprivation (Light)", cardType: "Practice/Kink", visualHandle: "uncommon_sensdep", primaryElement: "S", elementScores: { A: 4, I: 3, S: 7, P: 6, C: 5, R: 5 }, briefDescription: "Reducing sight/sound (blindfolds).", detailedDescription: "Using blindfolds, hoods, earplugs, or other methods to significantly reduce or eliminate one or more senses, often heightening remaining senses, increasing vulnerability, or creating a specific psychological state. Light deprivation focuses on temporary reduction.", relatedIds: [9, 17, 5, 57, 44, 86, 124], rarity: 'uncommon', canUnlockArt: false },
-    { id: 38, name: "Teasing & Denial", cardType: "Practice/Kink", visualHandle: "uncommon_denial", primaryElement: "P", elementScores: { A: 6, I: 7, S: 7, P: 8, C: 7, R: 6 }, briefDescription: "Building arousal, withholding orgasm.", detailedDescription: "A form of psychological play and power exchange where one partner intentionally builds the other's arousal close to orgasm but repeatedly denies release, often increasing desperation and reinforcing control dynamics.", relatedIds: [4, 5, 11, 9, 44, 83, 93, 119, 30, 45, 106], rarity: 'uncommon', canUnlockArt: true, visualHandleUnlocked: "uncommon_denial_art" },
-    { id: 39, name: "Age Play", cardType: "Practice/Kink", visualHandle: "uncommon_ageplay", primaryElement: "C", elementScores: { A: 5, I: 6, S: 4, P: 7, C: 8, R: 6 }, briefDescription: "Role-playing different ages.", detailedDescription: "Consensual role-playing where participants adopt personas and behaviors associated with ages different from their own (e.g., caregiver/little, teacher/student). Focus is typically on the dynamic and psychological state, not actual age differences.", relatedIds: [13, 4, 5, 10, 58, 92, 98], rarity: 'uncommon', canUnlockArt: false },
-    { id: 40, name: "Primal Play", cardType: "Practice/Kink", visualHandle: "uncommon_primal", primaryElement: "I", elementScores: { A: 5, I: 8, S: 7, P: 6, C: 3, R: 5 }, briefDescription: "Instinctive, animalistic interaction.", detailedDescription: "A style of play involving raw, instinctive, and often non-verbal interaction, tapping into animalistic urges like chasing, biting, growling, nuzzling, or struggling. Can range from playful to intense.", relatedIds: [4, 5, 9, 7, 8, 97], rarity: 'uncommon', canUnlockArt: true, visualHandleUnlocked: "uncommon_primal_art"},
-    { id: 57, name: "Sensory Enhancement", cardType: "Practice/Kink", visualHandle: "uncommon_sensenh", primaryElement: "S", elementScores: { A: 4, I: 5, S: 7, P: 5, C: 4, R: 5}, briefDescription: "Heightening specific senses.", detailedDescription: "Using techniques or tools (like feathers, ice, vibration, specific sounds/scents) specifically to amplify or focus on particular sensory inputs, often after a period of deprivation or contrast.", relatedIds: [2, 37, 7, 9, 86, 88, 102, 112], rarity: 'uncommon', canUnlockArt: false },
-    { id: 58, name: "Caregiver/Little Dynamics", cardType: "Psychological/Goal", visualHandle: "uncommon_cgl", primaryElement: "P", elementScores: { A: 5, I: 7, S: 4, P: 8, C: 6, R: 7 }, briefDescription: "Nurturing/dependent role-play.", detailedDescription: "A dynamic, often linked with Age Play, involving one partner taking on a nurturing, authoritative Caregiver role (DD/lg, MD/lb, etc.) and the other adopting a more dependent, vulnerable Little role.", relatedIds: [39, 4, 5, 10, 15, 82], rarity: 'uncommon', canUnlockArt: false },
-    { id: 59, name: "Platonic Partnership / QPR", cardType: "Relationship Style", visualHandle: "uncommon_qpr", primaryElement: "R", elementScores: { A: 3, I: 4, S: 3, P: 7, C: 5, R: 6 }, briefDescription: "Deep non-romantic commitment.", detailedDescription: "Queerplatonic Relationships (QPRs) or other committed platonic partnerships involve a deep bond, commitment, and intimacy that transcends typical friendship norms but is not inherently romantic or sexual.", relatedIds: [22, 36, 15, 27, 25], rarity: 'uncommon', canUnlockArt: false },
-    { id: 60, name: "Sapiosexuality", cardType: "Orientation", visualHandle: "uncommon_sapio", primaryElement: "A", elementScores: { A: 7, I: 5, S: 3, P: 6, C: 8, R: 5 }, briefDescription: "Attraction to intelligence.", detailedDescription: "Finding intelligence to be the most sexually attractive feature in a person, potentially outweighing physical appearance or other factors.", relatedIds: [49, 74, 81], rarity: 'uncommon', canUnlockArt: false },
-    { id: 61, name: "Body Worship", cardType: "Practice/Kink", visualHandle: "uncommon_bodyworship", primaryElement: "P", elementScores: { A: 6, I: 4, S: 6, P: 8, C: 3, R: 6 }, briefDescription: "Reverential focus on partner's body.", detailedDescription: "Expressing adoration or reverence for a partner's body through acts like kissing, licking, massaging, or simply admiring specific parts, often within a power exchange dynamic.", relatedIds: [5, 10, 12, 62, 102], rarity: 'uncommon', canUnlockArt: false },
-    { id: 62, name: "Foot Fetish / Podophilia", cardType: "Orientation", visualHandle: "uncommon_footfetish", primaryElement: "A", elementScores: { A: 8, I: 4, S: 7, P: 5, C: 3, R: 4 }, briefDescription: "Sexual interest focused on feet.", detailedDescription: "A specific paraphilia involving sexual arousal derived from feet. This can include kissing, licking, massaging, or incorporating feet into other sexual acts.", relatedIds: [61, 12, 102], rarity: 'uncommon', canUnlockArt: false },
-    { id: 78, name: "Public Display Affection (Moderate)", cardType: "Practice/Kink", visualHandle: "uncommon_pda_mod", primaryElement: "R", elementScores: { A: 5, I: 6, S: 4, P: 6, C: 3, R: 6 }, briefDescription: "Making out, groping in semi-public.", detailedDescription: "Engaging in more overt displays of affection or arousal in public or semi-public spaces, potentially pushing social boundaries.", relatedIds: [77, 18], rarity: 'uncommon', canUnlockArt: false },
-    { id: 84, name: "Solo Polyamory", cardType: "Relationship Style", visualHandle: "uncommon_solopoly", primaryElement: "R", elementScores: { A: 5, I: 5, S: 5, P: 6, C: 6, R: 7 }, briefDescription: "Multiple partners, maintains independence.", detailedDescription: "Practicing polyamory while choosing to live independently and prioritize personal autonomy, not necessarily seeking primary-style partnerships or cohabitation.", relatedIds: [25, 27, 24], rarity: 'uncommon', canUnlockArt: false },
-    { id: 86, name: "Sensory Overload", cardType: "Practice/Kink", visualHandle: "uncommon_sens_overload", primaryElement: "S", elementScores: { A: 5, I: 6, S: 8, P: 6, C: 4, R: 5 }, briefDescription: "Intentionally overwhelming senses.", detailedDescription: "Simultaneously applying multiple strong sensory inputs (touch, sound, sight, etc.) to overwhelm the senses, potentially leading to altered states or intense reactions.", relatedIds: [37, 57, 8, 124], rarity: 'uncommon', canUnlockArt: false },
-    { id: 87, name: "Light Bondage (Cuffs/Silk)", cardType: "Practice/Kink", visualHandle: "uncommon_bond_light", primaryElement: "S", elementScores: { A: 5, I: 5, S: 6, P: 6, C: 4, R: 5 }, briefDescription: "Using simple restraints.", detailedDescription: "Using simple restraints like handcuffs, fuzzy cuffs, or silk scarves for playful restriction or temporary immobilization, emphasizing sensation and light power exchange.", relatedIds: [16, 17, 5, 93], rarity: 'uncommon', canUnlockArt: false },
-    { id: 88, name: "Temperature Play (Wax/Ice)", cardType: "Practice/Kink", visualHandle: "uncommon_temp_play", primaryElement: "S", elementScores: { A: 5, I: 6, S: 7, P: 6, C: 3, R: 5 }, briefDescription: "Using heat/cold for sensation.", detailedDescription: "Using safe temperature variations, like low-temperature wax or ice cubes, on the skin to create contrasting and intense sensations.", relatedIds: [9, 57], rarity: 'uncommon', canUnlockArt: true, visualHandleUnlocked: "uncommon_temp_play_art" },
-    { id: 89, name: "Power Play (Subtle)", cardType: "Psychological/Goal", visualHandle: "uncommon_power_subtle", primaryElement: "P", elementScores: { A: 6, I: 7, S: 5, P: 7, C: 7, R: 6 }, briefDescription: "Enjoying implicit power dynamics.", detailedDescription: "Finding arousal or satisfaction in the subtle negotiation and expression of power within an interaction, without necessarily adopting explicit D/s roles or commands.", relatedIds: [4, 5, 11, 90], rarity: 'uncommon', canUnlockArt: false },
-    { id: 90, name: "Performance Focus (Top)", cardType: "Identity/Role", visualHandle: "uncommon_perf_top", primaryElement: "I", elementScores: { A: 5, I: 8, S: 6, P: 7, C: 6, R: 5 }, briefDescription: "Enjoying orchestrating partner's pleasure.", detailedDescription: "A dominant or topping style focused on skillfully providing pleasure and controlling the sensory experience for the partner, often enjoying the partner's reactions as validation.", relatedIds: [4, 11, 18, 89], rarity: 'uncommon', canUnlockArt: false },
-    { id: 91, name: "Performance Focus (Bottom)", cardType: "Identity/Role", visualHandle: "uncommon_perf_bot", primaryElement: "I", elementScores: { A: 5, I: 3, S: 6, P: 7, C: 5, R: 5 }, briefDescription: "Enjoying reacting/expressing pleasure.", detailedDescription: "A submissive or bottoming style focused on expressing reactions and pleasure authentically and visibly, finding satisfaction in showing their response to the partner's actions.", relatedIds: [5, 18, 50], rarity: 'uncommon', canUnlockArt: false },
-    { id: 92, name: "Gender Play", cardType: "Practice/Kink", visualHandle: "uncommon_genderplay", primaryElement: "C", elementScores: { A: 6, I: 6, S: 4, P: 6, C: 7, R: 5 }, briefDescription: "Exploring/subverting gender roles.", detailedDescription: "Consensually playing with or subverting traditional gender roles, expressions, or presentations within a sexual context (e.g., cross-dressing, adopting gender-nonconforming personas).", relatedIds: [13, 39, 103], rarity: 'uncommon', canUnlockArt: false },
-    { id: 93, name: "Tickling (Erotic)", cardType: "Practice/Kink", visualHandle: "uncommon_tickle", primaryElement: "S", elementScores: { A: 4, I: 6, S: 6, P: 5, C: 3, R: 5 }, briefDescription: "Using tickling for arousal/play.", detailedDescription: "Using tickling as a form of playful torture, teasing, or sensory stimulation within an erotic context, often combined with light restraint.", relatedIds: [7, 38, 87], rarity: 'uncommon', canUnlockArt: false },
-    { id: 94, name: "Leather Fetish", cardType: "Orientation", visualHandle: "uncommon_leather", primaryElement: "A", elementScores: { A: 8, I: 6, S: 7, P: 6, C: 5, R: 5 }, briefDescription: "Attraction focused on leather.", detailedDescription: "Specific arousal triggered by the sight, smell, sound, or feel of leather garments or items, often associated with BDSM or specific subcultures.", relatedIds: [20, 21, 4], rarity: 'uncommon', canUnlockArt: false },
-    { id: 95, name: "Lingerie Focus", cardType: "Orientation", visualHandle: "uncommon_lingerie", primaryElement: "A", elementScores: { A: 7, I: 5, S: 5, P: 5, C: 4, R: 4 }, briefDescription: "Arousal enhanced by specific underwear.", detailedDescription: "Finding specific types of lingerie or underwear particularly arousing, either on oneself or a partner.", relatedIds: [21], rarity: 'uncommon', canUnlockArt: false },
-    { id: 96, name: "Hair Pulling", cardType: "Practice/Kink", visualHandle: "uncommon_hairpull", primaryElement: "S", elementScores: { A: 5, I: 7, S: 6, P: 5, C: 2, R: 5 }, briefDescription: "Using hair pulling for control/sensation.", detailedDescription: "Incorporating pulling a partner's hair during sexual activity for sensation, control, or to guide movement.", relatedIds: [7, 9, 4], rarity: 'uncommon', canUnlockArt: false },
-    { id: 97, name: "Biting / Marking", cardType: "Practice/Kink", visualHandle: "uncommon_biting", primaryElement: "S", elementScores: { A: 5, I: 7, S: 7, P: 6, C: 3, R: 5 }, briefDescription: "Using teeth for sensation/possession.", detailedDescription: "Incorporating biting (from gentle nips to harder bites that may leave marks) for intense sensation, primal expression, or as a sign of possession.", relatedIds: [9, 8, 40], rarity: 'uncommon', canUnlockArt: false },
-    { id: 98, name: "Pet Play", cardType: "Practice/Kink", visualHandle: "uncommon_petplay", primaryElement: "C", elementScores: { A: 5, I: 6, S: 5, P: 7, C: 7, R: 6 }, briefDescription: "Role-playing as animals/pets.", detailedDescription: "Consensual role-play where one or more participants adopt the persona and behaviors of an animal or pet (e.g., kitten, puppy), often involving specific gear, dynamics, and interactions.", relatedIds: [13, 39, 4, 5, 10, 121], rarity: 'uncommon', canUnlockArt: false },
-    { id: 99, name: "Masochism (Psychological)", cardType: "Psychological/Goal", visualHandle: "uncommon_maso_psych", primaryElement: "P", elementScores: { A: 5, I: 3, S: 4, P: 8, C: 6, R: 5 }, briefDescription: "Pleasure from emotional submission/distress.", detailedDescription: "Deriving pleasure or release from experiencing consensually inflicted emotional distress, humiliation, powerlessness, or psychological challenge.", relatedIds: [5, 17, 45, 100, 120], rarity: 'uncommon', canUnlockArt: false },
-    { id: 100, name: "Sadism (Psychological)", cardType: "Psychological/Goal", visualHandle: "uncommon_sad_psych", primaryElement: "P", elementScores: { A: 5, I: 7, S: 4, P: 8, C: 7, R: 5 }, briefDescription: "Pleasure from causing emotional distress.", detailedDescription: "Deriving pleasure or satisfaction from consensually inflicting emotional distress, humiliation, or psychological challenge upon a partner.", relatedIds: [4, 11, 45, 99, 120], rarity: 'uncommon', canUnlockArt: false },
-    { id: 101, name: "Ritualistic Play", cardType: "Practice/Kink", visualHandle: "uncommon_ritual", primaryElement: "C", elementScores: { A: 6, I: 7, S: 6, P: 7, C: 8, R: 7 }, briefDescription: "Using ceremony/symbolism in scenes.", detailedDescription: "Incorporating elements of ritual, ceremony, symbolism, or formalized structure into sexual scenes or BDSM dynamics to enhance meaning, power exchange, or psychological impact.", relatedIds: [30, 11, 13, 16, 116], rarity: 'uncommon', canUnlockArt: true, visualHandleUnlocked: "uncommon_ritual_art" },
-    { id: 102, name: "Sensory Focus (Specific Zone)", cardType: "Practice/Kink", visualHandle: "uncommon_sens_zone", primaryElement: "S", elementScores: { A: 5, I: 6, S: 7, P: 5, C: 4, R: 5 }, briefDescription: "Intense focus on one body part.", detailedDescription: "Concentrating intense sensory stimulation (touch, temperature, vibration, etc.) on a specific erogenous zone or body part for an extended period.", relatedIds: [57, 2, 61, 62], rarity: 'uncommon', canUnlockArt: false },
-    { id: 103, name: "Androgyny Attraction", cardType: "Orientation", visualHandle: "uncommon_andro", primaryElement: "A", elementScores: { A: 7, I: 5, S: 5, P: 5, C: 5, R: 5 }, briefDescription: "Attraction to androgynous presentation.", detailedDescription: "Sexual or aesthetic attraction primarily towards individuals whose gender presentation is androgynous, blending traditionally masculine and feminine characteristics.", relatedIds: [55, 92], rarity: 'uncommon', canUnlockArt: false },
-    { id: 104, name: "Power Attire", cardType: "Orientation", visualHandle: "uncommon_powerattire", primaryElement: "A", elementScores: { A: 7, I: 6, S: 4, P: 6, C: 5, R: 5 }, briefDescription: "Arousal from authoritative clothing.", detailedDescription: "Finding clothing associated with power, authority, or formality (e.g., business suits, uniforms, formal wear) particularly arousing.", relatedIds: [21, 4], rarity: 'uncommon', canUnlockArt: false },
-    { id: 105, name: "Voyeuristic Exhibitionism", cardType: "Identity/Role", visualHandle: "uncommon_voy_exhib", primaryElement: "I", elementScores: { A: 7, I: 7, S: 5, P: 7, C: 6, R: 6 }, briefDescription: "Pleasure from mutual watching/being watched.", detailedDescription: "A dynamic where arousal comes from both watching others and being watched, often in group settings or where partners take turns performing and observing.", relatedIds: [18, 19, 34], rarity: 'uncommon', canUnlockArt: false },
-    { id: 106, name: "Fear Play (Mild)", cardType: "Practice/Kink", visualHandle: "uncommon_fear_mild", primaryElement: "P", elementScores: { A: 5, I: 6, S: 6, P: 7, C: 5, R: 5 }, briefDescription: "Using startle/anticipation.", detailedDescription: "Incorporating elements of surprise, startle responses, or anticipation of intense sensation/actions to generate adrenaline and psychological tension within a safe context.", relatedIds: [44, 38, 9, 111, 122], rarity: 'uncommon', canUnlockArt: false },
-    { id: 107, name: "Tribadism / Scissoring", cardType: "Practice/Kink", visualHandle: "uncommon_tribadism", primaryElement: "S", elementScores: { A: 5, I: 6, S: 7, P: 5, C: 2, R: 5 }, briefDescription: "Vulva-to-vulva rubbing.", detailedDescription: "A sexual practice involving rubbing vulvas together for mutual stimulation and friction.", relatedIds: [1, 67], rarity: 'uncommon', canUnlockArt: false },
-    { id: 108, name: "Intercrural Sex (Frotting)", cardType: "Practice/Kink", visualHandle: "uncommon_frotting", primaryElement: "S", elementScores: { A: 5, I: 6, S: 7, P: 5, C: 2, R: 5 }, briefDescription: "Penis-to-penis rubbing.", detailedDescription: "A sexual practice involving rubbing penises together for mutual stimulation and friction.", relatedIds: [1], rarity: 'uncommon', canUnlockArt: false },
-    { id: 110, name: "Figging", cardType: "Practice/Kink", visualHandle: "uncommon_figging", primaryElement: "S", elementScores: { A: 3, I: 6, S: 8, P: 6, C: 3, R: 5 }, briefDescription: "Using ginger root for intense sensation.", detailedDescription: "Inserting a piece of peeled ginger root into the anus or vagina, causing an intense burning sensation. An older BDSM practice requiring caution.", relatedIds: [9, 8], rarity: 'uncommon', canUnlockArt: false },
+        <!-- === Navigation Bar === -->
+        <nav id="mainNavBar" class="main-nav hidden">
+             <button class="nav-button active" data-target="personaScreen">Persona Tapestry</button>
+             <!-- Swapped Grimoire and Study -->
+             <button class="nav-button" data-target="grimoireScreen">Grimoire (<span id="grimoireCount">0</span>)</button>
+             <button class="nav-button" data-target="studyScreen">The Study</button>
+             <button class="nav-button" data-target="repositoryScreen">Repository</button>
+             <button id="settingsButton" class="nav-button settings-button" title="Settings & Save/Load Options"><i class="fas fa-cog"></i></button>
+        </nav>
 
-    // --- Rare Concepts (~25) ---
-    { id: 8, name: "Impact Play (Heavy)", cardType: "Practice/Kink", visualHandle: "rare_impact_heavy", primaryElement: "S", elementScores: { A: 5, I: 7, S: 9, P: 7, C: 4, R: 6 }, briefDescription: "Intense impact, pain/marks focus.", detailedDescription: "Utilizes implements like canes, whips, heavy paddles, or fists to deliver strong, often painful sensations. Focus can be on endurance, marking, or the psychological aspects of receiving intense impact.", relatedIds: [7, 9, 4, 5, 44, 97, 110], rarity: 'rare', canUnlockArt: true, visualHandleUnlocked: "rare_impact_heavy_art", uniquePromptId: "rP08" },
-    { id: 9, name: "Pain Play (Non-Impact)", cardType: "Practice/Kink", visualHandle: "rare_pain", primaryElement: "S", elementScores: { A: 4, I: 6, S: 8, P: 7, C: 5, R: 6 }, briefDescription: "Pinching, biting, wax, needles.", detailedDescription: "Focuses on creating intense sensations through means other than direct impact, such as pinching, biting, scratching, temperature play (wax, ice), clamps, or potentially needles (use extreme caution).", relatedIds: [7, 8, 16, 17, 37, 44, 63, 88, 96, 97, 110, 111, 112, 106, 124], rarity: 'rare', canUnlockArt: true, visualHandleUnlocked: "rare_pain_art", uniquePromptId: "rP09" },
-    { id: 11, name: "Command/Control Dynamics", cardType: "Psychological/Goal", visualHandle: "rare_control", primaryElement: "I", elementScores: { A: 6, I: 9, S: 5, P: 8, C: 8, R: 6 }, briefDescription: "Explicit orders given/obeyed.", detailedDescription: "A power dynamic characterized by one partner giving clear commands or instructions and the other partner deriving pleasure or fulfillment from obeying them precisely.", relatedIds: [4, 5, 10, 30, 38, 45, 41, 89, 90, 100, 101, 109, 119, 120], rarity: 'rare', canUnlockArt: true, visualHandleUnlocked: "rare_control_art", uniquePromptId: "rP11" },
-    { id: 12, name: "Objectification Play", cardType: "Psychological/Goal", visualHandle: "rare_object", primaryElement: "P", elementScores: { A: 7, I: 4, S: 6, P: 8, C: 6, R: 5 }, briefDescription: "Consensually treating/being treated as object.", detailedDescription: "Consensual play involving focusing on a person's body or specific body parts as the primary source of pleasure or utility, potentially dehumanizing them temporarily within the agreed scene.", relatedIds: [4, 5, 20, 18, 19, 45, 61, 42, 62, 114], rarity: 'rare', canUnlockArt: false, uniquePromptId: "rP12" },
-    { id: 14, name: "Fantasy Immersion", cardType: "Cognitive", visualHandle: "rare_fantasy", primaryElement: "C", elementScores: { A: 5, I: 3, S: 4, P: 7, C: 9, R: 3 }, briefDescription: "Deep focus on internal narrative.", detailedDescription: "Prioritizes internal mental experience, elaborate fantasy worlds, or complex narratives over external reality during sexual encounters. Arousal is heavily dependent on the mental construct.", relatedIds: [13, 29, 41, 42, 49], rarity: 'rare', canUnlockArt: true, visualHandleUnlocked: "rare_fantasy_art", uniquePromptId: "rP14" },
-    { id: 16, name: "Rope Bondage (Shibari/Kinbaku)", cardType: "Practice/Kink", visualHandle: "rare_rope", primaryElement: "S", elementScores: { A: 6, I: 7, S: 8, P: 7, C: 6, R: 6 }, briefDescription: "Aesthetic/restrictive rope tying.", detailedDescription: "An art form and practice involving tying a partner with rope, focusing on aesthetic patterns, nerve pressure, physical restriction, and the psychological state induced by the tie.", relatedIds: [9, 17, 4, 5, 44, 87, 101, 113], rarity: 'rare', canUnlockArt: true, visualHandleUnlocked: "rare_rope_art", uniquePromptId: "rP16" },
-    { id: 17, name: "Restriction/Helplessness", cardType: "Psychological/Goal", visualHandle: "rare_restrict", primaryElement: "P", elementScores: { A: 5, I: 3, S: 7, P: 9, C: 5, R: 5 }, briefDescription: "Arousal from restraint/surrender.", detailedDescription: "Deriving significant arousal from the sensation of being physically restrained (via ropes, cuffs, etc.) and the associated psychological state of helplessness or surrender.", relatedIds: [16, 5, 9, 37, 44, 63, 64, 87, 99, 113, 117, 118, 125, 43], rarity: 'rare', canUnlockArt: false, uniquePromptId: "rP17" },
-    { id: 20, name: "Latex/Material Fetish", cardType: "Orientation", visualHandle: "rare_latex", primaryElement: "A", elementScores: { A: 9, I: 5, S: 8, P: 6, C: 5, R: 4 }, briefDescription: "Attraction focused on materials.", detailedDescription: "A specific fetish where sexual arousal is strongly and primarily triggered by the sight, feel, sound, or smell of particular materials like latex, leather, PVC, rubber, silk, etc.", relatedIds: [12, 21, 42, 94], rarity: 'rare', canUnlockArt: true, visualHandleUnlocked: "rare_latex_art", uniquePromptId: "rP20" },
-    { id: 21, name: "Uniform/Clothing Fetish", cardType: "Orientation", visualHandle: "rare_uniform", primaryElement: "A", elementScores: { A: 8, I: 6, S: 4, P: 6, C: 6, R: 5 }, briefDescription: "Specific clothing as arousal trigger.", detailedDescription: "A fetish where sexual arousal is significantly and primarily triggered by specific types of clothing, such as uniforms (military, medical, school), costumes, or specific garments (lingerie, suits).", relatedIds: [13, 20, 12, 94, 95, 104], rarity: 'rare', canUnlockArt: false, uniquePromptId: "rP21" },
-    { id: 25, name: "Polyamory", cardType: "Relationship Style", visualHandle: "rare_poly", primaryElement: "R", elementScores: { A: 6, I: 6, S: 5, P: 7, C: 6, R: 8 }, briefDescription: "Multiple loving relationships.", detailedDescription: "The practice of, or desire for, intimate relationships with more than one partner, with the informed consent of all partners involved. Often involves emotional intimacy with multiple people.", relatedIds: [15, 26, 27, 34, 59, 84], rarity: 'rare', canUnlockArt: true, visualHandleUnlocked: "rare_poly_art", uniquePromptId: "rP25" },
-    { id: 27, name: "Relationship Anarchy", cardType: "Relationship Style", visualHandle: "rare_ra", primaryElement: "R", elementScores: { A: 6, I: 5, S: 5, P: 6, C: 7, R: 9 }, briefDescription: "Rejects rules/hierarchies.", detailedDescription: "A philosophy and relationship style that rejects societal norms and imposed rules regarding relationships. Each relationship is unique and defined by the individuals involved, without inherent hierarchy.", relatedIds: [25, 26, 36, 59, 84], rarity: 'rare', canUnlockArt: false, uniquePromptId: "rP27" },
-    { id: 30, name: "High Protocol D/s", cardType: "Practice/Kink", visualHandle: "rare_protocol", primaryElement: "I", elementScores: { A: 6, I: 8, S: 6, P: 8, C: 9, R: 7 }, briefDescription: "Highly structured power exchange.", detailedDescription: "A style of Dominance and submission characterized by significant structure, formal rules, rituals, specific forms of address, and often pre-negotiated expectations for behavior within the dynamic.", relatedIds: [4, 5, 11, 13, 38, 101, 109], rarity: 'rare', canUnlockArt: true, visualHandleUnlocked: "rare_protocol_art", uniquePromptId: "rP30" },
-    { id: 41, name: "Erotic Hypnosis / Mind Control Play", cardType: "Practice/Kink", visualHandle: "rare_hypno", primaryElement: "C", elementScores: { A: 5, I: 7, S: 3, P: 8, C: 9, R: 6 }, briefDescription: "Using suggestion/perceived control.", detailedDescription: "Consensual play involving altered states of consciousness, hypnotic suggestion, triggers, or the *illusion* of one partner controlling the other's mind or actions for erotic purposes. Safety and consent are paramount.", relatedIds: [14, 4, 5, 11, 45, 42, 120, 44], rarity: 'rare', canUnlockArt: false, uniquePromptId: "rP41" },
-    { id: 42, name: "Transformation Fetish", cardType: "Orientation", visualHandle: "rare_transform", primaryElement: "C", elementScores: { A: 7, I: 4, S: 5, P: 7, C: 8, R: 4 }, briefDescription: "Arousal from transformation themes.", detailedDescription: "A fetish centered on the concept of transformation, which can include physical changes (e.g., into animals, objects, different genders), mental changes (e.g., bimbofication, personality alteration), or forced changes within a power dynamic.", relatedIds: [20, 21, 12, 41, 14, 121], rarity: 'rare', canUnlockArt: false, uniquePromptId: "rP42" },
-    { id: 43, name: "Medical Play", cardType: "Practice/Kink", visualHandle: "rare_medical", primaryElement: "C", elementScores: { A: 5, I: 6, S: 7, P: 7, C: 7, R: 6 }, briefDescription: "Role-playing medical scenarios.", detailedDescription: "Consensual role-playing involving medical themes, settings, or equipment. Can range from simple doctor/patient scenarios to more clinical interactions involving mock examinations, implements (speculums, needles - potentially real/blunt), restraints, or power dynamics inherent in medical settings.", relatedIds: [13, 9, 17, 4, 5], rarity: 'rare', canUnlockArt: false, uniquePromptId: "rP43" },
-    { id: 44, name: "Edge Play", cardType: "Practice/Kink", visualHandle: "rare_edge", primaryElement: "S", elementScores: { A: 5, I: 6, S: 9, P: 8, C: 5, R: 6 }, briefDescription: "Pushing boundaries near limits.", detailedDescription: "Activities that intentionally push physical, psychological, or emotional boundaries close to perceived limits. Often involves negotiation, high trust, and managing real or perceived risk (e.g., breath play, knife play, extreme sensation, fear play). Requires significant caution, expertise, and communication.", relatedIds: [8, 9, 16, 17, 37, 38, 41, 63, 64, 65, 106, 111, 113, 116, 122, 125], rarity: 'rare', canUnlockArt: false, uniquePromptId: "rP44" },
-    { id: 45, name: "Humiliation / Degradation", cardType: "Psychological/Goal", visualHandle: "rare_humiliation", primaryElement: "P", elementScores: { A: 5, I: 7, S: 4, P: 9, C: 6, R: 6 }, briefDescription: "Pleasure from embarrassment/degradation.", detailedDescription: "Consensual play where one partner derives pleasure from performing or receiving acts or words intended to cause embarrassment, shame, or degradation. Can range from light teasing to intense psychological scenarios. Consent and aftercare are critical.", relatedIds: [4, 5, 10, 11, 12, 38, 41, 99, 100, 114, 115, 120], rarity: 'rare', canUnlockArt: false, uniquePromptId: "rP45" },
-    { id: 63, name: "Breath Play", cardType: "Practice/Kink", visualHandle: "rare_breath", primaryElement: "S", elementScores: { A: 4, I: 7, S: 9, P: 8, C: 4, R: 6 }, briefDescription: "Restricting airflow for sensation.", detailedDescription: "Consensual practice involving the restriction of airflow (erotic asphyxiation) to create intense physical sensations and altered mental states. Carries significant risks and requires extreme caution, knowledge, and trust.", relatedIds: [44, 17, 9, 5, 125], rarity: 'rare', canUnlockArt: false, uniquePromptId: "rP63" },
-    { id: 64, name: "CNC (Consensual Non-Consent)", cardType: "Practice/Kink", visualHandle: "rare_cnc", primaryElement: "C", elementScores: { A: 6, I: 7, S: 7, P: 8, C: 9, R: 6 }, briefDescription: "Role-playing lack of consent.", detailedDescription: "Consensual role-playing scenarios where participants act out a scene involving simulated non-consent or coercion (e.g., simulated rape fantasy, abduction). Requires meticulous negotiation, clear boundaries, safewords, and trust.", relatedIds: [13, 4, 5, 17, 44, 117, 118], rarity: 'rare', canUnlockArt: false, uniquePromptId: "rP64" },
-    { id: 65, name: "Chemsex / Party & Play (PnP)", cardType: "Practice/Kink", visualHandle: "rare_chemsex", primaryElement: "S", elementScores: { A: 6, I: 6, S: 8, P: 7, C: 3, R: 7 }, briefDescription: "Using drugs to enhance sex.", detailedDescription: "Intentionally combining sexual activity with the use of psychoactive drugs (like methamphetamine, GHB, mephedrone) to sustain activity, reduce inhibitions, or intensify sensations. Carries health risks and potential for addiction.", relatedIds: [34, 24, 44], rarity: 'rare', canUnlockArt: false, uniquePromptId: "rP65" },
-    { id: 109, name: "Master/slave Dynamic (M/s)", cardType: "Relationship Style", visualHandle: "rare_ms", primaryElement: "I", elementScores: { A: 6, I: 9, S: 6, P: 9, C: 8, R: 7 }, briefDescription: "Total power exchange relationship.", detailedDescription: "A specific, high-intensity form of D/s relationship involving a deep level of commitment and power exchange, often encompassing many aspects of life beyond the bedroom. Uses specific titles.", relatedIds: [4, 5, 11, 30, 10], rarity: 'rare', canUnlockArt: false, uniquePromptId: "rP109" },
-    { id: 111, name: "Knife Play / Edge Play (Sharp)", cardType: "Practice/Kink", visualHandle: "rare_knife", primaryElement: "S", elementScores: { A: 5, I: 7, S: 9, P: 8, C: 6, R: 6 }, briefDescription: "Using blades for sensation/fear.", detailedDescription: "Edge play involving the use of knives or other sharp objects against the skin for sensation, psychological fear, or light marking (drawing blood is extremely risky and requires advanced knowledge). Intense focus on control and trust.", relatedIds: [44, 9, 106, 4, 116], rarity: 'rare', canUnlockArt: false, uniquePromptId: "rP111" },
-    { id: 112, name: "Electrostimulation (E-Stim)", cardType: "Practice/Kink", visualHandle: "rare_estim", primaryElement: "S", elementScores: { A: 4, I: 6, S: 9, P: 6, C: 4, R: 5 }, briefDescription: "Using electrical currents for sensation.", detailedDescription: "Using specialized devices (like TENS units adapted or purpose-built) to pass mild electrical currents through the body for unique tingling, buzzing, or contracting sensations.", relatedIds: [9, 57, 119], rarity: 'rare', canUnlockArt: true, visualHandleUnlocked: "rare_estim_art", uniquePromptId: "rP112" },
-    { id: 113, name: "Suspension Bondage", cardType: "Practice/Kink", visualHandle: "rare_suspension", primaryElement: "S", elementScores: { A: 5, I: 7, S: 9, P: 8, C: 6, R: 6 }, briefDescription: "Lifting partner off ground with rope/chains.", detailedDescription: "A form of bondage where a person is partially or fully suspended off the ground using ropes, chains, or other equipment. Requires significant technical skill, knowledge of rigging, and safety precautions.", relatedIds: [16, 17, 44], rarity: 'rare', canUnlockArt: false, uniquePromptId: "rP113" },
-    { id: 114, name: "Water Sports / Urolagnia", cardType: "Practice/Kink", visualHandle: "rare_watersports", primaryElement: "S", elementScores: { A: 6, I: 6, S: 7, P: 7, C: 4, R: 5 }, briefDescription: "Incorporating urine into play.", detailedDescription: "Sexual arousal or activity involving urine (also known as golden showers). Can range from watching urination to being urinated on or drinking urine. Consent and hygiene are important.", relatedIds: [45, 12, 115], rarity: 'rare', canUnlockArt: false, uniquePromptId: "rP114" },
-    { id: 115, name: "Scat Play / Coprophilia", cardType: "Practice/Kink", visualHandle: "rare_scat", primaryElement: "S", elementScores: { A: 5, I: 5, S: 6, P: 8, C: 3, R: 4 }, briefDescription: "Incorporating feces into play.", detailedDescription: "Sexual arousal or activity involving feces. Considered an extreme fetish with significant health risks and stigma. Requires extreme caution regarding hygiene and consent.", relatedIds: [114, 45], rarity: 'rare', canUnlockArt: false, uniquePromptId: "rP115" },
-    { id: 116, name: "Blood Play (Intentional)", cardType: "Practice/Kink", visualHandle: "rare_bloodplay", primaryElement: "S", elementScores: { A: 5, I: 7, S: 8, P: 8, C: 5, R: 6 }, briefDescription: "Consensual use of blood in scenes.", detailedDescription: "Consensually incorporating small amounts of blood (drawn safely, e.g., via lancet) into sexual or ritualistic scenes. Carries significant health risks (bloodborne pathogens) and requires stringent safety protocols.", relatedIds: [44, 111, 101], rarity: 'rare', canUnlockArt: false, uniquePromptId: "rP116" },
-    { id: 117, name: "Abduction / Capture Fantasy", cardType: "Practice/Kink", visualHandle: "rare_abduction", primaryElement: "C", elementScores: { A: 6, I: 7, S: 7, P: 8, C: 9, R: 6 }, briefDescription: "Role-playing non-consensual capture.", detailedDescription: "A specific type of CNC role-play focusing on the scenario of being abducted, captured, or held against one's will within a pre-negotiated, safe container.", relatedIds: [64, 13, 17, 44, 122], rarity: 'rare', canUnlockArt: false, uniquePromptId: "rP117" },
-    { id: 118, name: "Somnophilia / Sleep Play", cardType: "Practice/Kink", visualHandle: "rare_somno", primaryElement: "C", elementScores: { A: 7, I: 3, S: 6, P: 7, C: 7, R: 4 }, briefDescription: "Arousal related to sleeping individuals.", detailedDescription: "Sexual arousal derived from interacting with or observing someone who is asleep or feigning sleep. Often involves themes of vulnerability and voyeurism. Consent when awake is paramount for ethical play.", relatedIds: [19, 17, 64], rarity: 'rare', canUnlockArt: false, uniquePromptId: "rP118" },
-    { id: 119, name: "Forced Orgasm / Orgasm Control", cardType: "Practice/Kink", visualHandle: "rare_forceorgasm", primaryElement: "I", elementScores: { A: 5, I: 8, S: 8, P: 8, C: 7, R: 6 }, briefDescription: "Controlling partner's orgasm.", detailedDescription: "A power dynamic where one partner controls if, when, and how the other partner experiences orgasm, potentially pushing them past limits or denying it completely.", relatedIds: [38, 11, 4, 5, 112], rarity: 'rare', canUnlockArt: false, uniquePromptId: "rP119" },
-    { id: 120, name: "Psychological Torture Play", cardType: "Practice/Kink", visualHandle: "rare_psychtorture", primaryElement: "P", elementScores: { A: 4, I: 7, S: 4, P: 9, C: 8, R: 6 }, briefDescription: "Intense mind games/emotional manipulation.", detailedDescription: "Consensual play involving intense psychological manipulation, mind games, gaslighting (within agreed limits), or emotional challenges designed to push mental boundaries. Requires extreme trust and aftercare.", relatedIds: [45, 41, 100, 99, 11], rarity: 'rare', canUnlockArt: false, uniquePromptId: "rP120" },
-    { id: 121, name: "Furry Fandom Sexuality", cardType: "Identity/Role", visualHandle: "rare_furrysex", primaryElement: "C", elementScores: { A: 6, I: 6, S: 5, P: 6, C: 7, R: 6 }, briefDescription: "Sexual expression within furry context.", detailedDescription: "Expressing sexuality through or within the context of the furry fandom, which may involve anthropomorphic characters (fursonas), costumes (fursuits), role-play, and specific community norms.", relatedIds: [13, 98, 42], rarity: 'rare', canUnlockArt: false, uniquePromptId: "rP121" },
-    { id: 122, name: "Autassassinophilia", cardType: "Orientation", visualHandle: "rare_autassass", primaryElement: "P", elementScores: { A: 5, I: 2, S: 7, P: 8, C: 6, R: 3 }, briefDescription: "Arousal from staged risk of being killed.", detailedDescription: "A paraphilia involving sexual arousal from the fantasy or staged scenario of being hunted or stalked with the risk of being killed.", relatedIds: [44, 106, 117], rarity: 'rare', canUnlockArt: false, uniquePromptId: "rP122" },
-    { id: 123, name: "Exposure Therapy Play", cardType: "Psychological/Goal", visualHandle: "rare_exposure", primaryElement: "P", elementScores: { A: 4, I: 6, S: 5, P: 8, C: 7, R: 7 }, briefDescription: "Using scenes to process trauma/fear.", detailedDescription: "Carefully negotiated and consensual scenes designed to gently re-approach or process past trauma or fears within a supportive BDSM context. Requires immense trust and often therapeutic awareness.", relatedIds: [15, 69, 4, 5], rarity: 'rare', canUnlockArt: false, uniquePromptId: "rP123" },
-    { id: 124, name: "Sensory Overstimulation Torture", cardType: "Practice/Kink", visualHandle: "rare_sens_torture", primaryElement: "S", elementScores: { A: 4, I: 7, S: 9, P: 7, C: 5, R: 6 }, briefDescription: "Using prolonged/intense stimuli.", detailedDescription: "Intentionally using prolonged, inescapable, or intensely unpleasant sensory input (e.g., specific sounds, lights, textures, smells) as a form of consensual 'torture' play.", relatedIds: [86, 37, 9, 44], rarity: 'rare', canUnlockArt: false, uniquePromptId: "rP124" },
-    { id: 125, name: "Breath Control (Advanced)", cardType: "Practice/Kink", visualHandle: "rare_breath_adv", primaryElement: "S", elementScores: { A: 4, I: 7, S: 9, P: 8, C: 4, R: 6 }, briefDescription: "Precise manipulation of breathing.", detailedDescription: "Advanced forms of breath play involving more precise control over inhalation/exhalation, potentially using bags or masks under highly controlled and knowledgeable conditions. Extremely high risk.", relatedIds: [63, 44, 17], rarity: 'rare', canUnlockArt: false, uniquePromptId: "rP125" },
-];
+        <!-- === My Persona Screen ("Persona Tapestry") === -->
+        <div id="personaScreen" class="screen hidden persona-screen">
+             <div class="persona-header">
+                 <h1>My Persona Tapestry <i class="fas fa-info-circle info-icon" title="This screen summarizes your calculated persona based on the questionnaire and provides tools to refine it by focusing on specific Concepts."></i></h1>
+                 <div class="view-toggle-buttons">
+                     <button id="showDetailedViewBtn" class="button small-button view-toggle-btn active">Detailed View</button>
+                     <button id="showSummaryViewBtn" class="button small-button view-toggle-btn">Summary View</button>
+                 </div>
+             </div>
 
-// --- Utility Maps ---
-const elementKeyToFullName = { A: "Attraction", I: "Interaction", S: "Sensory", P: "Psychological", C: "Cognitive", R: "Relational" };
+             <!-- Detailed View -->
+             <div id="personaDetailedView" class="persona-view current">
+                 <div class="persona-overview">
+                     <div class="persona-elements-detailed">
+                         <h2>Core Foundation <i class="fas fa-info-circle info-icon" title="Your scores across the 6 core elements, based on the initial questionnaire. Expand each for details, interpretations, and your current Attunement level."></i></h2>
+                         <p>Your fundamental attributes and elemental attunement. Expand each element.</p>
+                         <div id="personaElementDetails">
+                            <!-- Element details with integrated attunement bars will be injected here -->
+                         </div>
+                         <hr>
+                         <h2>Resources <i class="fas fa-info-circle info-icon" title="Insight is the primary currency, earned through discovery, reflection, and rituals. Spend it in The Study to research new Concepts or unlock deeper knowledge."></i></h2>
+                         <p>Gain Insight <i class="fas fa-brain insight-icon"></i> through discovery and reflection. Spend it in The Study.</p>
+                         <p>Current Insight: <strong id="userInsightDisplayPersona">0.0</strong> <i class="fas fa-brain insight-icon"></i></p>
 
-// --- Questionnaire Data ---
-const questionnaireGuided = {
-    "Attraction": [
-        { qId: "a1", type: "slider", text: "How specific are the triggers for your sexual attraction? (e.g., Very broad vs. Very specific types/situations)", minValue: 0, maxValue: 10, defaultValue: 5, minLabel: "Very Broad / Few Specifics", maxLabel: "Very Specific / Narrow Focus", scoreWeight: 1.0 },
-        { qId: "a2", type: "checkbox", text: "Which factors significantly contribute to your initial attraction? (Select up to 2)", options: [ { value: "Physical Appearance/Body Type", points: 0.5 }, { value: "Gender Identity/Presentation", points: 0.5 }, { value: "Personality/Demeanor", points: 0.0 }, { value: "Intellect/Wit", points: 0.5 }, { value: "Signs of Power/Confidence", points: 1.0 }, { value: "Signs of Vulnerability/Submissiveness", points: 1.0 }, { value: "Emotional Connection (Pre-existing)", points: -1.0 }, { value: "Specific Clothing/Materials", points: 1.5 }, { value: "Context/Situation (e.g., role-play)", points: 1.0 } ], scoreWeight: 1.0, maxChoices: 2 },
-        { qId: "a3", type: "radio", text: "How important is an emotional bond BEFORE feeling sexual attraction?", options: [ { value: "Essential", points: -2.0 }, { value: "Helpful, but not required", points: -0.5 }, { value: "Neutral / Varies", points: 0 }, { value: "Generally unimportant", points: 1.0 } ], scoreWeight: 1.0 }
-    ],
-    "Interaction": [
-         { qId: "i1", type: "slider", text: "In sexual interactions, where do you naturally find yourself on the spectrum of leading vs. following?", minValue: 0, maxValue: 10, defaultValue: 5, minLabel: "Strongly Following / Receiving", maxLabel: "Strongly Leading / Directing", scoreWeight: 1.0 },
-         { qId: "i2", type: "checkbox", text: "Which interaction styles or roles feel most appealing? (Select up to 2)", options: [ { value: "Taking Charge / Dominating", points: 1.5 }, { value: "Guiding / Being Attentive (Top/Caregiver)", points: 1.0 }, { value: "Collaborating / Switching Roles", points: 0 }, { value: "Following Directions / Submitting", points: -1.5 }, { value: "Serving / Pleasing Partner", points: -1.0 }, { value: "Performing / Being Watched", points: 0.5 }, { value: "Playful / Teasing", points: 0.0 } ], scoreWeight: 1.0, maxChoices: 2 },
-         { qId: "i3", type: "radio", text: "Do you prefer clear power dynamics or more equal footing?", options: [ { value: "Clear Power Difference (D/s)", points: 1.5 }, { value: "Subtle Power Dynamics", points: 0.5 }, { value: "Equal Footing / Collaborative", points: -1.0 }, { value: "Varies Greatly / No Preference", points: 0 } ], scoreWeight: 1.0 }
-    ],
-    "Sensory": [
-        { qId: "s1", type: "slider", text: "How important is the intensity and variety of physical sensation to your arousal?", minValue: 0, maxValue: 10, defaultValue: 5, minLabel: "Low Importance / Subtle Preferred", maxLabel: "High Importance / Intensity Craved", scoreWeight: 1.0 },
-        { qId: "s2", type: "checkbox", text: "Which types of physical sensations are particularly appealing? (Select up to 2)", options: [ { value: "Gentle Touch / Caressing / Warmth", points: -1.0 }, { value: "Firm Pressure / Massage / Hugging", points: 0.0 }, { value: "Sharp / Stinging (Spanking, Biting)", points: 1.5 }, { value: "Burning / Temperature Play (Wax, Ice)", points: 1.5 }, { value: "Restriction / Binding / Helplessness", points: 1.0 }, { value: "Specific Textures (Latex, Silk, Rope)", points: 1.0 }, { value: "Vibration / Electrostimulation", points: 1.5 } ], scoreWeight: 1.0, maxChoices: 2 },
-        { qId: "s3", type: "radio", text: "How do you feel about incorporating pain or extreme sensations?", options: [ { value: "Strongly Drawn To It", points: 2.0 }, { value: "Open To Exploring It", points: 1.0 }, { value: "Neutral / Indifferent", points: 0 }, { value: "Prefer to Avoid It", points: -1.0 }, { value: "Strongly Averse To It", points: -2.0 } ], scoreWeight: 1.0 }
-     ],
-    "Psychological": [
-        { qId: "p1", type: "slider", text: "How much is your sexuality tied to fulfilling deeper emotional or psychological needs (beyond physical pleasure)?", minValue: 0, maxValue: 10, defaultValue: 5, minLabel: "Very Little / Primarily Physical", maxLabel: "Very Much / Primary Driver", scoreWeight: 1.0 },
-        { qId: "p2", type: "checkbox", text: "Which psychological needs does sex MOST effectively help you meet? (Select up to 2)", options: [ { value: "Deep Connection / Intimacy / Trust", points: 1.5 }, { value: "Power / Control (Giving or Receiving)", points: 1.5 }, { value: "Validation / Feeling Desired", points: 1.0 }, { value: "Escape / Stress Relief / Forgetting", points: 0.5 }, { value: "Catharsis / Emotional Release", points: 1.0 }, { value: "Self-Exploration / Identity Expression", points: 0.5 }, { value: "Security / Comfort / Nurturing", points: 0.0 }, { value: "Simple Fun / Recreation", points: -1.0 } ], scoreWeight: 1.0, maxChoices: 2 },
-        { qId: "p3", type: "radio", text: "Does sex feel incomplete if a specific psychological need isn't addressed?", options: [ { value: "Yes, Often", points: 1.5 }, { value: "Sometimes", points: 0.5 }, { value: "Rarely", points: -0.5 }, { value: "Never", points: -1.5 } ], scoreWeight: 1.0 }
-     ],
-    "Cognitive": [
-        { qId: "c1", type: "slider", text: "How important is mental engagement (fantasy, scenarios, intellect) during sex?", minValue: 0, maxValue: 10, defaultValue: 5, minLabel: "Not Important / Prefer Presence", maxLabel: "Very Important / Mentally Driven", scoreWeight: 1.0 },
-        { qId: "c2", type: "checkbox", text: "Which mental aspects significantly enhance your arousal? (Select up to 2)", options: [ { value: "Detailed Internal Fantasies", points: 1.5 }, { value: "Specific Role-Playing Scenarios", points: 1.5 }, { value: "Dirty Talk / Erotic Language", points: 1.0 }, { value: "Intellectual Banter / Mind Games", points: 1.0 }, { value: "Understanding Partner's Psychology", points: 0.5 }, { value: "Anticipation / Pre-Planned Scenes", points: 1.0 }, { value: "Being Fully 'In the Moment'", points: -1.5 } ], scoreWeight: 1.0, maxChoices: 2 },
-        { qId: "c3", type: "radio", text: "Do you prefer spontaneous encounters or more planned/scripted ones?", options: [ { value: "Strongly Prefer Planned/Scripted", points: 1.5 }, { value: "Lean Towards Planned", points: 0.5 }, { value: "No Real Preference / Mix", points: 0 }, { value: "Lean Towards Spontaneous", points: -0.5 }, { value: "Strongly Prefer Spontaneous", points: -1.5 } ], scoreWeight: 1.0 }
-    ],
-    "Relational": [
-         { qId: "r1", type: "slider", text: "What is your ideal relationship structure regarding number of partners?", minValue: 0, maxValue: 10, defaultValue: 3, minLabel: "Strictly One (Monogamy) / Solitary", maxLabel: "Multiple Partners / Fluidity", scoreWeight: 1.0 },
-         { qId: "r2", type: "checkbox", text: "Which relationship contexts feel most comfortable or desirable? (Select up to 2)", options: [ { value: "Solitary / Self-Exploration", points: -1.5 }, { value: "Deeply Committed Monogamous Pair", points: -1.0 }, { value: "Casual Dating / Friends With Benefits", points: 0.5 }, { value: "Open Relationship (Primary + Others)", points: 1.0 }, { value: "Polyamory (Multiple Equal Relationships)", points: 1.5 }, { value: "Group Sex Scenarios", points: 1.0 }, { value: "Anonymous Encounters", points: 0.5 } ], scoreWeight: 1.0, maxChoices: 2 },
-         { qId: "r3", type: "radio", text: "How important is relationship 'hierarchy' (e.g., having a 'primary' partner)?", options: [ { value: "Very Important / Need a Primary", points: -1.0 }, { value: "Somewhat Important / Prefer Hierarchy", points: -0.5 }, { value: "Neutral / Depends on Relationship", points: 0 }, { value: "Prefer Non-Hierarchical", points: 1.0 }, { value: "Strongly Against Hierarchy (Anarchy)", points: 1.5 } ], scoreWeight: 1.0 }
-    ]
-};
+                         <!-- MOVED: Element Library Section -->
+                         <div id="elementLibrary" class="element-library">
+                              <h2>Element Library <i class="fas fa-info-circle info-icon" title="Unlock deeper written insights about each core element by spending Insight. Higher levels reveal more complex nuances."></i></h2>
+                              <p>Unlock deeper knowledge about each core element.</p>
+                              <div id="elementLibraryButtons" class="library-buttons"></div>
+                              <div id="elementLibraryContent" class="library-content">
+                                  <p>Select an Element above to view its deep dive content.</p>
+                              </div>
+                         </div>
+                     </div>
 
-// --- Reflection Prompts (Corrected Structure) ---
-const reflectionPrompts = {
-    "Attraction": [
-        { id: "pA1", text: "Think about someone or something you found intensely attractive recently. What specific qualities (physical, personality, dynamic) drew you in the most?" },
-        { id: "pA2", text: "When has attraction felt confusing or unexpected for you? What did you learn from that experience?" },
-        { id: "pA3", text: "Does your level of emotional connection to someone strongly influence your sexual attraction? How so?" },
-        { id: "pA4", text: "Consider an attraction that faded. What changed? Was it about them, you, or the context?" },
-    ],
-    "Interaction": [
-        { id: "pI1", text: "Describe a time you felt most comfortable in a sexual interaction. Were you leading, following, or collaborating? What made it comfortable?" },
-        { id: "pI2", text: "Imagine an ideal sexual encounter. What kind of energy exchange are you looking for (playful, intense, nurturing, commanding, yielding)?" },
-        { id: "pI3", text: "How important is verbal communication vs non-verbal cues in your preferred interaction style?" },
-        { id: "pI4", text: "If you enjoy power dynamics, what is the appeal of holding power? What is the appeal of yielding it?" },
-    ],
-    "Sensory": [
-        { id: "pS1", text: "What type of physical touch (light, firm, rough, specific texture) feels most arousing or connecting to you, separate from orgasm?" },
-        { id: "pS2", text: "Are there any specific sensations (temperature, pressure, pain, specific sounds/smells) that strongly enhance or detract from your arousal?" },
-        { id: "pS3", text: "How does your desire for sensory input change depending on your mood or partner?" },
-        { id: "pS4", text: "Think about a purely sensory experience (sexual or not) that felt transcendent or deeply satisfying. What were its key elements?" },
-    ],
-    "Psychological": [
-        { id: "pP1", text: "Beyond physical pleasure, what core emotional need (e.g., connection, validation, control, escape) does sexuality most often fulfill for you?" },
-        { id: "pP2", text: "Think about a time sex felt psychologically fulfilling. What underlying needs were met?" },
-        { id: "pP3", text: "Conversely, when has sex felt psychologically unfulfilling, even if physically pleasurable? What might have been missing?" },
-        { id: "pP4", text: "How does vulnerability play a role in your psychologically satisfying sexual experiences?" },
-    ],
-    "Cognitive": [
-        { id: "pC1", text: "How much do you rely on fantasy or specific scenarios to become aroused? Are you more 'in your head' or 'in the moment'?" },
-        { id: "pC2", text: "Describe a fantasy or scenario (even vaguely) that you find particularly potent. What elements make it work for you?" },
-        { id: "pC3", text: "Does the intellectual or psychological aspect of a dynamic (e.g., power plays, witty banter, understanding motivations) contribute significantly to your arousal?" },
-        { id: "pC4", text: "How does anticipation or memory shape your sexual experiences?" },
-    ],
-    "Relational": [
-        { id: "pR1", text: "In what context do you feel most free to express your sexuality (e.g., alone, committed partner, casual encounter, group setting)?" },
-        { id: "pR2", text: "How important are explicit agreements, rules, or boundaries regarding exclusivity or openness in your ideal sexual relationships?" },
-        { id: "pR3", text: "What level of emotional intimacy do you typically prefer or require in your sexual connections?" },
-        { id: "pR4", text: "How do concepts like jealousy or compersion (finding joy in a partner's joy with others) manifest in your relational landscape?" },
-    ],
-    "Dissonance": [
-        { id: "pD1", text: "This concept seems quite different from your current profile. What aspect of it intrigues you or makes you curious, even if it feels unfamiliar?" },
-        { id: "pD2", text: "Exploring unfamiliar territory can be revealing. What potential does engaging with this concept hold for you, even if it feels challenging or uncomfortable at first glance?" },
-        { id: "pD3", text: "Sometimes, what we resist holds a key. Is there an underlying need or desire this concept touches upon, perhaps indirectly, that you haven't fully acknowledged?" },
-        { id: "pD4", text: "How might integrating or simply understanding this concept broaden your perspective on your own sexuality or the diverse experiences of others?" }
-    ],
-    "Guided": {
-        "LowAttunement": [
-            { id: "gLA1", text: "You're just beginning your exploration. Which core element feels most intriguing or confusing to you right now, and why?" },
-            { id: "gLA2", text: "Consider your initial scores. Was there anything that surprised you? How does it feel to start putting names to these aspects of yourself?" }
-        ],
-        "HighAttunementElement": [
-            { id: "gHE1", text: "You show a strong resonance with [Element Name]. How does this element manifest in your fantasies or experiences? What nuances are emerging?" },
-            { id: "gHE2", text: "Where might the 'shadow' or challenge lie within your strong connection to [Element Name]? Are there potential downsides or areas for growth?" }
-        ],
-        "ConceptSynergy": [
-             { id: "gCS1", text: "You're focusing on both [Concept A] and [Concept B], which have potential synergy. How do these concepts interact or influence each other in your mind?" },
-             { id: "gCS2", text: "What new possibilities or dynamics emerge when you consider [Concept A] and [Concept B] together? Does their combination create something unique?" }
-        ]
-    },
-    "RareConcept": {
-        "rP08": { id: "rP08", text: "Heavy Impact often involves intense sensation and trust. What draws you to this level of intensity? Is it the physical feeling, the marks, the power exchange, or something else?" },
-        "rP09": { id: "rP09", text: "Non-impact pain (needles, wax, clamps) offers different sensations. What specific quality of these sensations appeals to you? Is there a psychological component beyond the physical?" },
-        "rP11": { id: "rP11", text: "Following explicit commands requires a specific mindset. What is fulfilling or arousing about giving or receiving direct orders in a D/s dynamic?" },
-        "rP12": { id: "rP12", text: "Objectification can be controversial. In a consensual context, what psychological needs or desires might treating/being treated as an object fulfill for you?" },
-        "rP14": { id: "rP14", text: "Fantasy Immersion suggests the mental narrative is paramount. What elements make a fantasy world feel 'real' or deeply engaging for you during arousal?" },
-        "rP16": { id: "rP16", text: "Shibari blends restriction with aesthetics. Is your interest more in the visual beauty, the feeling of the ropes, the helplessness, or the connection with the rigger?" },
-        "rP17": { id: "rP17", text: "The feeling of helplessness can be potent. What emotions or psychological states does being restricted evoke in you? Is it surrender, vulnerability, excitement, or something else?" },
-        "rP20": { id: "rP20", text: "Focusing on materials like latex shifts attraction away from the person. What is it about the look, feel, sound, or smell of this material that triggers arousal for you?" },
-        "rP21": { id: "rP21", text: "Uniforms carry strong associations. What specific uniform/clothing triggers arousal, and what power, role, or fantasy does it represent for you?" },
-        "rP25": { id: "rP25", text: "Polyamory involves managing multiple intimate connections. What are the unique joys or challenges you anticipate or experience in this structure?" },
-        "rP27": { id: "rP27", text: "Relationship Anarchy rejects pre-defined rules. How do you navigate building unique relationship agreements based purely on individual desires and consent?" },
-        "rP30": { id: "rP30", text: "High Protocol demands structure and precision. What is the appeal of such formality in a D/s dynamic? Is it the clarity, the challenge, or the transformation?" },
-        "rP41": { id: "rP41", text: "Playing with perceived control (hypnosis/mind control) taps into deep psychological themes. What boundaries are crucial for you in exploring these states safely?" },
-        "rP42": { id: "rP42", text: "Transformation fantasies can be profound. What kind of change (physical, mental, species) is most arousing, and what does that transformation signify?" },
-        "rP43": { id: "rP43", text: "Medical Play often involves clinical settings and power dynamics. What aspect is most compelling: the vulnerability, the perceived authority, the specific tools, or the scenario itself?" },
-        "rP44": { id: "rP44", text: "Edge play pushes boundaries. What safety measures and communication strategies are non-negotiable for you when exploring activities with heightened perceived risk?" },
-        "rP45": { id: "rP45", text: "Humiliation/Degradation can evoke strong emotions. What is the difference for you between playful teasing and potentially harmful degradation, and where do your boundaries lie?" },
-        "rP63": { id: "rP63", text: "Breath play significantly alters physical and mental states. What specific sensation or psychological shift are you seeking, and how do you prioritize safety?" },
-        "rP64": { id: "rP64", text: "CNC involves simulating non-consent. How do you establish enthusiastic consent beforehand to ensure the simulated scenario remains within safe and desired boundaries?" },
-        "rP65": { id: "rP65", text: "Chemsex involves substance use. Reflect on the motivations (enhancing sensation, reducing inhibition, social connection) and potential risks associated with this practice." },
-        "rP109": { id: "rP109", text: "The M/s dynamic implies a deep power exchange. How does the concept of 'ownership' or total authority/surrender resonate with you compared to less formal D/s?" },
-        "rP111": { id: "rP111", text: "Knife play introduces a sharp visual and psychological edge. What role does the perceived danger or the intense focus required play in its appeal?" },
-        "rP112": { id: "rP112", text: "E-stim offers unique, often involuntary sensations. How does the feeling of electricity differ from other types of physical stimulation for you?" },
-        "rP113": { id: "rP113", text: "Suspension involves significant trust and technical skill. Is the appeal primarily the visual, the physical strain/sensation, or the profound vulnerability?" },
-        "rP114": { id: "rP114", text: "Water sports challenge conventional notions of cleanliness and intimacy. What taboos or psychological barriers does this activity engage with for you?" },
-        "rP115": { id: "rP115", text: "Scat play is often considered highly taboo. What deep-seated psychological themes or power dynamics might be involved in finding arousal here? (Consider safety implications.)" },
-        "rP116": { id: "rP116", text: "Incorporating blood introduces primal and potentially ritualistic elements. What symbolic meaning or visceral reaction does blood evoke in your erotic landscape? (Prioritize safety.)" },
-        "rP117": { id: "rP117", text: "Abduction fantasies often involve fear and powerlessness within a safe structure. What specific elements of the capture/captivity narrative are most potent?" },
-        "rP118": { id: "rP118", text: "Somnophilia plays with vulnerability and observation. What ethical considerations are paramount when exploring fantasies involving a sleeping or unaware partner?" },
-        "rP119": { id: "rP119", text: "Controlling or forcing orgasm is a direct manipulation of pleasure/release. How does this differ from teasing/denial, and what does it signify about power?" },
-        "rP120": { id: "rP120", text: "Psychological 'torture' requires navigating intense emotional landscapes. What kind of aftercare is essential after engaging in play that challenges mental boundaries?" },
-        "rP121": { id: "rP121", text: "Furry sexuality blends identity, persona, and often specific community contexts. How does adopting a fursona or engaging within the fandom shape your sexual expression?" },
-        "rP122": { id: "rP122", text: "Autassassinophilia links arousal to the staged risk of death. What psychological mechanisms might be at play in finding excitement in this ultimate form of 'danger'?" },
-        "rP123": { id: "rP123", text: "Using BDSM for exposure therapy requires careful navigation. How can scene work facilitate processing trauma without re-traumatizing, and what professional support might be needed?" },
-        "rP124": { id: "rP124", text: "Sensory overstimulation torture focuses on overwhelming input. Is the goal disorientation, endurance, breaking down defenses, or something else?" },
-        "rP125": { id: "rP125", text: "Advanced breath control involves significant risk and trust. What is the allure of playing so close to this particular edge? (Reflect on safety practices if exploring this.)" }
-    },
-    "SceneMeditation": {
-        "SCN001": { id: "scnP001", text: "Meditating on 'The Blindfolded Tasting': Imagine focusing solely on taste and texture without sight. How might this heighten other senses or feelings of vulnerability and trust?" },
-        "SCN002": { id: "scnP002", text: "Meditating on 'The Negotiated Power Shift': Consider the process of explicitly discussing and shifting control mid-scene. What communication skills are needed? How might this build intimacy or excitement?" },
-        "SCN003": { id: "scnP003", text: "Meditating on 'Sensory Storytelling': Reflect on how linking narrative words to physical sensations could blur the lines between mind and body. What kind of story would be most potent for you?"}
-    }
-};
+                     <div class="persona-constellation">
+                          <h2>Persona Tapestry - Focus <i class="fas fa-info-circle info-icon" title="Mark Concepts from your Grimoire as 'Focus' here. This shapes your Tapestry Narrative, influences Focus Resonance, and may unlock unique content based on combinations."></i></h2>
+                          <p>Curate concepts to shape your active Persona.</p>
+                          <div class="tapestry-area" id="tapestryArea">
+                               <h4 id="focusedConceptsHeader">Focused Concepts (0 / 5) <i class="fas fa-info-circle info-icon" title="The number of Concepts currently marked as Focus out of your total available slots. Slots can be increased via Milestones."></i></h4>
+                               <div id="focusedConceptsDisplay" class="focus-concepts-grid"></div>
+                          </div>
+                          <div id="focusElementalResonance" class="focus-resonance-section">
+                               <h3>Focus Resonance <i class="fas fa-info-circle info-icon" title="Shows the average elemental scores calculated ONLY from the Concepts currently marked as 'Focus'. This reflects the overall elemental balance of your curated Tapestry."></i></h3>
+                               <p>Average elemental scores of your focused concepts.</p>
+                               <div id="focusResonanceBars"></div>
+                          </div>
+                          <div class="tapestry-narrative-section">
+                              <h3>Tapestry Narrative <i class="fas fa-info-circle info-icon" title="A dynamically generated interpretation based on your Focused Concepts, highlighting dominant elements and potential synergies between them."></i></h3>
+                              <p id="tapestryNarrative">Mark concepts as "Focus" to generate narrative...</p>
+                          </div>
+                          <div class="grimoire-insights">
+                              <h3>Focus Themes <i class="fas fa-info-circle info-icon" title="Identifies the dominant Elements (those with high scores) appearing most frequently among your Focused Concepts."></i></h3>
+                              <p>Themes emerging from your focused concepts.</p>
+                              <ul id="personaThemesList"></ul>
+                          </div>
+                          <!-- MOVED: Milestones Section Removed -->
+                     </div>
+                 </div>
+             </div>
 
-// --- Element Deep Dive Content ---
-const elementDeepDive = {
-    "A": [
-        { level: 1, title: "Foundations of Attraction", insightCost: 10, content: "<p>Explores common attraction patterns like gender and presentation, the role of symmetry and health cues (often subconscious), and introduces the concept of spectrums (e.g., the asexual spectrum).</p><ul><li>Defining Orientation vs. Attraction</li><li>Common Cues: Visual, Auditory, Olfactory</li><li>Introduction to Asexuality and Demisexuality</li></ul>" },
-        { level: 2, title: "Beyond Gender: Nuances & Paraphilias", insightCost: 25, content: "<p>Delves into attractions beyond typical gender/presentation, including sapiosexuality (intelligence), attraction to dynamics (power), specific personality types, and introduces paraphilias/fetishes non-judgmentally as specific triggers.</p><ul><li>Sapiosexuality and Intellectual Connection</li><li>Attraction to Power Dynamics (Dominance/Submission Cues)</li><li>Understanding Fetishes: Specific Objects, Materials, Situations</li><li>The Role of Conditioning and Early Experience</li></ul>" },
-        { level: 3, title: "The Attraction-Arousal Link", insightCost: 50, content: "<p>Examines the complex relationship between initial attraction and physiological arousal, including factors that enhance or inhibit this connection, responsive vs. spontaneous desire, and the concept of attraction fluidity.</p><ul><li>Spontaneous vs. Responsive Desire Models</li><li>Factors Enhancing Arousal (Context, Mood, Hormones)</li><li>Factors Inhibiting Arousal (Stress, Disconnect, Context)</li><li>Attraction Fluidity and Change Over Time</li></ul>" }
-    ],
-    "I": [
-        { level: 1, title: "Roles & Energy Exchange", insightCost: 10, content: "<p>Introduces common interaction roles (Top/Bottom, Dom/Sub, Switch), discusses the concept of energy flow (leading/following), and examines collaborative vs. hierarchical interaction preferences.</p><ul><li>Defining Top/Bottom/Versatile vs. Dom/Sub/Switch</li><li>Energy Flow: Leading, Following, Mutual Exchange</li><li>Preference for Hierarchy vs. Equality in Interaction</li></ul>" },
-        { level: 2, title: "Styles of Power Dynamics", insightCost: 25, content: "<p>Explores different flavors of dominance and submission, such as psychological control, service-oriented submission, primal dynamics, nurturing/caregiver roles, and performance-based interactions (exhibitionism/voyeurism).</p><ul><li>Psychological Dominance vs. Physical Control</li><li>Service, Worship, and Obedience</li><li>Primal Play: Instinct and Non-Verbal Cues</li><li>Caregiver/Little Dynamics (DDlg, MDlb)</li><li>Performance Roles: Exhibitionism & Voyeurism</li></ul>" },
-        { level: 3, title: "Communication & Negotiation", insightCost: 50, content: "<p>Focuses on the critical role of communication in establishing and navigating interaction styles, including negotiation of roles/scenes, setting boundaries, using safewords, and providing/receiving feedback (aftercare).</p><ul><li>Negotiation: Defining Desires and Limits</li><li>Safewords: Communication Under Pressure</li><li>Implicit vs. Explicit Communication Styles</li><li>Giving and Receiving Feedback & Aftercare</li></ul>" }
-    ],
-    "S": [
-        { level: 1, title: "The Spectrum of Sensation", insightCost: 10, content: "<p>Maps the basic range of physical sensations relevant to sexuality, from light touch and warmth to firm pressure and vibration, considering different erogenous zones and sensitivity levels.</p><ul><li>Mapping Erogenous Zones</li><li>Light Touch, Pressure, Vibration</li><li>Temperature Basics (Warmth/Coolness)</li><li>Texture Fundamentals (Smooth/Rough)</li></ul>" },
-        { level: 2, title: "Intensity, Pain & Pleasure", insightCost: 25, content: "<p>Examines the deliberate use of intense sensations, including impact play (spanking, flogging), non-impact pain (pinching, biting, wax), restriction, and the psychological interplay between pain and pleasure (endorphins, context).</p><ul><li>Impact Play: Stinging, Thudding, Rhythmic</li><li>Non-Impact Pain: Sharp, Burning, Aching</li><li>The Pain/Pleasure Paradox: Endorphins and Context</li><li>Introduction to BDSM Sensation Play</li></ul>" },
-        { level: 3, title: "Beyond Touch: Full Sensory Integration", insightCost: 50, content: "<p>Expands beyond touch to include the role of sight (visual triggers, aesthetics), sound (music, voice tone, explicit words), smell (pheromones, scents), taste, and practices like sensory deprivation/overload.</p><ul><li>The Power of Visuals: Aesthetics and Action</li><li>Auditory Input: Voice, Music, Environment</li><li>Olfactory Triggers: Scents and Pheromones</li><li>Taste and Oral Fixation</li><li>Sensory Deprivation and Overload Techniques</li></ul>" }
-    ],
-    "P": [
-        { level: 1, title: "Core Motivations", insightCost: 10, content: "<p>Identifies common underlying psychological drivers for sexuality, such as connection, validation, stress relief, power, self-expression, and simple recreation. How do these manifest differently for individuals?</p><ul><li>Connection & Intimacy Needs</li><li>Validation & Self-Esteem</li><li>Stress Relief & Coping Mechanisms</li><li>Power & Control Needs (Giving/Receiving)</li><li>Play, Fun & Recreation</li></ul>" },
-        { level: 2, title: "Vulnerability, Trust & Catharsis", insightCost: 25, content: "<p>Explores the deeper psychological states accessible through sex, including the role of vulnerability in building trust, the potential for emotional release (catharsis), and achieving altered states of consciousness (flow, transcendence).</p><ul><li>Vulnerability as a Bridge to Trust</li><li>Catharsis: Emotional Release Through Intensity</li><li>Sexuality and Altered States (Flow, 'Subspace')</li><li>Building Psychological Safety</li></ul>" },
-        { level: 3, title: "Shadow Work & Integration", insightCost: 50, content: "<p>Addresses how sexuality can intersect with 'shadow' aspects of the psyche – unacknowledged desires, fears, or past experiences. Discusses potential for healing, integration, or conversely, compulsive repetition if unexamined. Introduces concepts like using play for exposure (with caution).</p><ul><li>Identifying Shadow Desires and Fears</li><li>Compulsive vs. Conscious Expression</li><li>Potential for Healing and Integration (Caution Required)</li><li>The Role of Therapy and Self-Awareness</li></ul>" }
-    ],
-    "C": [
-        { level: 1, title: "Fantasy & Imagination", insightCost: 10, content: "<p>Explores the function of internal fantasy, common fantasy themes, the difference between fantasy and reality, and the use of imagination to enhance arousal even in partnered encounters.</p><ul><li>The Role of Internal Narrative</li><li>Common Fantasy Archetypes and Themes</li><li>Distinguishing Fantasy from Intent</li><li>Using Imagination to Enhance Presence</li></ul>" },
-        { level: 2, title: "Scenarios, Role-Play & Scripting", insightCost: 25, content: "<p>Delves into the practice of creating and enacting specific scenarios, adopting roles, using costumes/props, and the degree of scripting vs. improvisation preferred in cognitive play.</p><ul><li>Common Role-Playing Archetypes (Doctor, Teacher, etc.)</li><li>Costumes, Props, and Setting the Scene</li><li>Scripting vs. Improvisation</li><li>Psychological Depth in Role-Play</li></ul>" },
-        { level: 3, title: "Intellect, Meaning & Transcendence", insightCost: 50, content: "<p>Focuses on higher-level cognitive engagement: finding arousal in intellectual banter, understanding complex psychological dynamics (mind games), exploring philosophical or symbolic meaning in sex, and seeking transcendent mental states.</p><ul><li>Sapiosexuality and Intellectual Foreplay</li><li>Mind Games and Psychological Chess</li><li>Symbolism and Ritual in Sexuality</li><li>Seeking Transcendence Through Mental Focus</li></ul>" }
-    ],
-    "R": [
-        { level: 1, title: "Structures & Numbers", insightCost: 10, content: "<p>Defines the basic structures: solitary practice, monogamy (serial vs. lifelong), and introduces the concept of consensual non-monogamy (CNM) as an umbrella term.</p><ul><li>Solitary Practice (Masturbation)</li><li>Monogamy: Definitions and Variations</li><li>Introduction to Consensual Non-Monogamy (CNM)</li><li>Dyads, Triads, Quads, and Moresomes</li></ul>" },
-        { level: 2, title: "Commitment, Intimacy & Anonymity", insightCost: 25, content: "<p>Explores the varying levels of emotional intimacy and commitment desired within different structures, from deep bonding in polyamory to the intentional lack of connection in anonymous encounters or casual sex.</p><ul><li>Defining Commitment Beyond Exclusivity</li><li>Emotional Intimacy vs. Sexual Connection</li><li>The Spectrum of Casual Sex (FWB, Hookups)</li><li>Anonymity and Its Appeals/Drawbacks</li></ul>" },
-        { level: 3, title: "Hierarchy, Rules & Communication", insightCost: 50, content: "<p>Addresses common practices and philosophies within CNM, such as open relationships vs. polyamory, hierarchical vs. non-hierarchical approaches (Relationship Anarchy), the role of rules vs. agreements, and managing complex communication and emotions like jealousy/compersion.</p><ul><li>Open Relationships vs. Polyamory</li><li>Hierarchy: Primaries, Secondaries, and Non-Hierarchical Models</li><li>Relationship Anarchy Principles</li><li>Rules vs. Agreements & Boundary Setting</li><li>Managing Jealousy & Cultivating Compersion</li></ul>" }
-    ]
-};
+             <!-- Summary View -->
+             <div id="personaSummaryView" class="persona-view hidden">
+                  <h2>Persona Summary <i class="fas fa-info-circle info-icon" title="A concise text overview combining your Core Foundation scores, Tapestry Narrative, and Focus Themes."></i></h2>
+                  <div id="summaryContent">
+                      <p>Generating summary...</p>
+                  </div>
+             </div>
+        </div>
 
-// --- Focus Rituals Data ---
-const focusRituals = [
-    { id: "fr01", requiredFocusIds: [4], description: "Focus Ritual: Reflect on a time you successfully guided a partner's experience.", reward: { type: "insight", amount: 3 }, track: { action: "completeReflection", count: 1, period: "daily", contextMatch: "FocusRitual_fr01" } },
-    { id: "fr02", requiredFocusIds: [5], description: "Focus Ritual: Meditate on the feeling of trust required for surrender.", reward: { type: "insight", amount: 3 }, track: { action: "completeReflection", count: 1, period: "daily", contextMatch: "FocusRitual_fr02" } },
-    { id: "fr03", requiredFocusIds: [15], description: "Focus Ritual: Contemplate an act that deepens vulnerability with a partner.", reward: { type: "attunement", element: "P", amount: 0.5 }, track: { action: "completeReflection", count: 1, period: "daily", contextMatch: "FocusRitual_fr03" } },
-    { id: "fr04", requiredFocusIds: [16, 17], description: "Focus Ritual: Analyze the interplay between aesthetic form and restricted sensation in rope.", reward: { type: "insight", amount: 5 }, track: { action: "completeReflection", count: 1, period: "daily", contextMatch: "FocusRitual_fr04" } }
-];
-
-// --- Repository Item Data ---
-const sceneBlueprints = [
-    { id: "SCN001", name: "The Blindfolded Tasting", element: "S", description: "One partner is blindfolded and fed various foods/drinks with different textures and temperatures, focusing solely on taste, texture, and the intimacy of being fed.", meditationCost: 10, reflectionPromptId: "scnP001" },
-    { id: "SCN002", name: "The Negotiated Power Shift", element: "I", description: "Start a scene with agreed-upon roles (e.g., Dom/sub). Partway through, use a specific safeword or signal to pause and explicitly renegotiate who holds the power for the remainder of the scene.", meditationCost: 10, reflectionPromptId: "scnP002" },
-    { id: "SCN003", name: "Sensory Storytelling", element: "C", description: "One partner tells an erotic story while simultaneously providing corresponding light sensory input (e.g., describing wind with a feather, warmth with a warm cloth). Focus on synchronizing narrative and sensation.", meditationCost: 10, reflectionPromptId: "scnP003" },
-    { id: "SCN004", name: "Mirror Gazing Intimacy", element: "P", description: "Partners sit facing each other, maintaining eye contact, perhaps while holding hands or with light touch. Focus on observing micromovements and shared vulnerability without speaking.", meditationCost: 8, reflectionPromptId: "scnP004" }, // Add prompt scnP004 to reflections
-];
-
-const alchemicalExperiments = [
-    { id: "EXP01", name: "Sensory Amplification", requiredElement: "S", requiredAttunement: 75, insightCost: 30, requiredFocusConceptTypes: ["Practice/Kink"], description: "Attempt to heighten all sensory input through focused meditation and deliberate stimulation, risking temporary overload but potentially achieving heightened awareness.", successReward: { type: "attunement", element: "S", amount: 5 }, failureConsequence: "Slight temporary decrease in Sensory attunement.", successRate: 0.6 },
-    { id: "EXP02", name: "Command Resonance", requiredElement: "I", requiredAttunement: 80, insightCost: 40, requiredFocusConceptIds: [11], description: "Channel intense focus into the act of command or obedience, seeking perfect resonance and understanding within a power dynamic.", successReward: { type: "insight", amount: 20 }, failureConsequence: "Temporary inability to focus Interaction concepts.", successRate: 0.5 },
-    { id: "EXP03", name: "Intimacy Catalyst", requiredElement: "P", requiredAttunement: 85, insightCost: 50, requiredFocusConceptIds: [15], description: "Attempt a ritualistic sharing of vulnerabilities to rapidly deepen a perceived emotional connection, risking discomfort or misinterpretation.", successReward: { type: "attunement", element: "P", amount: 6 }, failureConsequence: "Increased feeling of psychological dissonance for a time.", successRate: 0.4 },
-    { id: "EXP04", name: "Conceptual Weaving", requiredElement: "C", requiredAttunement: 70, insightCost: 35, requiredFocusConceptTypes: ["Cognitive"], description: "Attempt to mentally blend two focused Cognitive concepts into a coherent, novel fantasy scenario, potentially unlocking a new perspective or fragment.", successReward: { type: "insightFragment", count: 1, element: "C" }, failureConsequence: "Mental fatigue, slight Insight loss.", successRate: 0.55 } // Add insightFragment reward type
-];
-
-const elementalInsights = [
-    { id: "EI_A01", element: "A", text: "Attraction is a compass, not always pointing north." },
-    { id: "EI_A02", element: "A", text: "What repels reveals as much as what attracts." },
-    { id: "EI_A03", element: "A", text: "Sometimes, the strongest pull is towards the unfamiliar edge." },
-    { id: "EI_A04", element: "A", text: "A scent, a glance, a word - the spark can ignite anywhere." },
-    { id: "EI_I01", element: "I", text: "Every interaction is a negotiation, spoken or unspoken." },
-    { id: "EI_I02", element: "I", text: "Silence, too, is a form of dialogue in the dance." },
-    { id: "EI_I03", element: "I", text: "True power lies not in control, but in the consent to be controlled." },
-    { id: "EI_I04", element: "I", text: "The rhythm of giving and receiving creates the music." },
-    { id: "EI_S01", element: "S", text: "The skin remembers sensations the mind forgets." },
-    { id: "EI_S02", element: "S", text: "Pain is but intense sensation; its meaning is chosen." },
-    { id: "EI_S03", element: "S", text: "Deprive one sense, and the others awaken hungrily." },
-    { id: "EI_S04", element: "S", text: "Contrast sharpens awareness: hot/cold, rough/smooth, tight/loose." },
-    { id: "EI_P01", element: "P", text: "Need is the hidden current beneath the waves of desire." },
-    { id: "EI_P02", element: "P", text: "Vulnerability offered is strength transformed." },
-    { id: "EI_P03", element: "P", text: "Catharsis burns away the dross, leaving purified feeling." },
-    { id: "EI_P04", element: "P", text: "Trust is the vessel; intimacy is the elixir." },
-    { id: "EI_C01", element: "C", text: "Fantasy is the laboratory where reality is tested." },
-    { id: "EI_C02", element: "C", text: "The most intricate scenes are mapped first in the mind." },
-    { id: "EI_C03", element: "C", text: "Meaning elevates sensation; intellect sharpens the edge." },
-    { id: "EI_C04", element: "C", text: "Anticipation is the sweetest spice." },
-    { id: "EI_R01", element: "R", text: "A dyad is a universe, a network a galaxy." },
-    { id: "EI_R02", element: "R", text: "Rules bind, agreements connect." },
-    { id: "EI_R03", element: "R", text: "Exclusivity is a choice, not a default setting of the heart." },
-    { id: "EI_R04", element: "R", text: "Compersion requires seeing beyond the self." }
-];
-
-// --- NEW: Focus-Driven Unlocks Data ---
-// Defines items unlocked when specific combinations of concepts are focused.
-const focusDrivenUnlocks = [
-    {
-        id: "FDU001", // Unique ID for this unlock definition
-        requiredFocusIds: [4, 9], // Requires Dominance (Psychological) AND Pain Play (Non-Impact)
-        unlocks: { type: "scene", id: "SCN005", name: "Precision Sensation Scene" }, // Unlocks a new Scene Blueprint (add SCN005 to sceneBlueprints)
-        description: "Focusing on Control and Precise Sensation has revealed the 'Precision Sensation Scene' Blueprint!" // Message shown to user
-    },
-    {
-        id: "FDU002",
-        requiredFocusIds: [15, 16], // Requires Deep Emotional Intimacy AND Rope Bondage
-        unlocks: { type: "insightFragment", id: "EI_P05", element: "P", text: "Binding the body can free the heart, if trust holds the knot." }, // Unlocks a specific Insight Fragment (add EI_P05 to elementalInsights)
-        description: "Focusing on Intimacy and Trust within Restriction has revealed a new Psychological Insight!"
-    },
-    {
-        id: "FDU003",
-        requiredFocusIds: [13, 21], // Requires Role-Playing AND Uniform Fetish
-        unlocks: { type: "experiment", id: "EXP05", name: "Persona Integration Test" }, // Unlocks a new Experiment (add EXP05 to alchemicalExperiments)
-        description: "Focusing on assumed Roles and Symbolic Attire has unlocked the 'Persona Integration Test' Experiment!"
-    }
-    // Add more unlock combinations...
-];
+         <!-- === Grimoire Screen === -->
+         <div id="grimoireScreen" class="screen hidden grimoire-screen">
+              <h1>The Grand Grimoire <i class="fas fa-info-circle info-icon" title="Your personal collection of discovered Concept Cards. Filter, sort, view details, mark Concepts for Focus, or sell unwanted Concepts for Insight."></i></h1>
+              <div id="grimoireControls">
+                  <label for="grimoireTypeFilter">Type:</label>
+                  <select id="grimoireTypeFilter"><option value="All">All Types</option></select>
+                  <label for="grimoireElementFilter">Element:</label>
+                  <select id="grimoireElementFilter"><option value="All">All Elements</option></select>
+                   <label for="grimoireRarityFilter">Rarity:</label>
+                  <select id="grimoireRarityFilter">
+                      <option value="All">All Rarities</option>
+                      <option value="common">Common</option>
+                      <option value="uncommon">Uncommon</option>
+                      <option value="rare">Rare</option>
+                  </select>
+                  <label for="grimoireSortOrder">Sort:</label>
+                  <select id="grimoireSortOrder">
+                      <option value="discovered">Date Added</option>
+                      <option value="name">Name</option>
+                      <option value="type">Type</option>
+                      <option value="rarity">Rarity</option>
+                  </select>
+                  <i class="fas fa-info-circle info-icon" title="Use these controls to filter and sort the Concepts displayed in your Grimoire below."></i>
+              </div>
+              <div id="grimoireContent" class="card-grid"></div>
+         </div>
 
 
-// --- Rituals & Milestones Data ---
-const dailyRituals = [
-    { id: "dr01", description: "Perform your Daily Meditation (Free Research).", reward: { type: "insight", amount: 2 }, track: { action: "freeResearch", count: 1, period: "daily" } },
-    { id: "dr02", description: "Add 1 Concept to your Grimoire.", reward: { type: "insight", amount: 3 }, track: { action: "addToGrimoire", count: 1, period: "daily" } },
-    { id: "dr03", description: "Complete a Reflection Prompt.", reward: { type: "insight", amount: 5 }, track: { action: "completeReflection", count: 1, period: "daily" } },
-    { id: "dr04", description: "Focus on a new Concept.", reward: { type: "insight", amount: 4 }, track: { action: "markFocus", count: 1, period: "daily" } },
-    { id: "dr05", description: "Conduct paid Research in any Element.", reward: { type: "attunement", element: "All", amount: 0.2 }, track: { action: "conductResearch", count: 1, period: "daily" } },
-    { id: "dr06", description: "Unlock an Element Library level.", reward: { type: "attunement", element: "All", amount: 0.5 }, track: { action: "unlockLibrary", count: 1, period: "daily"} }
-];
+        <!-- === Main Study Screen === -->
+        <div id="studyScreen" class="screen hidden study-screen">
+             <!-- Layout container adjusted for only two columns now -->
+             <div class="study-layout-container">
+                 <!-- Left Column: Resources & Actions -->
+                 <div class="study-column-left study-resources"> <!-- Combined class -->
+                      <h2>Resources & Actions <i class="fas fa-info-circle info-icon" title="Manage your Insight and perform core actions like Researching specific Elements, taking Guided Reflections, or performing your free Daily Meditation."></i></h2>
+                      <p>Current Insight: <strong id="userInsightDisplayStudy">0.0</strong> <i class="fas fa-brain insight-icon"></i></p>
+                      <hr>
+                      <p>Focus your Insight <i class="fas fa-brain insight-icon"></i> to deepen understanding:</p>
+                      <button id="freeResearchButton" class="button free-research-button hidden" title="Once per day, perform research on your least attuned element for free.">Perform Daily Meditation</button>
+                      <div id="researchButtonContainer" class="research-buttons" title="Spend Insight to research a specific Element, potentially discovering new Concepts or Repository items. Cost may decrease slightly with high Attunement in that Element."></div>
+                      <button id="seekGuidanceButton" class="button guidance-button" title="Spend Insight for a randomly selected Guided Reflection prompt, offering deeper insights or exploring specific themes.">Seek Guided Reflection (Cost: <span id="guidedReflectionCostDisplay">10</span> <i class="fas fa-brain insight-icon"></i>)</button>
+                      <hr>
+                      <div class="rituals-section">
+                          <h3>Daily Rituals <i class="fas fa-info-circle info-icon" title="Complete these tasks each day for bonus Insight or Attunement. They reset daily. Special Focus Rituals appear here when their required Concepts are focused."></i></h3>
+                          <ul id="dailyRitualsDisplay"><li>Loading...</li></ul>
+                      </div>
+                 </div>
 
-const milestones = [
-    // Early Game & Discovery
-    { id: "ms01", description: "First Concept Added!", reward: { type: "insight", amount: 5 }, track: { state: "discoveredConcepts.size", threshold: 1 } },
-    { id: "ms02", description: "Curator I: Added 5 Concepts", reward: { type: "insight", amount: 10 }, track: { state: "discoveredConcepts.size", threshold: 5 } },
-    { id: "ms15", description: "Curator II: Added 15 Concepts", reward: { type: "insight", amount: 15 }, track: { state: "discoveredConcepts.size", threshold: 15 } },
-    { id: "ms25", description: "Curator III: Added 25 Concepts", reward: { type: "increaseFocusSlots", amount: 1 }, track: { state: "discoveredConcepts.size", threshold: 25 } },
-    { id: "ms40", description: "Curator IV: Added 40 Concepts", reward: { type: "insight", amount: 25 }, track: { state: "discoveredConcepts.size", threshold: 40 } },
-    { id: "ms55", description: "Curator V: Added 55 Concepts", reward: { type: "increaseFocusSlots", amount: 1 }, track: { state: "discoveredConcepts.size", threshold: 55 } },
-    { id: "ms75", description: "Grand Curator: Added 75 Concepts", reward: { type: "insight", amount: 40 }, track: { state: "discoveredConcepts.size", threshold: 75 } },
-    // Focus & Tapestry
-    { id: "ms03", description: "First Focus Concept Marked", reward: { type: "insight", amount: 8 }, track: { state: "focusedConcepts.size", threshold: 1 } },
-    { id: "ms04", description: "Tapestry Weaver I: Marked 3 Focus Concepts", reward: { type: "attunement", element: "All", amount: 1 }, track: { state: "focusedConcepts.size", threshold: 3 } },
-    { id: "ms08", description: "Tapestry Weaver II: Marked 5 Focus Concepts", reward: { type: "increaseFocusSlots", amount: 1 }, track: { state: "focusedConcepts.size", threshold: 5 } },
-    { id: "ms18", description: "Tapestry Weaver III: Filled 7 Focus Slots", reward: { type: "insight", amount: 25 }, track: { state: "focusedConcepts.size", threshold: 7 } },
-    { id: "ms35", description: "Tapestry Weaver IV: Filled 9 Focus Slots", reward: { type: "increaseFocusSlots", amount: 1 }, track: { state: "focusedConcepts.size", threshold: 9 } },
-    { id: "ms48", description: "Tapestry Master: Filled 12 Focus Slots", reward: { type: "insight", amount: 50 }, track: { state: "focusedConcepts.size", threshold: 12 } },
-    // Research & Attunement
-    { id: "ms05", description: "First Research Conducted", reward: { type: "insight", amount: 5 }, track: { action: "conductResearch", count: 1 } },
-    { id: "ms06", description: "Elementalist I: Reached Attunement 10 in one Element", reward: { type: "insight", amount: 15 }, track: { state: "elementAttunement", threshold: 10, condition: "any" } },
-    { id: "ms13", description: "Well Rounded I: Attunement 5+ in all Elements", reward: { type: "insight", amount: 20 }, track: { state: "elementAttunement", threshold: 5, condition: "all" } },
-    { id: "ms20", description: "Elementalist II: Reached Attunement 50 in one Element", reward: { type: "increaseFocusSlots", amount: 1 }, track: { state: "elementAttunement", threshold: 50, condition: "any" } },
-    { id: "ms30", description: "Elementalist III: Reached Attunement 90 in one Element", reward: { type: "insight", amount: 40 }, track: { state: "elementAttunement", threshold: 90, condition: "any" } },
-    { id: "ms45", description: "Well Rounded II: Attunement 25+ in all Elements", reward: { type: "increaseFocusSlots", amount: 1 }, track: { state: "elementAttunement", threshold: 25, condition: "all" } },
-    // Reflection & Growth
-    { id: "ms07", description: "First Reflection Completed", reward: { type: "insight", amount: 5 }, track: { action: "completeReflection", count: 1 } },
-    { id: "ms12", description: "Dissonance Embraced: Completed a Dissonance Reflection", reward: { type: "attunement", element: "All", amount: 1.5 }, track: { action: "completeReflectionDissonance", count: 1 } },
-    { id: "ms22", description: "Self-Awareness: Completed 5 Reflections", reward: { type: "insight", amount: 20 }, track: { action: "completeReflection", count: 5 } },
-    { id: "ms23", description: "Growth Mindset: Allowed Score Nudge after Reflection", reward: { type: "insight", amount: 10 }, track: { action: "scoreNudgeApplied", count: 1 } },
-    { id: "ms38", description: "Deep Reflection: Completed 10 Reflections", reward: { type: "increaseFocusSlots", amount: 1 }, track: { action: "completeReflection", count: 10 } },
-    // Specific Discoveries & Evolution
-    { id: "ms09", description: "Attuned to Interaction: Reached Attunement 20 in Interaction", reward: { type: "discoverCard", cardId: 6 }, track: { state: "elementAttunement", element: "I", threshold: 20 } },
-    { id: "ms10", description: "Deep Thinker: Reached Attunement 20 in Cognitive", reward: { type: "discoverCard", cardId: 14 }, track: { state: "elementAttunement", element: "C", threshold: 20 } },
-    { id: "ms11", description: "First Art Evolution", reward: { type: "insight", amount: 20 }, track: { action: "evolveArt", count: 1 } },
-    { id: "ms21", description: "Rare Find: Discovered a Rare Concept Card", reward: { type: "insight", amount: 15 }, track: { action: "discoverRareCard", count: 1 } },
-    { id: "ms33", description: "Sensory Seeker: Reached Attunement 30 in Sensory", reward: { type: "discoverCard", cardId: 88 }, track: { state: "elementAttunement", element: "S", threshold: 30 } },
-    { id: "ms42", description: "Art Appreciator: Evolved Art for 3 Concepts", reward: { type: "insight", amount: 30 }, track: { action: "evolveArt", count: 3 } },
-    // Questionnaire Completion
-    { id: "ms50", description: "Initial Experiment Complete", reward: { type: "insight", amount: 10 }, track: { action: "completeQuestionnaire", count: 1 } },
-    // Library Milestones
-    { id: "ms60", description: "Budding Scholar: Unlocked First Library Level", reward: { type: "insight", amount: 5 }, track: { action: "unlockLibrary", count: 1} },
-    { id: "ms61", description: "Elemental Scholar: Unlocked Level 2 in one Element", reward: { type: "insight", amount: 10 }, track: { state: "unlockedDeepDiveLevels", threshold: 2, condition: "any"} },
-    { id: "ms62", description: "Dedicated Scholar: Unlocked Level 3 in one Element", reward: { type: "insight", amount: 15 }, track: { state: "unlockedDeepDiveLevels", threshold: 3, condition: "any"} },
-    { id: "ms63", description: "Omniscient Scholar: Unlocked Level 1 in all Elements", reward: { type: "increaseFocusSlots", amount: 1 }, track: { state: "unlockedDeepDiveLevels", threshold: 1, condition: "all"} },
-    // Repository Milestones
-    { id: "ms70", description: "Scene Contemplated: Meditated on a Scene Blueprint", reward: { type: "insight", amount: 10 }, track: { action: "meditateScene", count: 1 } },
-    { id: "ms71", description: "Experiment Attempted: Braved an Alchemical Experiment", reward: { type: "insight", amount: 15 }, track: { action: "attemptExperiment", count: 1 } },
-    { id: "ms72", description: "Insight Gatherer: Collected 3 Elemental Insights", reward: { type: "attunement", element: "All", amount: 1.0 }, track: { state: "repositoryInsightsCount", threshold: 3 } },
-    { id: "ms73", description: "Repository Explorer: Collected 1 item of each type (Scene, Experiment, Insight)", reward: { type: "insight", amount: 20 }, track: { state: "repositoryContents", condition: "allTypesPresent" } }, // Need custom check in updateMilestoneProgress
-    // NEW: Sell Milestone
-    { id: "ms80", description: "Resource Management: Sold a Concept Card", reward: { type: "insight", amount: 5 }, track: { action: "sellConcept", count: 1 } },
-];
+                 <!-- MOVED: Element Library Removed -->
+
+                 <!-- Right Column: Research Bench -->
+                 <div class="study-column-right research-bench">
+                     <h2>Research Notes <i class="fas fa-info-circle info-icon" title="Results from your Research appear here. Concepts remain until you Add them to your Grimoire or Sell them for Insight. You might also find Repository items here."></i></h2>
+                     <div id="researchStatus">Select an Element or perform Meditation...</div>
+                     <div id="researchOutput" class="research-output-area card-grid">
+                        <p><i>Research results will appear here.</i></p>
+                     </div>
+                 </div>
+             </div>
+        </div>
 
 
-// --- Helper function to ensure all data objects exist (Check new ones) ---
-function checkAllDataObjects() {
-    const dataObjects = {
-        elementDetails, concepts, questionnaireGuided, reflectionPrompts,
-        elementDeepDive, focusRituals, sceneBlueprints, alchemicalExperiments,
-        elementalInsights, focusDrivenUnlocks, dailyRituals, milestones,
-        elementKeyToFullName
-    };
-    for (const key in dataObjects) {
-        if (typeof dataObjects[key] === 'undefined') {
-            console.error(`CRITICAL ERROR: Data object "${key}" is missing from data.js!`);
-            return false;
-        }
-    }
-    console.log("All core data objects present.");
-    return true;
-}
-checkAllDataObjects(); // Run check immediately
+         <!-- === Repository Screen === -->
+         <div id="repositoryScreen" class="screen hidden repository-screen">
+             <h1>Repository <i class="fas fa-info-circle info-icon" title="A collection of rare discoveries beyond standard Concepts: Scene Blueprints for meditation, Alchemical Experiments requiring high Attunement, collected Elemental Insight fragments, and special unlocks driven by your Focused Concepts. Milestones are also tracked here."></i></h1>
+             <p>A collection of rare discoveries, focus-driven unlocks, and achieved milestones.</p>
+             <div class="repository-layout">
+                 <section id="repositoryFocusUnlocks" class="repository-section">
+                     <h2><i class="fas fa-link"></i> Focus-Driven Discoveries <i class="fas fa-info-circle info-icon" title="Special items (Scenes, Insights, Experiments) unlocked automatically by having specific combinations of Concepts marked as 'Focus' on your Persona Tapestry."></i></h2>
+                     <div class="repo-list focus-unlocks-list">
+                         <p>Focus on synergistic combinations of Concepts to unlock special items here.</p>
+                         <!-- Focus unlock items injected here -->
+                     </div>
+                 </section>
+                 <hr>
+                 <section id="repositoryScenes" class="repository-section">
+                     <h2><i class="fas fa-scroll"></i> Scene Blueprints <i class="fas fa-info-circle info-icon" title="Rare textual scenarios found during Research. Meditate on them (costs Insight) to trigger unique Reflection prompts and gain deeper understanding."></i></h2>
+                     <div class="repo-list">
+                         <p>Conduct research for a chance to discover scene blueprints.</p>
+                         <!-- Scene items injected here -->
+                     </div>
+                 </section>
+                 <hr>
+                 <section id="repositoryExperiments" class="repository-section">
+                     <h2><i class="fas fa-flask"></i> Alchemical Experiments <i class="fas fa-info-circle info-icon" title="Challenging procedures unlocked by high Attunement in specific Elements. Attempting them costs Insight and may require specific Focused Concepts. Success yields rewards, failure may have minor consequences."></i></h2>
+                     <div class="repo-list">
+                         <p>Achieve high Attunement in elements to unlock challenging experiments.</p>
+                         <!-- Experiment items injected here -->
+                     </div>
+                 </section>
+                 <hr>
+                 <section id="repositoryInsights" class="repository-section">
+                     <h2><i class="fas fa-lightbulb"></i> Elemental Insights <i class="fas fa-info-circle info-icon" title="Short, evocative text fragments related to specific Elements, occasionally discovered during Research. They offer flavor and deepen the lore."></i></h2>
+                     <div class="repo-list">
+                         <p>Rare fragments of knowledge occasionally found during research.</p>
+                         <!-- Insight items injected here -->
+                     </div>
+                 </section>
+                 <hr>
+                  <!-- MOVED: Milestones Section -->
+                 <section id="milestonesSection" class="repository-section">
+                      <h2><i class="fas fa-award"></i> Milestones Achieved <i class="fas fa-info-circle info-icon" title="Significant accomplishments tracked throughout your journey. Achieving milestones often grants rewards like Insight or increased Focus Slots."></i></h2>
+                      <ul id="milestonesDisplay"><li>None yet</li></ul>
+                 </section>
+             </div>
+         </div>
 
-console.log("data.js finished.");
+
+        <!-- === Concept Detail Pop-up === -->
+        <div id="conceptDetailPopup" class="popup hidden card-popup">
+              <button id="closePopupButton" class="close-button">×</button>
+              <div class="popup-header">
+                  <span id="popupCardTypeIcon" class="card-type-icon"></span>
+                  <h3 id="popupConceptName">Concept Name</h3>
+                  <p id="popupConceptType">Card Type</p>
+              </div>
+              <div class="popup-content">
+                  <div id="popupVisualContainer" class="popup-visual">
+                      <i id="popupCardVisual" class="card-visual-placeholder fa-solid fa-image"></i>
+                  </div>
+                  <div class="popup-details">
+                      <p id="popupDetailedDescription" class="detailed-description">Detailed description...</p>
+                       <hr class="popup-hr">
+                      <div class="resonance-summary" id="popupResonanceSummary">Resonance info... <i class="fas fa-info-circle info-icon" title="How closely this Concept's elemental scores align with your current Core Foundation scores. High resonance suggests strong alignment, Dissonant suggests significant divergence."></i></div>
+                      <div class="recipe-view">
+                          <h4>Resonance Analysis <i class="fas fa-info-circle info-icon" title="A deeper look at the alignment between this Concept's elemental 'recipe' and your own, highlighting key similarities and differences."></i></h4>
+                          <div id="popupComparisonHighlights">Highlights...</div>
+                          <details class="element-details">
+                              <summary>View Full Recipe Comparison</summary>
+                              <div class="profile-comparison">
+                                  <div class="profile-column"><h5>Concept</h5><div id="popupConceptProfile"></div></div>
+                                  <div class="profile-column"><h5>You</h5><div id="popupUserComparisonProfile"></div></div>
+                              </div>
+                          </details>
+                      </div>
+                       <hr class="popup-hr">
+                       <!-- Updated Related Concepts to Details/Summary -->
+                       <div id="popupRelatedConcepts" class="related-concepts">
+                            <!-- Content generated by JS -->
+                       </div>
+                       <div id="myNotesSection" class="my-notes-section hidden">
+                            <hr class="popup-hr">
+                           <h4>My Notes <i class="fas fa-info-circle info-icon" title="Your personal space to jot down thoughts, reflections, or interpretations related to this Concept. Saved automatically."></i></h4>
+                           <textarea id="myNotesTextarea" rows="3" placeholder="Add your personal reflections here..."></textarea>
+                           <button id="saveMyNoteButton" class="button small-button">Save Note</button>
+                           <span id="noteSaveStatus" class="note-status"></span>
+                       </div>
+                      <div id="popupEvolutionSection" class="evolution-section hidden">
+                          <hr class="popup-hr">
+                          <h4>Deepen Understanding <i class="fas fa-info-circle info-icon" title="Unlock enhanced art for this Concept by meeting the requirements (Focusing it, having Reflected, sufficient Insight)."></i></h4>
+                          <button id="evolveArtButton" class="button small-button evolve-button" disabled>Unlock Enhanced Art (Cost: <span id="evolveCost">?</span>)</button>
+                          <p id="evolveEligibility" class="evolve-eligibility-text"></p>
+                      </div>
+                  </div>
+              </div>
+              <div class="popup-actions">
+                  <button id="addToGrimoireButton" class="button small-button add-grimoire-button" title="Add this Concept to your permanent Grimoire collection.">Add to Grimoire</button>
+                  <button id="markAsFocusButton" class="button small-button focus-button hidden" title="Toggle whether this Concept contributes to your Persona Tapestry.">Mark as Focus</button>
+                  <!-- Sell button added dynamically by renderCard if applicable -->
+              </div>
+        </div>
+
+         <!-- === Reflection Prompt Modal === -->
+         <div id="reflectionModal" class="popup hidden reflection-modal">
+             <button id="closeReflectionModalButton" class="close-button">×</button>
+             <h3 id="reflectionModalTitle">Moment for Reflection <i class="fas fa-info-circle info-icon" title="Pause and consider the presented prompt. Check the box once you've genuinely reflected. Confirming grants Insight and potentially Attunement."></i></h3>
+             <p>Regarding <strong id="reflectionElement">Element/Concept</strong>:</p>
+             <p id="reflectionPromptText" class="prompt-text">Prompt text...</p>
+             <div class="reflection-confirm">
+                 <input type="checkbox" id="reflectionCheckbox">
+                 <label for="reflectionCheckbox">I have taken a moment to reflect on this.</label>
+                 <br>
+                 <input type="checkbox" id="scoreNudgeCheckbox" class="hidden">
+                 <label for="scoreNudgeCheckbox" id="scoreNudgeLabel" class="hidden score-nudge-label" title="If checked (only available for Dissonance reflections), completing this reflection may slightly adjust your Core Foundation scores towards this Concept's profile.">Allow this reflection to potentially nudge your core understanding?</label>
+             </div>
+             <button id="confirmReflectionButton" class="button small-button" disabled>Confirm Reflection (+<span id="reflectionRewardAmount">?</span>)</button>
+         </div>
+
+         <!-- === Settings Popup === -->
+         <div id="settingsPopup" class="popup hidden settings-popup">
+             <button id="closeSettingsPopupButton" class="close-button">×</button>
+             <h3>Settings <i class="fas fa-info-circle info-icon" title="Manage your session data. 'Force Save' manually triggers saving. 'Reset All Progress' completely wipes your saved data (use with caution!)."></i></h3>
+             <div class="settings-content">
+                  <p>Manage your session data.</p>
+                  <button id="forceSaveButton" class="button small-button">Force Save</button>
+                  <button id="resetAppButton" class="button small-button back-button">Reset All Progress</button>
+                  <p class="reset-warning"><strong>Warning:</strong> Resetting will erase all scores, discovered concepts, insight, and progress permanently.</p>
+             </div>
+         </div>
+
+          <!-- === Milestone Alert === -->
+         <div id="milestoneAlert" class="milestone-alert hidden">
+             <span id="milestoneAlertText">Milestone Reached!</span>
+             <button id="closeMilestoneAlertButton">×</button>
+         </div>
+
+         <!-- === Temporary Message / Toast Notification === -->
+         <div id="toastNotification" class="toast hidden">
+             <span id="toastMessage">Message text here</span>
+         </div>
+
+         <!-- Overlay for Popups -->
+         <div id="popupOverlay" class="overlay hidden"></div>
+
+    </div> <!-- End app-container -->
+
+    <!-- SCRIPTS AT THE END (with defer) -->
+    <script src="data.js" defer></script>
+    <script src="script.js" defer></script>
+</body>
+</html>
