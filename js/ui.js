@@ -545,7 +545,17 @@ export function updateResearchButtonAfterAction(conceptId, action) { const itemD
 export function updateGrimoireCounter() { if (grimoireCountSpan) grimoireCountSpan.textContent = State.getDiscoveredConcepts().size; }
 export function populateGrimoireFilters() { if (grimoireTypeFilter) { grimoireTypeFilter.innerHTML = '<option value="All">All Types</option>'; cardTypeKeys.forEach(type => { const option = document.createElement('option'); option.value = type; option.textContent = type; grimoireTypeFilter.appendChild(option); }); } if (grimoireElementFilter) { grimoireElementFilter.innerHTML = '<option value="All">All Elements</option>'; elementNames.forEach(fullName => { const name = elementDetails[fullName]?.name || fullName; const option = document.createElement('option'); option.value = fullName; option.textContent = name; grimoireElementFilter.appendChild(option); }); } }
 export function displayGrimoire(filterType = "All", filterElement = "All", sortBy = "discovered", filterRarity = "All") { if (!grimoireContentDiv) return; grimoireContentDiv.innerHTML = ''; const discoveredMap = State.getDiscoveredConcepts(); if (discoveredMap.size === 0) { grimoireContentDiv.innerHTML = '<p>Your Grimoire is empty. Conduct Research!</p>'; return; } let discoveredArray = Array.from(discoveredMap.values()); const conceptsToDisplay = discoveredArray.filter(data => { if (!data?.concept) return false; const concept = data.concept; const typeMatch = (filterType === "All") || (concept.cardType === filterType); const elementKey = filterElement !== "All" ? elementNameToKey[filterElement] : "All"; const elementMatch = (elementKey === "All") || (concept.primaryElement === elementKey); const rarityMatch = (filterRarity === "All") || (concept.rarity === filterRarity); return typeMatch && elementMatch && rarityMatch; }); const rarityOrder = { 'common': 1, 'uncommon': 2, 'rare': 3 }; conceptsToDisplay.sort((a, b) => { if (!a.concept || !b.concept) return 0; switch (sortBy) { case 'name': return a.concept.name.localeCompare(b.concept.name); case 'type': return (cardTypeKeys.indexOf(a.concept.cardType) - cardTypeKeys.indexOf(b.concept.cardType)) || a.concept.name.localeCompare(b.concept.name); case 'rarity': return (rarityOrder[a.concept.rarity] || 0) - (rarityOrder[b.concept.rarity] || 0) || a.concept.name.localeCompare(b.concept.name); default: return (a.discoveredTime || 0) - (b.discoveredTime || 0) || a.concept.name.localeCompare(b.concept.name); } }); if (conceptsToDisplay.length === 0) { grimoireContentDiv.innerHTML = `<p>No discovered concepts match the current filters.</p>`; } else { conceptsToDisplay.forEach(data => { const cardElement = renderCard(data.concept, 'grimoire'); grimoireContentDiv.appendChild(cardElement); }); } }
-export function refreshGrimoireDisplay() { if (grimoireScreen && !grimoireScreen.classList.contains('hidden')) { displayGrimoire( grimoireTypeFilter?.value || "All", grimoireElementFilter?.value || "All", grimoireSortOrder?.value || "discovered", grimoireRarityFilter?.value || "All" ); } }
+// In ui.js
+export function refreshGrimoireDisplay() {
+     if (grimoireScreen && !grimoireScreen.classList.contains('hidden')) {
+         // Ensure filter elements exist before trying to read their value
+         const typeValue = grimoireTypeFilter?.value || "All";
+         const elementValue = grimoireElementFilter?.value || "All";
+         const sortValue = grimoireSortOrder?.value || "discovered";
+         const rarityValue = grimoireRarityFilter?.value || "All";
+         displayGrimoire(typeValue, elementValue, sortValue, rarityValue);
+     }
+}
 
 // --- Card Rendering ---
 export function renderCard(concept, context = 'grimoire') {
