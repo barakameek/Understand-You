@@ -125,11 +125,20 @@ function attachEventListeners() {
     const closeReflectionBtn = document.getElementById('closeReflectionModalButton');
     const closeSettingsBtn = document.getElementById('closeSettingsPopupButton');
     const closeMilestoneBtn = document.getElementById('closeMilestoneAlertButton');
+    // *** ADD close button for deep dive ***
+    const closeDeepDiveBtn = document.getElementById('closeDeepDiveButton');
+
     if (closePopupBtn) closePopupBtn.addEventListener('click', UI.hidePopups);
     if (overlay) overlay.addEventListener('click', UI.hidePopups);
     if (closeReflectionBtn) closeReflectionBtn.addEventListener('click', UI.hidePopups);
     if (closeSettingsBtn) closeSettingsBtn.addEventListener('click', UI.hidePopups);
     if (closeMilestoneBtn) closeMilestoneBtn.addEventListener('click', UI.hideMilestoneAlert);
+    // *** ADD listener for deep dive close ***
+    if (closeDeepDiveBtn) {
+        closeDeepDiveBtn.addEventListener('click', UI.hidePopups);
+    } else {
+        console.warn("Deep Dive Modal Close Button not found.");
+    }
 
     // Concept Detail Popup Actions (Event Delegation on Popup Actions Div)
     const popupActionsDiv = document.querySelector('#conceptDetailPopup .popup-actions');
@@ -230,6 +239,26 @@ function attachEventListeners() {
     } else {
         console.warn("Explore Tapestry Button not found.");
     }
+
+    // *** ADD Delegated Listener for Deep Dive Analysis Nodes ***
+    const deepDiveNodesContainer = document.getElementById('deepDiveAnalysisNodes');
+    if (deepDiveNodesContainer) {
+        deepDiveNodesContainer.addEventListener('click', (event) => {
+            const button = event.target.closest('.deep-dive-node');
+            if (!button) return;
+
+            const nodeId = button.dataset.nodeId;
+            if (nodeId === 'contemplation') {
+                GameLogic.handleContemplationNodeClick();
+            } else if (nodeId) {
+                GameLogic.handleDeepDiveNodeClick(nodeId);
+            }
+        });
+    } else {
+        console.warn("Deep Dive Analysis Nodes Container not found.");
+    }
+    // Note: The listener for the 'Mark Complete' button inside contemplation
+    // is added dynamically by UI.displayContemplationTask.
 
 
     console.log("Event listeners attached.");
