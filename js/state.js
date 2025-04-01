@@ -1,7 +1,9 @@
 // js/state.js - Manages Game State Variables and Persistence
 import * as Config from './config.js';
 // Import UI only for showing messages during load/save errors
-import { showTemporaryMessage } from './ui.js';
+// Note: Avoid importing UI functions that might call back into State to prevent cycles.
+// We might need a separate messaging utility if this becomes an issue.
+import { showTemporaryMessage } from './ui.js'; // Be cautious with UI imports here
 
 console.log("state.js loading...");
 
@@ -54,25 +56,35 @@ export const isFreeResearchAvailable = () => gameState.freeResearchAvailableToda
 export const getPendingRarePrompts = () => [...gameState.pendingRarePrompts]; // Return copy
 
 // --- State Mutators (Setters/Updaters) ---
+
+// Fallback function in case dynamic import fails during questionnaire completion
+function fallbackSetQuestionnaireComplete() {
+    console.warn("Using fallback for questionnaire completion.");
+    gameState.questionnaireCompleted = true;
+    gameState.currentElementIndex = 6; // Assume 6 elements
+    advanceOnboardingPhase(Config.ONBOARDING_PHASE.PERSONA_GRIMOIRE); // Use internal function
+    saveGameState();
+}
+
 export function setQuestionnaireComplete() {
     gameState.questionnaireCompleted = true;
-    // Ensure index reflects completion, assuming Data is loaded correctly by now
+    // Ensure index reflects completion, attempting to get length dynamically
     try {
-        // Dynamically import Data just for this length check if needed, or pass it
-         import('../data.js').then(Data => {
-            gameState.currentElementIndex = Data.elementNames.length;
-            // Advance onboarding phase *after* questionnaire is truly marked complete
-            advanceOnboardingPhase(Config.ONBOARDING_PHASE.PERSONA_GRIMOIRE);
+        import('../data.js').then(Data => {
+            const elementCount = (Data && Data.elementNames) ? Data.elementNames.length : 6; // Default to 6
+            gameState.currentElementIndex = elementCount;
+            advanceOnboardingPhase(Config.ONBOARDING_PHASE.PERSONA_GRIMOIRE); // Use internal function
             saveGameState();
-         }).catch(e => console.error("Error getting elementNames length in setQuestionnaireComplete", e));
-    } catch(e) {
-         console.error("Error setting questionnaire complete state", e);
-         // Fallback if dynamic import fails
-         gameState.currentElementIndex = 6; // Assume 6 elements
-         advanceOnboardingPhase(Config.ONBOARDING_PHASE.PERSONA_GRIMOIRE);
-         saveGameState();
+        }).catch(e => {
+            console.error("Error getting elementNames length in setQuestionnaireComplete, falling back:", e);
+            fallbackSetQuestionnaireComplete(); // Call the fallback
+        });
+    } catch (e) {
+        console.error("Error setting questionnaire complete state (synchronous catch):", e);
+        fallbackSetQuestionnaireComplete(); // Call the fallback
     }
 }
+
 
 export function updateScores(newScores) {
     if (typeof newScores === 'object' && newScores !== null) {
@@ -206,10 +218,14 @@ export function updateAttunement(elementKey, amount) {
         gameState.elementAttunement[elementKey] = newValue;
         saveGameState();
         // Check for phase advancement triggers related to attunement
-        if (newValue >= 20 && getOnboardingPhase() < Config.ONBOARDING_PHASE.ADVANCED) {
-             // Example trigger - refine as needed
-             advanceOnboardingPhase(Config.ONBOARDING_PHASE.ADVANCED);
+        // Example: Advance to phase 3 (Reflection/Rituals) if *any* element reaches 10 attunement
+        if (newValue >= 10 && getOnboardingPhase() < Config.ONBOARDING_PHASE.REFLECTION_RITUALS) {
+             advanceOnboardingPhase(Config.ONBOARDING_PHASE.REFLECTION_RITUALS);
         }
+         // Example: Advance to phase 4 (Advanced) if *any* element reaches 25 attunement
+         else if (newValue >= 25 && getOnboardingPhase() < Config.ONBOARDING_PHASE.ADVANCED) {
+             advanceOnboardingPhase(Config.ONBOARDING_PHASE.ADVANCED);
+         }
         return true;
     }
     return false;
@@ -218,7 +234,7 @@ export function updateAttunement(elementKey, amount) {
 export function updateAllAttunement(amount) {
     let changed = false;
     for (const key in gameState.elementAttunement) {
-        // Use the single update function which handles saving
+        // Use the single update function which handles saving & phase checks
         if (updateAttunement(key, amount)) {
             changed = true;
         }
@@ -257,7 +273,8 @@ export function completeRitualProgress(ritualId, period = 'daily') {
 export function markRitualComplete(ritualId, period = 'daily') {
     if (!gameState.completedRituals[period]) gameState.completedRituals[period] = {};
     // Ensure progress reflects completion state if setting manually
-    const requiredCount = 1; // TODO: Get actual count from ritual definition if needed
+    // TODO: Look up requiredCount from ritual definition if needed for accuracy
+    const requiredCount = 1;
     gameState.completedRituals[period][ritualId] = { completed: true, progress: requiredCount };
     saveGameState();
 }
@@ -351,7 +368,8 @@ export function addUnlockedFocusItem(unlockId) {
     return false;
 }
 
-export function advanceOnboardingPhase(targetPhase = null) {
+// Internal function to handle phase advancement and UI update call
+function advanceOnboardingPhase(targetPhase = null) {
     const currentPhase = gameState.currentOnboardingPhase;
     // Allow advancing phase only forwards, or jumping if targetPhase is provided
     const nextPhase = targetPhase !== null ? Math.max(currentPhase, targetPhase) : currentPhase + 1;
@@ -359,11 +377,27 @@ export function advanceOnboardingPhase(targetPhase = null) {
     if (nextPhase > currentPhase && nextPhase <= Config.ONBOARDING_PHASE.ADVANCED) {
         gameState.currentOnboardingPhase = nextPhase;
         console.log(`Advanced onboarding phase to: ${nextPhase}`);
-        saveGameState();
+        saveGameState(); // Save the new phase immediately
+
+        // Dynamically import UI *after* state update to apply changes
+        import('./ui.js').then(UI => {
+            // Check if UI module and function exist before calling
+            if (UI && typeof UI.applyOnboardingPhaseUI === 'function') {
+                UI.applyOnboardingPhaseUI(nextPhase);
+            } else { console.error("UI module or applyOnboardingPhaseUI function not found after import."); }
+        }).catch(err => console.error("Failed to import UI for onboarding update:", err));
+
         return true; // Indicate phase changed
     }
     return false; // Indicate phase did not change
 }
+
+// Public function if direct control over phase advancement is needed elsewhere
+// (though usually it should be triggered by game events via internal function)
+export function triggerPhaseAdvance(targetPhase) {
+    return advanceOnboardingPhase(targetPhase);
+}
+
 
 // --- Persistence ---
 let saveIndicatorTimeout = null;
@@ -445,10 +479,13 @@ export function loadGameState() {
                      else {
                         // Directly assign other primitive types or plain objects if type matches default
                         // This prevents loading e.g. a string into a number field if save format changed drastically
-                         if (typeof loadedState[key] === typeof newState[key]) {
+                         if (loadedState[key] !== undefined && loadedState[key] !== null && typeof loadedState[key] === typeof newState[key]) {
                            newState[key] = loadedState[key];
-                         } else {
+                         } else if (loadedState[key] !== undefined && loadedState[key] !== null) {
                             console.warn(`Type mismatch for key "${key}" during load. Loaded: ${typeof loadedState[key]}, Expected: ${typeof newState[key]}. Using default.`);
+                         } else {
+                             // Key exists in loaded data but is null/undefined, keep default
+                             // console.log(`Key "${key}" is null/undefined in loaded data, keeping default.`);
                          }
                     }
                 } else {
