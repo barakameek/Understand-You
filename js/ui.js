@@ -107,8 +107,16 @@ const milestoneAlertText = document.getElementById('milestoneAlertText');
 const closeMilestoneAlertButton = document.getElementById('closeMilestoneAlertButton');
 const toastElement = document.getElementById('toastNotification');
 const toastMessageElement = document.getElementById('toastMessage');
-// Add reference for the new button if you added it to index.html
-// const exploreTapestryButton = document.getElementById('exploreTapestryButton');
+const exploreTapestryButton = document.getElementById('exploreTapestryButton'); // Reference for enable/disable
+
+// *** ADD References for Deep Dive Modal ***
+const tapestryDeepDiveModal = document.getElementById('tapestryDeepDiveModal');
+const closeDeepDiveButton = document.getElementById('closeDeepDiveButton'); // Listener added in main.js
+const deepDiveFocusIcons = document.getElementById('deepDiveFocusIcons');
+const deepDiveNarrativeP = document.getElementById('deepDiveNarrative');
+const deepDiveAnalysisNodes = document.getElementById('deepDiveAnalysisNodes'); // Container for delegation
+const deepDiveDetailContent = document.getElementById('deepDiveDetailContent');
+const contemplationNodeButton = document.getElementById('contemplationNode'); // Specific button for cost/cooldown
 
 // --- Utility UI Functions ---
 let toastTimeout = null;
@@ -145,10 +153,12 @@ export function hideMilestoneAlert() {
     milestoneTimeout = null;
 }
 
+// Modify hidePopups to include the deep dive modal
 export function hidePopups() {
     if (conceptDetailPopup) conceptDetailPopup.classList.add('hidden');
     if (reflectionModal) reflectionModal.classList.add('hidden');
     if (settingsPopup) settingsPopup.classList.add('hidden');
+    if (tapestryDeepDiveModal) tapestryDeepDiveModal.classList.add('hidden'); // *** ADD THIS LINE ***
     if (popupOverlay) popupOverlay.classList.add('hidden');
     GameLogic.clearPopupState(); // Clear temp state associated with popups
 }
@@ -173,9 +183,11 @@ export function showScreen(screenId) {
 
     // Refresh data on screen load *if* past questionnaire
     if (isPostQuestionnaire) {
-        if (screenId === 'personaScreen') displayPersonaScreen(); // Calls logic wrapper which calls UI
-        else if (screenId === 'studyScreen') displayStudyScreenContent();
-        else if (screenId === 'grimoireScreen') refreshGrimoireDisplay(); // Calls internal UI refresh
+        // Use the logic wrappers to ensure dependent calculations happen first
+        if (screenId === 'personaScreen') GameLogic.displayPersonaScreenLogic();
+        else if (screenId === 'studyScreen') GameLogic.displayStudyScreenLogic();
+        // Grimoire and Repo can be refreshed directly by UI if needed, or have wrappers too
+        else if (screenId === 'grimoireScreen') refreshGrimoireDisplay();
         else if (screenId === 'repositoryScreen') displayRepositoryContent();
     }
 
@@ -205,6 +217,8 @@ export function applyOnboardingPhaseUI(phase) {
 
     // --- Persona Screen ---
     if (elementLibraryDiv) elementLibraryDiv.classList.toggle('hidden-by-flow', !isPhase4);
+    // Hide explore tapestry button in early phases
+    if (exploreTapestryButton) exploreTapestryButton.classList.toggle('hidden-by-flow', !isPhase1); // Show once focus is possible
 
     // --- Grimoire Screen ---
     if (grimoireFilterControls) grimoireFilterControls.classList.toggle('hidden-by-flow', !isPhase2);
@@ -261,6 +275,8 @@ export function updateInsightDisplays() {
             const discoveredData = State.getDiscoveredConceptData(popupConceptId);
             if(concept && discoveredData) displayEvolutionSection(concept, discoveredData);
       }
+      // Update contemplation button cost/state if modal were open (or handle on modal open)
+      // updateContemplationButtonState(); // Add this if needed
 }
 
 // --- Questionnaire UI ---
@@ -1298,18 +1314,108 @@ export function displayMilestones() {
 // --- Settings Popup UI ---
 export function showSettings() { if (settingsPopup) settingsPopup.classList.remove('hidden'); if (popupOverlay) popupOverlay.classList.remove('hidden'); }
 
-// --- Tapestry Deep Dive UI (Placeholder) ---
+// --- Tapestry Deep Dive UI ---
 export function displayTapestryDeepDive(analysisData) {
-    // TODO: Implement the actual deep dive UI popup/modal
+    if (!tapestryDeepDiveModal || !popupOverlay || !deepDiveNarrativeP) {
+        console.error("Deep Dive Modal elements missing!");
+        showTemporaryMessage("Error opening Deep Dive.", 3000);
+        return;
+    }
     console.log("UI: displayTapestryDeepDive called with analysis:", analysisData);
-    showTemporaryMessage("Tapestry Deep Dive feature is under construction!", 4000);
-    // Example: You would eventually show a dedicated popup here
-    // const deepDivePopup = document.getElementById('deepDivePopup');
-    // if (deepDivePopup && popupOverlay) {
-    //    populateDeepDivePopup(analysisData); // Function to fill the popup content
-    //    deepDivePopup.classList.remove('hidden');
-    //    popupOverlay.classList.remove('hidden');
-    // }
+
+    // 1. Populate Narrative
+    deepDiveNarrativeP.innerHTML = analysisData.fullNarrativeHTML || "Could not generate narrative.";
+
+    // 2. Populate Focus Icons (Optional but nice)
+    if (deepDiveFocusIcons) {
+        deepDiveFocusIcons.innerHTML = '';
+        const focused = State.getFocusedConcepts();
+        const discovered = State.getDiscoveredConcepts();
+        focused.forEach(id => {
+            const concept = discovered.get(id)?.concept;
+            if (concept) {
+                const icon = document.createElement('i');
+                icon.className = `${Utils.getCardTypeIcon(concept.cardType)}`;
+                icon.title = concept.name;
+                deepDiveFocusIcons.appendChild(icon);
+            }
+        });
+    }
+
+    // 3. Reset Detail Content
+    if (deepDiveDetailContent) {
+        deepDiveDetailContent.innerHTML = '<p>Select an analysis node above...</p>';
+        // Remove active class from all node buttons
+        deepDiveAnalysisNodes?.querySelectorAll('.deep-dive-node').forEach(btn => btn.classList.remove('active'));
+    }
+
+    // 4. Update Contemplate Button (Cost/Cooldown - Placeholder for now)
+    if (contemplationNodeButton) {
+        const cost = Config.CONTEMPLATION_COST || 3; // Use config or default
+        contemplationNodeButton.innerHTML = `Contemplate (${cost} <i class="fas fa-brain insight-icon"></i>)`;
+        // TODO: Add cooldown display logic here later if desired
+        // Example: Check State.getContemplationCooldownEnd() and disable/update text
+    }
+
+
+    // 5. Show Modal and Overlay
+    tapestryDeepDiveModal.classList.remove('hidden');
+    popupOverlay.classList.remove('hidden');
+}
+
+// Function to show node analysis
+export function updateDeepDiveContent(htmlContent, nodeId) {
+    if (!deepDiveDetailContent) return;
+    console.log(`UI: Updating deep dive content for node: ${nodeId}`);
+    deepDiveDetailContent.innerHTML = htmlContent;
+
+    // Highlight active node (optional)
+    deepDiveAnalysisNodes?.querySelectorAll('.deep-dive-node').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.nodeId === nodeId);
+    });
+}
+
+// Function for contemplation tasks
+export function displayContemplationTask(task) {
+    if (!deepDiveDetailContent) return;
+    console.log("UI: Displaying contemplation task:", task);
+    let html = `<h4>Contemplation Task</h4><p>${task.text}</p>`;
+    if (task.requiresCompletionButton) {
+        html += `<button id="completeContemplationBtn" class="button small-button">Mark Complete (+${task.reward.amount} ${task.reward.type === 'insight' ? '<i class="fas fa-brain insight-icon"></i>' : 'Attun.'})</button>`;
+    }
+     deepDiveDetailContent.innerHTML = html;
+
+     // Add listener specifically for the complete button IF it was added
+     const completeBtn = document.getElementById('completeContemplationBtn');
+     if (completeBtn) {
+         // Remove previous listener if any (safer)
+         // completeBtn.replaceWith(completeBtn.cloneNode(true)); // Simple way to remove old listeners
+         // completeBtn = document.getElementById('completeContemplationBtn'); // Re-select
+
+         completeBtn.addEventListener('click', () => {
+             GameLogic.handleCompleteContemplation(task); // Pass the task data back
+         }, { once: true }); // Listener only runs once
+     }
+
+     // Highlight contemplation node
+     deepDiveAnalysisNodes?.querySelectorAll('.deep-dive-node').forEach(btn => {
+         btn.classList.toggle('active', btn.id === 'contemplationNode');
+     });
+}
+
+// Function to clear contemplation task UI
+export function clearContemplationTask() {
+     if (deepDiveDetailContent) {
+         // Could reset to default or show completion message briefly
+         deepDiveDetailContent.innerHTML = '<p>Contemplation acknowledged.</p>';
+         setTimeout(() => {
+             if (deepDiveDetailContent && deepDiveDetailContent.innerHTML === '<p>Contemplation acknowledged.</p>') {
+                 deepDiveDetailContent.innerHTML = '<p>Select an analysis node above...</p>';
+                 // Remove active class from contemplation node
+                 deepDiveAnalysisNodes?.querySelectorAll('.deep-dive-node').forEach(btn => btn.classList.remove('active'));
+             }
+         }, 1500);
+     }
 }
 
 // Add a function to update the Deep Dive Button state if needed later
@@ -1317,6 +1423,7 @@ export function updateTapestryDeepDiveButton() {
     const btn = document.getElementById('exploreTapestryButton');
     if (btn) {
         btn.disabled = State.getFocusedConcepts().size === 0;
+        btn.classList.toggle('hidden-by-flow', State.getOnboardingPhase() < Config.ONBOARDING_PHASE.ADVANCED); // Hide until advanced phase
     }
 }
 
