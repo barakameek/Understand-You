@@ -643,7 +643,7 @@ const DEEP_DIVE_NODE_COST = 1; // Insight cost to view a node first time
 const CONTEMPLATION_COST = 3; // Insight cost for contemplation
 const CONTEMPLATION_COOLDOWN = 1000 * 60 * 60 * 4; // 4 hours in milliseconds
 
-export function showTapestryDeepDive() {
+function showTapestryDeepDive() {
     if (State.getFocusedConcepts().size === 0) { UI.showTemporaryMessage("Focus on concepts first to explore the tapestry.", 3000); return; }
     generateTapestryNarrative(true); // Ensure analysis is current
     if (!currentTapestryAnalysis) { console.error("Failed to generate tapestry analysis for Deep Dive."); return; }
