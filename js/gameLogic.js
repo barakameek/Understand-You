@@ -89,7 +89,7 @@ export function gainAttunementForAction(actionType, elementKey = null, amount = 
 
     if (changed) {
         console.log(`Attunement updated (${actionType}, Key: ${elementKey || currentReflectionCategory || 'Multi'}) by ${baseAmount.toFixed(2)} per element.`);
-        // UI.displayElementAttunement(); // <--- REMOVED DIRECT UI CALL
+        // UI.displayElementAttunement(); // <--- UI update removed from here
     }
 }
 
@@ -502,8 +502,7 @@ export function updateMilestoneProgress(trackType, currentValue) {
              }
          }
      });
-     // Save if any milestone was achieved during this update cycle
-     // if (milestoneAchievedThisUpdate) State.saveGameState(); // Saving is handled by individual state mutators now
+     // Saving is handled by individual state mutators that trigger milestone updates
 }
 
 // --- Daily Login ---
