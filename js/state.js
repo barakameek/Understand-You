@@ -1,8 +1,6 @@
 // js/state.js - Manages Game State Variables and Persistence
 import * as Config from './config.js';
 // Import UI only for showing messages during load/save errors
-// Note: Avoid importing UI functions that might call back into State to prevent cycles.
-// We might need a separate messaging utility if this becomes an issue.
 import { showTemporaryMessage } from './ui.js'; // Be cautious with UI imports here
 
 console.log("state.js loading...");
@@ -23,7 +21,7 @@ const getDefaultState = () => ({
     seenPrompts: new Set(),
     completedRituals: { daily: {}, weekly: {} },
     achievedMilestones: new Set(),
-    lastLoginDate: null,
+    lastLoginDate: null, // Default is null
     freeResearchAvailableToday: false,
     cardsAddedSinceLastPrompt: 0,
     promptCooldownActive: false,
@@ -454,7 +452,17 @@ export function loadGameState() {
             for (const key in loadedState) {
                 // Only merge keys that exist in the default state to avoid adding old/invalid keys
                 if (newState.hasOwnProperty(key)) {
-                    if (key === 'discoveredConcepts' && Array.isArray(loadedState.discoveredConcepts)) {
+                    // --- START Explicit Handling for lastLoginDate ---
+                    if (key === 'lastLoginDate') {
+                        if (typeof loadedState.lastLoginDate === 'string' || loadedState.lastLoginDate === null) {
+                            newState.lastLoginDate = loadedState.lastLoginDate;
+                        } else {
+                            console.warn(`Invalid type for lastLoginDate (${typeof loadedState.lastLoginDate}), using default.`);
+                            newState.lastLoginDate = null; // Use default
+                        }
+                    }
+                    // --- END Explicit Handling ---
+                    else if (key === 'discoveredConcepts' && Array.isArray(loadedState.discoveredConcepts)) {
                         newState.discoveredConcepts = new Map(loadedState.discoveredConcepts);
                     } else if ((key === 'focusedConcepts' || key === 'seenPrompts' || key === 'achievedMilestones' || key === 'unlockedFocusItems') && Array.isArray(loadedState[key])) {
                         newState[key] = new Set(loadedState[key]);
@@ -476,26 +484,27 @@ export function loadGameState() {
                          console.warn("Loaded pendingRarePrompts is not an array, resetting.");
                          newState.pendingRarePrompts = [];
                     }
-                     // --- START MODIFICATION ---
-                     else if (key === 'lastLoginDate' && (typeof loadedState.lastLoginDate === 'string' || loadedState.lastLoginDate === null)) {
-                          // Allow string or null for lastLoginDate
-                          newState.lastLoginDate = loadedState.lastLoginDate;
-                     }
-                     // --- END MODIFICATION ---
-                     else {
-                        // Directly assign other primitive types or plain objects if type matches default
-                        // This prevents loading e.g. a string into a number field if save format changed drastically
-                         if (loadedState[key] !== undefined && loadedState[key] !== null && typeof loadedState[key] === typeof newState[key]) {
-                           newState[key] = loadedState[key];
-                         } else if (loadedState[key] !== undefined && loadedState[key] !== null) {
-                            // Don't warn specifically for lastLoginDate mismatch now handled above
-                            if (key !== 'lastLoginDate') {
-                                console.warn(`Type mismatch for key "${key}" during load. Loaded: ${typeof loadedState[key]}, Expected: ${typeof newState[key]}. Using default.`);
-                            }
-                         } else {
-                             // Key exists in loaded data but is null/undefined, keep default
-                             // console.log(`Key "${key}" is null/undefined in loaded data, keeping default.`);
-                         }
+                    // --- Modify the final else block for remaining types ---
+                    else {
+                        // Directly assign other primitive types or plain objects
+                        // Check for undefined/null explicitly before type check
+                        const loadedValue = loadedState[key];
+                        const defaultValue = newState[key];
+                        // Special case: Allow loading string date into null default handled above
+                        if (key !== 'lastLoginDate') {
+                             if (loadedValue !== undefined && loadedValue !== null) {
+                                 // Use loaded value if types match
+                                 if (typeof loadedValue === typeof defaultValue) {
+                                     newState[key] = loadedValue;
+                                 } else {
+                                     console.warn(`Type mismatch for key "${key}" during load. Loaded: ${typeof loadedValue}, Expected: ${typeof defaultValue}. Using default.`);
+                                     // Keep default value already set in newState
+                                 }
+                             } else {
+                                 // Key exists in loaded data but is null/undefined, keep default
+                                 // console.log(`Key "${key}" is null/undefined in loaded data, keeping default.`);
+                             }
+                        }
                     }
                 } else {
                      console.warn(`Ignoring unknown key "${key}" from saved data.`);
