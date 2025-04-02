@@ -431,14 +431,13 @@ const focusRituals = [
 
 // --- Repository Item Data ---
 const sceneBlueprints = [
-    // ... (Keep existing sceneBlueprints content, including SCN005) ...
+    // Add 'element' based on the theme/prompt element
     { id: "SCN001", name: "The Blindfolded Tasting", element: "S", description: "One partner is blindfolded and fed various foods/drinks with different textures and temperatures, focusing solely on taste, texture, and the intimacy of being fed.", meditationCost: 10, reflectionPromptId: "scnP001" },
     { id: "SCN002", name: "The Negotiated Power Shift", element: "I", description: "Start a scene with agreed-upon roles (e.g., Dom/sub). Partway through, use a specific safeword or signal to pause and explicitly renegotiate who holds the power for the remainder of the scene.", meditationCost: 10, reflectionPromptId: "scnP002" },
     { id: "SCN003", name: "Sensory Storytelling", element: "C", description: "One partner tells an erotic story while simultaneously providing corresponding light sensory input (e.g., describing wind with a feather, warmth with a warm cloth). Focus on synchronizing narrative and sensation.", meditationCost: 10, reflectionPromptId: "scnP003" },
     { id: "SCN004", name: "Mirror Gazing Intimacy", element: "P", description: "Partners sit facing each other, maintaining eye contact, perhaps while holding hands or with light touch. Focus on observing micromovements and shared vulnerability without speaking.", meditationCost: 8, reflectionPromptId: "scnP004" },
-    { id: "SCN005", name: "Precision Sensation Scene", element: "S", description: "A scene focusing on deliberate, controlled application of specific non-impact sensations (e.g., temperature, texture, light pinching) often combined with restriction or sensory deprivation to heighten awareness.", meditationCost: 12, reflectionPromptId: "scnP005"} // Prompt added to reflectionPrompts
+    { id: "SCN005", name: "Precision Sensation Scene", element: "S", description: "A scene focusing on deliberate, controlled application of specific non-impact sensations (e.g., temperature, texture, light pinching) often combined with restriction or sensory deprivation to heighten awareness.", meditationCost: 12, reflectionPromptId: "scnP005"}
 ];
-
 const alchemicalExperiments = [
     // ... (Keep existing alchemicalExperiments content, including EXP05) ...
     { id: "EXP01", name: "Sensory Amplification", requiredElement: "S", requiredAttunement: 75, insightCost: 30, requiredFocusConceptTypes: ["Practice/Kink"], description: "Attempt to heighten all sensory input through focused meditation and deliberate stimulation, risking temporary overload but potentially achieving heightened awareness.", successReward: { type: "attunement", element: "S", amount: 5 }, failureConsequence: "Slight temporary decrease in Sensory attunement.", successRate: 0.6 },
@@ -603,6 +602,7 @@ export {
     elementNames,         // Export array
     elementInteractionThemes, // New export
     cardTypeThemes          // New export
+    
 };
 
 console.log("data.js exports defined.");
