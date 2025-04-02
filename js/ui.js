@@ -261,21 +261,14 @@ export function updateInsightDisplays() {
 
 // --- Questionnaire UI ---
 export function initializeQuestionnaireUI() {
-    updateElementProgressHeader(-1);
-    displayElementQuestions(0);
+    // State should already be reset/initialized before this is called
+    updateElementProgressHeader(-1); // Show no progress initially
+    displayElementQuestions(0); // Display the first set of questions
     if (mainNavBar) mainNavBar.classList.add('hidden');
-    if(dynamicScoreFeedback) dynamicScoreFeedback.style.display = 'none';
+    // Keep dynamic feedback hidden initially, let displayElementQuestions show it
+    if (dynamicScoreFeedback) dynamicScoreFeedback.style.display = 'none';
 }
-export function updateElementProgressHeader(activeIndex) {
-    if (!elementProgressHeader) return; elementProgressHeader.innerHTML = '';
-    elementNames.forEach((name, index) => {
-        const tab = document.createElement('div'); tab.classList.add('element-tab');
-        const elementData = elementDetails[name] || {};
-        tab.textContent = elementData.name || name; tab.title = elementData.name || name;
-        tab.classList.toggle('completed', index < activeIndex); tab.classList.toggle('active', index === activeIndex);
-        elementProgressHeader.appendChild(tab);
-    });
-}
+
 export function displayElementQuestions(index) {
     const currentState = State.getState();
     if (index >= elementNames.length) {
@@ -295,7 +288,6 @@ export function displayElementQuestions(index) {
 
     // 1. Get current answers for this element from state
     const elementAnswers = currentState.userAnswers?.[elementName] || {};
-    // Log the state being used for rendering this page
     console.log(`UI: Displaying questions for Index ${index} (${elementName}). Initial answers from state:`, JSON.parse(JSON.stringify(elementAnswers)));
 
     // 2. Generate HTML using these answers for defaults
@@ -305,7 +297,6 @@ export function displayElementQuestions(index) {
         let inputHTML = `<div class="question-block" id="block_${q.qId}"><h3 class="question-title">${q.text}</h3><div class="input-container">`;
         const savedAnswer = elementAnswers[q.qId];
         if (q.type === "slider") {
-            // Use savedAnswer if available, otherwise defaultValue
             const val = savedAnswer !== undefined ? savedAnswer : q.defaultValue;
             inputHTML += `<div class="slider-container"><input type="range" id="${q.qId}" class="slider q-input" min="${q.minValue}" max="${q.maxValue}" step="${q.step || 0.5}" value="${val}" data-question-id="${q.qId}" data-type="slider"><div class="label-container"><span class="label-text">${q.minLabel}</span><span class="label-text">${q.maxLabel}</span></div><p class="value-text">Selected: <span id="display_${q.qId}">${parseFloat(val).toFixed(1)}</span></p><p class="slider-feedback" id="feedback_${q.qId}"></p></div>`;
         } else if (q.type === "radio") {
@@ -327,31 +318,31 @@ export function displayElementQuestions(index) {
     if (introDiv) introDiv.insertAdjacentHTML('afterend', questionsHTML);
     else questionContent.innerHTML += questionsHTML;
 
-    // 4. Attach event listeners
+    // 4. Attach event listeners NOW that elements exist
     questionContent.querySelectorAll('.q-input').forEach(input => {
         const eventType = (input.type === 'range') ? 'input' : 'change';
-        input.removeEventListener(eventType, GameLogic.handleQuestionnaireInputChange); // Prevent duplicates
+        input.removeEventListener(eventType, GameLogic.handleQuestionnaireInputChange); // Prevent duplicates if called again
         input.addEventListener(eventType, GameLogic.handleQuestionnaireInputChange);
     });
     questionContent.querySelectorAll('input[type="checkbox"].q-input').forEach(checkbox => {
         checkbox.removeEventListener('change', GameLogic.handleCheckboxChange);
         checkbox.addEventListener('change', GameLogic.handleCheckboxChange);
     });
-
     // 5. Perform initial UI updates using the *same answers* used for HTML generation
+  if (dynamicScoreFeedback) dynamicScoreFeedback.style.display = 'block';
+    // Update sliders based on their current DOM value
     questionContent.querySelectorAll('.slider.q-input').forEach(slider => {
-        updateSliderFeedbackText(slider, elementName); // Update slider text based on its *current* value in the DOM
+        updateSliderFeedbackText(slider, elementName);
     });
-    updateDynamicFeedback(elementName, elementAnswers); // Update score display based on *initial state* answers
+   updateDynamicFeedback(elementName, elementAnswers);
 
     // 6. Update overall progress display & buttons
     updateElementProgressHeader(index);
     if (progressText) progressText.textContent = `Element ${index + 1} / ${elementNames.length}: ${elementData.name || elementName}`;
-    if (dynamicScoreFeedback) dynamicScoreFeedback.style.display = 'block'; // Ensure score display is visible
+    // Score feedback visibility handled above
     if (prevElementButton) prevElementButton.style.visibility = (index > 0) ? 'visible' : 'hidden';
     if (nextElementButton) nextElementButton.textContent = (index === elementNames.length - 1) ? "View My Persona" : "Next Element";
 }
-
 // Make sure initializeQuestionnaireUI calls displayElementQuestions(0) correctly
 export function initializeQuestionnaireUI() {
     updateElementProgressHeader(-1); // Show no progress initially
