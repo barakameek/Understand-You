@@ -30,6 +30,12 @@ const createInitialGameState = () => {
         currentFocusSetHash: '',
         contemplationCooldownEnd: null,
         onboardingPhase: Config.ONBOARDING_PHASE.START,
+        // NEW Onboarding step flags:
+        hasSeenResultsModal: false,
+        hasSeenGrimoireTutorial: false,
+        hasSeenFocusTutorial: false,
+        hasSeenStudyTutorial: false,
+        hasSeenReflectionIntro: false,
     };
     // *** Explicitly initialize userAnswers sub-objects ***
     elementNames.forEach(name => {
@@ -58,8 +64,11 @@ function _triggerSave() {
      if (saveTimeout) clearTimeout(saveTimeout);
      saveTimeout = setTimeout(() => {
          try {
+             // The spread operator (...) correctly copies all top-level properties,
+             // including the new boolean onboarding flags.
              const stateToSave = {
                  ...gameState,
+                 // Convert Sets and Maps to Arrays for JSON serialization
                  discoveredConcepts: Array.from(gameState.discoveredConcepts.entries()),
                  focusedConcepts: Array.from(gameState.focusedConcepts),
                  achievedMilestones: Array.from(gameState.achievedMilestones),
@@ -90,15 +99,8 @@ export function loadGameState() {
 
             // Merge loaded data carefully
             gameState.userScores = typeof loadedState.userScores === 'object' && loadedState.userScores !== null ? { ...gameState.userScores, ...loadedState.userScores } : gameState.userScores;
-            // *** Load userAnswers carefully ***
             gameState.userAnswers = typeof loadedState.userAnswers === 'object' && loadedState.userAnswers !== null ? loadedState.userAnswers : {};
-            // *** Ensure all element keys exist in loaded userAnswers ***
-            elementNames.forEach(name => {
-                if (!gameState.userAnswers[name]) {
-                    gameState.userAnswers[name] = {};
-                }
-            });
-            // *** End userAnswers loading fixes ***
+            elementNames.forEach(name => { if (!gameState.userAnswers[name]) gameState.userAnswers[name] = {}; });
             gameState.discoveredConcepts = new Map(Array.isArray(loadedState.discoveredConcepts) ? loadedState.discoveredConcepts : []);
             gameState.focusedConcepts = new Set(Array.isArray(loadedState.focusedConcepts) ? loadedState.focusedConcepts : []);
             gameState.focusSlotsTotal = typeof loadedState.focusSlotsTotal === 'number' ? loadedState.focusSlotsTotal : gameState.focusSlotsTotal;
@@ -122,7 +124,14 @@ export function loadGameState() {
             gameState.pendingRarePrompts = Array.isArray(loadedState.pendingRarePrompts) ? loadedState.pendingRarePrompts : gameState.pendingRarePrompts;
             gameState.unlockedFocusItems = new Set(Array.isArray(loadedState.unlockedFocusItems) ? loadedState.unlockedFocusItems : []);
             gameState.contemplationCooldownEnd = typeof loadedState.contemplationCooldownEnd === 'number' ? loadedState.contemplationCooldownEnd : gameState.contemplationCooldownEnd;
-            gameState.onboardingPhase = typeof loadedState.onboardingPhase === 'number' ? loadedState.onboardingPhase : gameState.onboardingPhase;
+
+            // Load onboarding phase and flags (provide defaults if missing)
+            gameState.onboardingPhase = typeof loadedState.onboardingPhase === 'number' ? loadedState.onboardingPhase : Config.ONBOARDING_PHASE.START;
+            gameState.hasSeenResultsModal = typeof loadedState.hasSeenResultsModal === 'boolean' ? loadedState.hasSeenResultsModal : false;
+            gameState.hasSeenGrimoireTutorial = typeof loadedState.hasSeenGrimoireTutorial === 'boolean' ? loadedState.hasSeenGrimoireTutorial : false;
+            gameState.hasSeenFocusTutorial = typeof loadedState.hasSeenFocusTutorial === 'boolean' ? loadedState.hasSeenFocusTutorial : false;
+            gameState.hasSeenStudyTutorial = typeof loadedState.hasSeenStudyTutorial === 'boolean' ? loadedState.hasSeenStudyTutorial : false;
+            gameState.hasSeenReflectionIntro = typeof loadedState.hasSeenReflectionIntro === 'boolean' ? loadedState.hasSeenReflectionIntro : false;
 
             gameState.currentFocusSetHash = _calculateFocusSetHash();
 
@@ -162,7 +171,12 @@ export function getCurrentFocusSetHash() { return gameState.currentFocusSetHash;
 export function getContemplationCooldownEnd() { return gameState.contemplationCooldownEnd; }
 export function getOnboardingPhase() { return gameState.onboardingPhase; }
 export function isFreeResearchAvailable() { return gameState.freeResearchAvailableToday; }
-
+// New flag getters
+export function getHasSeenResultsModal() { return gameState.hasSeenResultsModal; }
+export function getHasSeenGrimoireTutorial() { return gameState.hasSeenGrimoireTutorial; }
+export function getHasSeenFocusTutorial() { return gameState.hasSeenFocusTutorial; }
+export function getHasSeenStudyTutorial() { return gameState.hasSeenStudyTutorial; }
+export function getHasSeenReflectionIntro() { return gameState.hasSeenReflectionIntro; }
 
 // --- Setters / Updaters (Trigger Save) ---
 export function updateScores(newScores) {
@@ -175,10 +189,8 @@ export function saveAllAnswers(allAnswers) {
     saveGameState();
 }
 export function updateAnswers(elementName, answersForElement) {
-    // *** Ensure the property exists before trying to spread into it ***
-    if (!gameState.userAnswers) { gameState.userAnswers = {}; } // Initialize if missing
+    if (!gameState.userAnswers) { gameState.userAnswers = {}; }
     if (!gameState.userAnswers[elementName]) { gameState.userAnswers[elementName] = {}; }
-    // *** End Ensure ***
     gameState.userAnswers[elementName] = { ...answersForElement };
     // No save here, saved implicitly by other actions
 }
@@ -187,11 +199,13 @@ export function updateElementIndex(index) {
     // No save here
 }
 export function setQuestionnaireComplete() {
-    gameState.currentElementIndex = elementNames.length; // Use length to mark finished
+    gameState.currentElementIndex = elementNames.length; // Mark finished
     if (!gameState.questionnaireCompleted) {
         gameState.questionnaireCompleted = true;
-        advanceOnboardingPhase(Config.ONBOARDING_PHASE.PERSONA_GRIMOIRE); // Progress phase
+        // Onboarding phase advancement is now handled AFTER the results modal
+        // advanceOnboardingPhase(Config.ONBOARDING_PHASE.PERSONA_GRIMOIRE);
     }
+    // Save state is handled AFTER showing results modal in gameLogic
     return true;
 }
 export function advanceOnboardingPhase(targetPhase) {
@@ -221,7 +235,7 @@ export function addDiscoveredConcept(conceptId, conceptData) {
     if (!(gameState.discoveredConcepts instanceof Map)) { console.error("CRITICAL ERROR: gameState.discoveredConcepts is not a Map in addDiscoveredConcept!"); gameState.discoveredConcepts = new Map(); }
     if (!gameState.discoveredConcepts.has(conceptId)) {
         gameState.discoveredConcepts.set(conceptId, { concept: conceptData, discoveredTime: Date.now(), artUnlocked: false, notes: "" });
-        if (gameState.onboardingPhase < Config.ONBOARDING_PHASE.STUDY_INSIGHT && gameState.discoveredConcepts.size >= 1) { advanceOnboardingPhase(Config.ONBOARDING_PHASE.STUDY_INSIGHT); }
+        // Phase advancement handled by core game loop milestones/actions now
         saveGameState();
         return true;
     }
@@ -245,7 +259,10 @@ export function toggleFocusConcept(conceptId) {
     else {
         if (gameState.focusedConcepts.size >= gameState.focusSlotsTotal) { return 'slots_full'; }
         gameState.focusedConcepts.add(conceptId); result = 'added';
-        if (gameState.onboardingPhase < Config.ONBOARDING_PHASE.STUDY_INSIGHT && gameState.focusedConcepts.size >= 1) { advanceOnboardingPhase(Config.ONBOARDING_PHASE.STUDY_INSIGHT); }
+        // Advance phase only if needed and first focus concept added
+        if (gameState.onboardingPhase < Config.ONBOARDING_PHASE.STUDY_INSIGHT && gameState.focusedConcepts.size === 1) {
+             advanceOnboardingPhase(Config.ONBOARDING_PHASE.STUDY_INSIGHT);
+        }
     }
     gameState.currentFocusSetHash = _calculateFocusSetHash(); // Update hash
     saveGameState();
@@ -305,11 +322,17 @@ export function addAchievedMilestone(milestoneId) {
     if (!(gameState.achievedMilestones instanceof Set)) { console.error("CRITICAL ERROR: gameState.achievedMilestones is not a Set!"); gameState.achievedMilestones = new Set();}
     if (!gameState.achievedMilestones.has(milestoneId)) {
         gameState.achievedMilestones.add(milestoneId);
-        if (milestoneId === 'ms01' && gameState.onboardingPhase < Config.ONBOARDING_PHASE.PERSONA_GRIMOIRE) advanceOnboardingPhase(Config.ONBOARDING_PHASE.PERSONA_GRIMOIRE);
-        if (milestoneId === 'ms03' && gameState.onboardingPhase < Config.ONBOARDING_PHASE.PERSONA_GRIMOIRE) advanceOnboardingPhase(Config.ONBOARDING_PHASE.PERSONA_GRIMOIRE);
-        if (milestoneId === 'ms05' && gameState.onboardingPhase < Config.ONBOARDING_PHASE.STUDY_INSIGHT) advanceOnboardingPhase(Config.ONBOARDING_PHASE.STUDY_INSIGHT);
-        if (milestoneId === 'ms07' && gameState.onboardingPhase < Config.ONBOARDING_PHASE.REFLECTION_RITUALS) advanceOnboardingPhase(Config.ONBOARDING_PHASE.REFLECTION_RITUALS);
-        if (['ms60', 'ms70', 'ms71'].includes(milestoneId) && gameState.onboardingPhase < Config.ONBOARDING_PHASE.ADVANCED) advanceOnboardingPhase(Config.ONBOARDING_PHASE.ADVANCED);
+        // Phase advancement based on milestones (adjust as needed)
+        // Example: Milestone 'ms_unlock_study' triggers STUDY_INSIGHT phase
+        const STUDY_UNLOCK_MILESTONE_ID = 'ms05'; // Example ID
+        const REFLECTION_UNLOCK_MILESTONE_ID = 'ms07'; // Example ID
+        const REPO_UNLOCK_MILESTONE_ID = 'msXX_REPO_UNLOCK'; // *** REPLACE WITH ACTUAL ID ***
+
+        if (milestoneId === STUDY_UNLOCK_MILESTONE_ID && gameState.onboardingPhase < Config.ONBOARDING_PHASE.STUDY_INSIGHT) advanceOnboardingPhase(Config.ONBOARDING_PHASE.STUDY_INSIGHT);
+        if (milestoneId === REFLECTION_UNLOCK_MILESTONE_ID && gameState.onboardingPhase < Config.ONBOARDING_PHASE.REFLECTION_RITUALS) advanceOnboardingPhase(Config.ONBOARDING_PHASE.REFLECTION_RITUALS);
+        if (milestoneId === REPO_UNLOCK_MILESTONE_ID && gameState.onboardingPhase < Config.ONBOARDING_PHASE.ADVANCED) advanceOnboardingPhase(Config.ONBOARDING_PHASE.ADVANCED);
+        // Add other relevant milestone triggers
+
         saveGameState();
         return true;
     }
@@ -321,10 +344,12 @@ export function addSeenPrompt(promptId) {
 }
 export function incrementReflectionTrigger() {
     gameState.cardsAddedSinceLastPrompt++;
+    // No save here, triggered by other actions
 }
 export function resetReflectionTrigger(startCooldown = false) {
     gameState.cardsAddedSinceLastPrompt = 0;
     if (startCooldown) { setPromptCooldownActive(true); }
+    // No immediate save, cooldown timeout or other actions will save
 }
 export function setPromptCooldownActive(isActive) {
     gameState.promptCooldownActive = isActive;
@@ -334,6 +359,7 @@ export function clearReflectionCooldown() {
     gameState.promptCooldownActive = false; saveGameState();
 }
 export function addRepositoryItem(itemType, itemId) {
+    if (!gameState.discoveredRepositoryItems[itemType]) { console.error(`Invalid repo item type: ${itemType}`); return false;}
     if (!(gameState.discoveredRepositoryItems[itemType] instanceof Set)) { console.error(`CRITICAL ERROR: gameState.discoveredRepositoryItems.${itemType} is not a Set!`); gameState.discoveredRepositoryItems[itemType] = new Set();}
     if (gameState.discoveredRepositoryItems[itemType] && !gameState.discoveredRepositoryItems[itemType].has(itemId)) {
         gameState.discoveredRepositoryItems[itemType].add(itemId);
@@ -366,6 +392,47 @@ export function addUnlockedFocusItem(unlockId) {
 }
 export function setContemplationCooldown(endTime) {
     gameState.contemplationCooldownEnd = endTime; saveGameState();
+}
+
+// Setters for new onboarding flags
+export function setHasSeenResultsModal(seen = true) {
+    if (gameState.hasSeenResultsModal !== seen) {
+        gameState.hasSeenResultsModal = seen;
+        // If the results modal is seen, advance to the next phase if not already there
+        if (seen && gameState.onboardingPhase < Config.ONBOARDING_PHASE.PERSONA_GRIMOIRE) {
+             advanceOnboardingPhase(Config.ONBOARDING_PHASE.PERSONA_GRIMOIRE);
+        } else {
+             saveGameState(); // Save even if phase didn't change
+        }
+    }
+}
+export function setHasSeenGrimoireTutorial(seen = true) {
+    if (gameState.hasSeenGrimoireTutorial !== seen) { gameState.hasSeenGrimoireTutorial = seen; saveGameState(); }
+}
+export function setHasSeenFocusTutorial(seen = true) {
+    if (gameState.hasSeenFocusTutorial !== seen) {
+         gameState.hasSeenFocusTutorial = seen;
+          // Seeing the focus tutorial might imply study should be unlocked if not already
+          if (seen && gameState.onboardingPhase < Config.ONBOARDING_PHASE.STUDY_INSIGHT) {
+               advanceOnboardingPhase(Config.ONBOARDING_PHASE.STUDY_INSIGHT);
+          } else {
+               saveGameState();
+          }
+    }
+}
+export function setHasSeenStudyTutorial(seen = true) {
+    if (gameState.hasSeenStudyTutorial !== seen) {
+         gameState.hasSeenStudyTutorial = seen;
+         // Seeing study tutorial might unlock reflection phase
+         if (seen && gameState.onboardingPhase < Config.ONBOARDING_PHASE.REFLECTION_RITUALS) {
+              advanceOnboardingPhase(Config.ONBOARDING_PHASE.REFLECTION_RITUALS);
+         } else {
+              saveGameState();
+         }
+    }
+}
+export function setHasSeenReflectionIntro(seen = true) {
+    if (gameState.hasSeenReflectionIntro !== seen) { gameState.hasSeenReflectionIntro = seen; saveGameState(); }
 }
 
 console.log("state.js loaded.");
