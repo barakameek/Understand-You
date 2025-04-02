@@ -158,16 +158,18 @@ function attachEventListeners() { // No changes needed here from previous versio
     if (saveNoteBtn) saveNoteBtn.addEventListener('click', GameLogic.handleSaveNote);
 
     // Grimoire Filters & Card Interaction (Delegation)
-    const grimoireControls = document.getElementById('grimoireControls');
-    if (grimoireControls) { grimoireControls.addEventListener('change', UI.refreshGrimoireDisplay); }
-    const grimoireContent = document.getElementById('grimoireContent');
-    if (grimoireContent) {
-        grimoireContent.addEventListener('click', (event) => {
-            const sellButton = event.target.closest('.card-sell-button');
-            if (sellButton) { event.stopPropagation(); GameLogic.handleSellConcept(event); }
+  const grimoireControls = document.getElementById('grimoireControls');
+    if (grimoireControls) {
+        // Listen to changes on selects
+        grimoireControls.querySelectorAll('select').forEach(select => {
+             select.addEventListener('change', UI.refreshGrimoireDisplay);
         });
+        // Listen to input on the search bar
+        const searchInput = document.getElementById('grimoireSearchInput');
+        if (searchInput) {
+             searchInput.addEventListener('input', UI.refreshGrimoireDisplay); // Use 'input' for real-time filtering
+        }
     }
-
     // Reflection Modal
     const reflectionCheck = document.getElementById('reflectionCheckbox');
     const confirmReflectionBtn = document.getElementById('confirmReflectionButton');
