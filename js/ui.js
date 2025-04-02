@@ -649,7 +649,35 @@ export function displayGrimoire(filterType = "All", filterElement = "All", sortB
             default: return (a.discoveredTime || 0) - (b.discoveredTime || 0) || a.concept.name.localeCompare(b.concept.name);
         }
     });
+ conceptsToDisplay.forEach(data => {
+        const cardElement = renderCard(data.concept, 'grimoire');
+        if (cardElement) {
+            // --- START Synergy Highlighting Listener ---
+            cardElement.addEventListener('mouseover', (event) => {
+                const currentCard = event.currentTarget;
+                const conceptId = parseInt(currentCard.dataset.conceptId);
+                const conceptData = State.getDiscoveredConceptData(conceptId)?.concept;
+                if (!conceptData || !conceptData.relatedIds) return;
 
+                currentCard.classList.add('hover-highlight');
+
+                const allCards = grimoireContentDiv.querySelectorAll('.concept-card');
+                allCards.forEach(card => {
+                    const cardId = parseInt(card.dataset.conceptId);
+                    if (conceptData.relatedIds.includes(cardId) && card !== currentCard) {
+                        card.classList.add('related-highlight');
+                    }
+                });
+            });
+
+            cardElement.addEventListener('mouseout', (event) => {
+                const currentCard = event.currentTarget;
+                currentCard.classList.remove('hover-highlight');
+                const allCards = grimoireContentDiv.querySelectorAll('.concept-card');
+                allCards.forEach(card => {
+                    card.classList.remove('related-highlight');
+                });
+            });
     if (conceptsToDisplay.length === 0) { grimoireContentDiv.innerHTML = `<p>No discovered concepts match the current filters.</p>`; }
     else { conceptsToDisplay.forEach(data => { const cardElement = renderCard(data.concept, 'grimoire'); if (cardElement) grimoireContentDiv.appendChild(cardElement); }); }
 }
