@@ -8,39 +8,46 @@ console.log("main.js loading...");
 
 // --- Initialization ---
 function initializeApp() {
-    console.log("Initializing Persona Alchemy Lab v14+...");
+    console.log("Initializing Persona Alchemy Lab v14+ (Guided Flow)...");
 
     // Attempt to load game state first
     const loaded = State.loadGameState(); // This now populates the `gameState` variable
 
-    // Update UI *after* state is confirmed loaded or cleared
-    UI.updateInsightDisplays();
-
+    // Determine initial screen based on loaded state
+    let initialScreen = 'welcomeScreen';
     if (loaded) {
         console.log("Existing session loaded.");
-         if (State.getState().questionnaireCompleted) {
-              console.log("Continuing session...");
-              GameLogic.checkForDailyLogin();
-              UI.applyOnboardingPhaseUI(State.getOnboardingPhase());
-              GameLogic.calculateTapestryNarrative(true); // Ensure analysis is current for UI updates
-              // Update UI elements that depend on loaded state
-              UI.updateFocusSlotsDisplay();
-              UI.updateGrimoireCounter();
-              UI.populateGrimoireFilters(); // Populate filters before potential display
-              UI.refreshGrimoireDisplay(); // Refresh Grimoire if needed (might not be visible yet)
-              // Setup initial UI state (button enabled/disabled, etc.)
-              UI.setupInitialUI(); // Calls applyOnboardingPhaseUI and sets button states
-              UI.showScreen('personaScreen'); // Default to Persona screen after successful load
-              UI.hidePopups(); // Ensure no popups are stuck open
-         } else {
-              console.log("Loaded state incomplete. Restarting questionnaire.");
-              // State is loaded, but questionnaire wasn't done. Index should be 0 or less.
-              State.updateElementIndex(0); // Ensure it starts at 0
-              UI.initializeQuestionnaireUI(); // Setup questionnaire UI
-              UI.showScreen('questionnaireScreen');
-         }
-         const loadBtn = document.getElementById('loadButton');
-         if(loadBtn) loadBtn.classList.add('hidden'); // Hide load button after successful load
+        const currentState = State.getState();
+        if (currentState.questionnaireCompleted) {
+            if (State.getHasSeenResultsModal()) {
+                console.log("Continuing session post-results.");
+                GameLogic.checkForDailyLogin(); // Check login state
+                UI.applyOnboardingPhaseUI(State.getOnboardingPhase()); // Apply UI restrictions
+                GameLogic.calculateTapestryNarrative(true); // Ensure analysis is current
+                UI.updateInsightDisplays();
+                UI.updateFocusSlotsDisplay();
+                UI.updateGrimoireCounter();
+                UI.populateGrimoireFilters();
+                UI.refreshGrimoireDisplay(); // Refresh Grimoire (might not be visible)
+                UI.setupInitialUI(); // Sets up button states etc. based on phase
+                initialScreen = 'personaScreen'; // Default to Persona screen if fully onboarded
+                 // If study/repo is unlocked, maybe default there? Let's stick to persona for now.
+            } else {
+                console.log("Questionnaire done, but results modal not seen. Showing results.");
+                // Need to regenerate starter hand display if modal wasn't saved/loaded properly
+                // For now, assume scores are loaded, show modal without starter hand if necessary
+                const starterHand = []; // TODO: Potentially regenerate or load starter hand if needed here
+                UI.showExperimentResultsModal(State.getScores(), starterHand);
+                initialScreen = null; // Modal handles next step, don't show a background screen yet
+            }
+        } else {
+            console.log("Loaded state incomplete (questionnaire not done). Starting questionnaire.");
+            State.updateElementIndex(0); // Ensure it starts at 0
+            UI.initializeQuestionnaireUI(); // Setup questionnaire UI
+            initialScreen = 'questionnaireScreen';
+        }
+        const loadBtn = document.getElementById('loadButton');
+        if (loadBtn) loadBtn.classList.add('hidden'); // Hide load button after successful load attempt
 
     } else {
         console.log("No valid saved session found or load error. Starting fresh.");
@@ -49,7 +56,19 @@ function initializeApp() {
              UI.showTemporaryMessage("Error loading session. Starting fresh.", 4000);
              localStorage.removeItem(Config.SAVE_KEY); // Clear corrupt data
          }
+         const loadBtn = document.getElementById('loadButton');
+         if (loadBtn) loadBtn.classList.add('hidden'); // Hide load button on fresh start
     }
+
+    // Show the determined initial screen (unless a modal is handling flow)
+    if(initialScreen) {
+         UI.showScreen(initialScreen);
+    }
+     // Ensure no popups are stuck open from a bad state
+     if (!document.querySelector('.popup:not(.hidden)')) {
+        UI.hidePopups();
+     }
+
 
     console.log("Initialization complete. Attaching event listeners.");
     attachEventListeners();
@@ -62,9 +81,9 @@ function attachEventListeners() {
 
     // Welcome Screen
     const startButton = document.getElementById('startGuidedButton');
-    const loadButton = document.getElementById('loadButton');
+    const loadButton = document.getElementById('loadButton'); // Refetch might be needed if DOM manipulated
     if (startButton) startButton.addEventListener('click', () => {
-        State.clearGameState(); // Clears state and initializes userAnswers correctly
+        State.clearGameState(); // Clears state and initializes correctly
         UI.initializeQuestionnaireUI();
         UI.showScreen('questionnaireScreen');
         if(loadButton) loadButton.classList.add('hidden');
@@ -74,7 +93,7 @@ function attachEventListeners() {
     // Questionnaire Navigation
     const nextBtn = document.getElementById('nextElementButton');
     const prevBtn = document.getElementById('prevElementButton');
-    if (nextBtn) nextBtn.addEventListener('click', GameLogic.goToNextElement);
+    if (nextBtn) nextBtn.addEventListener('click', GameLogic.goToNextElement); // finalizeQuestionnaire called internally
     if (prevBtn) prevBtn.addEventListener('click', GameLogic.goToPrevElement);
 
     // Main Navigation
@@ -83,27 +102,43 @@ function attachEventListeners() {
         if(!button.classList.contains('settings-button')) {
             button.addEventListener('click', () => {
                 const target = button.dataset.target;
-                if (target) { UI.showScreen(target); } // Let showScreen handle logic calls
+                if (target) { UI.showScreen(target); } // Let showScreen handle tutorials/logic calls
             });
         }
     });
     const settingsBtn = document.getElementById('settingsButton');
     if (settingsBtn) settingsBtn.addEventListener('click', UI.showSettings);
 
-    // Popups & Modals Close Buttons
-    const closePopupBtn = document.getElementById('closePopupButton');
+    // --- Results Modal Listener ---
+    const resultsModalBtn = document.getElementById('goToGrimoireButton');
+    const closeResultsBtn = document.getElementById('closeResultsModalButton');
+    if (resultsModalBtn) {
+        resultsModalBtn.addEventListener('click', () => {
+            UI.hideExperimentResultsModal();
+            UI.showScreen('grimoireScreen'); // Navigate to Grimoire
+            // Grimoire tutorial will trigger via showScreen if needed
+        });
+    } else { console.error("Go To Grimoire button not found!"); }
+    if (closeResultsBtn) {
+         // Decide if closing should just hide or force grimoire? Let's just hide.
+         closeResultsBtn.addEventListener('click', UI.hideExperimentResultsModal);
+    }
+    // --- End Results Modal Listener ---
+
+
+    // Popups & Modals Close Buttons (General)
+    const closePopupBtn = document.getElementById('closePopupButton'); // Concept Detail
     const overlay = document.getElementById('popupOverlay');
     const closeReflectionBtn = document.getElementById('closeReflectionModalButton');
     const closeSettingsBtn = document.getElementById('closeSettingsPopupButton');
     const closeMilestoneBtn = document.getElementById('closeMilestoneAlertButton');
     const closeDeepDiveBtn = document.getElementById('closeDeepDiveButton');
     if (closePopupBtn) closePopupBtn.addEventListener('click', UI.hidePopups);
-    if (overlay) overlay.addEventListener('click', UI.hidePopups);
+    if (overlay) overlay.addEventListener('click', UI.hidePopups); // Click outside closes any popup
     if (closeReflectionBtn) closeReflectionBtn.addEventListener('click', UI.hidePopups);
     if (closeSettingsBtn) closeSettingsBtn.addEventListener('click', UI.hidePopups);
     if (closeMilestoneBtn) closeMilestoneBtn.addEventListener('click', UI.hideMilestoneAlert);
     if (closeDeepDiveBtn) closeDeepDiveBtn.addEventListener('click', UI.hidePopups);
-    else console.warn("Deep Dive Modal Close Button not found.");
 
     // Concept Detail Popup Actions (Delegation)
     const popupActionsDiv = document.querySelector('#conceptDetailPopup .popup-actions');
@@ -113,15 +148,15 @@ function attachEventListeners() {
                const conceptId = GameLogic.getCurrentPopupConceptId();
                if (button.id === 'addToGrimoireButton' && conceptId !== null) GameLogic.addConceptToGrimoireById(conceptId, button);
                else if (button.id === 'markAsFocusButton' && conceptId !== null) GameLogic.handleToggleFocusConcept();
-               else if (button.classList.contains('popup-sell-button') && conceptId !== null) GameLogic.handleSellConcept(event);
+               else if (button.classList.contains('popup-sell-button') && conceptId !== null) GameLogic.handleSellConcept(event); // Use delegate handler
          });
     }
 
-    // Evolve Button
+    // Evolve Button (in Concept Detail Popup)
     const evolveBtn = document.getElementById('evolveArtButton');
     if (evolveBtn) evolveBtn.addEventListener('click', GameLogic.attemptArtEvolution);
 
-    // Save Note Button
+    // Save Note Button (in Concept Detail Popup)
     const saveNoteBtn = document.getElementById('saveMyNoteButton');
     if (saveNoteBtn) saveNoteBtn.addEventListener('click', GameLogic.handleSaveNote);
 
@@ -140,9 +175,14 @@ function attachEventListeners() {
     }
     const grimoireContent = document.getElementById('grimoireContent');
     if (grimoireContent) {
+        // Delegated listener for sell buttons *within* the grimoire grid cards
         grimoireContent.addEventListener('click', (event) => {
             const sellButton = event.target.closest('.card-sell-button');
-            if (sellButton) { event.stopPropagation(); GameLogic.handleSellConcept(event); }
+            if (sellButton) {
+                event.stopPropagation(); // Prevent card click from opening popup
+                GameLogic.handleSellConcept(event); // Use delegate handler
+            }
+            // Could add highlight click handler here if needed
         });
     }
 
@@ -160,32 +200,33 @@ function attachEventListeners() {
     if (freeResearchBtn) freeResearchBtn.addEventListener('click', GameLogic.handleFreeResearchClick);
     if (guidanceBtn) guidanceBtn.addEventListener('click', GameLogic.triggerGuidedReflection);
 
-    // Research Output Actions (Delegation)
+    // Research Output Actions (Delegation for Add/Sell buttons in results)
     const researchOutputArea = document.getElementById('researchOutput');
     if (researchOutputArea) {
         researchOutputArea.addEventListener('click', (event) => {
             const button = event.target.closest('button'); if (!button) return;
-            const conceptIdStr = button.dataset.conceptId; if (!conceptIdStr) return; const conceptId = parseInt(conceptIdStr); if (isNaN(conceptId)) return;
+            const conceptIdStr = button.dataset.conceptId; if (!conceptIdStr) return;
+            const conceptId = parseInt(conceptIdStr); if (isNaN(conceptId)) return;
             if (button.classList.contains('add-button')) GameLogic.addConceptToGrimoireById(conceptId, button);
-            else if (button.classList.contains('sell-button')) GameLogic.handleSellConcept(event);
+            else if (button.classList.contains('sell-button')) GameLogic.handleSellConcept(event); // Use delegate handler
         });
     }
 
-     // Integrated Deep Dive Unlock Buttons (Delegation)
+     // Integrated Deep Dive Unlock Buttons (Delegation in Persona Screen)
      const personaDetailsContainer = document.getElementById('personaElementDetails');
      if (personaDetailsContainer) {
          personaDetailsContainer.addEventListener('click', (event) => {
              const button = event.target.closest('.unlock-button');
              // Check if the button is *within* a deep dive container to avoid conflicts
              if (button && button.closest('.element-deep-dive-container')) {
-                 GameLogic.handleUnlockLibraryLevel(event);
+                 GameLogic.handleUnlockLibraryLevel(event); // Use delegate handler
              }
          });
      } else {
          console.error("Persona Element Details container not found for deep dive listener.");
      }
 
-     // Repository Actions (Delegation)
+     // Repository Actions (Delegation for Meditate/Experiment buttons)
      const repositoryContainer = document.getElementById('repositoryScreen');
      if (repositoryContainer) { repositoryContainer.addEventListener('click', (event) => { const button = event.target.closest('button'); if (!button) return; if (button.dataset.sceneId) GameLogic.handleMeditateScene(event); else if (button.dataset.experimentId) GameLogic.handleAttemptExperiment(event); }); }
 
@@ -215,7 +256,7 @@ function attachEventListeners() {
         });
     } else { console.warn("Persona Screen container not found for button delegation."); }
 
-    // Delegated Listener for Deep Dive Analysis Nodes
+    // Delegated Listener for Deep Dive Analysis Nodes (in Tapestry Deep Dive Popup)
     const deepDiveNodesContainer = document.getElementById('deepDiveAnalysisNodes');
     if (deepDiveNodesContainer) {
         deepDiveNodesContainer.addEventListener('click', (event) => {
@@ -230,6 +271,19 @@ function attachEventListeners() {
             }
         });
     } else { console.warn("Deep Dive Analysis Nodes Container not found."); }
+
+    // Listener for Contemplation Completion Button (inside Deep Dive Popup)
+    const deepDiveDetailArea = document.getElementById('deepDiveDetailContent');
+    if(deepDiveDetailArea){
+        deepDiveDetailArea.addEventListener('click', (event) => {
+             if (event.target && event.target.id === 'completeContemplationBtn'){
+                 // The actual task data needs to be retrieved when the button is clicked.
+                 // This might require storing the current task in gameLogic state temporarily.
+                 // For now, assume gameLogic can retrieve the current task.
+                 GameLogic.handleCompleteContemplation(); // Assumes gameLogic knows the task
+             }
+        });
+    }
 
     console.log("Event listeners attached.");
 }
