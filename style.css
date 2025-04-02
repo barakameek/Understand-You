@@ -205,20 +205,17 @@ hr { border: none; border-top: 1px dashed var(--border-color-light); margin: 18p
   flex-wrap: wrap; /* Allow wrapping */
   gap: 12px; /* Space between buttons */
   margin-top: 15px;
-  justify-content: center; /* Center buttons horizontally */
-}
-
+  /* Remove justify-content: center; to allow left-align by default */
+  /* justify-content: center; */
 .research-button {
-  /* Remove grid-specific stuff if any */
-  /* Keep existing styles for appearance */
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  padding: 8px 6px;
+  justify-content: space-between; /* Better vertical distribution */
+  padding: 10px 6px; /* Adjust padding */
   font-size: 0.8em;
-  height: 85px; /* Slightly taller maybe? */
-  width: 110px; /* Give them a fixed width */
+  height: 90px; /* Increase height slightly */
+  width: 100px; /* Slightly narrower maybe? */
   text-align: center;
   border-radius: 8px;
   background-color: #faf0e6;
@@ -227,16 +224,55 @@ hr { border: none; border-top: 1px dashed var(--border-color-light); margin: 18p
   text-shadow: none;
   transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.1s ease;
   cursor: pointer;
-  flex: 0 0 auto; /* Don't grow or shrink, use fixed width */
+  flex: 0 0 auto; /* Don't grow or shrink */
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1); /* Subtle shadow */
 }
-/* Keep hover/disabled styles */
-.research-button:hover:not(:disabled) { background-color: #fff8dc; border-color: var(--primary-color); transform: translateY(-2px); }
-.research-button.disabled { background-color: #eee; border-color: #ccc; color: #999; opacity: 0.7; cursor: not-allowed; transform: none; box-shadow: none;}
-.research-el-icon { font-size: 1.6em; margin-bottom: 6px; } /* Slightly larger icon */
-.research-el-name { font-weight: bold; line-height: 1.2; font-family: 'Merriweather', serif; margin-bottom: 4px; }
-.research-el-cost { font-size: 0.9em; color: #7a5230; }
 
-/* ... rest of study styles ... */
+/* Keep hover/disabled styles */
+.research-button:hover:not(:disabled) {
+    background-color: #fff8dc;
+    border-color: var(--primary-color);
+    transform: translateY(-2px);
+    box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+}
+.research-button.disabled {
+    background-color: #eee;
+    border-color: #ccc;
+    color: #999;
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+.research-el-icon {
+    font-size: 1.8em; /* Larger icon */
+    margin-bottom: 5px;
+    line-height: 1; /* Prevent extra space */
+}
+.research-el-name {
+    font-weight: bold;
+    line-height: 1.2;
+    font-family: 'Merriweather', serif;
+    margin-bottom: 5px;
+    flex-grow: 1; /* Allow name to push cost down */
+    display: flex; /* Center text vertically if needed */
+    align-items: center;
+}
+.research-el-cost {
+    font-size: 0.95em; /* Slightly larger cost */
+    font-weight: bold;
+    color: #ffffff; /* *** Make cost WHITE *** */
+    background-color: rgba(112, 66, 20, 0.7); /* Darker semi-transparent background */
+    padding: 2px 6px;
+    border-radius: 4px;
+    line-height: 1;
+}
+.research-el-cost .insight-icon { /* Style icon within cost */
+    color: #d4b8ff; /* Lighter purple for icon */
+    margin-left: 3px;
+    font-size: 1em;
+}
+    /* ... rest of study styles ... */
 .free-research-button { width: 100%; margin-bottom: 15px; background-color: #66cdaa; border-color: #3cb371; font-size: 0.95em; }
 .free-research-button:hover:not(:disabled) { background-color: #98fb98; }
 .free-research-button:disabled { background-color: #aaa; border-color: #888; color: #eee; cursor: default; text-shadow: none; }
