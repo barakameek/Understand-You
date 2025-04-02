@@ -104,12 +104,6 @@
                                    <li class="focus-placeholder">Focus Concepts from your Grimoire</li>
                                    <!-- Focused concepts injected here -->
                                </div>
-                               <!-- The old button location - ensure it's removed or commented out -->
-                               <!--
-                               <button id="exploreTapestryButton" class="button hidden-by-flow" disabled title="Focus on concepts first">
-                                   <i class="fas fa-search-plus"></i> Explore Tapestry Deep Dive
-                               </button>
-                               -->
                           </div> <!-- End Tapestry Area -->
                           <!-- Focus Resonance Section -->
                           <div id="focusElementalResonance" class="focus-resonance-section">
@@ -123,8 +117,15 @@
                           <div class="tapestry-narrative-section">
                               <h3>Tapestry Narrative <i class="fas fa-info-circle info-icon" title="A dynamically generated interpretation based on your Focused Concepts, highlighting dominant elements and potential synergies between them."></i></h3>
                               <p id="tapestryNarrative">Mark concepts as "Focus" to generate narrative...</p>
-                              <!-- *** This is the CORRECT location for the Explore button *** -->
-                              <button id="exploreTapestryButton" class="button small-button" style="margin-top: 10px;" title="Explore a deeper analysis of your focused tapestry. (Feature WIP)">Explore Tapestry</button>
+                              <!-- Wrapper for buttons -->
+                              <div class="tapestry-actions">
+                                  <button id="exploreTapestryButton" class="button small-button hidden-by-flow" title="Explore a deeper analysis of your focused tapestry.">
+                                      Explore Tapestry
+                                  </button>
+                                  <button id="suggestSceneButton" class="button small-button hidden-by-flow" title="Suggest relevant scenes (Cost: 12 Insight)"> {/* NEW BUTTON */}
+                                      Suggest Scenes (12 <i class="fas fa-brain insight-icon"></i>)
+                                  </button>
+                              </div>
                           </div>
                           <!-- Grimoire Insights / Focus Themes Section -->
                           <div class="grimoire-insights">
@@ -222,9 +223,9 @@
                  </section>
                  <hr>
                  <section id="repositoryScenes" class="repository-section">
-                     <h2><i class="fas fa-scroll"></i> Scene Blueprints <i class="fas fa-info-circle info-icon" title="Rare textual scenarios found during Research. Meditate on them (costs Insight) to trigger unique Reflection prompts and gain deeper understanding."></i></h2>
+                     <h2><i class="fas fa-scroll"></i> Scene Blueprints <i class="fas fa-info-circle info-icon" title="Textual scenarios discovered through the 'Suggest Scenes' action on the Persona screen or potentially other means. Meditate on them (costs Insight) to trigger unique Reflection prompts and gain deeper understanding."></i></h2>
                      <div class="repo-list">
-                         <p>Conduct research for a chance to discover scene blueprints.</p>
+                         <p>Use 'Suggest Scenes' on the Persona screen to discover blueprints relevant to your focus.</p>
                          <!-- Scene blueprints injected here -->
                      </div>
                  </section>
@@ -336,7 +337,7 @@
              </div>
          </div> <!-- End Settings Popup -->
 
-        <!-- *** NEW: Tapestry Deep Dive Modal *** -->
+        <!-- Tapestry Deep Dive Modal -->
         <div id="tapestryDeepDiveModal" class="popup hidden deep-dive-modal">
             <button id="closeDeepDiveButton" class="close-button">×</button>
             <div class="popup-header">
@@ -355,7 +356,7 @@
                     <h4>Analysis Nodes</h4>
                     <button class="button small-button deep-dive-node" data-node-id="elemental">Elemental Resonance</button>
                     <button class="button small-button deep-dive-node" data-node-id="archetype">Concept Archetypes</button>
-                    <button class="button small-button deep-dive-node" data-node-id="keyword">Keyword Constellation</button>
+                    <!-- Keyword Button Removed -->
                     <button class="button small-button deep-dive-node" data-node-id="synergy">Synergies & Tensions</button>
                     <button id="contemplationNode" class="button small-button deep-dive-node contemplation-node" data-node-id="contemplation">Contemplate</button>
                 </div>
