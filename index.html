@@ -154,18 +154,20 @@
               <h1>The Grand Grimoire <i class="fas fa-info-circle info-icon" title="Your personal collection of discovered Concept Cards. Filter, sort, view details, mark Concepts for Focus, or sell unwanted Concepts for Insight."></i></h1>
               <!-- Grimoire controls -->
               <div id="grimoireControls">
-                  <label for="grimoireSortOrder">Sort:</label>
-                  <select id="grimoireSortOrder"><option value="discovered">Date Added</option><option value="name">Name</option><option value="type">Type</option><option value="rarity">Rarity</option></select>
-                  <!-- Filters initially hidden by flow -->
-                  <span class="filter-controls hidden-by-flow">
-                      <label for="grimoireTypeFilter">Type:</label>
-                      <select id="grimoireTypeFilter"><option value="All">All Types</option></select>
-                      <label for="grimoireElementFilter">Element:</label>
-                      <select id="grimoireElementFilter"><option value="All">All Elements</option></select>
-                      <label for="grimoireRarityFilter">Rarity:</label>
-                      <select id="grimoireRarityFilter"><option value="All">All Rarities</option><option value="common">Common</option><option value="uncommon">Uncommon</option><option value="rare">Rare</option></select>
-                  </span>
-                  <i class="fas fa-info-circle info-icon" title="Use these controls to filter and sort the Concepts displayed in your Grimoire below. More filters unlock as you progress."></i>
+       <label for="grimoireSortOrder">Sort:</label>
+<select id="grimoireSortOrder">...</select>
+<span class="filter-controls hidden-by-flow">
+    <label for="grimoireTypeFilter">Type:</label>
+    <select id="grimoireTypeFilter">...</select>
+    <label for="grimoireElementFilter">Element:</label>
+    <select id="grimoireElementFilter">...</select>
+    <label for="grimoireRarityFilter">Rarity:</label>
+    <select id="grimoireRarityFilter">...</select>
+    <!-- *** ADD SEARCH INPUT *** -->
+    <label for="grimoireSearchInput">Search:</label>
+    <input type="text" id="grimoireSearchInput" placeholder="Name/Keyword..." />
+</span>
+<i class="fas fa-info-circle info-icon" title="..."></i>
               </div>
               <div id="grimoireContent" class="card-grid">
                   <!-- Grimoire cards injected here -->
