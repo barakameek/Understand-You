@@ -16,9 +16,12 @@ export const MAX_FOCUS_SLOTS = 12;
 export const INITIAL_FOCUS_SLOTS = 5;
 export const INITIAL_INSIGHT = 10;
 export const CONTEMPLATION_COST = 3; // *** ADDED ***
-export const CONTEMPLATION_COOLDOWN = 2 * 60 * 1000; // *** ADDED *** 2 minutes
-export const SCENE_SUGGESTION_COST = 12; // *** ADDED ***
-export const SYNERGY_INSIGHT_BONUS = 1.0; // *** ADDED ***
+export const CONTEMPLATION_COOLDOWN = 2 * 60 * 1000; // 2 minutes
+export const SCENE_SUGGESTION_COST = 12;
+export const SYNERGY_INSIGHT_BONUS = 1.0;
+export const SYNERGY_DISCOVERY_CHANCE = 0.15; // *** ADDED *** 15% chance
+
+
 
 // Onboarding Phases
 export const ONBOARDING_PHASE = {
