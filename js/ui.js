@@ -4,7 +4,6 @@ import * as Config from './config.js';
 import * as Utils from './utils.js';
 import * as GameLogic from './gameLogic.js'; // Needed for button actions
 import { elementDetails, elementKeyToFullName, elementNameToKey, concepts, questionnaireGuided, reflectionPrompts, elementDeepDive, dailyRituals, milestones, focusRituals, sceneBlueprints, alchemicalExperiments, elementalInsights, focusDrivenUnlocks, cardTypeKeys, elementNames } from '../data.js';
-
 console.log("ui.js loading...");
 
 // --- DOM Element References ---
@@ -416,7 +415,8 @@ export function displayPersonaScreen() {
 
     elementNames.forEach(elementName => {
         const key = elementNameToKey[elementName];
-        const score = scores[key] !== undefined ? scores[key] : 5;
+        // Ensure score is a number, default to 5 if undefined/invalid
+        const score = (typeof scores[key] === 'number' && !isNaN(scores[key])) ? scores[key] : 5.0;
         const scoreLabel = Utils.getScoreLabel(score);
         const elementData = elementDetails[elementName] || {};
         const interpretation = elementData.scoreInterpretations?.[scoreLabel] || "N/A";
@@ -425,8 +425,11 @@ export function displayPersonaScreen() {
         const iconClass = Utils.getElementIcon(elementName); // Get icon class
 
         const details = document.createElement('details');
-        details.classList.add('element-detail-entry'); details.dataset.elementKey = key; details.style.setProperty('--element-color', color);
-        // --- MODIFIED Summary HTML with Icon ---
+        details.classList.add('element-detail-entry');
+        details.dataset.elementKey = key;
+        details.style.setProperty('--element-color', color);
+
+        // --- UPDATED Summary HTML with Icon ---
         details.innerHTML = `
             <summary class="element-detail-header">
                 <div>
@@ -447,7 +450,7 @@ export function displayPersonaScreen() {
                 <p><small><strong>Examples:</strong> ${elementData.examples || ''}</small></p>
                 {/* Attunement will be added by displayElementAttunement */}
             </div>`;
-        // --- END MODIFIED Summary HTML ---
+        // --- END UPDATED Summary HTML ---
         personaElementDetailsDiv.appendChild(details);
     });
     displayElementAttunement(); // Display attunement below element details
@@ -460,7 +463,7 @@ export function displayPersonaScreen() {
     displayPersonaSummary(); // Update summary view content
     applyOnboardingPhaseUI(State.getOnboardingPhase());
     updateTapestryDeepDiveButton();
-    updateSuggestSceneButtonState(); // Update scene button state
+    updateSuggestSceneButtonState();
 }
 export function displayElementAttunement() {
     if (!personaElementDetailsDiv || personaElementDetailsDiv.children.length === 0) return;
