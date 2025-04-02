@@ -197,13 +197,46 @@ hr { border: none; border-top: 1px dashed var(--border-color-light); margin: 18p
 .study-resources h2 { margin-top: 0; border-bottom-color: var(--border-color-dark); font-size: 1.3em; }
 .study-resources p { text-align: left; font-size: 0.95em; margin-bottom: 10px; }
 #userInsightDisplayStudy { font-weight: bold; color: var(--link-color); display: inline-block; }
-.research-buttons { display: grid; grid-template-columns: repeat(auto-fit, minmax(90px, 1fr)); gap: 10px; margin-top: 15px; }
-.research-button { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 8px 6px; font-size: 0.8em; height: 80px; text-align: center; border-radius: 8px; background-color: #faf0e6; border: 1px solid #b8a880; color: var(--link-color); text-shadow: none; transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.1s ease; cursor: pointer; }
+/* --- Main Study Screen --- */
+/* ... other study styles ... */
+
+.research-buttons {
+  display: flex; /* Use flexbox */
+  flex-wrap: wrap; /* Allow wrapping */
+  gap: 12px; /* Space between buttons */
+  margin-top: 15px;
+  justify-content: center; /* Center buttons horizontally */
+}
+
+.research-button {
+  /* Remove grid-specific stuff if any */
+  /* Keep existing styles for appearance */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 6px;
+  font-size: 0.8em;
+  height: 85px; /* Slightly taller maybe? */
+  width: 110px; /* Give them a fixed width */
+  text-align: center;
+  border-radius: 8px;
+  background-color: #faf0e6;
+  border: 1px solid #b8a880;
+  color: var(--link-color);
+  text-shadow: none;
+  transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.1s ease;
+  cursor: pointer;
+  flex: 0 0 auto; /* Don't grow or shrink, use fixed width */
+}
+/* Keep hover/disabled styles */
 .research-button:hover:not(:disabled) { background-color: #fff8dc; border-color: var(--primary-color); transform: translateY(-2px); }
 .research-button.disabled { background-color: #eee; border-color: #ccc; color: #999; opacity: 0.7; cursor: not-allowed; transform: none; box-shadow: none;}
-.research-el-icon { font-size: 1.5em; margin-bottom: 5px; }
-.research-el-name { font-weight: bold; line-height: 1.2; font-family: 'Merriweather', serif; }
-.research-el-cost { font-size: 0.9em; color: #7a5230; margin-top: 3px; }
+.research-el-icon { font-size: 1.6em; margin-bottom: 6px; } /* Slightly larger icon */
+.research-el-name { font-weight: bold; line-height: 1.2; font-family: 'Merriweather', serif; margin-bottom: 4px; }
+.research-el-cost { font-size: 0.9em; color: #7a5230; }
+
+/* ... rest of study styles ... */
 .free-research-button { width: 100%; margin-bottom: 15px; background-color: #66cdaa; border-color: #3cb371; font-size: 0.95em; }
 .free-research-button:hover:not(:disabled) { background-color: #98fb98; }
 .free-research-button:disabled { background-color: #aaa; border-color: #888; color: #eee; cursor: default; text-shadow: none; }
