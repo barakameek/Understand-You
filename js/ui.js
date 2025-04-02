@@ -1419,14 +1419,16 @@ export function clearContemplationTask() {
 }
 
 // Add a function to update the Deep Dive Button state if needed later
+// In ui.js
 export function updateTapestryDeepDiveButton() {
     const btn = document.getElementById('exploreTapestryButton');
     if (btn) {
         // Determine visibility based on phase FIRST
-        const isPhaseReady = State.getOnboardingPhase() >= Config.ONBOARDING_PHASE.ADVANCED; // <<< REQUIRES ADVANCED PHASE
+        // *** CHANGE THIS PHASE REQUIREMENT if you want it earlier ***
+        const isPhaseReady = State.getOnboardingPhase() >= Config.ONBOARDING_PHASE.ADVANCED; // Requires Advanced phase
         btn.classList.toggle('hidden-by-flow', !isPhaseReady);
 
-        if (isPhaseReady) { // Only adjust disabled state and title if visible
+        if (isPhaseReady) { // Only adjust disabled state and title if VISIBLE
             const hasFocus = State.getFocusedConcepts().size > 0;
             btn.disabled = !hasFocus; // Disable only if no concepts focused
 
@@ -1437,16 +1439,16 @@ export function updateTapestryDeepDiveButton() {
                  btn.title = "Explore a deeper analysis of your focused tapestry.";
             }
         } else {
-            // If hidden by flow, ensure it's also disabled and has appropriate title
+            // If hidden by flow, ensure it's also disabled (doesn't hurt)
             btn.disabled = true;
             btn.title = "Unlock later in your journey.";
         }
 
     } else {
-         console.warn("UI: updateTapestryDeepDiveButton - Button not found!");
+         // This warning means the button wasn't found in the HTML at all.
+         console.warn("UI: updateTapestryDeepDiveButton - Button with ID 'exploreTapestryButton' not found!");
     }
 }
-
 // --- Initial UI Setup Helper ---
 export function setupInitialUI() {
     console.log("UI: Setting up initial UI state...");
