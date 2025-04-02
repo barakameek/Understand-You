@@ -5,31 +5,38 @@ import { elementNames } from '../data.js'; // Only import needed data
 console.log("state.js loading...");
 
 // Default game state structure
-const createInitialGameState = () => ({ // Use a function to ensure fresh copy
-    userScores: { A: 5, I: 5, S: 5, P: 5, C: 5, R: 5 },
-    userAnswers: {}, // Initialize as empty object
-    discoveredConcepts: new Map(),
-    focusedConcepts: new Set(),
-    focusSlotsTotal: Config.INITIAL_FOCUS_SLOTS,
-    userInsight: Config.INITIAL_INSIGHT,
-    elementAttunement: { A: 0, I: 0, S: 0, P: 0, C: 0, R: 0 },
-    unlockedDeepDiveLevels: { A: 0, I: 0, S: 0, P: 0, C: 0, R: 0 },
-    achievedMilestones: new Set(),
-    completedRituals: { daily: {}, weekly: {} },
-    lastLoginDate: null,
-    freeResearchAvailableToday: false,
-    seenPrompts: new Set(),
-    currentElementIndex: -1,
-    questionnaireCompleted: false,
-    cardsAddedSinceLastPrompt: 0,
-    promptCooldownActive: false,
-    discoveredRepositoryItems: { scenes: new Set(), experiments: new Set(), insights: new Set() },
-    pendingRarePrompts: [],
-    unlockedFocusItems: new Set(),
-    currentFocusSetHash: '',
-    contemplationCooldownEnd: null,
-    onboardingPhase: Config.ONBOARDING_PHASE.START,
-});
+const createInitialGameState = () => {
+    const initial = {
+        userScores: { A: 5, I: 5, S: 5, P: 5, C: 5, R: 5 },
+        userAnswers: {}, // Initialize as empty object
+        discoveredConcepts: new Map(),
+        focusedConcepts: new Set(),
+        focusSlotsTotal: Config.INITIAL_FOCUS_SLOTS,
+        userInsight: Config.INITIAL_INSIGHT,
+        elementAttunement: { A: 0, I: 0, S: 0, P: 0, C: 0, R: 0 },
+        unlockedDeepDiveLevels: { A: 0, I: 0, S: 0, P: 0, C: 0, R: 0 },
+        achievedMilestones: new Set(),
+        completedRituals: { daily: {}, weekly: {} },
+        lastLoginDate: null,
+        freeResearchAvailableToday: false,
+        seenPrompts: new Set(),
+        currentElementIndex: -1,
+        questionnaireCompleted: false,
+        cardsAddedSinceLastPrompt: 0,
+        promptCooldownActive: false,
+        discoveredRepositoryItems: { scenes: new Set(), experiments: new Set(), insights: new Set() },
+        pendingRarePrompts: [],
+        unlockedFocusItems: new Set(),
+        currentFocusSetHash: '',
+        contemplationCooldownEnd: null,
+        onboardingPhase: Config.ONBOARDING_PHASE.START,
+    };
+    // *** Explicitly initialize userAnswers sub-objects ***
+    elementNames.forEach(name => {
+        initial.userAnswers[name] = {};
+    });
+    return initial;
+};
 
 // Initialize current state using the function
 let gameState = createInitialGameState();
@@ -79,13 +86,19 @@ export function loadGameState() {
         try {
             const loadedState = JSON.parse(savedData);
             console.log("Saved data found.");
+            gameState = createInitialGameState(); // Start fresh
 
-            // *** Start with a fresh default state ***
-            gameState = createInitialGameState();
-
-            // *** Carefully merge loaded data onto the fresh state ***
+            // Merge loaded data carefully
             gameState.userScores = typeof loadedState.userScores === 'object' && loadedState.userScores !== null ? { ...gameState.userScores, ...loadedState.userScores } : gameState.userScores;
-            gameState.userAnswers = typeof loadedState.userAnswers === 'object' && loadedState.userAnswers !== null ? loadedState.userAnswers : gameState.userAnswers; // Ensure userAnswers is loaded correctly
+            // *** Load userAnswers carefully ***
+            gameState.userAnswers = typeof loadedState.userAnswers === 'object' && loadedState.userAnswers !== null ? loadedState.userAnswers : {};
+            // *** Ensure all element keys exist in loaded userAnswers ***
+            elementNames.forEach(name => {
+                if (!gameState.userAnswers[name]) {
+                    gameState.userAnswers[name] = {};
+                }
+            });
+            // *** End userAnswers loading fixes ***
             gameState.discoveredConcepts = new Map(Array.isArray(loadedState.discoveredConcepts) ? loadedState.discoveredConcepts : []);
             gameState.focusedConcepts = new Set(Array.isArray(loadedState.focusedConcepts) ? loadedState.focusedConcepts : []);
             gameState.focusSlotsTotal = typeof loadedState.focusSlotsTotal === 'number' ? loadedState.focusSlotsTotal : gameState.focusSlotsTotal;
@@ -111,13 +124,6 @@ export function loadGameState() {
             gameState.contemplationCooldownEnd = typeof loadedState.contemplationCooldownEnd === 'number' ? loadedState.contemplationCooldownEnd : gameState.contemplationCooldownEnd;
             gameState.onboardingPhase = typeof loadedState.onboardingPhase === 'number' ? loadedState.onboardingPhase : gameState.onboardingPhase;
 
-            // Ensure userAnswers object exists for all elements after loading
-            elementNames.forEach(name => {
-                if (!gameState.userAnswers[name]) {
-                    gameState.userAnswers[name] = {};
-                }
-            });
-
             gameState.currentFocusSetHash = _calculateFocusSetHash();
 
             console.log("Game state loaded successfully.");
@@ -142,7 +148,6 @@ export function clearGameState() {
 }
 
 // --- Getters ---
-// ... (All getters remain the same) ...
 export function getState() { return gameState; }
 export function getScores() { return gameState.userScores; }
 export function getAttunement() { return gameState.elementAttunement; }
@@ -297,7 +302,7 @@ export function markRitualComplete(ritualId, period = 'daily') {
     if (gameState.completedRituals[period]?.[ritualId]) { gameState.completedRituals[period][ritualId].completed = true; saveGameState(); }
 }
 export function addAchievedMilestone(milestoneId) {
-    if (!(gameState.achievedMilestones instanceof Set)) { console.error("CRITICAL ERROR: gameState.achievedMilestones is not a Set!"); gameState.achievedMilestones = new Set();} // Defensive init
+    if (!(gameState.achievedMilestones instanceof Set)) { console.error("CRITICAL ERROR: gameState.achievedMilestones is not a Set!"); gameState.achievedMilestones = new Set();}
     if (!gameState.achievedMilestones.has(milestoneId)) {
         gameState.achievedMilestones.add(milestoneId);
         if (milestoneId === 'ms01' && gameState.onboardingPhase < Config.ONBOARDING_PHASE.PERSONA_GRIMOIRE) advanceOnboardingPhase(Config.ONBOARDING_PHASE.PERSONA_GRIMOIRE);
