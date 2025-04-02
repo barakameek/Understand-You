@@ -1,495 +1,91 @@
-// js/state.js - Manages Game State Variables and Persistence
+// js/state.js - Manages Application State and Persistence
 import * as Config from './config.js';
-// Import UI only for showing messages during load/save errors
-import { showTemporaryMessage } from './ui.js'; // Be cautious with UI imports here
+import { elementNames } from '../data.js'; // Only import needed data
 
 console.log("state.js loading...");
 
-// --- Default State ---
-const getDefaultState = () => ({
-    currentOnboardingPhase: Config.ONBOARDING_PHASE.START,
-    questionnaireCompleted: false,
-    currentElementIndex: 0,
+// Default game state structure
+const initialGameState = {
     userScores: { A: 5, I: 5, S: 5, P: 5, C: 5, R: 5 },
-    userAnswers: {}, // Stores answers per element { elementName: { qId: answer, ... } }
-    discoveredConcepts: new Map(), // conceptId -> { concept: {}, discoveredTime: timestamp, artUnlocked: bool, notes: string }
-    focusedConcepts: new Set(), // conceptId
+    userAnswers: {}, // {elementName: {qId: answer, ...}}
+    discoveredConcepts: new Map(), // ID -> { concept, discoveredTime, artUnlocked: boolean, notes: string }
+    focusedConcepts: new Set(), // Set of Concept IDs
     focusSlotsTotal: Config.INITIAL_FOCUS_SLOTS,
     userInsight: Config.INITIAL_INSIGHT,
     elementAttunement: { A: 0, I: 0, S: 0, P: 0, C: 0, R: 0 },
     unlockedDeepDiveLevels: { A: 0, I: 0, S: 0, P: 0, C: 0, R: 0 },
-    seenPrompts: new Set(), // promptId
-    completedRituals: { daily: {}, weekly: {} }, // { ritualId: { completed: bool, progress: number } }
-    achievedMilestones: new Set(), // milestoneId
-    lastLoginDate: null, // Stores result of new Date().toDateString()
-    freeResearchAvailableToday: false, // Tracks if daily free research is used
-    cardsAddedSinceLastPrompt: 0, // Counter for triggering standard reflections
-    promptCooldownActive: false, // Flag to prevent reflection triggers during cooldown
-    discoveredRepositoryItems: { scenes: new Set(), experiments: new Set(), insights: new Set() }, // Stores IDs
-    pendingRarePrompts: [], // Array of rare prompt IDs queued for display
-    unlockedFocusItems: new Set(), // Stores IDs of focusDrivenUnlocks definitions that have been achieved
+    achievedMilestones: new Set(), // Set of milestone IDs
+    completedRituals: { daily: {}, weekly: {} }, // { ritualId: { completed: boolean, progress: number } }
+    lastLoginDate: null,
+    freeResearchAvailableToday: false,
+    seenPrompts: new Set(), // Set of reflection prompt IDs seen
+    currentElementIndex: -1, // For questionnaire state
+    questionnaireCompleted: false,
+    cardsAddedSinceLastPrompt: 0,
+    promptCooldownActive: false, // For standard/rare reflection triggering
+    discoveredRepositoryItems: {
+        scenes: new Set(), // IDs of discovered SceneBlueprints
+        experiments: new Set(), // IDs of COMPLETED AlchemicalExperiments
+        insights: new Set() // IDs of discovered ElementalInsights
+    },
+    pendingRarePrompts: [], // Array of rare prompt IDs queued for reflection
+    unlockedFocusItems: new Set(), // IDs of focusDrivenUnlocks definitions activated
+    currentFocusSetHash: '', // Hash of the current focused concept IDs
+    contemplationCooldownEnd: null, // Timestamp when cooldown ends *** ADDED ***
+    onboardingPhase: Config.ONBOARDING_PHASE.START, // *** ADDED ***
+};
 
-    // *** NEW: State for Tapestry Deep Dive ***
-    deepDiveViewedNodes: new Set(), // Stores node IDs viewed *for the current focus set* (e.g., 'elemental', 'archetype') - Resets on focus change.
-    contemplationCooldownEnd: null, // Timestamp when the next Focused Contemplation is available.
-    currentFocusSetHash: null // Hash representing the current set of focused concept IDs, used to detect changes.
-});
+// Initialize current state
+let gameState = JSON.parse(JSON.stringify(initialGameState)); // Deep copy initial state
 
-// --- Game State Variable ---
-let gameState = getDefaultState();
-
-// --- State Accessors (Getters) ---
-export const getState = () => ({ ...gameState }); // Shallow copy is usually fine
-export const getScores = () => ({ ...gameState.userScores });
-export const getDiscoveredConcepts = () => new Map(gameState.discoveredConcepts);
-export const getDiscoveredConceptData = (id) => gameState.discoveredConcepts.get(id); // Direct access if needed
-export const getFocusedConcepts = () => new Set(gameState.focusedConcepts);
-export const getInsight = () => gameState.userInsight;
-export const getAttunement = () => ({ ...gameState.elementAttunement });
-export const getFocusSlots = () => gameState.focusSlotsTotal;
-export const getOnboardingPhase = () => gameState.currentOnboardingPhase;
-export const checkMilestone = (id) => gameState.achievedMilestones.has(id);
-export const getRepositoryItems = () => ({
-    // Return copies to prevent direct mutation of state Sets
-    scenes: new Set(gameState.discoveredRepositoryItems.scenes),
-    experiments: new Set(gameState.discoveredRepositoryItems.experiments),
-    insights: new Set(gameState.discoveredRepositoryItems.insights)
-});
-export const getUnlockedFocusItems = () => new Set(gameState.unlockedFocusItems);
-export const isFreeResearchAvailable = () => gameState.freeResearchAvailableToday;
-export const getPendingRarePrompts = () => [...gameState.pendingRarePrompts]; // Return copy
-
-// *** NEW: Deep Dive Getters ***
-export const getDeepDiveViewedNodes = () => new Set(gameState.deepDiveViewedNodes);
-export const getContemplationCooldownEnd = () => gameState.contemplationCooldownEnd;
-export const getCurrentFocusSetHash = () => gameState.currentFocusSetHash;
-
-
-// --- State Mutators (Setters/Updaters) ---
-
-// Helper function to generate a hash from the focused concepts set
-function generateFocusSetHash(focusedSet) {
-    if (!focusedSet || focusedSet.size === 0) return null;
-    // Sort IDs to ensure consistent hash regardless of insertion order
-    const sortedIds = Array.from(focusedSet).sort((a, b) => a - b);
-    return sortedIds.join(','); // Simple comma-separated string as hash
+// --- Internal Helper ---
+function _calculateFocusSetHash() {
+    if (!gameState.focusedConcepts || gameState.focusedConcepts.size === 0) {
+        return '';
+    }
+    const sortedIds = Array.from(gameState.focusedConcepts).sort((a, b) => a - b);
+    return sortedIds.join(',');
 }
 
-export function setQuestionnaireComplete() {
-    gameState.questionnaireCompleted = true;
-    // Ensure index reflects completion - GET COUNT SYNCHRONOUSLY
-    // We know the count is 6 based on the data provided.
-    // If data.js could change, we'd need a better way, but for now, hardcoding is safe.
-    const elementCount = 6; // Use the known count
-    gameState.currentElementIndex = elementCount;
-    // Advance phase SYNCHRONOUSLY using the internal function
-    advanceOnboardingPhase(Config.ONBOARDING_PHASE.PERSONA_GRIMOIRE);
-    saveGameState();
-    console.log("State: Questionnaire marked complete, phase advanced synchronously."); // Add log
-}
+// --- Saving & Loading ---
+let saveTimeout = null;
+const SAVE_DELAY = 1000; // Save 1 second after the last change
 
+function _triggerSave() {
+     const saveIndicator = document.getElementById('saveIndicator');
+     if(saveIndicator) saveIndicator.classList.remove('hidden');
 
-export function updateScores(newScores) {
-    if (typeof newScores === 'object' && newScores !== null) {
-        let updated = false;
-        for (const key in newScores) {
-            if (gameState.userScores.hasOwnProperty(key) && typeof newScores[key] === 'number') {
-                const clampedScore = Math.max(0, Math.min(10, newScores[key]));
-                if (gameState.userScores[key] !== clampedScore) {
-                    gameState.userScores[key] = clampedScore;
-                    updated = true;
-                }
-            }
-        }
-        if (updated) saveGameState();
-    } else { console.warn("Invalid scores object:", newScores); }
-}
-
-export function updateSingleScore(elementKey, score) {
-     if (gameState.userScores.hasOwnProperty(elementKey) && typeof score === 'number') {
-         const clampedScore = Math.max(0, Math.min(10, score));
-         if (gameState.userScores[elementKey] !== clampedScore) {
-             gameState.userScores[elementKey] = clampedScore;
-             saveGameState();
+     if (saveTimeout) clearTimeout(saveTimeout);
+     saveTimeout = setTimeout(() => {
+         try {
+             const stateToSave = {
+                 ...gameState,
+                 // Convert Maps and Sets to Arrays for JSON
+                 discoveredConcepts: Array.from(gameState.discoveredConcepts.entries()),
+                 focusedConcepts: Array.from(gameState.focusedConcepts),
+                 achievedMilestones: Array.from(gameState.achievedMilestones),
+                 seenPrompts: Array.from(gameState.seenPrompts),
+                 discoveredRepositoryItems: {
+                     scenes: Array.from(gameState.discoveredRepositoryItems.scenes),
+                     experiments: Array.from(gameState.discoveredRepositoryItems.experiments),
+                     insights: Array.from(gameState.discoveredRepositoryItems.insights),
+                 },
+                 unlockedFocusItems: Array.from(gameState.unlockedFocusItems)
+             };
+             localStorage.setItem(Config.SAVE_KEY, JSON.stringify(stateToSave));
+             // console.log("State saved."); // Can be noisy
+         } catch (error) {
+             console.error("Error saving game state:", error);
+         } finally {
+              if(saveIndicator) saveIndicator.classList.add('hidden');
+              saveTimeout = null;
          }
-     }
-}
-
-export function updateAnswers(elementName, answersForElement) {
-    if (!gameState.userAnswers) gameState.userAnswers = {};
-    gameState.userAnswers[elementName] = { ...(answersForElement || {}) };
-    // Saving deferred until nav/finalize
-}
-
-export function saveAllAnswers(allAnswers) {
-    gameState.userAnswers = { ...(allAnswers || {}) };
-    saveGameState();
-}
-
-export function updateElementIndex(index) {
-    gameState.currentElementIndex = index;
-    // Saving deferred
-}
-
-export function addDiscoveredConcept(conceptId, conceptData) {
-    if (!gameState.discoveredConcepts.has(conceptId)) {
-        gameState.discoveredConcepts.set(conceptId, {
-            concept: conceptData, discoveredTime: Date.now(), artUnlocked: false, notes: ""
-        });
-        saveGameState();
-        return true;
-    }
-    return false;
-}
-
-export function removeDiscoveredConcept(conceptId) {
-    let focusChanged = false; // Track if focus needs update
-    if (gameState.discoveredConcepts.has(conceptId)) {
-        gameState.discoveredConcepts.delete(conceptId);
-        // Remove focus if present
-        if (gameState.focusedConcepts.has(conceptId)) {
-            gameState.focusedConcepts.delete(conceptId);
-            focusChanged = true; // Mark focus changed
-        }
-        saveGameState();
-        // Reset Deep Dive state if focus changed
-        if (focusChanged) {
-            gameState.currentFocusSetHash = getCurrentFocusSetHash(); // Update hash
-            gameState.viewedDeepDiveNodes = new Set(); // Clear viewed nodes
-            console.log("State: Focus changed, Deep Dive state reset.");
-        }
-        return true;
-    }
-    return false;
-}
-
-
-export function toggleFocusConcept(conceptId) {
-    if (!gameState.discoveredConcepts.has(conceptId)) return 'not_discovered';
-    let result = '';
-    let focusChanged = false;
-
-    if (gameState.focusedConcepts.has(conceptId)) {
-        gameState.focusedConcepts.delete(conceptId);
-        result = 'removed';
-        focusChanged = true;
-    } else {
-        if (gameState.focusedConcepts.size >= gameState.focusSlotsTotal) {
-            return 'slots_full';
-        }
-        gameState.focusedConcepts.add(conceptId);
-        result = 'added';
-        focusChanged = true;
-        // Advance onboarding if this is the first focus
-        if (getOnboardingPhase() === Config.ONBOARDING_PHASE.PERSONA_GRIMOIRE && gameState.focusedConcepts.size >= 1){
-             advanceOnboardingPhase(Config.ONBOARDING_PHASE.STUDY_INSIGHT);
-        }
-    }
-
-    if (focusChanged) {
-        gameState.currentFocusSetHash = getCurrentFocusSetHash(); // Update hash
-        gameState.viewedDeepDiveNodes = new Set(); // Clear viewed nodes on any focus change
-        console.log("State: Focus changed, Deep Dive state reset.");
-        saveGameState(); // Save after focus change and state reset
-    }
-
-    return result;
-}
-
-
-export function updateNotes(conceptId, notes) {
-    const data = gameState.discoveredConcepts.get(conceptId);
-    if (data) {
-        if (data.notes !== notes) { // Only save if changed
-            data.notes = notes;
-            gameState.discoveredConcepts.set(conceptId, data);
-            saveGameState();
-        }
-        return true;
-    }
-    return false;
-}
-
-export function unlockArt(conceptId) {
-    const data = gameState.discoveredConcepts.get(conceptId);
-    if (data && !data.artUnlocked) {
-        data.artUnlocked = true;
-        gameState.discoveredConcepts.set(conceptId, data);
-        saveGameState();
-        return true;
-    }
-    return false;
-}
-
-export function changeInsight(amount) {
-    if (typeof amount !== 'number' || isNaN(amount)) return false;
-    const previousInsight = gameState.userInsight;
-    gameState.userInsight = Math.max(0, previousInsight + amount);
-    if (gameState.userInsight !== previousInsight) {
-        saveGameState();
-        return true;
-    }
-    return false;
-}
-
-export function updateAttunement(elementKey, amount) {
-    if (!gameState.elementAttunement.hasOwnProperty(elementKey) || typeof amount !== 'number' || isNaN(amount) || amount === 0) {
-        return false;
-    }
-    const current = gameState.elementAttunement[elementKey];
-    const newValue = Math.min(Config.MAX_ATTUNEMENT, Math.max(0, current + amount));
-    if (newValue !== current) {
-        gameState.elementAttunement[elementKey] = newValue;
-        // Check for phase advancement triggers related to attunement BEFORE saving
-        let phaseAdvanced = false;
-        // Example: Advance to phase 3 (Reflection/Rituals) if *any* element reaches 10 attunement
-        if (newValue >= 10 && getOnboardingPhase() < Config.ONBOARDING_PHASE.REFLECTION_RITUALS) {
-             phaseAdvanced = advanceOnboardingPhase(Config.ONBOARDING_PHASE.REFLECTION_RITUALS);
-        }
-         // Example: Advance to phase 4 (Advanced) if *any* element reaches 25 attunement
-         else if (newValue >= 25 && getOnboardingPhase() < Config.ONBOARDING_PHASE.ADVANCED) {
-             phaseAdvanced = advanceOnboardingPhase(Config.ONBOARDING_PHASE.ADVANCED);
-         }
-         // Save only once if attunement changed OR phase advanced
-        saveGameState();
-        return true;
-    }
-    return false;
-}
-
-
-export function updateAllAttunement(amount) {
-    let changed = false;
-    for (const key in gameState.elementAttunement) {
-        // Use the single update function which handles saving & phase checks
-        if (updateAttunement(key, amount)) {
-            changed = true;
-        }
-    }
-    // No need to saveGameState here, updateAttunement handles it
-    return changed;
-}
-
-export function unlockLibraryLevel(elementKey, level) {
-    if (gameState.unlockedDeepDiveLevels.hasOwnProperty(elementKey) && level > gameState.unlockedDeepDiveLevels[elementKey]) {
-        gameState.unlockedDeepDiveLevels[elementKey] = level;
-        saveGameState();
-        return true;
-    }
-    return false;
-}
-
-export function addSeenPrompt(promptId) {
-    if (!gameState.seenPrompts.has(promptId)) {
-        gameState.seenPrompts.add(promptId);
-        saveGameState();
-    }
-}
-
-export function completeRitualProgress(ritualId, period = 'daily') {
-     if (!gameState.completedRituals[period]) gameState.completedRituals[period] = {};
-     if (!gameState.completedRituals[period][ritualId]) gameState.completedRituals[period][ritualId] = { completed: false, progress: 0 };
-     const ritualData = gameState.completedRituals[period][ritualId];
-     if (!ritualData.completed) {
-          ritualData.progress++;
-          saveGameState(); // Save progress
-          return ritualData.progress;
-     }
-     return ritualData.progress;
-}
-
-export function markRitualComplete(ritualId, period = 'daily') {
-    if (!gameState.completedRituals[period]) gameState.completedRituals[period] = {};
-    // Ensure progress reflects completion state if setting manually
-    // TODO: Look up requiredCount from ritual definition if needed for accuracy
-    const requiredCount = 1; // Assuming count is 1 for manual completion
-    gameState.completedRituals[period][ritualId] = { completed: true, progress: requiredCount };
-    saveGameState();
-}
-
-export function resetDailyRituals() {
-    gameState.completedRituals.daily = {};
-    gameState.freeResearchAvailableToday = true;
-    gameState.lastLoginDate = new Date().toDateString();
-    // Reset contemplation cooldown if feature is active
-    gameState.contemplationCooldownEnd = null;
-    console.log("Daily state reset triggered in state.js (incl. contemplation cooldown)");
-    saveGameState();
-}
-
-export function setFreeResearchUsed() {
-    if (gameState.freeResearchAvailableToday) {
-        gameState.freeResearchAvailableToday = false;
-        saveGameState();
-    }
-}
-
-export function addAchievedMilestone(milestoneId) {
-    if (!gameState.achievedMilestones.has(milestoneId)) {
-        gameState.achievedMilestones.add(milestoneId);
-        saveGameState();
-        return true;
-    }
-    return false;
-}
-
-export function increaseFocusSlots(amount = 1) {
-    const oldSlots = gameState.focusSlotsTotal;
-    gameState.focusSlotsTotal = Math.min(Config.MAX_FOCUS_SLOTS, oldSlots + amount);
-    if (gameState.focusSlotsTotal > oldSlots) {
-        saveGameState();
-        return true;
-    }
-    return false;
-}
-
-export function incrementReflectionTrigger() {
-    gameState.cardsAddedSinceLastPrompt++;
-    // No save here, done by resetReflectionTrigger
-}
-export function resetReflectionTrigger(setCooldown = true) {
-    gameState.cardsAddedSinceLastPrompt = 0;
-    if (setCooldown) {
-        gameState.promptCooldownActive = true;
-    }
-    saveGameState(); // Save state when counter resets/cooldown set
-}
-export function clearReflectionCooldown() {
-    if (gameState.promptCooldownActive) {
-        gameState.promptCooldownActive = false;
-        saveGameState();
-    }
-}
-
-export function addRepositoryItem(type, itemId) {
-    if (gameState.discoveredRepositoryItems.hasOwnProperty(type)) {
-        const itemSet = gameState.discoveredRepositoryItems[type];
-        if (!itemSet.has(itemId)) {
-            itemSet.add(itemId);
-            saveGameState();
-            return true;
-        }
-    } else { console.warn(`Unknown repository type: ${type}`); }
-    return false;
-}
-
-export function addPendingRarePrompt(promptId) {
-    if (!gameState.pendingRarePrompts.includes(promptId)) {
-        gameState.pendingRarePrompts.push(promptId);
-        saveGameState();
-    }
-}
-
-export function getNextRarePrompt() {
-    if (gameState.pendingRarePrompts.length > 0) {
-        const promptId = gameState.pendingRarePrompts.shift();
-        saveGameState();
-        return promptId;
-    }
-    return null;
-}
-
-export function addUnlockedFocusItem(unlockId) {
-    if (!gameState.unlockedFocusItems.has(unlockId)) {
-        gameState.unlockedFocusItems.add(unlockId);
-        saveGameState();
-        return true;
-    }
-    return false;
-}
-
-// Internal function to handle phase advancement and UI update call
-function advanceOnboardingPhase(targetPhase = null) {
-    const currentPhase = gameState.currentOnboardingPhase;
-    // Allow advancing phase only forwards, or jumping if targetPhase is provided
-    const nextPhase = targetPhase !== null ? Math.max(currentPhase, targetPhase) : currentPhase + 1;
-
-    if (nextPhase > currentPhase && nextPhase <= Config.ONBOARDING_PHASE.ADVANCED) {
-        gameState.currentOnboardingPhase = nextPhase;
-        console.log(`Advanced onboarding phase to: ${nextPhase}`);
-        // Don't save here, let the caller save once
-
-        // Dynamically import UI *after* state update to apply changes
-        import('./ui.js').then(UI => {
-            // Check if UI module and function exist before calling
-            if (UI && typeof UI.applyOnboardingPhaseUI === 'function') {
-                UI.applyOnboardingPhaseUI(nextPhase);
-            } else { console.error("UI module or applyOnboardingPhaseUI function not found after import."); }
-        }).catch(err => console.error("Failed to import UI for onboarding update:", err));
-
-        return true; // Indicate phase changed
-    }
-    return false; // Indicate phase did not change
-}
-
-
-// Public function if direct control over phase advancement is needed elsewhere
-// (though usually it should be triggered by game events via internal function)
-export function triggerPhaseAdvance(targetPhase) {
-     const changed = advanceOnboardingPhase(targetPhase);
-     if (changed) { saveGameState(); } // Save if the phase was actually advanced
-     return changed;
-}
-
-// Add setters for Deep Dive state if needed
-export function addDeepDiveViewedNode(nodeId) {
-    if (!gameState.viewedDeepDiveNodes) {
-        gameState.viewedDeepDiveNodes = new Set();
-    }
-    if (!gameState.viewedDeepDiveNodes.has(nodeId)) {
-        gameState.viewedDeepDiveNodes.add(nodeId);
-        saveGameState();
-        return true;
-    }
-    return false;
-}
-
-export function setContemplationCooldown(durationMs) {
-    gameState.contemplationCooldownEnd = Date.now() + durationMs;
-    saveGameState();
-}
-
-// --- Persistence ---
-let saveIndicatorTimeout = null;
-function showSaveIndicatorUI() { // Keep this internal to state.js for now
-    const indicator = document.getElementById('saveIndicator');
-    if (!indicator) return;
-    indicator.classList.remove('hidden');
-    if (saveIndicatorTimeout) clearTimeout(saveIndicatorTimeout);
-    saveIndicatorTimeout = setTimeout(() => {
-        indicator.classList.add('hidden');
-        saveIndicatorTimeout = null;
-    }, 750);
+     }, SAVE_DELAY);
 }
 
 export function saveGameState() {
-    showSaveIndicatorUI();
-    try {
-        // Convert Maps and Sets to Arrays for JSON serialization
-        const stateToSave = {
-            ...gameState, // Include all properties
-            // Overwrite collections with serializable versions
-            discoveredConcepts: Array.from(gameState.discoveredConcepts.entries()),
-            focusedConcepts: Array.from(gameState.focusedConcepts),
-            seenPrompts: Array.from(gameState.seenPrompts),
-            achievedMilestones: Array.from(gameState.achievedMilestones),
-            discoveredRepositoryItems: {
-                scenes: Array.from(gameState.discoveredRepositoryItems.scenes),
-                experiments: Array.from(gameState.discoveredRepositoryItems.experiments),
-                insights: Array.from(gameState.discoveredRepositoryItems.insights)
-            },
-            unlockedFocusItems: Array.from(gameState.unlockedFocusItems),
-            viewedDeepDiveNodes: Array.from(gameState.viewedDeepDiveNodes || new Set()), // Add Deep Dive nodes
-        };
-        localStorage.setItem(Config.SAVE_KEY, JSON.stringify(stateToSave));
-        // console.log("Game state saved."); // Less verbose logging
-    } catch (error) {
-        console.error("Error saving game state:", error);
-        // Need UI function for message, imported now
-        showTemporaryMessage("Error: Could not save progress!", 4000);
-    }
+    _triggerSave();
 }
-
 
 export function loadGameState() {
     console.log("Attempting to load game state...");
@@ -497,106 +93,275 @@ export function loadGameState() {
     if (savedData) {
         try {
             const loadedState = JSON.parse(savedData);
-            console.log("Saved data found, merging with defaults...");
+            console.log("Saved data found.");
 
-            // Create a new default state to merge into
-            const newState = getDefaultState();
+            // Create a fresh default state to merge into
+            const freshState = JSON.parse(JSON.stringify(initialGameState));
 
-            // Merge loaded data carefully, converting arrays back to Maps/Sets
-            for (const key in loadedState) {
-                // Only merge keys that exist in the default state to avoid adding old/invalid keys
-                if (newState.hasOwnProperty(key)) {
-                    // --- START Explicit Handling for lastLoginDate ---
-                    if (key === 'lastLoginDate') {
-                        if (typeof loadedState.lastLoginDate === 'string' || loadedState.lastLoginDate === null) {
-                            newState.lastLoginDate = loadedState.lastLoginDate;
-                        } else {
-                            console.warn(`Invalid type for lastLoginDate (${typeof loadedState.lastLoginDate}), using default.`);
-                            newState.lastLoginDate = null; // Use default
-                        }
-                    }
-                    // --- END Explicit Handling ---
-                    else if (key === 'discoveredConcepts' && Array.isArray(loadedState.discoveredConcepts)) {
-                        newState.discoveredConcepts = new Map(loadedState.discoveredConcepts);
-                    } else if ((key === 'focusedConcepts' || key === 'seenPrompts' || key === 'achievedMilestones' || key === 'unlockedFocusItems' || key === 'viewedDeepDiveNodes') && Array.isArray(loadedState[key])) { // Add viewedDeepDiveNodes
-                        newState[key] = new Set(loadedState[key]);
-                    } else if (key === 'discoveredRepositoryItems' && typeof loadedState.discoveredRepositoryItems === 'object') {
-                         newState.discoveredRepositoryItems = {
-                              scenes: new Set(loadedState.discoveredRepositoryItems?.scenes || []),
-                              experiments: new Set(loadedState.discoveredRepositoryItems?.experiments || []),
-                              insights: new Set(loadedState.discoveredRepositoryItems?.insights || [])
-                         };
-                    } else if (key === 'completedRituals' && typeof loadedState.completedRituals === 'object') {
-                         newState.completedRituals = {
-                              daily: loadedState.completedRituals?.daily || {},
-                              weekly: loadedState.completedRituals?.weekly || {} // Keep weekly if added later
-                         };
-                    } else if (key === 'userAnswers' && typeof loadedState.userAnswers !== 'object') {
-                         console.warn("Loaded userAnswers is not an object, resetting.");
-                         newState.userAnswers = {}; // Reset if invalid type
-                    } else if (key === 'pendingRarePrompts' && !Array.isArray(loadedState.pendingRarePrompts)){
-                         console.warn("Loaded pendingRarePrompts is not an array, resetting.");
-                         newState.pendingRarePrompts = [];
-                    }
-                    // --- Modify the final else block for remaining types ---
-                    else {
-                        // Directly assign other primitive types or plain objects
-                        // Check for undefined/null explicitly before type check
-                        const loadedValue = loadedState[key];
-                        const defaultValue = newState[key];
-                        // Special case: Allow loading string date into null default handled above
-                        if (key !== 'lastLoginDate') {
-                             if (loadedValue !== undefined && loadedValue !== null) {
-                                 // Use loaded value if types match, OR if loading a number into a null default (e.g., contemplationCooldownEnd)
-                                 if (typeof loadedValue === typeof defaultValue || (defaultValue === null && typeof loadedValue === 'number')) {
-                                     newState[key] = loadedValue;
-                                 } else {
-                                     console.warn(`Type mismatch for key "${key}" during load. Loaded: ${typeof loadedValue}, Expected: ${typeof defaultValue}. Using default.`);
-                                     // Keep default value already set in newState
-                                 }
-                             } else {
-                                 // Key exists in loaded data but is null/undefined, keep default
-                                 // console.log(`Key "${key}" is null/undefined in loaded data, keeping default.`);
-                             }
-                        }
-                    }
-                } else {
-                     console.warn(`Ignoring unknown key "${key}" from saved data.`);
-                }
-            }
+            // Merge loaded data, prioritizing loaded values but falling back to defaults
+            // Ensure all properties from initialGameState are included here
+            gameState = {
+                userScores: typeof loadedState.userScores === 'object' && loadedState.userScores !== null ? { ...freshState.userScores, ...loadedState.userScores } : freshState.userScores,
+                userAnswers: typeof loadedState.userAnswers === 'object' && loadedState.userAnswers !== null ? loadedState.userAnswers : freshState.userAnswers,
+                discoveredConcepts: new Map(Array.isArray(loadedState.discoveredConcepts) ? loadedState.discoveredConcepts : []),
+                focusedConcepts: new Set(Array.isArray(loadedState.focusedConcepts) ? loadedState.focusedConcepts : []),
+                focusSlotsTotal: typeof loadedState.focusSlotsTotal === 'number' ? loadedState.focusSlotsTotal : freshState.focusSlotsTotal,
+                userInsight: typeof loadedState.userInsight === 'number' ? loadedState.userInsight : freshState.userInsight,
+                elementAttunement: typeof loadedState.elementAttunement === 'object' && loadedState.elementAttunement !== null ? { ...freshState.elementAttunement, ...loadedState.elementAttunement } : freshState.elementAttunement,
+                unlockedDeepDiveLevels: typeof loadedState.unlockedDeepDiveLevels === 'object' && loadedState.unlockedDeepDiveLevels !== null ? { ...freshState.unlockedDeepDiveLevels, ...loadedState.unlockedDeepDiveLevels } : freshState.unlockedDeepDiveLevels,
+                achievedMilestones: new Set(Array.isArray(loadedState.achievedMilestones) ? loadedState.achievedMilestones : []),
+                completedRituals: typeof loadedState.completedRituals === 'object' && loadedState.completedRituals !== null ? loadedState.completedRituals : freshState.completedRituals,
+                lastLoginDate: typeof loadedState.lastLoginDate === 'string' ? loadedState.lastLoginDate : freshState.lastLoginDate,
+                freeResearchAvailableToday: typeof loadedState.freeResearchAvailableToday === 'boolean' ? loadedState.freeResearchAvailableToday : freshState.freeResearchAvailableToday,
+                seenPrompts: new Set(Array.isArray(loadedState.seenPrompts) ? loadedState.seenPrompts : []),
+                currentElementIndex: typeof loadedState.currentElementIndex === 'number' ? loadedState.currentElementIndex : freshState.currentElementIndex,
+                questionnaireCompleted: typeof loadedState.questionnaireCompleted === 'boolean' ? loadedState.questionnaireCompleted : freshState.questionnaireCompleted,
+                cardsAddedSinceLastPrompt: typeof loadedState.cardsAddedSinceLastPrompt === 'number' ? loadedState.cardsAddedSinceLastPrompt : freshState.cardsAddedSinceLastPrompt,
+                promptCooldownActive: typeof loadedState.promptCooldownActive === 'boolean' ? loadedState.promptCooldownActive : freshState.promptCooldownActive,
+                discoveredRepositoryItems: {
+                    scenes: new Set(Array.isArray(loadedState.discoveredRepositoryItems?.scenes) ? loadedState.discoveredRepositoryItems.scenes : []),
+                    experiments: new Set(Array.isArray(loadedState.discoveredRepositoryItems?.experiments) ? loadedState.discoveredRepositoryItems.experiments : []),
+                    insights: new Set(Array.isArray(loadedState.discoveredRepositoryItems?.insights) ? loadedState.discoveredRepositoryItems.insights : []),
+                },
+                pendingRarePrompts: Array.isArray(loadedState.pendingRarePrompts) ? loadedState.pendingRarePrompts : freshState.pendingRarePrompts,
+                unlockedFocusItems: new Set(Array.isArray(loadedState.unlockedFocusItems) ? loadedState.unlockedFocusItems : []),
+                contemplationCooldownEnd: typeof loadedState.contemplationCooldownEnd === 'number' ? loadedState.contemplationCooldownEnd : freshState.contemplationCooldownEnd, // *** Correctly Load ***
+                onboardingPhase: typeof loadedState.onboardingPhase === 'number' ? loadedState.onboardingPhase : freshState.onboardingPhase, // *** Correctly Load ***
+            };
 
-            // Ensure essential nested objects exist if somehow missing after load
-            if (!newState.discoveredRepositoryItems) newState.discoveredRepositoryItems = { scenes: new Set(), experiments: new Set(), insights: new Set() };
-            if (!newState.completedRituals) newState.completedRituals = { daily: {}, weekly: {} };
-            if (!newState.viewedDeepDiveNodes) newState.viewedDeepDiveNodes = new Set(); // Add Deep Dive nodes
+            // Correct hash calculation - should use the just loaded gameState
+            gameState.currentFocusSetHash = _calculateFocusSetHash(); // Recalculate hash on load using the updated gameState.focusedConcepts
 
-
-            // Assign the merged state back to the main gameState variable
-            gameState = newState;
-
-            console.log("Game state loaded and merged successfully.");
+            console.log("Game state loaded successfully.");
             return true;
         } catch (error) {
             console.error("Error loading or parsing game state:", error);
             localStorage.removeItem(Config.SAVE_KEY);
-            gameState = getDefaultState(); // Reset to default on error
-            // Can't reliably call UI.showTemporaryMessage here as UI might not be ready
-            // The caller (main.js) should handle displaying a message
+            gameState = JSON.parse(JSON.stringify(initialGameState)); // Reset to default on error
             return false;
         }
     } else {
         console.log("No saved game state found.");
-        gameState = getDefaultState(); // Ensure default state
+        gameState = JSON.parse(JSON.stringify(initialGameState)); // Ensure default state
+        gameState.currentFocusSetHash = ''; // Ensure hash is empty initially
         return false;
     }
 }
 
 export function clearGameState() {
-    console.log("Clearing saved game state...");
     localStorage.removeItem(Config.SAVE_KEY);
-    gameState = getDefaultState(); // Reset runtime state
-    console.log("Game state reset.");
-    // UI message handled by caller
+    gameState = JSON.parse(JSON.stringify(initialGameState)); // Reset to default
+    gameState.currentFocusSetHash = ''; // Ensure hash is empty
+    console.log("Game state cleared and reset.");
+}
+
+// --- Getters ---
+export function getState() { return gameState; }
+export function getScores() { return gameState.userScores; }
+export function getAttunement() { return gameState.elementAttunement; }
+export function getInsight() { return gameState.userInsight; }
+export function getDiscoveredConcepts() { return gameState.discoveredConcepts; }
+export function getDiscoveredConceptData(conceptId) { return gameState.discoveredConcepts.get(conceptId); }
+export function getFocusedConcepts() { return gameState.focusedConcepts; }
+export function getFocusSlots() { return gameState.focusSlotsTotal; }
+export function getRepositoryItems() { return gameState.discoveredRepositoryItems; }
+export function getUnlockedFocusItems() { return gameState.unlockedFocusItems; }
+export function getCurrentFocusSetHash() { return gameState.currentFocusSetHash; }
+export function getContemplationCooldownEnd() { return gameState.contemplationCooldownEnd; } // *** Correct Getter ***
+export function getOnboardingPhase() { return gameState.onboardingPhase; } // *** Correct Getter ***
+export function isFreeResearchAvailable() { return gameState.freeResearchAvailableToday; }
+
+// --- Setters / Updaters (Trigger Save) ---
+export function updateScores(newScores) {
+    gameState.userScores = { ...newScores };
+    saveGameState();
+    return true;
+}
+export function saveAllAnswers(allAnswers) {
+    gameState.userAnswers = JSON.parse(JSON.stringify(allAnswers));
+    saveGameState();
+}
+export function updateAnswers(elementName, answersForElement) {
+    if (!gameState.userAnswers[elementName]) { gameState.userAnswers[elementName] = {}; }
+    gameState.userAnswers[elementName] = { ...answersForElement };
+    // No save here, saved implicitly by other actions
+}
+export function updateElementIndex(index) {
+    gameState.currentElementIndex = index;
+    // No save here
+}
+export function setQuestionnaireComplete() {
+    gameState.currentElementIndex = elementNames.length; // Use length to mark finished
+    if (!gameState.questionnaireCompleted) {
+        gameState.questionnaireCompleted = true;
+        advanceOnboardingPhase(Config.ONBOARDING_PHASE.PERSONA_GRIMOIRE); // Progress phase
+        // Save now handled by finalizeQuestionnaire
+    }
+    return true;
+}
+export function advanceOnboardingPhase(targetPhase) { // *** CORRECTED Function ***
+    if (targetPhase > gameState.onboardingPhase) {
+        console.log(`Advancing onboarding phase from ${gameState.onboardingPhase} to ${targetPhase}`);
+        gameState.onboardingPhase = targetPhase;
+        saveGameState();
+        return true;
+    }
+    return false;
+}
+export function changeInsight(amount) {
+    const previousInsight = gameState.userInsight;
+    gameState.userInsight = Math.max(0, previousInsight + amount);
+    if (gameState.userInsight !== previousInsight) { saveGameState(); return true; }
+    return false;
+}
+export function updateAttunement(elementKey, amount) {
+    if (gameState.elementAttunement.hasOwnProperty(elementKey)) {
+        const current = gameState.elementAttunement[elementKey];
+        const newValue = Math.min(Config.MAX_ATTUNEMENT, Math.max(0, current + amount));
+        if (newValue !== current) { gameState.elementAttunement[elementKey] = newValue; saveGameState(); return true; }
+    }
+    return false;
+}
+export function addDiscoveredConcept(conceptId, conceptData) {
+    if (!gameState.discoveredConcepts.has(conceptId)) {
+        gameState.discoveredConcepts.set(conceptId, { concept: conceptData, discoveredTime: Date.now(), artUnlocked: false, notes: "" });
+        if (gameState.onboardingPhase < Config.ONBOARDING_PHASE.STUDY_INSIGHT && gameState.discoveredConcepts.size >= 1) { advanceOnboardingPhase(Config.ONBOARDING_PHASE.STUDY_INSIGHT); }
+        saveGameState();
+        return true;
+    }
+    return false;
+}
+export function removeDiscoveredConcept(conceptId) {
+    if (gameState.discoveredConcepts.has(conceptId)) {
+        gameState.discoveredConcepts.delete(conceptId);
+        if (gameState.focusedConcepts.has(conceptId)) { gameState.focusedConcepts.delete(conceptId); gameState.currentFocusSetHash = _calculateFocusSetHash(); }
+        saveGameState();
+        return true;
+    }
+    return false;
+}
+export function toggleFocusConcept(conceptId) {
+    if (!gameState.discoveredConcepts.has(conceptId)) return 'not_discovered';
+    let result;
+    if (gameState.focusedConcepts.has(conceptId)) { gameState.focusedConcepts.delete(conceptId); result = 'removed'; }
+    else {
+        if (gameState.focusedConcepts.size >= gameState.focusSlotsTotal) { return 'slots_full'; }
+        gameState.focusedConcepts.add(conceptId); result = 'added';
+        if (gameState.onboardingPhase < Config.ONBOARDING_PHASE.STUDY_INSIGHT && gameState.focusedConcepts.size >= 1) { advanceOnboardingPhase(Config.ONBOARDING_PHASE.STUDY_INSIGHT); }
+    }
+    gameState.currentFocusSetHash = _calculateFocusSetHash(); // Update hash
+    saveGameState();
+    return result;
+}
+export function increaseFocusSlots(amount = 1) {
+    const newSlots = Math.min(Config.MAX_FOCUS_SLOTS, gameState.focusSlotsTotal + amount);
+    if (newSlots > gameState.focusSlotsTotal) { gameState.focusSlotsTotal = newSlots; saveGameState(); return true; }
+    return false;
+}
+export function updateNotes(conceptId, notes) {
+    const data = gameState.discoveredConcepts.get(conceptId);
+    if (data) { data.notes = notes; gameState.discoveredConcepts.set(conceptId, data); saveGameState(); return true; }
+    return false;
+}
+export function unlockArt(conceptId) {
+    const data = gameState.discoveredConcepts.get(conceptId);
+    if (data && !data.artUnlocked) {
+        data.artUnlocked = true; gameState.discoveredConcepts.set(conceptId, data);
+        if (gameState.onboardingPhase < Config.ONBOARDING_PHASE.ADVANCED) { advanceOnboardingPhase(Config.ONBOARDING_PHASE.ADVANCED); }
+        saveGameState();
+        return true;
+    }
+    return false;
+}
+export function unlockLibraryLevel(elementKey, level) {
+    if (gameState.unlockedDeepDiveLevels.hasOwnProperty(elementKey)) {
+        const currentLevel = gameState.unlockedDeepDiveLevels[elementKey];
+        if (level === currentLevel + 1) {
+            gameState.unlockedDeepDiveLevels[elementKey] = level;
+            if (gameState.onboardingPhase < Config.ONBOARDING_PHASE.ADVANCED && Object.values(gameState.unlockedDeepDiveLevels).some(l => l >= 1)) { advanceOnboardingPhase(Config.ONBOARDING_PHASE.ADVANCED); }
+            saveGameState();
+            return true;
+        }
+    }
+    return false;
+}
+export function resetDailyRituals() {
+    gameState.completedRituals.daily = {}; gameState.freeResearchAvailableToday = true; gameState.lastLoginDate = new Date().toDateString();
+    saveGameState();
+}
+export function setFreeResearchUsed() {
+    gameState.freeResearchAvailableToday = false; saveGameState();
+}
+export function completeRitualProgress(ritualId, period = 'daily') {
+    if (!gameState.completedRituals[period]) gameState.completedRituals[period] = {}; if (!gameState.completedRituals[period][ritualId]) gameState.completedRituals[period][ritualId] = { completed: false, progress: 0 };
+    gameState.completedRituals[period][ritualId].progress += 1; saveGameState();
+    return gameState.completedRituals[period][ritualId].progress;
+}
+export function markRitualComplete(ritualId, period = 'daily') {
+    if (!gameState.completedRituals[period]?.[ritualId]) { completeRitualProgress(ritualId, period); } // Ensure progress exists
+    if (gameState.completedRituals[period]?.[ritualId]) { gameState.completedRituals[period][ritualId].completed = true; saveGameState(); }
+}
+export function addAchievedMilestone(milestoneId) {
+    if (!gameState.achievedMilestones.has(milestoneId)) {
+        gameState.achievedMilestones.add(milestoneId);
+        // Auto-advance onboarding phase based on milestones
+        if (milestoneId === 'ms01' && gameState.onboardingPhase < Config.ONBOARDING_PHASE.PERSONA_GRIMOIRE) advanceOnboardingPhase(Config.ONBOARDING_PHASE.PERSONA_GRIMOIRE);
+        if (milestoneId === 'ms03' && gameState.onboardingPhase < Config.ONBOARDING_PHASE.PERSONA_GRIMOIRE) advanceOnboardingPhase(Config.ONBOARDING_PHASE.PERSONA_GRIMOIRE);
+        if (milestoneId === 'ms05' && gameState.onboardingPhase < Config.ONBOARDING_PHASE.STUDY_INSIGHT) advanceOnboardingPhase(Config.ONBOARDING_PHASE.STUDY_INSIGHT);
+        if (milestoneId === 'ms07' && gameState.onboardingPhase < Config.ONBOARDING_PHASE.REFLECTION_RITUALS) advanceOnboardingPhase(Config.ONBOARDING_PHASE.REFLECTION_RITUALS);
+        if (['ms60', 'ms70', 'ms71'].includes(milestoneId) && gameState.onboardingPhase < Config.ONBOARDING_PHASE.ADVANCED) advanceOnboardingPhase(Config.ONBOARDING_PHASE.ADVANCED);
+        saveGameState();
+        return true;
+    }
+    return false;
+}
+export function addSeenPrompt(promptId) {
+    gameState.seenPrompts.add(promptId); saveGameState();
+}
+export function incrementReflectionTrigger() {
+    gameState.cardsAddedSinceLastPrompt++; // No save here
+}
+export function resetReflectionTrigger(startCooldown = false) { // Renamed
+    gameState.cardsAddedSinceLastPrompt = 0;
+    if (startCooldown) { setPromptCooldownActive(true); } // Call setter
+    // No save here
+}
+export function setPromptCooldownActive(isActive) { // Added separate setter
+    gameState.promptCooldownActive = isActive;
+    // Save state handled by gameLogic cooldown timeout or other actions
+}
+export function clearReflectionCooldown() { // Maintained for potential direct use
+    gameState.promptCooldownActive = false; saveGameState();
+}
+export function addRepositoryItem(itemType, itemId) {
+    if (gameState.discoveredRepositoryItems[itemType] && !gameState.discoveredRepositoryItems[itemType].has(itemId)) {
+        gameState.discoveredRepositoryItems[itemType].add(itemId);
+        const repoNotEmpty = Object.values(gameState.discoveredRepositoryItems).some(set => set.size > 0);
+        if (gameState.onboardingPhase < Config.ONBOARDING_PHASE.ADVANCED && repoNotEmpty) { advanceOnboardingPhase(Config.ONBOARDING_PHASE.ADVANCED); }
+        saveGameState();
+        return true;
+    }
+    return false;
+}
+export function addPendingRarePrompt(promptId) {
+    if (!gameState.pendingRarePrompts.includes(promptId)) { gameState.pendingRarePrompts.push(promptId); saveGameState(); return true; }
+    return false;
+}
+export function getNextRarePrompt() {
+    if (gameState.pendingRarePrompts.length > 0) { const promptId = gameState.pendingRarePrompts.shift(); saveGameState(); return promptId; }
+    return null;
+}
+export function addUnlockedFocusItem(unlockId) {
+    if (!gameState.unlockedFocusItems.has(unlockId)) {
+        gameState.unlockedFocusItems.add(unlockId);
+        if (gameState.onboardingPhase < Config.ONBOARDING_PHASE.ADVANCED) { advanceOnboardingPhase(Config.ONBOARDING_PHASE.ADVANCED); }
+        saveGameState();
+        return true;
+    }
+    return false;
+}
+export function setContemplationCooldown(endTime) { // *** CORRECTED Setter ***
+    gameState.contemplationCooldownEnd = endTime; saveGameState();
 }
 
 console.log("state.js loaded.");
