@@ -251,14 +251,8 @@ hr { border: none; border-top: 1px dashed var(--border-color-light); margin: 18p
 #summaryContent p { margin-bottom: 8px; font-size: 0.95em; }
 #summaryContent ul { list-style: disc; padding-left: 20px; margin-bottom: 12px; font-size: 0.95em;}
 
-/* --- Main Study Screen --- */
-.study-layout-container { display: flex; flex-direction: column; gap: 25px; }
-@media (min-width: 768px) { /* Desktop layout */
-  .study-layout-container { flex-direction: row; gap: 35px; }
-  .study-column-left { flex: 1 1 350px; max-width: 420px; }
-  .study-column-right { flex: 3 1 550px; }
-}
-.study-column-left { display: flex; flex-direction: column; gap: 25px; }
+
+
 .study-resources { background-color: #deb887; padding: 20px; border-radius: 10px; border: 3px ridge var(--primary-color); box-shadow: inset 0 0 12px rgba(0,0,0,0.2); }
 .study-resources h2 { margin-top: 0; border-bottom-color: var(--border-color-dark); font-size: 1.3em; }
 .study-resources p { text-align: left; font-size: 0.95em; margin-bottom: 10px; }
@@ -724,5 +718,208 @@ hr { border: none; border-top: 1px dashed var(--border-color-light); margin: 18p
     margin-top: 10px;
 }
 
+.study-screen {
+    background: url('placeholder_art/alchemy_bg_texture.png'), linear-gradient(to bottom, #e8d8c0, #f5f0e1); /* Add a subtle texture */
+    background-size: cover; /* Adjust background */
+    border: 1px solid var(--border-color-dark); /* Darker border for study */
+}
 
+.study-screen h1 {
+    color: #5a3a22; /* Darker heading */
+    text-shadow: 1px 1px 1px rgba(255,255,255,0.1);
+}
+
+.study-control-console {
+    background-color: rgba(210, 180, 140, 0.6); /* Tan background with alpha */
+    border: 1px solid var(--border-color-dark);
+    border-radius: 8px;
+    padding: 15px 20px;
+    margin-bottom: 25px;
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.1), 0 2px 5px rgba(0,0,0,0.1);
+    display: grid;
+    grid-template-columns: 1fr; /* Default to single column */
+    gap: 15px;
+    align-items: center; /* Vertically center items within grid areas */
+}
+
+.insight-display-area {
+    text-align: center;
+    font-size: 1.1em;
+    font-weight: bold;
+    color: var(--link-color);
+    background-color: rgba(255, 248, 220, 0.7);
+    padding: 8px;
+    border-radius: 5px;
+    border: 1px dashed var(--primary-color);
+}
+#userInsightDisplayStudy { font-size: 1.2em; }
+
+.action-buttons-area {
+    text-align: center;
+}
+.action-buttons-area p, .research-selection-area p {
+    font-weight: bold;
+    color: var(--primary-color);
+    margin-bottom: 10px;
+    text-align: center;
+    font-family: 'Cinzel Decorative', cursive;
+    font-size: 1em;
+}
+
+.action-buttons-area .button {
+    margin: 5px;
+}
+
+.research-selection-area .research-buttons {
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); /* More flexible grid */
+    gap: 8px;
+    margin-top: 0; /* Remove default margin */
+}
+
+.research-selection-area .research-button {
+    height: 75px; /* Slightly shorter */
+    font-size: 0.75em;
+}
+
+.study-divider {
+    border: none;
+    height: 2px;
+    background: linear-gradient(to right, transparent, var(--border-color-dark), transparent);
+    margin: 20px 0;
+}
+
+.study-workbench-area {
+    display: flex;
+    flex-direction: column; /* Stack workbench and rituals */
+    gap: 25px;
+}
+
+.research-bench {
+    background-color: rgba(255, 250, 240, 0.75); /* Lighter workbench */
+    border: 1px solid var(--border-color-light);
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+    flex-grow: 1; /* Allow it to take space */
+}
+
+.research-bench h2 {
+    margin-top: 0;
+    border-bottom-color: var(--border-color-light);
+    color: var(--primary-color);
+    text-align: center; /* Center heading */
+}
+
+#researchStatus { /* Style remains similar */
+    background-color: rgba(255, 248, 220, 0.9);
+    border: 1px dashed #b8860b;
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 5px;
+    text-align: center;
+    font-weight: bold;
+    color: var(--link-color);
+    min-height: 1.6em;
+    font-size: 0.95em;
+}
+
+#researchOutput { /* Style remains similar */
+    flex-grow: 1;
+    overflow-y: auto;
+    background-color: rgba(248, 244, 232, 0.6);
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid var(--border-color-light);
+    min-height: 200px; /* Ensure it has some height */
+}
+
+.rituals-alcove {
+    background-color: rgba(222, 184, 135, 0.5); /* Burlywood with alpha */
+    border: 1px dashed var(--border-color-dark);
+    border-radius: 8px;
+    padding: 15px;
+    box-shadow: inset 0 1px 5px rgba(0,0,0,0.1);
+}
+
+.rituals-alcove.hidden-by-flow {
+    display: none !important;
+}
+
+.rituals-alcove h3 {
+    font-size: 1.1em;
+    text-align: center;
+    border-bottom: 1px solid var(--primary-color);
+    padding-bottom: 5px;
+    margin-bottom: 10px;
+    color: var(--primary-color);
+}
+
+#dailyRitualsDisplay { /* Style remains similar */
+    list-style: none;
+    padding-left: 0;
+    font-size: 0.9em;
+    max-height: 250px; /* Limit height */
+    overflow-y: auto; /* Allow scrolling */
+}
+
+#dailyRitualsDisplay li {
+    background-color: rgba(255, 248, 220, 0.8);
+    padding: 8px 10px;
+    margin-bottom: 6px;
+    border-radius: 5px;
+    border: 1px solid #b8a880;
+    transition: background-color 0.3s ease;
+}
+#dailyRitualsDisplay li.completed { /* Style remains similar */
+    text-decoration: line-through;
+    color: #777;
+    background-color: rgba(220, 220, 200, 0.8);
+}
+#dailyRitualsDisplay li.focus-ritual { /* Style remains similar */
+    border-left: 3px solid #b8860b;
+}
+#dailyRitualsDisplay .ritual-reward { /* Style remains similar */
+    font-size: 0.9em;
+    color: var(--link-color);
+    margin-left: 6px;
+    font-style: italic;
+}
+
+
+/* Responsive Adjustments for Study Page */
+@media (min-width: 768px) {
+    .study-control-console {
+        grid-template-columns: auto 1fr; /* Insight/Actions | Research */
+        grid-template-areas:
+            "insight actions"
+            "insight research";
+        align-items: start; /* Align tops */
+    }
+    .insight-display-area { grid-area: insight; text-align: left; }
+    .action-buttons-area { grid-area: actions; text-align: left;}
+    .research-selection-area { grid-area: research; }
+    .action-buttons-area p, .research-selection-area p { text-align: left; }
+    .research-selection-area .research-buttons {
+         grid-template-columns: repeat(auto-fit, minmax(90px, 1fr)); /* Smaller min size */
+    }
+
+     .study-workbench-area {
+        flex-direction: row; /* Side-by-side on larger screens */
+        align-items: flex-start; /* Align tops */
+    }
+    .research-bench {
+        flex: 3 1 60%; /* Take more space */
+    }
+    .rituals-alcove {
+        flex: 1 1 35%; /* Take less space */
+        min-width: 250px; /* Ensure it doesn't get too small */
+        max-width: 350px;
+    }
+}
+
+@media (min-width: 1100px) {
+     .research-selection-area .research-buttons {
+         grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    }
+}
 /* ... rest of styles ... */
