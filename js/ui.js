@@ -1422,8 +1422,28 @@ export function clearContemplationTask() {
 export function updateTapestryDeepDiveButton() {
     const btn = document.getElementById('exploreTapestryButton');
     if (btn) {
-        btn.disabled = State.getFocusedConcepts().size === 0;
-        btn.classList.toggle('hidden-by-flow', State.getOnboardingPhase() < Config.ONBOARDING_PHASE.ADVANCED); // Hide until advanced phase
+        // Determine visibility based on phase FIRST
+        const isPhaseReady = State.getOnboardingPhase() >= Config.ONBOARDING_PHASE.ADVANCED; // <<< REQUIRES ADVANCED PHASE
+        btn.classList.toggle('hidden-by-flow', !isPhaseReady);
+
+        if (isPhaseReady) { // Only adjust disabled state and title if visible
+            const hasFocus = State.getFocusedConcepts().size > 0;
+            btn.disabled = !hasFocus; // Disable only if no concepts focused
+
+            // Update title based on disabled state
+            if (!hasFocus) {
+                btn.title = "Focus on concepts to enable deep dive.";
+            } else {
+                 btn.title = "Explore a deeper analysis of your focused tapestry.";
+            }
+        } else {
+            // If hidden by flow, ensure it's also disabled and has appropriate title
+            btn.disabled = true;
+            btn.title = "Unlock later in your journey.";
+        }
+
+    } else {
+         console.warn("UI: updateTapestryDeepDiveButton - Button not found!");
     }
 }
 
