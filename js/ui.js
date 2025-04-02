@@ -248,7 +248,10 @@ export function applyOnboardingPhaseUI(phase) {
           // Re-apply hidden class based on phase for notes/evolution within popup
           if (myNotesSection) myNotesSection.classList.toggle('hidden', !isPhase2 || !discoveredData);
           if (popupEvolutionSection) popupEvolutionSection.classList.toggle('hidden', !isPhase4 || !discoveredData || !concept?.canUnlockArt || discoveredData?.artUnlocked);
+
+         updateTapestryDeepDiveButton();
      }
+    
 }
 
 
@@ -1424,8 +1427,8 @@ export function updateTapestryDeepDiveButton() {
     const btn = document.getElementById('exploreTapestryButton');
     if (btn) {
         // Determine visibility based on phase FIRST
-        // *** CHANGE THIS PHASE REQUIREMENT if you want it earlier ***
-        const isPhaseReady = State.getOnboardingPhase() >= Config.ONBOARDING_PHASE.ADVANCED; // Requires Advanced phase
+        // *** CHANGE THIS PHASE REQUIREMENT ***
+        const isPhaseReady = State.getOnboardingPhase() >= Config.ONBOARDING_PHASE.PERSONA_GRIMOIRE; // Phase 1 required
         btn.classList.toggle('hidden-by-flow', !isPhaseReady);
 
         if (isPhaseReady) { // Only adjust disabled state and title if VISIBLE
@@ -1445,10 +1448,10 @@ export function updateTapestryDeepDiveButton() {
         }
 
     } else {
-         // This warning means the button wasn't found in the HTML at all.
          console.warn("UI: updateTapestryDeepDiveButton - Button with ID 'exploreTapestryButton' not found!");
     }
 }
+
 // --- Initial UI Setup Helper ---
 export function setupInitialUI() {
     console.log("UI: Setting up initial UI state...");
