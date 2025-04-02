@@ -31,8 +31,8 @@ const initialGameState = {
     pendingRarePrompts: [], // Array of rare prompt IDs queued for reflection
     unlockedFocusItems: new Set(), // IDs of focusDrivenUnlocks definitions activated
     currentFocusSetHash: '', // Hash of the current focused concept IDs
-    contemplationCooldownEnd: null, // Timestamp when cooldown ends *** ADDED ***
-    onboardingPhase: Config.ONBOARDING_PHASE.START, // *** ADDED ***
+    contemplationCooldownEnd: null, // Timestamp when cooldown ends
+    onboardingPhase: Config.ONBOARDING_PHASE.START,
 };
 
 // Initialize current state
@@ -61,7 +61,7 @@ function _triggerSave() {
              const stateToSave = {
                  ...gameState,
                  // Convert Maps and Sets to Arrays for JSON
-                 discoveredConcepts: Array.from(gameState.discoveredConcepts.entries()),
+                 discoveredConcepts: Array.from(gameState.discoveredConcepts.entries()), // *** Ensure saving as array of [key, value] pairs ***
                  focusedConcepts: Array.from(gameState.focusedConcepts),
                  achievedMilestones: Array.from(gameState.achievedMilestones),
                  seenPrompts: Array.from(gameState.seenPrompts),
@@ -98,39 +98,49 @@ export function loadGameState() {
             // Create a fresh default state to merge into
             const freshState = JSON.parse(JSON.stringify(initialGameState));
 
+            // --- *** MODIFIED LOADING LOGIC *** ---
+            // Ensure Maps and Sets are correctly reconstructed
+            const discoveredConceptsArray = Array.isArray(loadedState.discoveredConcepts) ? loadedState.discoveredConcepts : [];
+            const focusedConceptsArray = Array.isArray(loadedState.focusedConcepts) ? loadedState.focusedConcepts : [];
+            const achievedMilestonesArray = Array.isArray(loadedState.achievedMilestones) ? loadedState.achievedMilestones : [];
+            const seenPromptsArray = Array.isArray(loadedState.seenPrompts) ? loadedState.seenPrompts : [];
+            const repoScenesArray = Array.isArray(loadedState.discoveredRepositoryItems?.scenes) ? loadedState.discoveredRepositoryItems.scenes : [];
+            const repoExperimentsArray = Array.isArray(loadedState.discoveredRepositoryItems?.experiments) ? loadedState.discoveredRepositoryItems.experiments : [];
+            const repoInsightsArray = Array.isArray(loadedState.discoveredRepositoryItems?.insights) ? loadedState.discoveredRepositoryItems.insights : [];
+            const unlockedFocusItemsArray = Array.isArray(loadedState.unlockedFocusItems) ? loadedState.unlockedFocusItems : [];
+
             // Merge loaded data, prioritizing loaded values but falling back to defaults
-            // Ensure all properties from initialGameState are included here
             gameState = {
                 userScores: typeof loadedState.userScores === 'object' && loadedState.userScores !== null ? { ...freshState.userScores, ...loadedState.userScores } : freshState.userScores,
                 userAnswers: typeof loadedState.userAnswers === 'object' && loadedState.userAnswers !== null ? loadedState.userAnswers : freshState.userAnswers,
-                discoveredConcepts: new Map(Array.isArray(loadedState.discoveredConcepts) ? loadedState.discoveredConcepts : []),
-                focusedConcepts: new Set(Array.isArray(loadedState.focusedConcepts) ? loadedState.focusedConcepts : []),
+                discoveredConcepts: new Map(discoveredConceptsArray), // *** Reconstruct Map ***
+                focusedConcepts: new Set(focusedConceptsArray), // *** Reconstruct Set ***
                 focusSlotsTotal: typeof loadedState.focusSlotsTotal === 'number' ? loadedState.focusSlotsTotal : freshState.focusSlotsTotal,
                 userInsight: typeof loadedState.userInsight === 'number' ? loadedState.userInsight : freshState.userInsight,
                 elementAttunement: typeof loadedState.elementAttunement === 'object' && loadedState.elementAttunement !== null ? { ...freshState.elementAttunement, ...loadedState.elementAttunement } : freshState.elementAttunement,
                 unlockedDeepDiveLevels: typeof loadedState.unlockedDeepDiveLevels === 'object' && loadedState.unlockedDeepDiveLevels !== null ? { ...freshState.unlockedDeepDiveLevels, ...loadedState.unlockedDeepDiveLevels } : freshState.unlockedDeepDiveLevels,
-                achievedMilestones: new Set(Array.isArray(loadedState.achievedMilestones) ? loadedState.achievedMilestones : []),
+                achievedMilestones: new Set(achievedMilestonesArray), // *** Reconstruct Set ***
                 completedRituals: typeof loadedState.completedRituals === 'object' && loadedState.completedRituals !== null ? loadedState.completedRituals : freshState.completedRituals,
                 lastLoginDate: typeof loadedState.lastLoginDate === 'string' ? loadedState.lastLoginDate : freshState.lastLoginDate,
                 freeResearchAvailableToday: typeof loadedState.freeResearchAvailableToday === 'boolean' ? loadedState.freeResearchAvailableToday : freshState.freeResearchAvailableToday,
-                seenPrompts: new Set(Array.isArray(loadedState.seenPrompts) ? loadedState.seenPrompts : []),
+                seenPrompts: new Set(seenPromptsArray), // *** Reconstruct Set ***
                 currentElementIndex: typeof loadedState.currentElementIndex === 'number' ? loadedState.currentElementIndex : freshState.currentElementIndex,
                 questionnaireCompleted: typeof loadedState.questionnaireCompleted === 'boolean' ? loadedState.questionnaireCompleted : freshState.questionnaireCompleted,
                 cardsAddedSinceLastPrompt: typeof loadedState.cardsAddedSinceLastPrompt === 'number' ? loadedState.cardsAddedSinceLastPrompt : freshState.cardsAddedSinceLastPrompt,
                 promptCooldownActive: typeof loadedState.promptCooldownActive === 'boolean' ? loadedState.promptCooldownActive : freshState.promptCooldownActive,
                 discoveredRepositoryItems: {
-                    scenes: new Set(Array.isArray(loadedState.discoveredRepositoryItems?.scenes) ? loadedState.discoveredRepositoryItems.scenes : []),
-                    experiments: new Set(Array.isArray(loadedState.discoveredRepositoryItems?.experiments) ? loadedState.discoveredRepositoryItems.experiments : []),
-                    insights: new Set(Array.isArray(loadedState.discoveredRepositoryItems?.insights) ? loadedState.discoveredRepositoryItems.insights : []),
+                    scenes: new Set(repoScenesArray), // *** Reconstruct Set ***
+                    experiments: new Set(repoExperimentsArray), // *** Reconstruct Set ***
+                    insights: new Set(repoInsightsArray), // *** Reconstruct Set ***
                 },
                 pendingRarePrompts: Array.isArray(loadedState.pendingRarePrompts) ? loadedState.pendingRarePrompts : freshState.pendingRarePrompts,
-                unlockedFocusItems: new Set(Array.isArray(loadedState.unlockedFocusItems) ? loadedState.unlockedFocusItems : []),
-                contemplationCooldownEnd: typeof loadedState.contemplationCooldownEnd === 'number' ? loadedState.contemplationCooldownEnd : freshState.contemplationCooldownEnd, // *** Correctly Load ***
-                onboardingPhase: typeof loadedState.onboardingPhase === 'number' ? loadedState.onboardingPhase : freshState.onboardingPhase, // *** Correctly Load ***
+                unlockedFocusItems: new Set(unlockedFocusItemsArray), // *** Reconstruct Set ***
+                contemplationCooldownEnd: typeof loadedState.contemplationCooldownEnd === 'number' ? loadedState.contemplationCooldownEnd : freshState.contemplationCooldownEnd,
+                onboardingPhase: typeof loadedState.onboardingPhase === 'number' ? loadedState.onboardingPhase : freshState.onboardingPhase,
             };
+            // --- *** END MODIFIED LOADING LOGIC *** ---
 
-            // Correct hash calculation - should use the just loaded gameState
-            gameState.currentFocusSetHash = _calculateFocusSetHash(); // Recalculate hash on load using the updated gameState.focusedConcepts
+            gameState.currentFocusSetHash = _calculateFocusSetHash(); // Recalculate hash on load
 
             console.log("Game state loaded successfully.");
             return true;
@@ -138,12 +148,13 @@ export function loadGameState() {
             console.error("Error loading or parsing game state:", error);
             localStorage.removeItem(Config.SAVE_KEY);
             gameState = JSON.parse(JSON.stringify(initialGameState)); // Reset to default on error
+            gameState.currentFocusSetHash = ''; // Ensure hash is empty
             return false;
         }
     } else {
         console.log("No saved game state found.");
         gameState = JSON.parse(JSON.stringify(initialGameState)); // Ensure default state
-        gameState.currentFocusSetHash = ''; // Ensure hash is empty initially
+        gameState.currentFocusSetHash = ''; // Ensure hash is empty
         return false;
     }
 }
@@ -167,8 +178,8 @@ export function getFocusSlots() { return gameState.focusSlotsTotal; }
 export function getRepositoryItems() { return gameState.discoveredRepositoryItems; }
 export function getUnlockedFocusItems() { return gameState.unlockedFocusItems; }
 export function getCurrentFocusSetHash() { return gameState.currentFocusSetHash; }
-export function getContemplationCooldownEnd() { return gameState.contemplationCooldownEnd; } // *** Correct Getter ***
-export function getOnboardingPhase() { return gameState.onboardingPhase; } // *** Correct Getter ***
+export function getContemplationCooldownEnd() { return gameState.contemplationCooldownEnd; }
+export function getOnboardingPhase() { return gameState.onboardingPhase; }
 export function isFreeResearchAvailable() { return gameState.freeResearchAvailableToday; }
 
 // --- Setters / Updaters (Trigger Save) ---
@@ -199,7 +210,7 @@ export function setQuestionnaireComplete() {
     }
     return true;
 }
-export function advanceOnboardingPhase(targetPhase) { // *** CORRECTED Function ***
+export function advanceOnboardingPhase(targetPhase) {
     if (targetPhase > gameState.onboardingPhase) {
         console.log(`Advancing onboarding phase from ${gameState.onboardingPhase} to ${targetPhase}`);
         gameState.onboardingPhase = targetPhase;
@@ -223,6 +234,13 @@ export function updateAttunement(elementKey, amount) {
     return false;
 }
 export function addDiscoveredConcept(conceptId, conceptData) {
+    // *** Check if it's actually a Map before calling .has() ***
+    if (!(gameState.discoveredConcepts instanceof Map)) {
+        console.error("CRITICAL ERROR: gameState.discoveredConcepts is not a Map in addDiscoveredConcept! Reinitializing.");
+        gameState.discoveredConcepts = new Map(); // Attempt recovery
+    }
+    // *** End Check ***
+
     if (!gameState.discoveredConcepts.has(conceptId)) {
         gameState.discoveredConcepts.set(conceptId, { concept: conceptData, discoveredTime: Date.now(), artUnlocked: false, notes: "" });
         if (gameState.onboardingPhase < Config.ONBOARDING_PHASE.STUDY_INSIGHT && gameState.discoveredConcepts.size >= 1) { advanceOnboardingPhase(Config.ONBOARDING_PHASE.STUDY_INSIGHT); }
@@ -232,6 +250,10 @@ export function addDiscoveredConcept(conceptId, conceptData) {
     return false;
 }
 export function removeDiscoveredConcept(conceptId) {
+    if (!(gameState.discoveredConcepts instanceof Map)) {
+        console.error("CRITICAL ERROR: gameState.discoveredConcepts is not a Map in removeDiscoveredConcept! Cannot remove.");
+        return false; // Prevent further errors
+    }
     if (gameState.discoveredConcepts.has(conceptId)) {
         gameState.discoveredConcepts.delete(conceptId);
         if (gameState.focusedConcepts.has(conceptId)) { gameState.focusedConcepts.delete(conceptId); gameState.currentFocusSetHash = _calculateFocusSetHash(); }
@@ -241,6 +263,10 @@ export function removeDiscoveredConcept(conceptId) {
     return false;
 }
 export function toggleFocusConcept(conceptId) {
+     if (!(gameState.discoveredConcepts instanceof Map)) {
+          console.error("CRITICAL ERROR: gameState.discoveredConcepts is not a Map in toggleFocusConcept!");
+          return 'not_discovered'; // Treat as not discovered if map is broken
+     }
     if (!gameState.discoveredConcepts.has(conceptId)) return 'not_discovered';
     let result;
     if (gameState.focusedConcepts.has(conceptId)) { gameState.focusedConcepts.delete(conceptId); result = 'removed'; }
@@ -259,11 +285,19 @@ export function increaseFocusSlots(amount = 1) {
     return false;
 }
 export function updateNotes(conceptId, notes) {
+     if (!(gameState.discoveredConcepts instanceof Map)) {
+          console.error("CRITICAL ERROR: gameState.discoveredConcepts is not a Map in updateNotes!");
+          return false;
+     }
     const data = gameState.discoveredConcepts.get(conceptId);
     if (data) { data.notes = notes; gameState.discoveredConcepts.set(conceptId, data); saveGameState(); return true; }
     return false;
 }
 export function unlockArt(conceptId) {
+     if (!(gameState.discoveredConcepts instanceof Map)) {
+          console.error("CRITICAL ERROR: gameState.discoveredConcepts is not a Map in unlockArt!");
+          return false;
+     }
     const data = gameState.discoveredConcepts.get(conceptId);
     if (data && !data.artUnlocked) {
         data.artUnlocked = true; gameState.discoveredConcepts.set(conceptId, data);
@@ -360,7 +394,7 @@ export function addUnlockedFocusItem(unlockId) {
     }
     return false;
 }
-export function setContemplationCooldown(endTime) { // *** CORRECTED Setter ***
+export function setContemplationCooldown(endTime) {
     gameState.contemplationCooldownEnd = endTime; saveGameState();
 }
 
