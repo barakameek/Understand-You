@@ -20,7 +20,7 @@ let reflectionCooldownTimeout = null; // Used for *reflection* prompt cooldown, 
 // --- Tapestry Analysis Cache ---
 let currentTapestryAnalysis = null; // Stores the detailed breakdown from calculateTapestryNarrative
 
- export function clearPopupState() {
+  function clearPopupState() {
     currentlyDisplayedConceptId = null;
     currentReflectionContext = null;
     reflectionTargetConceptId = null;
@@ -28,12 +28,12 @@ let currentTapestryAnalysis = null; // Stores the detailed breakdown from calcul
     currentPromptId = null;
     // Don't clear currentTapestryAnalysis here, it's linked to focus set
 }
- export function setCurrentPopupConcept(conceptId) { currentlyDisplayedConceptId = conceptId; }
- export function getCurrentPopupConceptId() { return currentlyDisplayedConceptId; }
+  function setCurrentPopupConcept(conceptId) { currentlyDisplayedConceptId = conceptId; }
+  function getCurrentPopupConceptId() { return currentlyDisplayedConceptId; }
 
 
 // --- Insight & Attunement Management ---
- export function gainInsight(amount, source = "Unknown") {
+  function gainInsight(amount, source = "Unknown") {
     if (typeof amount !== 'number' || isNaN(amount) || amount === 0) return;
     const changed = State.changeInsight(amount);
     if (changed) {
@@ -44,7 +44,7 @@ let currentTapestryAnalysis = null; // Stores the detailed breakdown from calcul
     }
 }
 
- export function spendInsight(amount, source = "Unknown") {
+  function spendInsight(amount, source = "Unknown") {
     if (typeof amount !== 'number' || isNaN(amount) || amount <= 0) return false;
     if (State.getInsight() >= amount) {
         gainInsight(-amount, source); // Will trigger UI update via gainInsight
@@ -55,7 +55,7 @@ let currentTapestryAnalysis = null; // Stores the detailed breakdown from calcul
     }
 }
 
- export function gainAttunementForAction(actionType, elementKey = null, amount = 0.5) {
+  function gainAttunementForAction(actionType, elementKey = null, amount = 0.5) {
     let targetKeys = [];
     let baseAmount = amount;
 
@@ -120,7 +120,7 @@ let currentTapestryAnalysis = null; // Stores the detailed breakdown from calcul
 
 
 // --- Questionnaire Logic ---
- export function handleQuestionnaireInputChange(event) {
+  function handleQuestionnaireInputChange(event) {
     const input = event.target;
     const type = input.dataset.type;
     const currentState = State.getState();
@@ -139,14 +139,14 @@ let currentTapestryAnalysis = null; // Stores the detailed breakdown from calcul
     State.updateAnswers(elementName, currentAnswers);
     UI.updateDynamicFeedback(elementName, currentAnswers); // Update dynamic feedback
 }
- export function handleCheckboxChange(event) {
+  function handleCheckboxChange(event) {
      const checkbox = event.target; const name = checkbox.name; const maxChoices = parseInt(checkbox.dataset.maxChoices || 2);
      const container = checkbox.closest('.checkbox-options'); if (!container) return;
      const checkedBoxes = container.querySelectorAll(`input[name="${name}"]:checked`);
      if (checkedBoxes.length > maxChoices) { UI.showTemporaryMessage(`Max ${maxChoices} options.`, 2500); checkbox.checked = false; }
      handleQuestionnaireInputChange(event); // Update state and feedback
 }
- export function calculateElementScore(elementName, answersForElement) {
+  function calculateElementScore(elementName, answersForElement) {
     const questions = questionnaireGuided[elementName] || []; let score = 5.0;
     questions.forEach(q => {
         const answer = answersForElement[q.qId]; let pointsToAdd = 0; const weight = q.scoreWeight || 1.0;
@@ -156,7 +156,7 @@ let currentTapestryAnalysis = null; // Stores the detailed breakdown from calcul
         score += pointsToAdd;
     }); return Math.max(0, Math.min(10, score)); // Clamp
 }
- export function goToNextElement() {
+  function goToNextElement() {
     const currentState = State.getState();
     const currentAnswers = UI.getQuestionnaireAnswers(); // Get answers from UI first
     if (currentState.currentElementIndex >= 0 && currentState.currentElementIndex < elementNames.length) {
@@ -169,7 +169,7 @@ let currentTapestryAnalysis = null; // Stores the detailed breakdown from calcul
         State.updateElementIndex(nextIndex); UI.displayElementQuestions(nextIndex);
     }
 }
- export function goToPrevElement() {
+  function goToPrevElement() {
     const currentState = State.getState();
     if (currentState.currentElementIndex > 0) {
         const currentAnswers = UI.getQuestionnaireAnswers(); // Get current answers
@@ -180,7 +180,7 @@ let currentTapestryAnalysis = null; // Stores the detailed breakdown from calcul
         State.updateElementIndex(prevIndex); UI.displayElementQuestions(prevIndex);
     }
 }
- export function finalizeQuestionnaire() {
+  function finalizeQuestionnaire() {
     console.log("Finalizing scores...");
     const finalScores = {};
     const allAnswers = State.getState().userAnswers;
@@ -237,18 +237,18 @@ function determineStarterHandAndEssence() {
 
 // --- Core Actions (Research, Reflection, Focus, etc.) ---
 // Screen Logic Wrappers
- export function displayPersonaScreenLogic() {
+  function displayPersonaScreenLogic() {
     calculateTapestryNarrative(true);
     UI.displayPersonaScreen();
     UI.updateTapestryDeepDiveButton();
     UI.updateSuggestSceneButtonState();
 }
- export function displayStudyScreenLogic() {
+  function displayStudyScreenLogic() {
     UI.displayStudyScreenContent();
 }
 
 // Research Actions
- export function handleResearchClick(event) {
+  function handleResearchClick(event) {
     const button = event.currentTarget; const elementKey = button.dataset.elementKey; const cost = parseFloat(button.dataset.cost);
     if (!elementKey || isNaN(cost) || button.disabled) return;
     if (spendInsight(cost, `Research: ${elementKeyToFullName[elementKey]}`)) {
@@ -258,7 +258,7 @@ function determineStarterHandAndEssence() {
         checkAndUpdateRituals('conductResearch');
     }
 }
- export function handleFreeResearchClick() {
+  function handleFreeResearchClick() {
     if (!State.isFreeResearchAvailable()) { UI.showTemporaryMessage("Daily meditation done.", 3000); return; }
     const attunement = State.getAttunement(); let targetKey = 'A'; let minAtt = Config.MAX_ATTUNEMENT + 1;
     for (const key in attunement) { if (attunement[key] < minAtt) { minAtt = attunement[key]; targetKey = key; } }
@@ -269,7 +269,7 @@ function determineStarterHandAndEssence() {
     updateMilestoneProgress('freeResearch', 1);
     checkAndUpdateRituals('freeResearch');
 }
- export function conductResearch(elementKeyToResearch) {
+  function conductResearch(elementKeyToResearch) {
     const elementFullName = elementKeyToFullName[elementKeyToResearch]; if (!elementFullName) { console.error(`Invalid key: ${elementKeyToResearch}`); return; }
     console.log(`Researching: ${elementFullName}`); UI.displayResearchStatus(`Reviewing ${elementDetails[elementFullName]?.name || elementFullName}...`);
     const discoveredIds = new Set(State.getDiscoveredConcepts().keys()); const discoveredRepo = State.getRepositoryItems(); const undiscoveredPool = concepts.filter(c => !discoveredIds.has(c.id));
@@ -321,7 +321,7 @@ function determineStarterHandAndEssence() {
 }
 
 // Grimoire Actions
- export function addConceptToGrimoireById(conceptId, buttonElement = null) {
+  function addConceptToGrimoireById(conceptId, buttonElement = null) {
     if (State.getDiscoveredConcepts().has(conceptId)) { UI.showTemporaryMessage("Already in Grimoire.", 2500); if (buttonElement) UI.updateResearchButtonAfterAction(conceptId, 'add'); return; }
     const concept = concepts.find(c => c.id === conceptId); if (!concept) { console.error("Cannot add concept: Not found. ID:", conceptId); UI.showTemporaryMessage("Error: Concept not found.", 3000); return; }
     const distance = Utils.euclideanDistance(State.getScores(), concept.elementScores);
@@ -333,7 +333,7 @@ function determineStarterHandAndEssence() {
     }
  }
 
- export function addConceptToGrimoireInternal(conceptId) {
+  function addConceptToGrimoireInternal(conceptId) {
      const conceptToAdd = concepts.find(c => c.id === conceptId);
      if (!conceptToAdd) { console.error("Internal add fail: Not found. ID:", conceptId); return; }
      if (State.getDiscoveredConcepts().has(conceptId)) return; // Already added
@@ -405,7 +405,7 @@ function determineStarterHandAndEssence() {
      } else { console.warn(`State add fail ${conceptToAdd.name}.`); UI.showTemporaryMessage(`Error adding ${conceptToAdd.name}.`, 3000); }
  }
 
- export function handleToggleFocusConcept() {
+  function handleToggleFocusConcept() {
     if (currentlyDisplayedConceptId === null) return;
     const conceptId = currentlyDisplayedConceptId;
     const result = State.toggleFocusConcept(conceptId);
@@ -435,14 +435,14 @@ function determineStarterHandAndEssence() {
          UI.updateSuggestSceneButtonState();
     }
 }
- export function handleSellConcept(event) {
+  function handleSellConcept(event) {
      const button = event.target.closest('button'); if (!button) return;
      const conceptId = parseInt(button.dataset.conceptId);
      const context = button.dataset.context;
      if (isNaN(conceptId)) { console.error("Invalid sell ID:", button.dataset.conceptId); return; }
      sellConcept(conceptId, context);
 }
- export function sellConcept(conceptId, context) {
+  function sellConcept(conceptId, context) {
     const discovered = State.getDiscoveredConceptData(conceptId);
     const concept = discovered?.concept || concepts.find(c => c.id === conceptId);
     if (!concept) { console.error(`Sell fail: Not found ${conceptId}`); UI.showTemporaryMessage("Error selling.", 3000); return; }
@@ -483,7 +483,7 @@ function determineStarterHandAndEssence() {
 }
 
 // Reflection Logic
- export function checkTriggerReflectionPrompt(triggerAction = 'other') {
+  function checkTriggerReflectionPrompt(triggerAction = 'other') {
     const currentState = State.getState();
     if (currentState.promptCooldownActive) return;
     if (currentState.onboardingPhase < Config.ONBOARDING_PHASE.REFLECTION_RITUALS) return;
@@ -515,7 +515,7 @@ function determineStarterHandAndEssence() {
         State.saveGameState();
     }, 1000 * 60 * 3); // 3 min
  }
- export function triggerReflectionPrompt(context = 'Standard', targetId = null, category = null) {
+  function triggerReflectionPrompt(context = 'Standard', targetId = null, category = null) {
     currentReflectionContext = context;
     reflectionTargetConceptId = (context === 'Dissonance' || context === 'SceneMeditation') ? targetId : null;
     currentReflectionCategory = category;
@@ -627,7 +627,7 @@ function determineStarterHandAndEssence() {
         clearPopupState();
     }
 }
- export function handleConfirmReflection(nudgeAllowed) {
+  function handleConfirmReflection(nudgeAllowed) {
     if (!currentPromptId) { console.error("No current prompt ID."); UI.hidePopups(); return; }
     console.log(`Reflection confirmed: Context=${currentReflectionContext}, Prompt=${currentPromptId}, Nudge=${nudgeAllowed}`);
     State.addSeenPrompt(currentPromptId);
@@ -665,7 +665,7 @@ function determineStarterHandAndEssence() {
     UI.hidePopups(); UI.showTemporaryMessage("Reflection complete! Insight gained.", 3000); clearPopupState();
     // Cooldown handled by checkTriggerReflectionPrompt
 }
- export function triggerGuidedReflection() {
+  function triggerGuidedReflection() {
      if (State.getOnboardingPhase() < Config.ONBOARDING_PHASE.REFLECTION_RITUALS) { UI.showTemporaryMessage("Unlock Reflections first.", 3000); return; }
      if (spendInsight(Config.GUIDED_REFLECTION_COST, "Guided Reflection")) {
          const cats = Object.keys(reflectionPrompts.Guided || {});
@@ -675,7 +675,7 @@ function determineStarterHandAndEssence() {
 }
 
 // Other Actions
- export function attemptArtEvolution() {
+  function attemptArtEvolution() {
     if (currentlyDisplayedConceptId === null) return; const conceptId = currentlyDisplayedConceptId; const discovered = State.getDiscoveredConceptData(conceptId);
     if (!discovered?.concept || discovered.artUnlocked) { UI.showTemporaryMessage("Evolution fail: State error.", 3000); return; }
     const concept = discovered.concept; if (!concept.canUnlockArt) return;
@@ -692,13 +692,13 @@ function determineStarterHandAndEssence() {
         } else { console.error(`State unlockArt fail ${concept.name}`); gainInsight(cost, `Refund: Art evolution error`); UI.showTemporaryMessage("Error updating art.", 3000); }
     }
 }
- export function handleSaveNote() {
+  function handleSaveNote() {
     if (currentlyDisplayedConceptId === null) return; const notesTA = document.getElementById('myNotesTextarea'); if (!notesTA) return;
     const noteText = notesTA.value.trim();
     if (State.updateNotes(currentlyDisplayedConceptId, noteText)) { const status = document.getElementById('noteSaveStatus'); if (status) { status.textContent = "Saved!"; status.classList.remove('error'); setTimeout(() => { status.textContent = ""; }, 2000); } }
     else { const status = document.getElementById('noteSaveStatus'); if (status) { status.textContent = "Error."; status.classList.add('error'); } }
 }
- export function handleUnlockLibraryLevel(event) {
+  function handleUnlockLibraryLevel(event) {
      const button = event.target.closest('button'); if (!button || button.disabled) return;
      const key = button.dataset.elementKey;
      const level = parseInt(button.dataset.level);
@@ -724,7 +724,7 @@ function determineStarterHandAndEssence() {
         } else { console.error(`State fail unlock library ${elementKey} Lv ${levelToUnlock}`); gainInsight(cost, `Refund: Library unlock error`); }
     }
 }
- export function handleMeditateScene(event) {
+  function handleMeditateScene(event) {
      const button = event.target.closest('button'); if (!button || button.disabled) return; const sceneId = button.dataset.sceneId; if (!sceneId) return; meditateOnScene(sceneId);
 }
  function meditateOnScene(sceneId) {
@@ -735,7 +735,7 @@ function determineStarterHandAndEssence() {
         else { console.error(`Prompt ID missing for scene ${sceneId}`); gainInsight(cost, `Refund: Missing scene prompt`); UI.showTemporaryMessage("Meditation fail: Reflection missing.", 3000); }
     }
 }
- export function handleAttemptExperiment(event) {
+  function handleAttemptExperiment(event) {
      const button = event.target.closest('button'); if (!button || button.disabled) return; const expId = button.dataset.experimentId; if (!expId) return; attemptExperiment(expId);
 }
  function attemptExperiment(experimentId) {
@@ -769,7 +769,7 @@ function determineStarterHandAndEssence() {
 }
 
 // --- Suggest Scenes ---
- export function handleSuggestSceneClick() {
+function handleSuggestSceneClick() {
      const focused = State.getFocusedConcepts();
      if (focused.size === 0) {
          UI.showTemporaryMessage("Focus on concepts first to suggest relevant scenes.", 3000);
@@ -826,7 +826,7 @@ function determineStarterHandAndEssence() {
  }
 
 // --- Rituals & Milestones Logic (Helper) ---
- export function checkAndUpdateRituals(action, details = {}) {
+  function checkAndUpdateRituals(action, details = {}) {
     let ritualCompletedThisCheck = false;
     const currentState = State.getState(); const completedToday = currentState.completedRituals.daily || {}; const focused = currentState.focusedConcepts;
     let currentRitualPool = [...dailyRituals];
@@ -853,7 +853,7 @@ function determineStarterHandAndEssence() {
     });
     if (ritualCompletedThisCheck) UI.displayDailyRituals();
 }
- export function updateMilestoneProgress(trackType, currentValue) {
+  function updateMilestoneProgress(trackType, currentValue) {
      let milestoneAchievedThisUpdate = false;
      const achievedSet = State.getState().achievedMilestones;
      if (!(achievedSet instanceof Set)) { console.error("CRITICAL ERROR: gameState.achievedMilestones is not a Set!"); return; }
@@ -893,7 +893,7 @@ function determineStarterHandAndEssence() {
 }
 
 // --- Daily Login ---
- export function checkForDailyLogin() {
+  function checkForDailyLogin() {
     const today = new Date().toDateString();
     const last = State.getState().lastLoginDate;
     if (last !== today) {
@@ -910,11 +910,11 @@ function determineStarterHandAndEssence() {
 }
 
 // --- Persona Calculation Logic Helpers ---
- export function calculateFocusScores() {
+  function calculateFocusScores() {
      const scores = { A: 0, I: 0, S: 0, P: 0, C: 0, R: 0 }; const focused = State.getFocusedConcepts(); const disc = State.getDiscoveredConcepts(); const count = focused.size;
      if (count > 0) { focused.forEach(id => { const data = disc.get(id); if (data?.concept?.elementScores) { for (const key in scores) { if (data.concept.elementScores.hasOwnProperty(key)) scores[key] += data.concept.elementScores[key]; } } }); for (const key in scores) scores[key] /= count; } return { focusScores: scores, focusCount: count };
 }
- export function calculateTapestryNarrative(forceRecalculate = false) {
+  function calculateTapestryNarrative(forceRecalculate = false) {
     const currentHash = State.getCurrentFocusSetHash();
     const stateHash = State.getState().currentFocusSetHash;
     if (currentTapestryAnalysis && !forceRecalculate && currentHash === stateHash) { return currentTapestryAnalysis.fullNarrativeHTML; }
@@ -959,7 +959,7 @@ function determineStarterHandAndEssence() {
     currentTapestryAnalysis = analysis; console.log("Recalculated Tapestry Analysis:", currentTapestryAnalysis);
     return analysis.fullNarrativeHTML;
  }
- export function calculateFocusThemes() {
+  function calculateFocusThemes() {
      const focused = State.getFocusedConcepts(); const disc = State.getDiscoveredConcepts(); if (focused.size === 0) return [];
      const counts = { A: 0, I: 0, S: 0, P: 0, C: 0, R: 0 }; const thresh = 7.0;
      focused.forEach(id => { const concept = disc.get(id)?.concept; if (concept?.elementScores) { for (const key in concept.elementScores) { if (elementKeyToFullName.hasOwnProperty(key) && concept.elementScores[key] >= thresh) counts[key]++; } } });
@@ -967,7 +967,7 @@ function determineStarterHandAndEssence() {
 }
 
 // --- Focus Unlocks ---
- export function checkForFocusUnlocks(silent = false) {
+  function checkForFocusUnlocks(silent = false) {
      if (State.getOnboardingPhase() < Config.ONBOARDING_PHASE.ADVANCED) return;
      console.log("Checking focus unlocks..."); let newlyUnlocked = false;
      const focused = State.getFocusedConcepts(); const unlocked = State.getUnlockedFocusItems();
@@ -985,13 +985,13 @@ function determineStarterHandAndEssence() {
 }
 
 // --- Tapestry Deep Dive Logic ---
- export function showTapestryDeepDive() {
+  function showTapestryDeepDive() {
     if (State.getFocusedConcepts().size === 0) { UI.showTemporaryMessage("Focus on concepts first to explore the tapestry.", 3000); return; }
     calculateTapestryNarrative(true);
     if (!currentTapestryAnalysis) { console.error("Failed to generate tapestry analysis for Deep Dive."); UI.showTemporaryMessage("Error analyzing Tapestry.", 3000); return; }
     UI.displayTapestryDeepDive(currentTapestryAnalysis);
 }
- export function handleDeepDiveNodeClick(nodeId) {
+  function handleDeepDiveNodeClick(nodeId) {
     if (!currentTapestryAnalysis) { console.error("Deep Dive Node Click: Analysis missing."); UI.updateDeepDiveContent("<p>Error: Analysis data unavailable.</p>", nodeId); return; }
     console.log(`Logic: Handling Deep Dive node click: ${nodeId}`);
     let content = `<p><em>Analysis for '${nodeId}'...</em></p>`;
@@ -1005,7 +1005,7 @@ function determineStarterHandAndEssence() {
     } catch (error) { console.error(`Error generating content for node ${nodeId}:`, error); content = `<p>Error generating analysis for ${nodeId}.</p>`; }
     UI.updateDeepDiveContent(content, nodeId);
 }
- export function handleContemplationNodeClick() {
+  function handleContemplationNodeClick() {
     if (spendInsight(Config.CONTEMPLATION_COST, "Focused Contemplation")) {
         const contemplation = generateFocusedContemplation();
         if (contemplation) { UI.displayContemplationTask(contemplation); State.setContemplationCooldown(Date.now() + Config.CONTEMPLATION_COOLDOWN); UI.updateContemplationButtonState(); }
@@ -1029,7 +1029,7 @@ function generateFocusedContemplation() {
     } catch (error) { console.error("Error generating contemplation task:", error); return { type: "Error", text: "An error occurred during generation.", reward: { type: 'none' }, requiresCompletionButton: false }; }
     console.log(`Generated contemplation task of type: ${task.type}`); return task;
 }
- export function handleCompleteContemplation(task) {
+  function handleCompleteContemplation(task) {
     if (!task || !task.reward || !task.requiresCompletionButton) return;
     console.log(`Contemplation task completed: ${task.type}`);
     if (task.reward.type === 'insight' && task.reward.amount > 0) { gainInsight(task.reward.amount, `Contemplation Task`); }
