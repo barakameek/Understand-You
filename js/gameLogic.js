@@ -320,7 +320,7 @@ function determineStarterHandAndEssence() {
     }
  }
 // --- MODIFIED addConceptToGrimoireInternal (Add Synergy Bonus) ---
- function addConceptToGrimoireInternal(conceptId) {
+function addConceptToGrimoireInternal(conceptId) {
      const conceptToAdd = concepts.find(c => c.id === conceptId);
      if (!conceptToAdd) { console.error("Internal add fail: Not found. ID:", conceptId); return; }
      if (State.getDiscoveredConcepts().has(conceptId)) return; // Already added
@@ -330,19 +330,21 @@ function determineStarterHandAndEssence() {
      if (State.addDiscoveredConcept(conceptId, conceptToAdd)) {
          let insightRwd = Config.CONCEPT_DISCOVERY_INSIGHT[conceptToAdd.rarity] || Config.CONCEPT_DISCOVERY_INSIGHT.default;
          let bonusInsight = 0;
-         // Check for synergy bonus
+         let synergyMessageShown = false; // Flag to show only one synergy message
+
+         // Check for insight synergy bonus (already exists)
          if (conceptToAdd.relatedIds && conceptToAdd.relatedIds.length > 0) {
              const discoveredMap = State.getDiscoveredConcepts();
              for (const relatedId of conceptToAdd.relatedIds) {
                  if (discoveredMap.has(relatedId)) {
-                     bonusInsight += Config.SYNERGY_INSIGHT_BONUS; // Use constant
+                     bonusInsight += Config.SYNERGY_INSIGHT_BONUS;
                      const relatedConcept = discoveredMap.get(relatedId)?.concept;
-                     if (relatedConcept) {
+                     if (relatedConcept && !synergyMessageShown) {
                          UI.showTemporaryMessage(`Synergy Bonus: +${Config.SYNERGY_INSIGHT_BONUS.toFixed(1)} Insight (Related to ${relatedConcept.name})`, 3500);
-                     } else {
-                          UI.showTemporaryMessage(`Synergy Bonus: +${Config.SYNERGY_INSIGHT_BONUS.toFixed(1)} Insight`, 3500);
+                         synergyMessageShown = true;
                      }
-                     break; // Grant bonus only once
+                     // Grant bonus only once per *related concept*, but loop continues for discovery chance
+                     // break; // Remove break to allow discovery check
                  }
              }
          }
@@ -359,20 +361,36 @@ function determineStarterHandAndEssence() {
          if (currentlyDisplayedConceptId === conceptId) { // Update Popup if open
              UI.updateGrimoireButtonStatus(conceptId, false);
              UI.updateFocusButtonStatus(conceptId);
-             const discoveredData = State.getDiscoveredConceptData(conceptId); // Fetch fresh state data
+             const discoveredData = State.getDiscoveredConceptData(conceptId);
              UI.updatePopupSellButton(conceptId, conceptToAdd, true, false);
              const notesSect = document.getElementById('myNotesSection'); if(notesSect && State.getOnboardingPhase() >= Config.ONBOARDING_PHASE.STUDY_INSIGHT) notesSect.classList.remove('hidden');
              const evoSec = document.getElementById('popupEvolutionSection'); if(evoSec && State.getOnboardingPhase() >= Config.ONBOARDING_PHASE.ADVANCED) UI.displayEvolutionSection(conceptToAdd, discoveredData);
          }
 
-         // Update the research note UI specifically (remove card)
          UI.updateResearchButtonAfterAction(conceptId, 'add');
+
+         // --- START Synergy Discovery Chance ---
+         if (conceptToAdd.relatedIds && conceptToAdd.relatedIds.length > 0) {
+             const discoveredMap = State.getDiscoveredConcepts();
+             const undiscoveredRelated = conceptToAdd.relatedIds.filter(id => !discoveredMap.has(id));
+
+             if (undiscoveredRelated.length > 0 && Math.random() < Config.SYNERGY_DISCOVERY_CHANCE) {
+                 const relatedIdToDiscover = undiscoveredRelated[Math.floor(Math.random() * undiscoveredRelated.length)];
+                 const relatedConceptData = concepts.find(c => c.id === relatedIdToDiscover);
+                 if (relatedConceptData) {
+                      // Add to research notes instead of directly to grimoire
+                      UI.displayResearchResults({ concepts: [relatedConceptData], repositoryItems: [], duplicateInsightGain: 0 });
+                      UI.showTemporaryMessage(`Synergy Resonance: Adding ${conceptToAdd.name} illuminated the related concept: ${relatedConceptData.name}! Check Research Notes.`, 5000);
+                      console.log(`Synergy discovery: Revealed ${relatedConceptData.name} (ID: ${relatedIdToDiscover})`);
+                 }
+             }
+         }
 
          checkTriggerReflectionPrompt('add');
          updateMilestoneProgress('addToGrimoire', 1);
          updateMilestoneProgress('discoveredConcepts.size', State.getDiscoveredConcepts().size);
          checkAndUpdateRituals('addToGrimoire');
-         UI.refreshGrimoireDisplay(); // Refresh grimoire view if it's active
+         UI.refreshGrimoireDisplay();
          UI.showTemporaryMessage(`${conceptToAdd.name} added to Grimoire!`, 3000);
 
      } else { console.warn(`State add fail ${conceptToAdd.name}.`); UI.showTemporaryMessage(`Error adding ${conceptToAdd.name}.`, 3000); }
