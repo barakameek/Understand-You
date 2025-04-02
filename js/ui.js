@@ -7,6 +7,7 @@ import { elementDetails, elementKeyToFullName, elementNameToKey, concepts, quest
 console.log("ui.js loading...");
 
 // --- DOM Element References ---
+const grimoireSearchInput = document.getElementById('grimoireSearchInput');
 const saveIndicator = document.getElementById('saveIndicator');
 const screens = document.querySelectorAll('.screen');
 const welcomeScreen = document.getElementById('welcomeScreen');
@@ -623,71 +624,20 @@ export function populateGrimoireFilters() {
     if (grimoireTypeFilter) { grimoireTypeFilter.innerHTML = '<option value="All">All Types</option>'; cardTypeKeys.forEach(type => { const option = document.createElement('option'); option.value = type; option.textContent = type; grimoireTypeFilter.appendChild(option); }); }
     if (grimoireElementFilter) { grimoireElementFilter.innerHTML = '<option value="All">All Elements</option>'; elementNames.forEach(fullName => { const name = elementDetails[fullName]?.name || fullName; const option = document.createElement('option'); option.value = fullName; option.textContent = name; grimoireElementFilter.appendChild(option); }); }
 }
-export function displayGrimoire(filterType = "All", filterElement = "All", sortBy = "discovered", filterRarity = "All") {
-    if (!grimoireContentDiv) return; grimoireContentDiv.innerHTML = '';
-    const discoveredMap = State.getDiscoveredConcepts(); if (discoveredMap.size === 0) { grimoireContentDiv.innerHTML = '<p>Your Grimoire is empty...</p>'; return; }
-    let discoveredArray = Array.from(discoveredMap.values());
-    if (filterElement !== "All" && typeof elementNameToKey === 'undefined') { console.error("UI Error: elementNameToKey map unavailable."); return; }
-
-    const conceptsToDisplay = discoveredArray.filter(data => {
-        if (!data?.concept) return false; const concept = data.concept;
-        const typeMatch = (filterType === "All") || (concept.cardType === filterType);
-        const elementKey = (filterElement !== "All" && elementNameToKey) ? elementNameToKey[filterElement] : "All";
-        if (filterElement !== "All" && !elementKey) { console.warn(`UI: Could not find key for filterElement '${filterElement}'.`); }
-        const elementMatch = (elementKey === "All") || (concept.primaryElement === elementKey);
-        const rarityMatch = (filterRarity === "All") || (concept.rarity === filterRarity);
-        return typeMatch && elementMatch && rarityMatch;
-    });
-
-    const rarityOrder = { 'common': 1, 'uncommon': 2, 'rare': 3 };
-    conceptsToDisplay.sort((a, b) => {
-        if (!a.concept || !b.concept) return 0;
-        switch (sortBy) {
-            case 'name': return a.concept.name.localeCompare(b.concept.name);
-            case 'type': return (cardTypeKeys.indexOf(a.concept.cardType) - cardTypeKeys.indexOf(b.concept.cardType)) || a.concept.name.localeCompare(b.concept.name);
-            case 'rarity': return (rarityOrder[a.concept.rarity] || 0) - (rarityOrder[b.concept.rarity] || 0) || a.concept.name.localeCompare(b.concept.name);
-            default: return (a.discoveredTime || 0) - (b.discoveredTime || 0) || a.concept.name.localeCompare(b.concept.name);
-        }
-    });
- conceptsToDisplay.forEach(data => {
-        const cardElement = renderCard(data.concept, 'grimoire');
-        if (cardElement) {
-            // --- START Synergy Highlighting Listener ---
-            cardElement.addEventListener('mouseover', (event) => {
-                const currentCard = event.currentTarget;
-                const conceptId = parseInt(currentCard.dataset.conceptId);
-                const conceptData = State.getDiscoveredConceptData(conceptId)?.concept;
-                if (!conceptData || !conceptData.relatedIds) return;
-
-                currentCard.classList.add('hover-highlight');
-
-                const allCards = grimoireContentDiv.querySelectorAll('.concept-card');
-                allCards.forEach(card => {
-                    const cardId = parseInt(card.dataset.conceptId);
-                    if (conceptData.relatedIds.includes(cardId) && card !== currentCard) {
-                        card.classList.add('related-highlight');
-                    }
-                });
-            });
-
-            cardElement.addEventListener('mouseout', (event) => {
-                const currentCard = event.currentTarget;
-                currentCard.classList.remove('hover-highlight');
-                const allCards = grimoireContentDiv.querySelectorAll('.concept-card');
-                allCards.forEach(card => {
-                    card.classList.remove('related-highlight');
-                });
-            });
+export function displayGrimoire
     if (conceptsToDisplay.length === 0) { grimoireContentDiv.innerHTML = `<p>No discovered concepts match the current filters.</p>`; }
     else { conceptsToDisplay.forEach(data => { const cardElement = renderCard(data.concept, 'grimoire'); if (cardElement) grimoireContentDiv.appendChild(cardElement); }); }
 }
-export function refreshGrimoireDisplay() { // Unchanged
+export function refreshGrimoireDisplay() {
      if (grimoireScreen && !grimoireScreen.classList.contains('hidden')) {
-         const typeValue = grimoireTypeFilter?.value || "All"; const elementValue = grimoireElementFilter?.value || "All"; const sortValue = grimoireSortOrder?.value || "discovered"; const rarityValue = grimoireRarityFilter?.value || "All";
-         displayGrimoire(typeValue, elementValue, sortValue, rarityValue);
+         const typeValue = grimoireTypeFilter?.value || "All";
+         const elementValue = grimoireElementFilter?.value || "All";
+         const sortValue = grimoireSortOrder?.value || "discovered";
+         const rarityValue = grimoireRarityFilter?.value || "All";
+         const searchValue = grimoireSearchInput?.value || ""; // Get search value
+         displayGrimoire(typeValue, elementValue, sortValue, rarityValue, searchValue); // Pass search value
      }
 }
-
 // --- Card Rendering (Includes Icon Changes) ---
 export function renderCard(concept, context = 'grimoire') { // Unchanged from previous version
     if (!concept || typeof concept.id === 'undefined') { console.warn("renderCard invalid concept:", concept); const d = document.createElement('div'); d.textContent = "Error"; return d; }
@@ -713,6 +663,7 @@ export function renderCard(concept, context = 'grimoire') { // Unchanged from pr
             }
         });
     }
+
     // --- END MODIFIED AFFINITIES ---
 
     let visualIconClass = "fas fa-question card-visual-placeholder"; let visualTitle = "Visual Placeholder";
