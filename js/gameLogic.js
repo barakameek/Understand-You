@@ -291,7 +291,7 @@ function determineStarterHandAndEssence() {
     if (rareFound && foundRepoItem) {
         UI.displayResearchResults({ concepts: [], repositoryItems: [foundRepoItem], duplicateInsightGain: 0 });
         UI.displayResearchStatus("Unique insight unearthed!");
-        gainAttunementForAction('researchSpecial', elementKeyToResearch, 1.0);
+        gainAttunementForAction('researchSpecial', elementKeyToResearch); // Use default amount or specify
         return;
     }
 
@@ -359,8 +359,6 @@ function determineStarterHandAndEssence() {
                          UI.showTemporaryMessage(`Synergy Bonus: +${Config.SYNERGY_INSIGHT_BONUS.toFixed(1)} Insight (Related to ${relatedConcept?.name || 'a known concept'})`, 3500);
                          synergyMessageShown = true;
                      }
-                     // Don't break; check all discovered related for potential insight bonus stacking if desired,
-                     // and allow the loop to continue for the discovery check below.
                  }
              }
 
@@ -701,7 +699,9 @@ function determineStarterHandAndEssence() {
     else { const status = document.getElementById('noteSaveStatus'); if (status) { status.textContent = "Error."; status.classList.add('error'); } }
 }
  export function handleUnlockLibraryLevel(event) {
-     const button = event.target.closest('button'); if (!button || button.disabled) return; const key = button.dataset.elementKey; const level = parseInt(button.dataset.level);
+     const button = event.target.closest('button'); if (!button || button.disabled) return;
+     const key = button.dataset.elementKey;
+     const level = parseInt(button.dataset.level);
      if (!key || isNaN(level)) { console.error("Invalid library unlock data"); return; }
      unlockDeepDiveLevel(key, level); // Call the core logic function
 }
@@ -712,6 +712,7 @@ function determineStarterHandAndEssence() {
     if (spendInsight(cost, `Unlock Library: ${elementKeyToFullName[elementKey]} Lv ${levelToUnlock}`)) {
         if (State.unlockLibraryLevel(elementKey, levelToUnlock)) {
             console.log(`Unlocked ${elementKeyToFullName[elementKey]} level ${levelToUnlock}`);
+            // Refresh UI for the specific element
             const targetContainer = document.querySelector(`#personaElementDetails .element-deep-dive-container[data-element-key="${elementKey}"]`);
             if (targetContainer) {
                  UI.displayElementDeepDive(elementKey, targetContainer);
@@ -784,15 +785,15 @@ function determineStarterHandAndEssence() {
      const discoveredScenes = State.getRepositoryItems().scenes;
 
      const sortedElements = Object.entries(focusScores)
-         .filter(([key, score]) => score > 4.0) // Consider elements with moderate+ score in focus
-         .sort(([, a], [, b]) => b - a); // Sort by highest score
+         .filter(([key, score]) => score > 4.0)
+         .sort(([, a], [, b]) => b - a);
 
      const topElements = sortedElements.slice(0, 2).map(([key]) => key);
      if (topElements.length === 0 && sortedElements.length > 0) {
-         topElements.push(sortedElements[0][0]); // Fallback to highest if none above threshold
+         topElements.push(sortedElements[0][0]);
      } else if (topElements.length === 0) {
           UI.showTemporaryMessage("Focus is too broad to suggest specific scenes.", 3000);
-          gainInsight(cost, "Refund: Scene Suggestion Fail (Broad Focus)"); // Refund if no elements
+          gainInsight(cost, "Refund: Scene Suggestion Fail (Broad Focus)");
           return;
      }
 
@@ -804,10 +805,10 @@ function determineStarterHandAndEssence() {
 
      if (relevantUndiscoveredScenes.length === 0) {
          UI.showTemporaryMessage("All relevant scenes for this focus have been discovered.", 3500);
-         gainInsight(cost, "Refund: All Relevant Scenes Discovered"); // Refund
+         gainInsight(cost, "Refund: All Relevant Scenes Discovered");
      } else {
          const selectedScene = relevantUndiscoveredScenes[Math.floor(Math.random() * relevantUndiscoveredScenes.length)];
-         const added = State.addRepositoryItem('scenes', selectedScene.id); // This might advance phase
+         const added = State.addRepositoryItem('scenes', selectedScene.id);
          if (added) {
              console.log(`Suggested Scene: ${selectedScene.name} (ID: ${selectedScene.id})`);
              UI.showTemporaryMessage(`Scene Suggested: '${selectedScene.name}' added to Repository!`, 4000);
@@ -822,7 +823,6 @@ function determineStarterHandAndEssence() {
              UI.showTemporaryMessage("Error suggesting scene.", 3000);
          }
      }
-     // Button state is updated via insight change -> updateInsightDisplays
  }
 
 // --- Rituals & Milestones Logic (Helper) ---
@@ -1038,6 +1038,8 @@ function generateFocusedContemplation() {
 }
 
 
+// --- EXPORTS ---
+// (Exporting specific functions allows other modules to use them)
 export {
     // Questionnaire
     handleQuestionnaireInputChange, handleCheckboxChange, calculateElementScore,
@@ -1069,9 +1071,9 @@ export {
     displayPersonaScreenLogic, displayStudyScreenLogic,
     // Tapestry Deep Dive
     showTapestryDeepDive, handleDeepDiveNodeClick, handleContemplationNodeClick,
-    handleCompleteContemplation, // Keep this one
+    handleCompleteContemplation,
     // Suggest Scenes
-    handleSuggestSceneClick // Keep this one
+    handleSuggestSceneClick
 };
 
 console.log("gameLogic.js loaded.");
