@@ -140,12 +140,19 @@
         </div> <!-- End Persona Screen -->
 
          <!-- === Grimoire Screen === -->
+       <!-- === Grimoire Screen === -->
          <div id="grimoireScreen" class="screen hidden grimoire-screen">
               <h1>The Grand Grimoire <i class="fas fa-info-circle info-icon" title="Your personal collection of discovered Concept Cards. Filter, sort, view details, mark Concepts for Focus, or sell unwanted Concepts for Insight."></i></h1>
               <!-- Grimoire controls -->
               <div id="grimoireControls">
                   <label for="grimoireSortOrder">Sort:</label>
-                  <select id="grimoireSortOrder"><option value="discovered">Date Added</option><option value="name">Name</option><option value="type">Type</option><option value="rarity">Rarity</option><option value="resonance">Resonance</option></select> {/* Added Resonance Sort */}
+                  <select id="grimoireSortOrder">
+                      <option value="discovered">Date Added</option>
+                      <option value="name">Name</option>
+                      <option value="type">Type</option>
+                      <option value="rarity">Rarity</option>
+                      <option value="resonance">Resonance</option>
+                  </select>
                   <!-- Filters initially hidden by flow -->
                   <span class="filter-controls hidden-by-flow">
                       <label for="grimoireTypeFilter">Type:</label>
@@ -154,7 +161,7 @@
                       <select id="grimoireElementFilter"><option value="All">All Elements</option></select>
                       <label for="grimoireRarityFilter">Rarity:</label>
                       <select id="grimoireRarityFilter"><option value="All">All Rarities</option><option value="common">Common</option><option value="uncommon">Uncommon</option><option value="rare">Rare</option></select>
-                      <label for="grimoireFocusFilter">Focus:</label> {/* Added Focus Filter */}
+                      <label for="grimoireFocusFilter">Focus:</label>
                       <select id="grimoireFocusFilter"><option value="All">All</option><option value="Focused">Focused</option><option value="Not Focused">Not Focused</option></select>
                       <!-- Search Input -->
                       <label for="grimoireSearchInput">Search:</label>
@@ -165,7 +172,7 @@
               <div id="grimoireContent" class="card-grid">
                   <!-- Grimoire cards injected here -->
               </div>
-         </div> <!-- End Grimoire Screen -->
+         </div> 
 
 
         <!-- === Main Study Screen (Initially hidden by flow) === -->
