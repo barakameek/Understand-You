@@ -13,43 +13,41 @@ function initializeApp() {
     // Attempt to load game state first
     const loaded = State.loadGameState(); // This now populates the `gameState` variable
 
-    // **Crucially, update UI *after* state is confirmed loaded or cleared**
-    UI.updateInsightDisplays(); // Update displays with potentially loaded insight
+    // Update UI *after* state is confirmed loaded or cleared
+    UI.updateInsightDisplays();
 
     if (loaded) {
         console.log("Existing session loaded.");
          if (State.getState().questionnaireCompleted) {
               console.log("Continuing session...");
-              GameLogic.checkForDailyLogin(); // Check daily status *after* loading state
-              UI.applyOnboardingPhaseUI(State.getOnboardingPhase()); // Apply UI visibility
+              GameLogic.checkForDailyLogin();
+              UI.applyOnboardingPhaseUI(State.getOnboardingPhase());
               GameLogic.calculateTapestryNarrative(true); // Ensure analysis is current for UI updates
-              // Update other UI elements that depend on loaded state
+              // Update UI elements that depend on loaded state
               UI.updateFocusSlotsDisplay();
               UI.updateGrimoireCounter();
-              UI.populateGrimoireFilters();
-              UI.refreshGrimoireDisplay(); // Prepare Grimoire display data
-              UI.setupInitialUI(); // Ensure button states are correct after load
-              UI.showScreen('personaScreen'); // Default to Persona screen after load
+              UI.populateGrimoireFilters(); // Populate filters before potential display
+              UI.refreshGrimoireDisplay(); // Refresh Grimoire if needed (might not be visible yet)
+              // Setup initial UI state (button enabled/disabled, etc.)
+              UI.setupInitialUI(); // Calls applyOnboardingPhaseUI and sets button states
+              UI.showScreen('personaScreen'); // Default to Persona screen after successful load
               UI.hidePopups(); // Ensure no popups are stuck open
          } else {
               console.log("Loaded state incomplete. Restarting questionnaire.");
-              // State is loaded, but questionnaire wasn't done. Reset index.
-              State.updateElementIndex(0); // Reset index only
-              // ** Ensure userAnswers is ready **
-              // This is handled by loadGameState ensuring all element keys exist
+              // State is loaded, but questionnaire wasn't done. Index should be 0 or less.
+              State.updateElementIndex(0); // Ensure it starts at 0
               UI.initializeQuestionnaireUI(); // Setup questionnaire UI
               UI.showScreen('questionnaireScreen');
          }
          const loadBtn = document.getElementById('loadButton');
-         if(loadBtn) loadBtn.classList.add('hidden'); // Hide load button
+         if(loadBtn) loadBtn.classList.add('hidden'); // Hide load button after successful load
 
     } else {
         console.log("No valid saved session found or load error. Starting fresh.");
-        // State.clearGameState() was already called implicitly by loadGameState failing
-        // or explicitly if needed depending on error handling preference
         UI.setupInitialUI(); // Setup initial UI for a new game (Welcome Screen)
-         if (localStorage.getItem(Config.SAVE_KEY)) {
+         if (localStorage.getItem(Config.SAVE_KEY)) { // Check if there *was* corrupt data
              UI.showTemporaryMessage("Error loading session. Starting fresh.", 4000);
+             localStorage.removeItem(Config.SAVE_KEY); // Clear corrupt data
          }
     }
 
@@ -59,7 +57,7 @@ function initializeApp() {
 }
 
 // --- Event Listeners ---
-function attachEventListeners() { // No changes needed here from previous version
+function attachEventListeners() {
     console.log("Attaching event listeners...");
 
     // Welcome Screen
@@ -71,37 +69,7 @@ function attachEventListeners() { // No changes needed here from previous versio
         UI.showScreen('questionnaireScreen');
         if(loadButton) loadButton.classList.add('hidden');
     });
-    if (loadButton && !loadButton.classList.contains('hidden')) {
-        loadButton.addEventListener('click', () => {
-            if(State.loadGameState()){ // Reload state
-                UI.updateInsightDisplays(); // Update UI after load
-                if (State.getState().questionnaireCompleted) {
-                    GameLogic.checkForDailyLogin();
-                    UI.applyOnboardingPhaseUI(State.getOnboardingPhase());
-                    GameLogic.calculateTapestryNarrative(true);
-                    UI.updateFocusSlotsDisplay();
-                    UI.updateGrimoireCounter();
-                    UI.populateGrimoireFilters();
-                    UI.refreshGrimoireDisplay();
-                    UI.setupInitialUI();
-                    UI.showScreen('personaScreen');
-                    UI.hidePopups();
-                }
-                else {
-                    State.updateElementIndex(0); // Reset index if questionnaire incomplete
-                    UI.initializeQuestionnaireUI();
-                    UI.showScreen('questionnaireScreen');
-                }
-                loadButton.classList.add('hidden');
-            } else {
-                 UI.showTemporaryMessage("Load failed. Starting new.", 3000);
-                 State.clearGameState();
-                 UI.initializeQuestionnaireUI();
-                 UI.showScreen('questionnaireScreen');
-                 loadButton.classList.add('hidden');
-             }
-        });
-    }
+    // Load button logic is handled during initialization now
 
     // Questionnaire Navigation
     const nextBtn = document.getElementById('nextElementButton');
@@ -158,7 +126,7 @@ function attachEventListeners() { // No changes needed here from previous versio
     if (saveNoteBtn) saveNoteBtn.addEventListener('click', GameLogic.handleSaveNote);
 
     // Grimoire Filters & Card Interaction (Delegation)
-  const grimoireControls = document.getElementById('grimoireControls');
+    const grimoireControls = document.getElementById('grimoireControls');
     if (grimoireControls) {
         // Listen to changes on selects
         grimoireControls.querySelectorAll('select').forEach(select => {
@@ -170,6 +138,14 @@ function attachEventListeners() { // No changes needed here from previous versio
              searchInput.addEventListener('input', UI.refreshGrimoireDisplay); // Use 'input' for real-time filtering
         }
     }
+    const grimoireContent = document.getElementById('grimoireContent');
+    if (grimoireContent) {
+        grimoireContent.addEventListener('click', (event) => {
+            const sellButton = event.target.closest('.card-sell-button');
+            if (sellButton) { event.stopPropagation(); GameLogic.handleSellConcept(event); }
+        });
+    }
+
     // Reflection Modal
     const reflectionCheck = document.getElementById('reflectionCheckbox');
     const confirmReflectionBtn = document.getElementById('confirmReflectionButton');
@@ -195,11 +171,19 @@ function attachEventListeners() { // No changes needed here from previous versio
         });
     }
 
-     // Element Library (Delegation)
-     const libraryButtonsContainer = document.getElementById('elementLibraryButtons');
-     if (libraryButtonsContainer) { libraryButtonsContainer.addEventListener('click', (event) => { const button = event.target.closest('button'); if (button && button.dataset.elementKey) UI.displayElementDeepDive(button.dataset.elementKey); }); }
-     const libraryContentContainer = document.getElementById('elementLibraryContent');
-      if (libraryContentContainer) { libraryContentContainer.addEventListener('click', (event) => { if (event.target.matches('.unlock-button')) GameLogic.handleUnlockLibraryLevel(event); }); }
+     // Integrated Deep Dive Unlock Buttons (Delegation)
+     const personaDetailsContainer = document.getElementById('personaElementDetails');
+     if (personaDetailsContainer) {
+         personaDetailsContainer.addEventListener('click', (event) => {
+             const button = event.target.closest('.unlock-button');
+             // Check if the button is *within* a deep dive container to avoid conflicts
+             if (button && button.closest('.element-deep-dive-container')) {
+                 GameLogic.handleUnlockLibraryLevel(event);
+             }
+         });
+     } else {
+         console.error("Persona Element Details container not found for deep dive listener.");
+     }
 
      // Repository Actions (Delegation)
      const repositoryContainer = document.getElementById('repositoryScreen');
@@ -221,7 +205,7 @@ function attachEventListeners() { // No changes needed here from previous versio
           summaryViewBtn.addEventListener('click', () => { personaSummaryDiv.classList.add('current'); personaSummaryDiv.classList.remove('hidden'); personaDetailedDiv.classList.add('hidden'); personaDetailedDiv.classList.remove('current'); summaryViewBtn.classList.add('active'); detailedViewBtn.classList.remove('active'); UI.displayPersonaSummary(); });
      }
 
-    // Persona Screen Specific Button Delegation
+    // Persona Screen Specific Button Delegation (Tapestry Actions)
     const personaScreenDiv = document.getElementById('personaScreen');
     if (personaScreenDiv) {
         personaScreenDiv.addEventListener('click', (event) => {
@@ -241,7 +225,9 @@ function attachEventListeners() { // No changes needed here from previous versio
                  const now = Date.now(); const cooldownEnd = State.getContemplationCooldownEnd();
                  if (cooldownEnd && now < cooldownEnd) { const remaining = Math.ceil((cooldownEnd - now) / 1000); UI.showTemporaryMessage(`Contemplation available in ${remaining}s.`, 3000); return; }
                  GameLogic.handleContemplationNodeClick();
-            } else if (nodeId && nodeId !== 'keyword') { GameLogic.handleDeepDiveNodeClick(nodeId); }
+            } else if (nodeId) { // Ensure nodeId exists
+                GameLogic.handleDeepDiveNodeClick(nodeId);
+            }
         });
     } else { console.warn("Deep Dive Analysis Nodes Container not found."); }
 
@@ -252,7 +238,7 @@ function attachEventListeners() { // No changes needed here from previous versio
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initializeApp);
 } else {
-    initializeApp();
+    initializeApp(); // Already loaded
 }
 
 console.log("main.js loaded.");
