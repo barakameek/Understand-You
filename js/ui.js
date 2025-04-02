@@ -1,4 +1,3 @@
-// js/ui.js - Handles DOM Manipulation and UI Updates
 import * as State from './state.js';
 import * as Config from './config.js';
 import * as Utils from './utils.js';
@@ -8,6 +7,7 @@ import { elementDetails, elementKeyToFullName, elementNameToKey, concepts, quest
 console.log("ui.js loading...");
 
 // --- DOM Element References ---
+// ... (keep all DOM references as they are) ...
 const saveIndicator = document.getElementById('saveIndicator');
 const screens = document.querySelectorAll('.screen');
 const welcomeScreen = document.getElementById('welcomeScreen');
@@ -117,6 +117,7 @@ const deepDiveAnalysisNodes = document.getElementById('deepDiveAnalysisNodes');
 const deepDiveDetailContent = document.getElementById('deepDiveDetailContent');
 const contemplationNodeButton = document.getElementById('contemplationNode');
 
+
 // --- Utility UI Functions ---
 let toastTimeout = null;
 export function showTemporaryMessage(message, duration = 3000) {
@@ -153,9 +154,9 @@ export function hidePopups() {
     if (conceptDetailPopup) conceptDetailPopup.classList.add('hidden');
     if (reflectionModal) reflectionModal.classList.add('hidden');
     if (settingsPopup) settingsPopup.classList.add('hidden');
-    if (tapestryDeepDiveModal) tapestryDeepDiveModal.classList.add('hidden'); // Hide deep dive
+    if (tapestryDeepDiveModal) tapestryDeepDiveModal.classList.add('hidden');
     if (popupOverlay) popupOverlay.classList.add('hidden');
-    GameLogic.clearPopupState(); // Clear temp state
+    GameLogic.clearPopupState();
 }
 
 // --- Screen Management ---
@@ -176,7 +177,6 @@ export function showScreen(screenId) {
         if(button) button.classList.toggle('active', button.dataset.target === screenId);
     });
 
-    // Refresh data on screen load *if* past questionnaire
     if (isPostQuestionnaire) {
         if (screenId === 'personaScreen') GameLogic.displayPersonaScreenLogic();
         else if (screenId === 'studyScreen') GameLogic.displayStudyScreenLogic();
@@ -198,52 +198,72 @@ export function applyOnboardingPhaseUI(phase) {
     const isPhase3 = phase >= Config.ONBOARDING_PHASE.REFLECTION_RITUALS;
     const isPhase4 = phase >= Config.ONBOARDING_PHASE.ADVANCED;
 
-    // --- Nav Bar ---
-    navButtons.forEach(button => {
-        if (!button) return;
-        const target = button.dataset.target;
-        let hide = false;
+    navButtons.forEach(button => { // Nav Bar
+        if (!button) return; const target = button.dataset.target; let hide = false;
         if (target === 'studyScreen' && !isPhase2) hide = true;
         else if (target === 'repositoryScreen' && !isPhase4) hide = true;
         button.classList.toggle('hidden-by-flow', hide);
     });
+    if (elementLibraryDiv) elementLibraryDiv.classList.toggle('hidden-by-flow', !isPhase4); // Persona Screen - Library
+    if (grimoireFilterControls) grimoireFilterControls.classList.toggle('hidden-by-flow', !isPhase2); // Grimoire Filters
+    if (seekGuidanceButton) seekGuidanceButton.classList.toggle('hidden-by-flow', !isPhase3); // Study Screen - Guidance
+    const ritualsSection = studyScreen?.querySelector('.rituals-section'); if (ritualsSection) ritualsSection.classList.toggle('hidden-by-flow', !isPhase3); // Study Screen - Rituals
+    if (myNotesSection) myNotesSection.classList.toggle('hidden', !isPhase2 || !State.getDiscoveredConceptData(GameLogic.getCurrentPopupConceptId())); // Popup - Notes
+    if (popupEvolutionSection) popupEvolutionSection.classList.toggle('hidden', !isPhase4 || !State.getDiscoveredConceptData(GameLogic.getCurrentPopupConceptId())); // Popup - Evolution
 
-    // --- Persona Screen ---
-    if (elementLibraryDiv) elementLibraryDiv.classList.toggle('hidden-by-flow', !isPhase4);
-    // Deep Dive & Suggest Scene button visibility handled by specific update functions
+    // Update popup buttons if open
+    const popupConceptId = GameLogic.getCurrentPopupConceptId();
+    if (popupConceptId !== null && conceptDetailPopup && !conceptDetailPopup.classList.contains('hidden')) {
+         updateFocusButtonStatus(popupConceptId);
+         const discoveredData = State.getDiscoveredConceptData(popupConceptId);
+         const concept = concepts.find(c => c.id === popupConceptId);
+         const inResearch = !discoveredData && researchOutput?.querySelector(`.research-result-item[data-concept-id="${popupConceptId}"]`);
+         updateGrimoireButtonStatus(popupConceptId, !!inResearch);
+         updatePopupSellButton(popupConceptId, concept, !!discoveredData, !!inResearch);
+         if(concept && discoveredData) displayEvolutionSection(concept, discoveredData);
+         if (myNotesSection) myNotesSection.classList.toggle('hidden', !isPhase2 || !discoveredData);
+         if (popupEvolutionSection) popupEvolutionSection.classList.toggle('hidden', !isPhase4 || !discoveredData || !concept?.canUnlockArt || discoveredData?.artUnlocked);
+    }
 
-    // --- Grimoire Screen ---
-    if (grimoireFilterControls) grimoireFilterControls.classList.toggle('hidden-by-flow', !isPhase2);
-    // Focus button visibility on popup handled by updateFocusButtonStatus
+    updateTapestryDeepDiveButton(); // Update Persona buttons based on phase
+    updateSuggestSceneButtonState();
+}
 
-    // --- Study Screen ---
-    if (seekGuidanceButton) seekGuidanceButton.classList.toggle('hidden-by-flow', !isPhase3);
-    const ritualsSection = studyScreen?.querySelector('.rituals-section');
-    if (ritualsSection) ritualsSection.classList.toggle('hidden-by-flow', !isPhase3);
+// --- *** MOVED displayResearchButtons definition HERE *** ---
+export function displayResearchButtons() {
+    if (!researchButtonContainer) return;
+    researchButtonContainer.innerHTML = '';
+    const insight = State.getInsight(); const attunement = State.getAttunement();
 
-    // --- Concept Popup ---
-    if (myNotesSection) myNotesSection.classList.toggle('hidden', !isPhase2 || !State.getDiscoveredConceptData(GameLogic.getCurrentPopupConceptId()));
-    if (popupEvolutionSection) popupEvolutionSection.classList.toggle('hidden', !isPhase4 || !State.getDiscoveredConceptData(GameLogic.getCurrentPopupConceptId()));
+    // Handle Free Research Button Visibility/State
+    if (freeResearchButton) {
+        const available = State.isFreeResearchAvailable();
+        const showFreeResearch = available && State.getOnboardingPhase() >= Config.ONBOARDING_PHASE.STUDY_INSIGHT;
+        freeResearchButton.classList.toggle('hidden', !showFreeResearch);
+        freeResearchButton.disabled = !available;
+        freeResearchButton.textContent = available ? "Perform Daily Meditation (Free Research)" : "Daily Meditation Performed";
+        if (!available && State.getOnboardingPhase() >= Config.ONBOARDING_PHASE.STUDY_INSIGHT) {
+             freeResearchButton.classList.remove('hidden');
+        }
+    }
 
+    // Paid Research Buttons
+    elementNames.forEach(elName => {
+        const key = elementNameToKey[elName]; const currentAttunement = attunement[key] || 0;
+        let currentCost = Config.BASE_RESEARCH_COST;
+        if (currentAttunement > 80) currentCost = Math.max(5, Config.BASE_RESEARCH_COST - 5);
+        else if (currentAttunement > 50) currentCost = Math.max(5, Config.BASE_RESEARCH_COST - 3);
+        const canAfford = insight >= currentCost; const fullName = elementDetails[elName]?.name || elName;
+        const button = document.createElement('button'); button.classList.add('button', 'research-button');
+        button.dataset.elementKey = key; button.dataset.cost = currentCost; button.disabled = !canAfford;
+        button.title = `Focus on ${fullName} (Cost: ${currentCost} Insight)`;
+        button.innerHTML = `<span class="research-el-icon" style="color: ${Utils.getElementColor(elName)};"><i class="${Utils.getElementIcon(fullName)}"></i></span><span class="research-el-name">${fullName}</span><span class="research-el-cost">${currentCost} <i class="fas fa-brain insight-icon"></i></span>`;
+        researchButtonContainer.appendChild(button);
+    });
 
-     // Update popup buttons if open, as phase change might affect them
-     const popupConceptId = GameLogic.getCurrentPopupConceptId();
-     if (popupConceptId !== null && conceptDetailPopup && !conceptDetailPopup.classList.contains('hidden')) {
-          updateFocusButtonStatus(popupConceptId);
-          const discoveredData = State.getDiscoveredConceptData(popupConceptId);
-          const concept = concepts.find(c => c.id === popupConceptId);
-          const inResearch = !discoveredData && researchOutput?.querySelector(`.research-result-item[data-concept-id="${popupConceptId}"]`);
-          updateGrimoireButtonStatus(popupConceptId, !!inResearch);
-          updatePopupSellButton(popupConceptId, concept, !!discoveredData, !!inResearch);
-          if(concept && discoveredData) displayEvolutionSection(concept, discoveredData);
-          // Re-apply hidden class based on phase for notes/evolution within popup
-          if (myNotesSection) myNotesSection.classList.toggle('hidden', !isPhase2 || !discoveredData);
-          if (popupEvolutionSection) popupEvolutionSection.classList.toggle('hidden', !isPhase4 || !discoveredData || !concept?.canUnlockArt || discoveredData?.artUnlocked);
-     }
-
-     // Update Persona screen buttons explicitly on phase change
-     updateTapestryDeepDiveButton();
-     updateSuggestSceneButtonState();
+    // Guided Reflection Button State
+    if (seekGuidanceButton) seekGuidanceButton.disabled = insight < Config.GUIDED_REFLECTION_COST;
+    if (guidedReflectionCostDisplay) guidedReflectionCostDisplay.textContent = Config.GUIDED_REFLECTION_COST;
 }
 
 
@@ -252,28 +272,18 @@ export function updateInsightDisplays() {
     const insight = State.getInsight().toFixed(1);
     if (userInsightDisplayPersona) userInsightDisplayPersona.textContent = insight;
     if (userInsightDisplayStudy) userInsightDisplayStudy.textContent = insight;
-    displayResearchButtons(); // Update research buttons based on cost/insight
+    displayResearchButtons(); // *** Call the function now that it's defined above ***
     if (seekGuidanceButton) seekGuidanceButton.disabled = State.getInsight() < Config.GUIDED_REFLECTION_COST;
     if (guidedReflectionCostDisplay) guidedReflectionCostDisplay.textContent = Config.GUIDED_REFLECTION_COST;
-    // Update library costs if library is visible and an element is selected
-    if (elementLibraryContentDiv && !elementLibraryDiv?.classList.contains('hidden-by-flow') && elementLibraryContentDiv.dataset.selectedElement) {
-        displayElementDeepDive(elementLibraryContentDiv.dataset.selectedElement);
+    if (elementLibraryContentDiv && !elementLibraryDiv?.classList.contains('hidden-by-flow') && elementLibraryContentDiv.dataset.selectedElement) { displayElementDeepDive(elementLibraryContentDiv.dataset.selectedElement); }
+    if (repositoryScreen && repositoryScreen.classList.contains('current')) { displayRepositoryContent(); }
+    const popupConceptId = GameLogic.getCurrentPopupConceptId();
+    if (popupConceptId !== null && conceptDetailPopup && !conceptDetailPopup.classList.contains('hidden')) {
+          const concept = concepts.find(c => c.id === popupConceptId); const discoveredData = State.getDiscoveredConceptData(popupConceptId);
+          if(concept && discoveredData) displayEvolutionSection(concept, discoveredData);
     }
-     // Update experiment & scene costs if repository is visible
-     if (repositoryScreen && repositoryScreen.classList.contains('current')) {
-          displayRepositoryContent(); // Re-rendering repo handles button states
-     }
-     // Update evolve button if popup is visible
-     const popupConceptId = GameLogic.getCurrentPopupConceptId();
-      if (popupConceptId !== null && conceptDetailPopup && !conceptDetailPopup.classList.contains('hidden')) {
-            const concept = concepts.find(c => c.id === popupConceptId);
-            const discoveredData = State.getDiscoveredConceptData(popupConceptId);
-            if(concept && discoveredData) displayEvolutionSection(concept, discoveredData);
-      }
-      // Update contemplate button cost/state
-      updateContemplationButtonState();
-      // Update suggest scene button state
-      updateSuggestSceneButtonState();
+    updateContemplationButtonState();
+    updateSuggestSceneButtonState();
 }
 
 // --- Questionnaire UI ---
