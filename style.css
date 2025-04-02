@@ -210,17 +210,6 @@ hr { border: none; border-top: 1px dashed var(--border-color-light); margin: 18p
 .attunement-display .attunement-bar-container { flex-grow: 1; height: 8px; background-color: var(--border-color-light); border-radius: 4px; overflow: hidden; margin-left: 4px; border: 1px solid #b8a880; }
 .attunement-display .attunement-bar { height: 100%; background-color: #b8860b; width: 0%; border-radius: 4px; transition: width 0.5s ease; }
 
-/* Element Library (in Persona) */
-.element-library { margin-top: 20px; background-color: var(--background-dark); padding: 20px; border-radius: 8px; border: 1px solid var(--border-color-dark); }
-.element-library h2 { margin-top: 0; border-bottom-color: var(--border-color-dark); font-size: 1.3em; }
-.element-library p { text-align: left; font-size: 0.95em; margin-bottom: 10px; }
-.library-buttons { display: grid; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); gap: 6px; margin-bottom: 12px; }
-.library-buttons .button { font-size: 0.75em; padding: 5px 3px; height: 45px; }
-.library-content { background-color: #fffefa; border: 1px solid var(--border-color-dark); border-radius: 5px; padding: 12px; min-height: 120px; max-height: 350px; overflow-y: auto; }
-.library-content .level-title { font-weight: bold; font-size: 1.05em; color: var(--link-color); margin-bottom: 4px; border-bottom: 1px solid #eee; padding-bottom: 2px; }
-.library-content .level-content { font-size: 0.9em; margin-bottom: 12px; }
-.library-content .unlock-button { margin-top: 8px; }
-.library-content .unlock-error { color: var(--danger-color); font-size: 0.8em; margin-top: 4px; }
 
 /* Tapestry Area */
 .tapestry-area { background-color: #fffefa; border: 1px solid var(--border-color-light); border-radius: 8px; min-height: 150px; padding: 15px; margin-bottom: 20px; }
@@ -648,3 +637,92 @@ hr { border: none; border-top: 1px dashed var(--border-color-light); margin: 18p
     .deep-dive-nodes-container { text-align: center; }
     .deep-dive-nodes-container .deep-dive-node { display: inline-block; width: auto; margin: 4px; }
 }
+/* style.css */
+
+/* ... existing styles ... */
+
+/* Remove styles specific to the old library container if they exist */
+/* .element-library, .library-buttons, .library-content { ... } */
+
+/* Styles for Integrated Deep Dive */
+.element-description .element-deep-dive-container {
+    margin-top: 15px;
+    padding-top: 10px;
+    border-top: 1px dashed var(--border-color-light);
+}
+
+.element-deep-dive-container h5.deep-dive-section-title { /* Renamed from library-level h5 */
+    font-size: 1em; /* Slightly smaller */
+    font-weight: bold;
+    color: var(--link-color);
+    margin-bottom: 8px;
+    text-align: left;
+    border-bottom: none; /* Remove border */
+    padding-bottom: 0;
+    font-family: 'Garamond', serif;
+}
+
+.element-deep-dive-container .library-level { /* Keep similar structure */
+    margin-bottom: 15px;
+}
+
+.element-deep-dive-container .level-title { /* Style for unlocked level title */
+    font-weight: bold;
+    font-size: 0.95em;
+    color: #5a3a22;
+    margin-bottom: 4px;
+}
+
+.element-deep-dive-container .level-content {
+    font-size: 0.9em;
+    margin-bottom: 10px;
+    padding-left: 10px; /* Indent content slightly */
+}
+.element-deep-dive-container .level-content ul {
+    padding-left: 15px; /* Adjust list padding */
+    margin-top: 5px;
+}
+.element-deep-dive-container .level-content li {
+    margin-bottom: 4px;
+}
+
+
+.element-deep-dive-container .library-unlock { /* Style for the unlock section */
+    margin-top: 10px;
+    background-color: rgba(245, 240, 225, 0.5); /* Light background */
+    padding: 10px;
+    border-radius: 4px;
+    border: 1px solid var(--border-color-light);
+}
+
+.element-deep-dive-container .library-unlock h5 { /* Next level title */
+    font-size: 0.95em;
+    color: var(--link-color);
+    margin-bottom: 8px;
+    text-align: left;
+    border: none;
+    padding: 0;
+}
+
+.element-deep-dive-container .unlock-button {
+    font-size: 0.8em;
+    padding: 4px 10px;
+    margin-right: 5px;
+}
+
+.element-deep-dive-container .unlock-error {
+    color: var(--danger-color);
+    font-size: 0.8em;
+    margin-top: 4px;
+    display: inline-block; /* Show next to button */
+}
+
+.element-deep-dive-container .all-unlocked-message {
+    font-style: italic;
+    color: #6a5a4a;
+    font-size: 0.9em;
+    margin-top: 10px;
+}
+
+
+/* ... rest of styles ... */
