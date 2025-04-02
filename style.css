@@ -157,7 +157,41 @@ hr { border: none; border-top: 1px dashed var(--border-color-light); margin: 18p
 .element-detail-entry { margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px dotted #c8b89a; border-left: 4px solid var(--element-color, #ccc); padding-left: 10px; border-radius: 0 4px 4px 0; transition: background-color 0.2s ease; }
 .element-detail-entry:hover { background-color: rgba(255,255,255,0.3); }
 .element-detail-header { display: flex; align-items: center; justify-content: space-between; cursor: pointer; margin-bottom: 6px; padding: 4px 8px 4px 0; border-radius: 0 4px 4px 0; position: relative; flex-wrap: wrap; }
-.element-detail-header div:first-child { flex-basis: calc(100% - 130px); margin-right: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.element-detail-header div:first-child {
+    display: flex; /* Use flex to align icon and text */
+    align-items: center;
+    flex-basis: calc(100% - 130px);
+    margin-right: 10px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.element-icon-indicator {
+    font-size: 1.1em; /* Adjust icon size */
+    margin-right: 8px; /* Space between icon and text */
+    flex-shrink: 0; /* Prevent icon shrinking */
+    /* Color set inline */
+}
+#suggestSceneButton {
+    background-color: #66cdaa; /* Teal-like color */
+    border-color: #3cb371;
+    margin-left: 8px; /* Space from explore button */
+}
+#suggestSceneButton:hover:not(:disabled) {
+    background-color: #98fb98;
+}
+#suggestSceneButton:disabled {
+    background-color: #aaa;
+    border-color: #888;
+    opacity: 0.7;
+}
+#suggestSceneButton:not(.hidden-by-flow) {
+    display: inline-block; /* Ensure it shows when not hidden */
+}
+.tapestry-actions {
+    margin-top: 10px;
+    text-align: center; /* Or left/right */
+}
 .element-detail-header strong { font-size: 1.05em; color: var(--link-color); font-family: 'Merriweather', serif; font-weight: 700; }
 .element-detail-header span { font-weight: bold; color: var(--primary-color); font-size: 1.05em; }
 .element-detail-header .score-label { font-style: italic; margin-left: 4px; color: #7a5230; font-size: 0.85em; }
@@ -354,9 +388,34 @@ hr { border: none; border-top: 1px dashed var(--border-color-light); margin: 18p
 .card-visual .card-art-unlocked { font-size: 3.5em; color: var(--primary-color); }
 .card-visual .card-art-image { display: block; width: 100%; height: 100%; object-fit: cover; }
 .card-footer { font-size: 0.8em; color: #6a5a4a; margin-top: 6px; min-height: 75px; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; }
-.card-affinities { margin-bottom: 4px; line-height: 1.3; flex-wrap: wrap; display: flex; justify-content: center; gap: 2px; }
-.card-affinities .affinity { display: inline-flex; align-items: center; border: 1px solid; border-radius: 10px; padding: 1px 5px; font-size: 0.85em; }
-.card-affinities .affinity i { margin-right: 3px; font-size: 0.85em; }
+.card-affinities {
+    margin-bottom: 4px;
+    line-height: 1.3;
+    flex-wrap: wrap;
+    display: flex; /* Changed from inline-flex */
+    justify-content: center; /* Center icons */
+    align-items: center; /* Align vertically */
+    gap: 4px; /* Increased gap slightly */
+    min-height: 20px; /* Ensure space even if empty */
+}
+.card-affinities .affinity {
+    display: inline-flex; /* Keep spans inline */
+    align-items: center;
+    justify-content: center; /* Center icon within span */
+    border: 1px solid;
+    border-radius: 50%; /* Make them circles */
+    padding: 0; /* Remove padding */
+    font-size: 0.9em; /* Adjust base size */
+    width: 20px; /* Fixed width */
+    height: 20px; /* Fixed height */
+    line-height: 18px; /* Center icon vertically */
+    text-align: center;
+}
+.card-affinities .affinity i {
+    margin: 0; /* Remove margin from icon */
+    font-size: 0.9em; /* Adjust icon size */
+    /* Color is set inline via style */
+}
 .card-affinities .affinity-high { font-weight: bold; }
 .card-brief-desc { font-style: italic; font-size: 0.85em; line-height: 1.3; text-align: center; font-family: 'Merriweather', serif; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; max-height: calc(1.3em * 3); margin: 4px 0; flex-grow: 1; }
 .card-sell-button { margin-top: 4px; }
@@ -506,7 +565,14 @@ hr { border: none; border-top: 1px dashed var(--border-color-light); margin: 18p
 .deep-dive-nodes-container .deep-dive-node.active { background-color: var(--primary-color); color: white; border-color: #5a2d0c; text-shadow: 1px 1px 1px rgba(0,0,0,0.2); }
 .deep-dive-nodes-container .contemplation-node { background-color: #8a2be2; border-color: #6a1ea2; color: white; text-shadow: 1px 1px 1px rgba(0,0,0,0.2); }
 .deep-dive-nodes-container .contemplation-node:hover:not(:disabled) { background-color: #9f45ff; }
-.deep-dive-nodes-container .contemplation-node:disabled { background-color: #aaa; border-color: #888; opacity: 0.6; }
+.deep-dive-nodes-container .contemplation-node:disabled {
+     background-color: #aaa; /* Keep grey */
+     border-color: #888;
+     opacity: 0.6;
+     cursor: not-allowed;
+     color: #eee; /* Lighter text */
+     text-shadow: none;
+}
 .deep-dive-detail-area { background-color: #fffefa; border: 1px solid var(--border-color-light); border-radius: 6px; padding: 15px; min-height: 150px; flex-grow: 1; margin-top: 10px; }
 .deep-dive-detail-area h4 { margin-top: 0; margin-bottom: 10px; font-size: 1.1em; color: var(--link-color); font-family: 'Garamond', serif; }
 .deep-dive-detail-area p, .deep-dive-detail-area ul { font-size: 0.95em; margin-bottom: 10px; }
