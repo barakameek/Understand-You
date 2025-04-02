@@ -279,9 +279,11 @@ export function updateElementProgressHeader(activeIndex) {
 export function displayElementQuestions(index) {
     const currentState = State.getState();
     if (index >= elementNames.length) {
-        const finalAnswers = getQuestionnaireAnswers();
-        if (index > 0) { // Ensure index is valid before saving
-             State.updateAnswers(elementNames[index-1], finalAnswers);
+        // Ensure final answers are saved before finalizing
+        const lastElementIndex = elementNames.length - 1;
+        if (lastElementIndex >= 0) {
+            const finalAnswers = getQuestionnaireAnswers(); // Get answers from the final displayed page
+            State.updateAnswers(elementNames[lastElementIndex], finalAnswers);
         }
         GameLogic.finalizeQuestionnaire();
         return;
@@ -291,17 +293,19 @@ export function displayElementQuestions(index) {
     const questions = questionnaireGuided[elementName] || [];
     if (!questionContent) { console.error("questionContent element missing!"); return; }
 
+    // 1. Get current answers for this element from state
     const elementAnswers = currentState.userAnswers?.[elementName] || {};
-    console.log(`UI: Displaying questions for Index ${index} (${elementName}). Initial answers:`, JSON.parse(JSON.stringify(elementAnswers)));
+    // Log the state being used for rendering this page
+    console.log(`UI: Displaying questions for Index ${index} (${elementName}). Initial answers from state:`, JSON.parse(JSON.stringify(elementAnswers)));
 
+    // 2. Generate HTML using these answers for defaults
     let introHTML = `<div class="element-intro"><h2>${elementData.name || elementName}</h2><p><em>${elementData.coreQuestion || ''}</em></p><p>${elementData.coreConcept || 'Loading...'}</p><p><small><strong>Persona Connection:</strong> ${elementData.personaConnection || ''}</small></p></div>`;
-    questionContent.innerHTML = introHTML;
-
     let questionsHTML = '';
     questions.forEach(q => {
         let inputHTML = `<div class="question-block" id="block_${q.qId}"><h3 class="question-title">${q.text}</h3><div class="input-container">`;
         const savedAnswer = elementAnswers[q.qId];
         if (q.type === "slider") {
+            // Use savedAnswer if available, otherwise defaultValue
             const val = savedAnswer !== undefined ? savedAnswer : q.defaultValue;
             inputHTML += `<div class="slider-container"><input type="range" id="${q.qId}" class="slider q-input" min="${q.minValue}" max="${q.maxValue}" step="${q.step || 0.5}" value="${val}" data-question-id="${q.qId}" data-type="slider"><div class="label-container"><span class="label-text">${q.minLabel}</span><span class="label-text">${q.maxLabel}</span></div><p class="value-text">Selected: <span id="display_${q.qId}">${parseFloat(val).toFixed(1)}</span></p><p class="slider-feedback" id="feedback_${q.qId}"></p></div>`;
         } else if (q.type === "radio") {
@@ -317,13 +321,16 @@ export function displayElementQuestions(index) {
     });
     if(questions.length === 0) questionsHTML = '<p><em>(No questions for this element)</em></p>';
 
+    // 3. Insert HTML into the DOM
+    questionContent.innerHTML = introHTML; // Set intro first
     const introDiv = questionContent.querySelector('.element-intro');
     if (introDiv) introDiv.insertAdjacentHTML('afterend', questionsHTML);
     else questionContent.innerHTML += questionsHTML;
 
+    // 4. Attach event listeners
     questionContent.querySelectorAll('.q-input').forEach(input => {
         const eventType = (input.type === 'range') ? 'input' : 'change';
-        input.removeEventListener(eventType, GameLogic.handleQuestionnaireInputChange);
+        input.removeEventListener(eventType, GameLogic.handleQuestionnaireInputChange); // Prevent duplicates
         input.addEventListener(eventType, GameLogic.handleQuestionnaireInputChange);
     });
     questionContent.querySelectorAll('input[type="checkbox"].q-input').forEach(checkbox => {
@@ -331,16 +338,26 @@ export function displayElementQuestions(index) {
         checkbox.addEventListener('change', GameLogic.handleCheckboxChange);
     });
 
+    // 5. Perform initial UI updates using the *same answers* used for HTML generation
     questionContent.querySelectorAll('.slider.q-input').forEach(slider => {
-        updateSliderFeedbackText(slider, elementName);
+        updateSliderFeedbackText(slider, elementName); // Update slider text based on its *current* value in the DOM
     });
-    updateDynamicFeedback(elementName, elementAnswers);
+    updateDynamicFeedback(elementName, elementAnswers); // Update score display based on *initial state* answers
 
+    // 6. Update overall progress display & buttons
     updateElementProgressHeader(index);
     if (progressText) progressText.textContent = `Element ${index + 1} / ${elementNames.length}: ${elementData.name || elementName}`;
-    if (dynamicScoreFeedback) dynamicScoreFeedback.style.display = 'block';
+    if (dynamicScoreFeedback) dynamicScoreFeedback.style.display = 'block'; // Ensure score display is visible
     if (prevElementButton) prevElementButton.style.visibility = (index > 0) ? 'visible' : 'hidden';
     if (nextElementButton) nextElementButton.textContent = (index === elementNames.length - 1) ? "View My Persona" : "Next Element";
+}
+
+// Make sure initializeQuestionnaireUI calls displayElementQuestions(0) correctly
+export function initializeQuestionnaireUI() {
+    updateElementProgressHeader(-1); // Show no progress initially
+    displayElementQuestions(0); // Display the first set of questions
+    if (mainNavBar) mainNavBar.classList.add('hidden');
+    if(dynamicScoreFeedback) dynamicScoreFeedback.style.display = 'none'; // Initially hide score feedback
 }
 
 export function updateSliderFeedbackText(sliderElement, elementName) {
