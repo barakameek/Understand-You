@@ -249,40 +249,43 @@ export function updateInsightDisplays() {
 
 // --- Questionnaire UI ---
 export function initializeQuestionnaireUI() {
-    updateElementProgressHeader(-1);
+    // Make sure state knows we are starting at index 0 *before* displaying
+    // State.updateElementIndex(0); // Let initializeApp handle the initial state setup
+
+    updateElementProgressHeader(-1); // Show no progress initially
+    // Display questions for index 0 *after* ensuring state is potentially loaded/reset
     displayElementQuestions(0);
     if (mainNavBar) mainNavBar.classList.add('hidden');
-    if(dynamicScoreFeedback) dynamicScoreFeedback.style.display = 'none';
+    if(dynamicScoreFeedback) dynamicScoreFeedback.style.display = 'none'; // Hide until interaction
 }
-export function updateElementProgressHeader(activeIndex) {
-    if (!elementProgressHeader) return; elementProgressHeader.innerHTML = '';
-    elementNames.forEach((name, index) => {
-        const tab = document.createElement('div'); tab.classList.add('element-tab');
-        const elementData = elementDetails[name] || {};
-        tab.textContent = elementData.name || name; tab.title = elementData.name || name;
-        tab.classList.toggle('completed', index < activeIndex); tab.classList.toggle('active', index === activeIndex);
-        elementProgressHeader.appendChild(tab);
-    });
-}
+
+// Modify displayElementQuestions slightly for robustness
 export function displayElementQuestions(index) {
     const currentState = State.getState();
-    if (index >= elementNames.length) { GameLogic.finalizeQuestionnaire(); return; }
+    if (index >= elementNames.length) {
+        // Ensure final answers are saved before finalizing (redundant check, good practice)
+        const finalAnswers = getQuestionnaireAnswers();
+        State.updateAnswers(elementNames[index-1], finalAnswers); // Save answers for the *last* element shown
+        GameLogic.finalizeQuestionnaire();
+        return;
+    }
     const elementName = elementNames[index];
     const elementData = elementDetails[elementName] || {};
     const questions = questionnaireGuided[elementName] || [];
     if (!questionContent) { console.error("questionContent element missing!"); return; }
 
-    // *** Ensure elementAnswers is ready FIRST ***
-    const elementAnswers = currentState.userAnswers?.[elementName] || {}; // Use optional chaining for safety
+    // ** Crucial: Get the current state's answers for this element **
+    // This ensures we use loaded data if available, or the initialized empty object.
+    const elementAnswers = currentState.userAnswers?.[elementName] || {};
+    console.log(`UI: Displaying questions for Index ${index} (${elementName}). Initial answers:`, JSON.parse(JSON.stringify(elementAnswers))); // Log initial state
 
     let introHTML = `<div class="element-intro"><h2>${elementData.name || elementName}</h2><p><em>${elementData.coreQuestion || ''}</em></p><p>${elementData.coreConcept || 'Loading...'}</p><p><small><strong>Persona Connection:</strong> ${elementData.personaConnection || ''}</small></p></div>`;
     questionContent.innerHTML = introHTML; // Add intro first
 
     let questionsHTML = '';
     questions.forEach(q => {
-        // ... (generate inputHTML using elementAnswers - this part is likely fine) ...
-         let inputHTML = `<div class="question-block" id="block_${q.qId}"><h3 class="question-title">${q.text}</h3><div class="input-container">`;
-        const savedAnswer = elementAnswers[q.qId]; // Read from prepared answers
+        let inputHTML = `<div class="question-block" id="block_${q.qId}"><h3 class="question-title">${q.text}</h3><div class="input-container">`;
+        const savedAnswer = elementAnswers[q.qId];
         if (q.type === "slider") {
             const val = savedAnswer !== undefined ? savedAnswer : q.defaultValue;
             inputHTML += `<div class="slider-container"><input type="range" id="${q.qId}" class="slider q-input" min="${q.minValue}" max="${q.maxValue}" step="${q.step || 0.5}" value="${val}" data-question-id="${q.qId}" data-type="slider"><div class="label-container"><span class="label-text">${q.minLabel}</span><span class="label-text">${q.maxLabel}</span></div><p class="value-text">Selected: <span id="display_${q.qId}">${parseFloat(val).toFixed(1)}</span></p><p class="slider-feedback" id="feedback_${q.qId}"></p></div>`;
@@ -299,15 +302,15 @@ export function displayElementQuestions(index) {
     });
     if(questions.length === 0) questionsHTML = '<p><em>(No questions for this element)</em></p>';
 
-    // *** Insert question HTML ***
+    // Insert question HTML
     const introDiv = questionContent.querySelector('.element-intro');
     if (introDiv) introDiv.insertAdjacentHTML('afterend', questionsHTML);
     else questionContent.innerHTML += questionsHTML;
 
-    // *** Attach listeners AFTER HTML is inserted ***
+    // Attach listeners AFTER HTML is inserted
     questionContent.querySelectorAll('.q-input').forEach(input => {
         const eventType = (input.type === 'range') ? 'input' : 'change';
-        input.removeEventListener(eventType, GameLogic.handleQuestionnaireInputChange); // Prevent duplicates if re-rendering
+        input.removeEventListener(eventType, GameLogic.handleQuestionnaireInputChange); // Prevent duplicates
         input.addEventListener(eventType, GameLogic.handleQuestionnaireInputChange);
     });
     questionContent.querySelectorAll('input[type="checkbox"].q-input').forEach(checkbox => {
@@ -315,18 +318,25 @@ export function displayElementQuestions(index) {
         checkbox.addEventListener('change', GameLogic.handleCheckboxChange);
     });
 
-    // *** Call initial UI updates AFTER listeners are attached ***
+    // *** Call initial UI updates for THIS specific element ***
     questionContent.querySelectorAll('.slider.q-input').forEach(slider => {
         updateSliderFeedbackText(slider, elementName);
     });
+    updateDynamicFeedback(elementName, elementAnswers); // Update dynamic score feedback *with the answers used*
 
+    // Update overall progress display
     updateElementProgressHeader(index);
     if (progressText) progressText.textContent = `Element ${index + 1} / ${elementNames.length}: ${elementData.name || elementName}`;
-    updateDynamicFeedback(elementName, elementAnswers); // Update dynamic score feedback
-    if (dynamicScoreFeedback) dynamicScoreFeedback.style.display = 'block';
+    if (dynamicScoreFeedback) dynamicScoreFeedback.style.display = 'block'; // Ensure score display is visible
     if (prevElementButton) prevElementButton.style.visibility = (index > 0) ? 'visible' : 'hidden';
     if (nextElementButton) nextElementButton.textContent = (index === elementNames.length - 1) ? "View My Persona" : "Next Element";
 }
+
+// Optional: Add logging inside handleQuestionnaireInputChange for debugging the first page
+// Add this inside the function in gameLogic.js:
+// if (State.getState().currentElementIndex === 0) {
+//     console.log(`Input Change (Element 0 - ${elementName}): Type=${type}, ID=${input.id}, Value=${input.value}`);
+// }
 
 export function updateSliderFeedbackText(sliderElement, elementName) {
     if (!sliderElement || sliderElement.type !== 'range') return;
@@ -1041,11 +1051,41 @@ export function displayTapestryDeepDive(analysisData) {
     if (!tapestryDeepDiveModal || !popupOverlay || !deepDiveNarrativeP) { console.error("Deep Dive Modal elements missing!"); showTemporaryMessage("Error opening Deep Dive.", 3000); return; }
     console.log("UI: displayTapestryDeepDive called with analysis:", analysisData);
     deepDiveNarrativeP.innerHTML = analysisData.fullNarrativeHTML || "Could not generate narrative.";
-    if (deepDiveFocusIcons) { deepDiveFocusIcons.innerHTML = ''; const focused = State.getFocusedConcepts(); const discovered = State.getDiscoveredConcepts(); focused.forEach(id => { const concept = discovered.get(id)?.concept; if (concept) { const icon = document.createElement('i'); icon.className = `${Utils.getCardTypeIcon(concept.cardType)}`; icon.title = concept.name; deepDiveFocusIcons.appendChild(icon); } }); }
-    if (deepDiveDetailContent) { deepDiveDetailContent.innerHTML = '<p>Select an analysis node above...</p>'; deepDiveAnalysisNodes?.querySelectorAll('.deep-dive-node').forEach(btn => btn.classList.remove('active')); }
+}
+ if (deepDiveFocusIcons) {
+        deepDiveFocusIcons.innerHTML = ''; // Clear previous icons
+        const focused = State.getFocusedConcepts();
+        const discovered = State.getDiscoveredConcepts();
+        focused.forEach(id => {
+            const concept = discovered.get(id)?.concept;
+            if (concept) {
+                let iconClass = Utils.getElementIcon("Default"); // Fallback
+                let iconColor = '#CCCCCC'; // Fallback color
+                let iconTitle = concept.name;
+
+                if (concept.primaryElement && elementKeyToFullName && elementKeyToFullName[concept.primaryElement]) {
+                    const fullElementName = elementKeyToFullName[concept.primaryElement];
+                    iconClass = Utils.getElementIcon(fullElementName); // Get ELEMENT icon
+                    iconColor = Utils.getElementColor(fullElementName); // Get ELEMENT color
+                    iconTitle = `${concept.name} (${elementDetails[fullElementName]?.name || fullElementName})`;
+                } else {
+                    console.warn(`Concept ${concept.name} missing valid primaryElement for deep dive icon.`);
+                    iconClass = Utils.getCardTypeIcon(concept.cardType); // Fallback to type icon if element missing
+                }
+
+                const icon = document.createElement('i');
+                icon.className = `${iconClass}`; // Use element icon class
+                icon.style.color = iconColor; // Use element color
+                icon.title = iconTitle;
+                deepDiveFocusIcons.appendChild(icon);
+            }
+        });
+    }
+  if (deepDiveDetailContent) { deepDiveDetailContent.innerHTML = '<p>Select an analysis node above...</p>'; deepDiveAnalysisNodes?.querySelectorAll('.deep-dive-node').forEach(btn => btn.classList.remove('active')); }
     updateContemplationButtonState();
     tapestryDeepDiveModal.classList.remove('hidden'); popupOverlay.classList.remove('hidden');
 }
+
 export function updateContemplationButtonState() {
     if (!contemplationNodeButton) return;
     const cooldownEnd = State.getContemplationCooldownEnd(); const now = Date.now(); const insight = State.getInsight(); const cost = Config.CONTEMPLATION_COST;
