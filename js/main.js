@@ -11,7 +11,10 @@ function initializeApp() {
     console.log("Initializing Persona Alchemy Lab v14+...");
 
     // Attempt to load game state first
-    const loaded = State.loadGameState();
+    const loaded = State.loadGameState(); // This now populates the `gameState` variable
+
+    // **Crucially, update UI *after* state is confirmed loaded or cleared**
+    UI.updateInsightDisplays(); // Update displays with potentially loaded insight
 
     if (loaded) {
         console.log("Existing session loaded.");
@@ -20,39 +23,35 @@ function initializeApp() {
               GameLogic.checkForDailyLogin(); // Check daily status *after* loading state
               UI.applyOnboardingPhaseUI(State.getOnboardingPhase()); // Apply UI visibility
               GameLogic.calculateTapestryNarrative(true); // Ensure analysis is current for UI updates
-              UI.updateInsightDisplays(); // Update displays with loaded insight
+              // Update other UI elements that depend on loaded state
               UI.updateFocusSlotsDisplay();
               UI.updateGrimoireCounter();
-              UI.populateGrimoireFilters(); // Populate filters
-              // Prepare Grimoire display data *before* showing screen
-              UI.refreshGrimoireDisplay(); // Call this to ensure grimoire is ready
-              UI.setupInitialUI(); // Ensure UI elements like Suggest Scene button state are set
-              // Initial screen display will be handled by showScreen
+              UI.populateGrimoireFilters();
+              UI.refreshGrimoireDisplay(); // Prepare Grimoire display data
+              UI.setupInitialUI(); // Ensure button states are correct after load
               UI.showScreen('personaScreen'); // Default to Persona screen after load
               UI.hidePopups(); // Ensure no popups are stuck open
          } else {
               console.log("Loaded state incomplete. Restarting questionnaire.");
-              // Keep loaded state but reset questionnaire progress
-              State.updateElementIndex(0);
-              UI.initializeQuestionnaireUI();
-               UI.showScreen('questionnaireScreen');
+              // State is loaded, but questionnaire wasn't done. Reset index.
+              State.updateElementIndex(0); // Reset index only
+              // ** Ensure userAnswers is ready **
+              // This is handled by loadGameState ensuring all element keys exist
+              UI.initializeQuestionnaireUI(); // Setup questionnaire UI
+              UI.showScreen('questionnaireScreen');
          }
-         // Hide load button since load was successful
          const loadBtn = document.getElementById('loadButton');
-         if(loadBtn) loadBtn.classList.add('hidden');
+         if(loadBtn) loadBtn.classList.add('hidden'); // Hide load button
 
     } else {
         console.log("No valid saved session found or load error. Starting fresh.");
-        // Setup initial UI for a new game (Welcome Screen)
-        UI.setupInitialUI();
-         // If load failed due to error, show message
-         if (localStorage.getItem(Config.SAVE_KEY)) { // Check if there *was* data using imported key
+        // State.clearGameState() was already called implicitly by loadGameState failing
+        // or explicitly if needed depending on error handling preference
+        UI.setupInitialUI(); // Setup initial UI for a new game (Welcome Screen)
+         if (localStorage.getItem(Config.SAVE_KEY)) {
              UI.showTemporaryMessage("Error loading session. Starting fresh.", 4000);
          }
     }
-
-    // Setup common UI elements regardless of load state
-    UI.updateInsightDisplays();
 
     console.log("Initialization complete. Attaching event listeners.");
     attachEventListeners();
@@ -60,36 +59,47 @@ function initializeApp() {
 }
 
 // --- Event Listeners ---
-function attachEventListeners() {
+function attachEventListeners() { // No changes needed here from previous version
     console.log("Attaching event listeners...");
 
     // Welcome Screen
     const startButton = document.getElementById('startGuidedButton');
     const loadButton = document.getElementById('loadButton');
     if (startButton) startButton.addEventListener('click', () => {
-        State.clearGameState(); UI.initializeQuestionnaireUI(); UI.showScreen('questionnaireScreen');
+        State.clearGameState(); // Clears state and initializes userAnswers correctly
+        UI.initializeQuestionnaireUI();
+        UI.showScreen('questionnaireScreen');
         if(loadButton) loadButton.classList.add('hidden');
     });
     if (loadButton && !loadButton.classList.contains('hidden')) {
         loadButton.addEventListener('click', () => {
-            if(State.loadGameState()){
+            if(State.loadGameState()){ // Reload state
+                UI.updateInsightDisplays(); // Update UI after load
                 if (State.getState().questionnaireCompleted) {
-                    // Re-run necessary post-load setup within this handler too
                     GameLogic.checkForDailyLogin();
                     UI.applyOnboardingPhaseUI(State.getOnboardingPhase());
-                    GameLogic.calculateTapestryNarrative(true); // Recalculate narrative
-                    UI.updateInsightDisplays();
+                    GameLogic.calculateTapestryNarrative(true);
                     UI.updateFocusSlotsDisplay();
                     UI.updateGrimoireCounter();
                     UI.populateGrimoireFilters();
-                    UI.refreshGrimoireDisplay(); // Render grimoire content after load
-                    UI.setupInitialUI(); // Re-apply initial states for buttons etc.
+                    UI.refreshGrimoireDisplay();
+                    UI.setupInitialUI();
                     UI.showScreen('personaScreen');
                     UI.hidePopups();
                 }
-                else { UI.initializeQuestionnaireUI(); UI.showScreen('questionnaireScreen'); }
+                else {
+                    State.updateElementIndex(0); // Reset index if questionnaire incomplete
+                    UI.initializeQuestionnaireUI();
+                    UI.showScreen('questionnaireScreen');
+                }
                 loadButton.classList.add('hidden');
-            } else { UI.showTemporaryMessage("Load failed. Starting new.", 3000); State.clearGameState(); UI.initializeQuestionnaireUI(); UI.showScreen('questionnaireScreen'); loadButton.classList.add('hidden'); }
+            } else {
+                 UI.showTemporaryMessage("Load failed. Starting new.", 3000);
+                 State.clearGameState();
+                 UI.initializeQuestionnaireUI();
+                 UI.showScreen('questionnaireScreen');
+                 loadButton.classList.add('hidden');
+             }
         });
     }
 
@@ -105,10 +115,7 @@ function attachEventListeners() {
         if(!button.classList.contains('settings-button')) {
             button.addEventListener('click', () => {
                 const target = button.dataset.target;
-                if (target) {
-                    // Let showScreen handle the actual screen switch and other general updates
-                    UI.showScreen(target);
-                }
+                if (target) { UI.showScreen(target); } // Let showScreen handle logic calls
             });
         }
     });
@@ -122,7 +129,6 @@ function attachEventListeners() {
     const closeSettingsBtn = document.getElementById('closeSettingsPopupButton');
     const closeMilestoneBtn = document.getElementById('closeMilestoneAlertButton');
     const closeDeepDiveBtn = document.getElementById('closeDeepDiveButton');
-
     if (closePopupBtn) closePopupBtn.addEventListener('click', UI.hidePopups);
     if (overlay) overlay.addEventListener('click', UI.hidePopups);
     if (closeReflectionBtn) closeReflectionBtn.addEventListener('click', UI.hidePopups);
@@ -131,26 +137,19 @@ function attachEventListeners() {
     if (closeDeepDiveBtn) closeDeepDiveBtn.addEventListener('click', UI.hidePopups);
     else console.warn("Deep Dive Modal Close Button not found.");
 
-
-    // Concept Detail Popup Actions (Event Delegation on Popup Actions Div)
+    // Concept Detail Popup Actions (Delegation)
     const popupActionsDiv = document.querySelector('#conceptDetailPopup .popup-actions');
     if (popupActionsDiv) {
          popupActionsDiv.addEventListener('click', (event) => {
-               const button = event.target.closest('button');
-               if (!button) return;
-               const conceptId = GameLogic.getCurrentPopupConceptId(); // Get ID from logic module
-
-               if (button.id === 'addToGrimoireButton' && conceptId !== null) {
-                    GameLogic.addConceptToGrimoireById(conceptId, button);
-               } else if (button.id === 'markAsFocusButton' && conceptId !== null) {
-                    GameLogic.handleToggleFocusConcept(); // No args needed as it uses current ID
-               } else if (button.classList.contains('popup-sell-button') && conceptId !== null) { // Target sell button by class
-                    GameLogic.handleSellConcept(event); // Pass event to get context
-               }
+               const button = event.target.closest('button'); if (!button) return;
+               const conceptId = GameLogic.getCurrentPopupConceptId();
+               if (button.id === 'addToGrimoireButton' && conceptId !== null) GameLogic.addConceptToGrimoireById(conceptId, button);
+               else if (button.id === 'markAsFocusButton' && conceptId !== null) GameLogic.handleToggleFocusConcept();
+               else if (button.classList.contains('popup-sell-button') && conceptId !== null) GameLogic.handleSellConcept(event);
          });
     }
 
-    // Evolve Button (separate as it's inside popup details, not actions div)
+    // Evolve Button
     const evolveBtn = document.getElementById('evolveArtButton');
     if (evolveBtn) evolveBtn.addEventListener('click', GameLogic.attemptArtEvolution);
 
@@ -158,19 +157,14 @@ function attachEventListeners() {
     const saveNoteBtn = document.getElementById('saveMyNoteButton');
     if (saveNoteBtn) saveNoteBtn.addEventListener('click', GameLogic.handleSaveNote);
 
-    // Grimoire Filters & Card Interaction (Sell Button)
+    // Grimoire Filters & Card Interaction (Delegation)
     const grimoireControls = document.getElementById('grimoireControls');
     if (grimoireControls) { grimoireControls.addEventListener('change', UI.refreshGrimoireDisplay); }
     const grimoireContent = document.getElementById('grimoireContent');
     if (grimoireContent) {
         grimoireContent.addEventListener('click', (event) => {
-            // Find the closest button element that matches the sell button class
             const sellButton = event.target.closest('.card-sell-button');
-            if (sellButton) {
-                 event.stopPropagation(); // Prevent card click popup
-                 GameLogic.handleSellConcept(event); // Use the event to find button details
-            }
-            // Card click to open popup is handled directly in UI.renderCard
+            if (sellButton) { event.stopPropagation(); GameLogic.handleSellConcept(event); }
         });
     }
 
@@ -188,7 +182,7 @@ function attachEventListeners() {
     if (freeResearchBtn) freeResearchBtn.addEventListener('click', GameLogic.handleFreeResearchClick);
     if (guidanceBtn) guidanceBtn.addEventListener('click', GameLogic.triggerGuidedReflection);
 
-    // Research Output Actions (Add/Sell buttons added dynamically)
+    // Research Output Actions (Delegation)
     const researchOutputArea = document.getElementById('researchOutput');
     if (researchOutputArea) {
         researchOutputArea.addEventListener('click', (event) => {
@@ -199,14 +193,13 @@ function attachEventListeners() {
         });
     }
 
-     // Element Library (Button clicks to show content)
+     // Element Library (Delegation)
      const libraryButtonsContainer = document.getElementById('elementLibraryButtons');
      if (libraryButtonsContainer) { libraryButtonsContainer.addEventListener('click', (event) => { const button = event.target.closest('button'); if (button && button.dataset.elementKey) UI.displayElementDeepDive(button.dataset.elementKey); }); }
-      // Element Library (Unlock clicks - delegated)
      const libraryContentContainer = document.getElementById('elementLibraryContent');
       if (libraryContentContainer) { libraryContentContainer.addEventListener('click', (event) => { if (event.target.matches('.unlock-button')) GameLogic.handleUnlockLibraryLevel(event); }); }
 
-     // Repository Actions (Delegated)
+     // Repository Actions (Delegation)
      const repositoryContainer = document.getElementById('repositoryScreen');
      if (repositoryContainer) { repositoryContainer.addEventListener('click', (event) => { const button = event.target.closest('button'); if (!button) return; if (button.dataset.sceneId) GameLogic.handleMeditateScene(event); else if (button.dataset.experimentId) GameLogic.handleAttemptExperiment(event); }); }
 
@@ -223,27 +216,18 @@ function attachEventListeners() {
      const personaSummaryDiv = document.getElementById('personaSummaryView');
      if(detailedViewBtn && summaryViewBtn && personaDetailedDiv && personaSummaryDiv) {
           detailedViewBtn.addEventListener('click', () => { personaDetailedDiv.classList.add('current'); personaDetailedDiv.classList.remove('hidden'); personaSummaryDiv.classList.add('hidden'); personaSummaryDiv.classList.remove('current'); detailedViewBtn.classList.add('active'); summaryViewBtn.classList.remove('active'); });
-          summaryViewBtn.addEventListener('click', () => { personaSummaryDiv.classList.add('current'); personaSummaryDiv.classList.remove('hidden'); personaDetailedDiv.classList.add('hidden'); personaDetailedDiv.classList.remove('current'); summaryViewBtn.classList.add('active'); detailedViewBtn.classList.remove('active'); UI.displayPersonaSummary(); }); // Refresh summary when switching to it
+          summaryViewBtn.addEventListener('click', () => { personaSummaryDiv.classList.add('current'); personaSummaryDiv.classList.remove('hidden'); personaDetailedDiv.classList.add('hidden'); personaDetailedDiv.classList.remove('current'); summaryViewBtn.classList.add('active'); detailedViewBtn.classList.remove('active'); UI.displayPersonaSummary(); });
      }
 
     // Persona Screen Specific Button Delegation
     const personaScreenDiv = document.getElementById('personaScreen');
     if (personaScreenDiv) {
         personaScreenDiv.addEventListener('click', (event) => {
-            const button = event.target.closest('button');
-            if (!button) return;
-
-            if (button.id === 'exploreTapestryButton') {
-                GameLogic.showTapestryDeepDive();
-            } else if (button.id === 'suggestSceneButton') {
-                GameLogic.handleSuggestSceneClick();
-            }
-            // Add other persona screen button handlers here if needed
+            const button = event.target.closest('button'); if (!button) return;
+            if (button.id === 'exploreTapestryButton') GameLogic.showTapestryDeepDive();
+            else if (button.id === 'suggestSceneButton') GameLogic.handleSuggestSceneClick();
         });
-    } else {
-        console.warn("Persona Screen container not found for button delegation.");
-    }
-
+    } else { console.warn("Persona Screen container not found for button delegation."); }
 
     // Delegated Listener for Deep Dive Analysis Nodes
     const deepDiveNodesContainer = document.getElementById('deepDiveAnalysisNodes');
@@ -251,25 +235,13 @@ function attachEventListeners() {
         deepDiveNodesContainer.addEventListener('click', (event) => {
             const button = event.target.closest('.deep-dive-node'); if (!button) return;
             const nodeId = button.dataset.nodeId;
-            // Check if contemplation is on cooldown *before* calling the logic handler
             if (nodeId === 'contemplation') {
-                 const now = Date.now();
-                 const cooldownEnd = State.getContemplationCooldownEnd();
-                 if (cooldownEnd && now < cooldownEnd) {
-                     const remaining = Math.ceil((cooldownEnd - now) / 1000); // Seconds
-                     UI.showTemporaryMessage(`Contemplation available in ${remaining}s.`, 3000);
-                     return; // Prevent calling logic if on cooldown
-                 }
-                 // If not on cooldown, proceed to logic handler
+                 const now = Date.now(); const cooldownEnd = State.getContemplationCooldownEnd();
+                 if (cooldownEnd && now < cooldownEnd) { const remaining = Math.ceil((cooldownEnd - now) / 1000); UI.showTemporaryMessage(`Contemplation available in ${remaining}s.`, 3000); return; }
                  GameLogic.handleContemplationNodeClick();
-            } else if (nodeId && nodeId !== 'keyword') { // Ensure keyword isn't handled
-                 GameLogic.handleDeepDiveNodeClick(nodeId);
-            }
+            } else if (nodeId && nodeId !== 'keyword') { GameLogic.handleDeepDiveNodeClick(nodeId); }
         });
     } else { console.warn("Deep Dive Analysis Nodes Container not found."); }
-    // Note: The listener for the 'Mark Complete' button inside contemplation
-    // is added dynamically by UI.displayContemplationTask.
-
 
     console.log("Event listeners attached.");
 }
