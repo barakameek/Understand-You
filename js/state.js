@@ -5,63 +5,55 @@ import { elementNames } from '../data.js'; // Only import needed data
 console.log("state.js loading...");
 
 // Default game state structure
-const initialGameState = {
+const createInitialGameState = () => ({ // Use a function to ensure fresh copy
     userScores: { A: 5, I: 5, S: 5, P: 5, C: 5, R: 5 },
-    userAnswers: {}, // {elementName: {qId: answer, ...}}
-    discoveredConcepts: new Map(), // ID -> { concept, discoveredTime, artUnlocked: boolean, notes: string }
-    focusedConcepts: new Set(), // Set of Concept IDs
+    userAnswers: {}, // Initialize as empty object
+    discoveredConcepts: new Map(),
+    focusedConcepts: new Set(),
     focusSlotsTotal: Config.INITIAL_FOCUS_SLOTS,
     userInsight: Config.INITIAL_INSIGHT,
     elementAttunement: { A: 0, I: 0, S: 0, P: 0, C: 0, R: 0 },
     unlockedDeepDiveLevels: { A: 0, I: 0, S: 0, P: 0, C: 0, R: 0 },
-    achievedMilestones: new Set(), // Set of milestone IDs
-    completedRituals: { daily: {}, weekly: {} }, // { ritualId: { completed: boolean, progress: number } }
+    achievedMilestones: new Set(),
+    completedRituals: { daily: {}, weekly: {} },
     lastLoginDate: null,
     freeResearchAvailableToday: false,
-    seenPrompts: new Set(), // Set of reflection prompt IDs seen
-    currentElementIndex: -1, // For questionnaire state
+    seenPrompts: new Set(),
+    currentElementIndex: -1,
     questionnaireCompleted: false,
     cardsAddedSinceLastPrompt: 0,
-    promptCooldownActive: false, // For standard/rare reflection triggering
-    discoveredRepositoryItems: {
-        scenes: new Set(), // IDs of discovered SceneBlueprints
-        experiments: new Set(), // IDs of COMPLETED AlchemicalExperiments
-        insights: new Set() // IDs of discovered ElementalInsights
-    },
-    pendingRarePrompts: [], // Array of rare prompt IDs queued for reflection
-    unlockedFocusItems: new Set(), // IDs of focusDrivenUnlocks definitions activated
-    currentFocusSetHash: '', // Hash of the current focused concept IDs
-    contemplationCooldownEnd: null, // Timestamp when cooldown ends
+    promptCooldownActive: false,
+    discoveredRepositoryItems: { scenes: new Set(), experiments: new Set(), insights: new Set() },
+    pendingRarePrompts: [],
+    unlockedFocusItems: new Set(),
+    currentFocusSetHash: '',
+    contemplationCooldownEnd: null,
     onboardingPhase: Config.ONBOARDING_PHASE.START,
-};
+});
 
-// Initialize current state
-let gameState = JSON.parse(JSON.stringify(initialGameState)); // Deep copy initial state
+// Initialize current state using the function
+let gameState = createInitialGameState();
 
 // --- Internal Helper ---
 function _calculateFocusSetHash() {
-    if (!gameState.focusedConcepts || gameState.focusedConcepts.size === 0) {
-        return '';
-    }
+    if (!gameState.focusedConcepts || gameState.focusedConcepts.size === 0) { return ''; }
     const sortedIds = Array.from(gameState.focusedConcepts).sort((a, b) => a - b);
     return sortedIds.join(',');
 }
 
 // --- Saving & Loading ---
 let saveTimeout = null;
-const SAVE_DELAY = 1000; // Save 1 second after the last change
+const SAVE_DELAY = 1000;
 
 function _triggerSave() {
      const saveIndicator = document.getElementById('saveIndicator');
      if(saveIndicator) saveIndicator.classList.remove('hidden');
-
      if (saveTimeout) clearTimeout(saveTimeout);
      saveTimeout = setTimeout(() => {
          try {
              const stateToSave = {
                  ...gameState,
-                 // Convert Maps and Sets to Arrays for JSON
-                 discoveredConcepts: Array.from(gameState.discoveredConcepts.entries()), // *** Ensure saving as array of [key, value] pairs ***
+                 discoveredConcepts: Array.from(gameState.discoveredConcepts.entries()),
                  focusedConcepts: Array.from(gameState.focusedConcepts),
                  achievedMilestones: Array.from(gameState.achievedMilestones),
                  seenPrompts: Array.from(gameState.seenPrompts),
@@ -73,19 +65,12 @@ function _triggerSave() {
                  unlockedFocusItems: Array.from(gameState.unlockedFocusItems)
              };
              localStorage.setItem(Config.SAVE_KEY, JSON.stringify(stateToSave));
-             // console.log("State saved."); // Can be noisy
-         } catch (error) {
-             console.error("Error saving game state:", error);
-         } finally {
-              if(saveIndicator) saveIndicator.classList.add('hidden');
-              saveTimeout = null;
-         }
+         } catch (error) { console.error("Error saving game state:", error); }
+         finally { if(saveIndicator) saveIndicator.classList.add('hidden'); saveTimeout = null; }
      }, SAVE_DELAY);
 }
 
-export function saveGameState() {
-    _triggerSave();
-}
+export function saveGameState() { _triggerSave(); }
 
 export function loadGameState() {
     console.log("Attempting to load game state...");
@@ -95,32 +80,43 @@ export function loadGameState() {
             const loadedState = JSON.parse(savedData);
             console.log("Saved data found.");
 
-            const freshState = JSON.parse(JSON.stringify(initialGameState));
+            // *** Start with a fresh default state ***
+            gameState = createInitialGameState();
 
-            // Ensure Maps and Sets are correctly reconstructed
-            const discoveredConceptsArray = Array.isArray(loadedState.discoveredConcepts) ? loadedState.discoveredConcepts : [];
-            const focusedConceptsArray = Array.isArray(loadedState.focusedConcepts) ? loadedState.focusedConcepts : [];
-            const achievedMilestonesArray = Array.isArray(loadedState.achievedMilestones) ? loadedState.achievedMilestones : []; // *** Get Array ***
-            const seenPromptsArray = Array.isArray(loadedState.seenPrompts) ? loadedState.seenPrompts : [];
-            const repoScenesArray = Array.isArray(loadedState.discoveredRepositoryItems?.scenes) ? loadedState.discoveredRepositoryItems.scenes : [];
-            const repoExperimentsArray = Array.isArray(loadedState.discoveredRepositoryItems?.experiments) ? loadedState.discoveredRepositoryItems.experiments : [];
-            const repoInsightsArray = Array.isArray(loadedState.discoveredRepositoryItems?.insights) ? loadedState.discoveredRepositoryItems.insights : [];
-            const unlockedFocusItemsArray = Array.isArray(loadedState.unlockedFocusItems) ? loadedState.unlockedFocusItems : [];
-
-            gameState = {
-                // ... (other properties) ...
-                discoveredConcepts: new Map(discoveredConceptsArray),
-                focusedConcepts: new Set(focusedConceptsArray),
-                achievedMilestones: new Set(achievedMilestonesArray), // *** Reconstruct Set ***
-                seenPrompts: new Set(seenPromptsArray),
-                discoveredRepositoryItems: {
-                    scenes: new Set(repoScenesArray),
-                    experiments: new Set(repoExperimentsArray),
-                    insights: new Set(repoInsightsArray),
-                },
-                unlockedFocusItems: new Set(unlockedFocusItemsArray),
-                // ... (rest of properties) ...
+            // *** Carefully merge loaded data onto the fresh state ***
+            gameState.userScores = typeof loadedState.userScores === 'object' && loadedState.userScores !== null ? { ...gameState.userScores, ...loadedState.userScores } : gameState.userScores;
+            gameState.userAnswers = typeof loadedState.userAnswers === 'object' && loadedState.userAnswers !== null ? loadedState.userAnswers : gameState.userAnswers; // Ensure userAnswers is loaded correctly
+            gameState.discoveredConcepts = new Map(Array.isArray(loadedState.discoveredConcepts) ? loadedState.discoveredConcepts : []);
+            gameState.focusedConcepts = new Set(Array.isArray(loadedState.focusedConcepts) ? loadedState.focusedConcepts : []);
+            gameState.focusSlotsTotal = typeof loadedState.focusSlotsTotal === 'number' ? loadedState.focusSlotsTotal : gameState.focusSlotsTotal;
+            gameState.userInsight = typeof loadedState.userInsight === 'number' ? loadedState.userInsight : gameState.userInsight;
+            gameState.elementAttunement = typeof loadedState.elementAttunement === 'object' && loadedState.elementAttunement !== null ? { ...gameState.elementAttunement, ...loadedState.elementAttunement } : gameState.elementAttunement;
+            gameState.unlockedDeepDiveLevels = typeof loadedState.unlockedDeepDiveLevels === 'object' && loadedState.unlockedDeepDiveLevels !== null ? { ...gameState.unlockedDeepDiveLevels, ...loadedState.unlockedDeepDiveLevels } : gameState.unlockedDeepDiveLevels;
+            gameState.achievedMilestones = new Set(Array.isArray(loadedState.achievedMilestones) ? loadedState.achievedMilestones : []);
+            gameState.completedRituals = typeof loadedState.completedRituals === 'object' && loadedState.completedRituals !== null ? loadedState.completedRituals : gameState.completedRituals;
+            gameState.lastLoginDate = typeof loadedState.lastLoginDate === 'string' ? loadedState.lastLoginDate : gameState.lastLoginDate;
+            gameState.freeResearchAvailableToday = typeof loadedState.freeResearchAvailableToday === 'boolean' ? loadedState.freeResearchAvailableToday : gameState.freeResearchAvailableToday;
+            gameState.seenPrompts = new Set(Array.isArray(loadedState.seenPrompts) ? loadedState.seenPrompts : []);
+            gameState.currentElementIndex = typeof loadedState.currentElementIndex === 'number' ? loadedState.currentElementIndex : gameState.currentElementIndex;
+            gameState.questionnaireCompleted = typeof loadedState.questionnaireCompleted === 'boolean' ? loadedState.questionnaireCompleted : gameState.questionnaireCompleted;
+            gameState.cardsAddedSinceLastPrompt = typeof loadedState.cardsAddedSinceLastPrompt === 'number' ? loadedState.cardsAddedSinceLastPrompt : gameState.cardsAddedSinceLastPrompt;
+            gameState.promptCooldownActive = typeof loadedState.promptCooldownActive === 'boolean' ? loadedState.promptCooldownActive : gameState.promptCooldownActive;
+            gameState.discoveredRepositoryItems = {
+                scenes: new Set(Array.isArray(loadedState.discoveredRepositoryItems?.scenes) ? loadedState.discoveredRepositoryItems.scenes : []),
+                experiments: new Set(Array.isArray(loadedState.discoveredRepositoryItems?.experiments) ? loadedState.discoveredRepositoryItems.experiments : []),
+                insights: new Set(Array.isArray(loadedState.discoveredRepositoryItems?.insights) ? loadedState.discoveredRepositoryItems.insights : []),
             };
+            gameState.pendingRarePrompts = Array.isArray(loadedState.pendingRarePrompts) ? loadedState.pendingRarePrompts : gameState.pendingRarePrompts;
+            gameState.unlockedFocusItems = new Set(Array.isArray(loadedState.unlockedFocusItems) ? loadedState.unlockedFocusItems : []);
+            gameState.contemplationCooldownEnd = typeof loadedState.contemplationCooldownEnd === 'number' ? loadedState.contemplationCooldownEnd : gameState.contemplationCooldownEnd;
+            gameState.onboardingPhase = typeof loadedState.onboardingPhase === 'number' ? loadedState.onboardingPhase : gameState.onboardingPhase;
+
+            // Ensure userAnswers object exists for all elements after loading
+            elementNames.forEach(name => {
+                if (!gameState.userAnswers[name]) {
+                    gameState.userAnswers[name] = {};
+                }
+            });
 
             gameState.currentFocusSetHash = _calculateFocusSetHash();
 
@@ -129,46 +125,24 @@ export function loadGameState() {
         } catch (error) {
             console.error("Error loading or parsing game state:", error);
             localStorage.removeItem(Config.SAVE_KEY);
-            gameState = JSON.parse(JSON.stringify(initialGameState)); // Reset to default
-             gameState.discoveredConcepts = new Map(); // Ensure Map after reset
-             gameState.focusedConcepts = new Set(); // Ensure Set after reset
-             gameState.achievedMilestones = new Set(); // Ensure Set after reset
-             gameState.seenPrompts = new Set(); // Ensure Set after reset
-             gameState.discoveredRepositoryItems = { scenes: new Set(), experiments: new Set(), insights: new Set() }; // Ensure Sets after reset
-             gameState.unlockedFocusItems = new Set(); // Ensure Set after reset
-            gameState.currentFocusSetHash = '';
+            gameState = createInitialGameState(); // Reset to default using the function
             return false;
         }
     } else {
         console.log("No saved game state found.");
-        gameState = JSON.parse(JSON.stringify(initialGameState)); // Ensure default state
-         gameState.discoveredConcepts = new Map(); // Ensure Map on fresh start
-         gameState.focusedConcepts = new Set(); // Ensure Set on fresh start
-         gameState.achievedMilestones = new Set(); // Ensure Set on fresh start
-         gameState.seenPrompts = new Set(); // Ensure Set on fresh start
-         gameState.discoveredRepositoryItems = { scenes: new Set(), experiments: new Set(), insights: new Set() }; // Ensure Sets on fresh start
-         gameState.unlockedFocusItems = new Set(); // Ensure Set on fresh start
-        gameState.currentFocusSetHash = '';
+        gameState = createInitialGameState(); // Ensure default state using the function
         return false;
     }
 }
 
 export function clearGameState() {
     localStorage.removeItem(Config.SAVE_KEY);
-    gameState = JSON.parse(JSON.stringify(initialGameState)); // Reset to default
-    // --- *** Ensure complex types are correctly initialized after reset *** ---
-    gameState.discoveredConcepts = new Map();
-    gameState.focusedConcepts = new Set();
-    gameState.achievedMilestones = new Set();
-    gameState.seenPrompts = new Set();
-    gameState.discoveredRepositoryItems = { scenes: new Set(), experiments: new Set(), insights: new Set() };
-    gameState.unlockedFocusItems = new Set();
-    gameState.currentFocusSetHash = '';
-    // --- *** End Ensure *** ---
+    gameState = createInitialGameState(); // Reset to default using the function
     console.log("Game state cleared and reset.");
 }
 
 // --- Getters ---
+// ... (All getters remain the same) ...
 export function getState() { return gameState; }
 export function getScores() { return gameState.userScores; }
 export function getAttunement() { return gameState.elementAttunement; }
@@ -184,6 +158,7 @@ export function getContemplationCooldownEnd() { return gameState.contemplationCo
 export function getOnboardingPhase() { return gameState.onboardingPhase; }
 export function isFreeResearchAvailable() { return gameState.freeResearchAvailableToday; }
 
+
 // --- Setters / Updaters (Trigger Save) ---
 export function updateScores(newScores) {
     gameState.userScores = { ...newScores };
@@ -195,7 +170,10 @@ export function saveAllAnswers(allAnswers) {
     saveGameState();
 }
 export function updateAnswers(elementName, answersForElement) {
+    // *** Ensure the property exists before trying to spread into it ***
+    if (!gameState.userAnswers) { gameState.userAnswers = {}; } // Initialize if missing
     if (!gameState.userAnswers[elementName]) { gameState.userAnswers[elementName] = {}; }
+    // *** End Ensure ***
     gameState.userAnswers[elementName] = { ...answersForElement };
     // No save here, saved implicitly by other actions
 }
@@ -208,7 +186,6 @@ export function setQuestionnaireComplete() {
     if (!gameState.questionnaireCompleted) {
         gameState.questionnaireCompleted = true;
         advanceOnboardingPhase(Config.ONBOARDING_PHASE.PERSONA_GRIMOIRE); // Progress phase
-        // Save now handled by finalizeQuestionnaire
     }
     return true;
 }
@@ -236,13 +213,7 @@ export function updateAttunement(elementKey, amount) {
     return false;
 }
 export function addDiscoveredConcept(conceptId, conceptData) {
-    // *** Check if it's actually a Map before calling .has() ***
-    if (!(gameState.discoveredConcepts instanceof Map)) {
-        console.error("CRITICAL ERROR: gameState.discoveredConcepts is not a Map in addDiscoveredConcept! Reinitializing.");
-        gameState.discoveredConcepts = new Map(); // Attempt recovery
-    }
-    // *** End Check ***
-
+    if (!(gameState.discoveredConcepts instanceof Map)) { console.error("CRITICAL ERROR: gameState.discoveredConcepts is not a Map in addDiscoveredConcept!"); gameState.discoveredConcepts = new Map(); }
     if (!gameState.discoveredConcepts.has(conceptId)) {
         gameState.discoveredConcepts.set(conceptId, { concept: conceptData, discoveredTime: Date.now(), artUnlocked: false, notes: "" });
         if (gameState.onboardingPhase < Config.ONBOARDING_PHASE.STUDY_INSIGHT && gameState.discoveredConcepts.size >= 1) { advanceOnboardingPhase(Config.ONBOARDING_PHASE.STUDY_INSIGHT); }
@@ -252,10 +223,7 @@ export function addDiscoveredConcept(conceptId, conceptData) {
     return false;
 }
 export function removeDiscoveredConcept(conceptId) {
-    if (!(gameState.discoveredConcepts instanceof Map)) {
-        console.error("CRITICAL ERROR: gameState.discoveredConcepts is not a Map in removeDiscoveredConcept! Cannot remove.");
-        return false; // Prevent further errors
-    }
+    if (!(gameState.discoveredConcepts instanceof Map)) { console.error("CRITICAL ERROR: gameState.discoveredConcepts is not a Map in removeDiscoveredConcept!"); return false; }
     if (gameState.discoveredConcepts.has(conceptId)) {
         gameState.discoveredConcepts.delete(conceptId);
         if (gameState.focusedConcepts.has(conceptId)) { gameState.focusedConcepts.delete(conceptId); gameState.currentFocusSetHash = _calculateFocusSetHash(); }
@@ -265,10 +233,7 @@ export function removeDiscoveredConcept(conceptId) {
     return false;
 }
 export function toggleFocusConcept(conceptId) {
-     if (!(gameState.discoveredConcepts instanceof Map)) {
-          console.error("CRITICAL ERROR: gameState.discoveredConcepts is not a Map in toggleFocusConcept!");
-          return 'not_discovered'; // Treat as not discovered if map is broken
-     }
+     if (!(gameState.discoveredConcepts instanceof Map)) { console.error("CRITICAL ERROR: gameState.discoveredConcepts is not a Map in toggleFocusConcept!"); return 'not_discovered'; }
     if (!gameState.discoveredConcepts.has(conceptId)) return 'not_discovered';
     let result;
     if (gameState.focusedConcepts.has(conceptId)) { gameState.focusedConcepts.delete(conceptId); result = 'removed'; }
@@ -287,19 +252,13 @@ export function increaseFocusSlots(amount = 1) {
     return false;
 }
 export function updateNotes(conceptId, notes) {
-     if (!(gameState.discoveredConcepts instanceof Map)) {
-          console.error("CRITICAL ERROR: gameState.discoveredConcepts is not a Map in updateNotes!");
-          return false;
-     }
+     if (!(gameState.discoveredConcepts instanceof Map)) { console.error("CRITICAL ERROR: gameState.discoveredConcepts is not a Map in updateNotes!"); return false; }
     const data = gameState.discoveredConcepts.get(conceptId);
     if (data) { data.notes = notes; gameState.discoveredConcepts.set(conceptId, data); saveGameState(); return true; }
     return false;
 }
 export function unlockArt(conceptId) {
-     if (!(gameState.discoveredConcepts instanceof Map)) {
-          console.error("CRITICAL ERROR: gameState.discoveredConcepts is not a Map in unlockArt!");
-          return false;
-     }
+     if (!(gameState.discoveredConcepts instanceof Map)) { console.error("CRITICAL ERROR: gameState.discoveredConcepts is not a Map in unlockArt!"); return false; }
     const data = gameState.discoveredConcepts.get(conceptId);
     if (data && !data.artUnlocked) {
         data.artUnlocked = true; gameState.discoveredConcepts.set(conceptId, data);
@@ -338,9 +297,9 @@ export function markRitualComplete(ritualId, period = 'daily') {
     if (gameState.completedRituals[period]?.[ritualId]) { gameState.completedRituals[period][ritualId].completed = true; saveGameState(); }
 }
 export function addAchievedMilestone(milestoneId) {
+    if (!(gameState.achievedMilestones instanceof Set)) { console.error("CRITICAL ERROR: gameState.achievedMilestones is not a Set!"); gameState.achievedMilestones = new Set();} // Defensive init
     if (!gameState.achievedMilestones.has(milestoneId)) {
         gameState.achievedMilestones.add(milestoneId);
-        // Auto-advance onboarding phase based on milestones
         if (milestoneId === 'ms01' && gameState.onboardingPhase < Config.ONBOARDING_PHASE.PERSONA_GRIMOIRE) advanceOnboardingPhase(Config.ONBOARDING_PHASE.PERSONA_GRIMOIRE);
         if (milestoneId === 'ms03' && gameState.onboardingPhase < Config.ONBOARDING_PHASE.PERSONA_GRIMOIRE) advanceOnboardingPhase(Config.ONBOARDING_PHASE.PERSONA_GRIMOIRE);
         if (milestoneId === 'ms05' && gameState.onboardingPhase < Config.ONBOARDING_PHASE.STUDY_INSIGHT) advanceOnboardingPhase(Config.ONBOARDING_PHASE.STUDY_INSIGHT);
@@ -352,24 +311,25 @@ export function addAchievedMilestone(milestoneId) {
     return false;
 }
 export function addSeenPrompt(promptId) {
+     if (!(gameState.seenPrompts instanceof Set)) { console.error("CRITICAL ERROR: gameState.seenPrompts is not a Set!"); gameState.seenPrompts = new Set();}
     gameState.seenPrompts.add(promptId); saveGameState();
 }
 export function incrementReflectionTrigger() {
-    gameState.cardsAddedSinceLastPrompt++; // No save here
+    gameState.cardsAddedSinceLastPrompt++;
 }
-export function resetReflectionTrigger(startCooldown = false) { // Renamed
+export function resetReflectionTrigger(startCooldown = false) {
     gameState.cardsAddedSinceLastPrompt = 0;
-    if (startCooldown) { setPromptCooldownActive(true); } // Call setter
-    // No save here
+    if (startCooldown) { setPromptCooldownActive(true); }
 }
-export function setPromptCooldownActive(isActive) { // Added separate setter
+export function setPromptCooldownActive(isActive) {
     gameState.promptCooldownActive = isActive;
     // Save state handled by gameLogic cooldown timeout or other actions
 }
-export function clearReflectionCooldown() { // Maintained for potential direct use
+export function clearReflectionCooldown() {
     gameState.promptCooldownActive = false; saveGameState();
 }
 export function addRepositoryItem(itemType, itemId) {
+    if (!(gameState.discoveredRepositoryItems[itemType] instanceof Set)) { console.error(`CRITICAL ERROR: gameState.discoveredRepositoryItems.${itemType} is not a Set!`); gameState.discoveredRepositoryItems[itemType] = new Set();}
     if (gameState.discoveredRepositoryItems[itemType] && !gameState.discoveredRepositoryItems[itemType].has(itemId)) {
         gameState.discoveredRepositoryItems[itemType].add(itemId);
         const repoNotEmpty = Object.values(gameState.discoveredRepositoryItems).some(set => set.size > 0);
@@ -380,14 +340,17 @@ export function addRepositoryItem(itemType, itemId) {
     return false;
 }
 export function addPendingRarePrompt(promptId) {
+    if (!Array.isArray(gameState.pendingRarePrompts)) {console.error("CRITICAL ERROR: gameState.pendingRarePrompts is not an Array!"); gameState.pendingRarePrompts = [];}
     if (!gameState.pendingRarePrompts.includes(promptId)) { gameState.pendingRarePrompts.push(promptId); saveGameState(); return true; }
     return false;
 }
 export function getNextRarePrompt() {
+    if (!Array.isArray(gameState.pendingRarePrompts)) {console.error("CRITICAL ERROR: gameState.pendingRarePrompts is not an Array!"); gameState.pendingRarePrompts = []; return null;}
     if (gameState.pendingRarePrompts.length > 0) { const promptId = gameState.pendingRarePrompts.shift(); saveGameState(); return promptId; }
     return null;
 }
 export function addUnlockedFocusItem(unlockId) {
+    if (!(gameState.unlockedFocusItems instanceof Set)) { console.error("CRITICAL ERROR: gameState.unlockedFocusItems is not a Set!"); gameState.unlockedFocusItems = new Set();}
     if (!gameState.unlockedFocusItems.has(unlockId)) {
         gameState.unlockedFocusItems.add(unlockId);
         if (gameState.onboardingPhase < Config.ONBOARDING_PHASE.ADVANCED) { advanceOnboardingPhase(Config.ONBOARDING_PHASE.ADVANCED); }
