@@ -769,10 +769,9 @@ function attemptExperiment(experimentId) {
          return;
      }
      const cost = Config.SCENE_SUGGESTION_COST;
-     if (!spendInsight(cost, "Suggest Scene")) {
-         return;
-     }
-
+   if (!spendInsight(cost, "Suggest Scene")) {
+        return;
+    }
      console.log("Suggesting scenes based on focus...");
      const { focusScores } = calculateFocusScores();
      const discoveredScenes = State.getRepositoryItems().scenes;
@@ -795,24 +794,35 @@ function attemptExperiment(experimentId) {
          topElements.includes(scene.element) && !discoveredScenes.has(scene.id)
      );
 
-     if (relevantUndiscoveredScenes.length === 0) {
-         UI.showTemporaryMessage("All relevant scenes for this focus have been discovered.", 3500);
-     } else {
-         const selectedScene = relevantUndiscoveredScenes[Math.floor(Math.random() * relevantUndiscoveredScenes.length)];
-         if (State.addRepositoryItem('scenes', selectedScene.id)) {
-             console.log(`Suggested Scene: ${selectedScene.name} (ID: ${selectedScene.id})`);
-             UI.showTemporaryMessage(`Scene Suggested: '${selectedScene.name}' added to Repository!`, 4000);
-             if (document.getElementById('repositoryScreen')?.classList.contains('current')) {
-                 UI.displayRepositoryContent();
-             }
-         } else {
-             console.error(`Failed to add scene ${selectedScene.id} to repository state.`);
-             gainInsight(cost, "Refund: Scene Suggestion Error");
-             UI.showTemporaryMessage("Error suggesting scene.", 3000);
-         }
-     }
-     // Button state update handled by spendInsight -> updateInsightDisplays -> updateSuggestSceneButtonState
- }
+      if (relevantUndiscoveredScenes.length === 0) {
+        UI.showTemporaryMessage("All relevant scenes for this focus have been discovered.", 3500);
+         // Refund insight if no scene found? Optional.
+         // gainInsight(cost, "Refund: No scenes to suggest");
+    } else {
+        const selectedScene = relevantUndiscoveredScenes[Math.floor(Math.random() * relevantUndiscoveredScenes.length)];
+        // --- MODIFICATION START ---
+        const added = State.addRepositoryItem('scenes', selectedScene.id); // This might advance phase internally
+        if (added) {
+            console.log(`Suggested Scene: ${selectedScene.name} (ID: ${selectedScene.id})`);
+            UI.showTemporaryMessage(`Scene Suggested: '${selectedScene.name}' added to Repository!`, 4000);
+
+            // *** Explicitly apply phase UI and refresh repository if needed ***
+            UI.applyOnboardingPhaseUI(State.getOnboardingPhase());
+            if (document.getElementById('repositoryScreen')?.classList.contains('current')) {
+                UI.displayRepositoryContent();
+            }
+            // *** End explicit UI update ***
+
+        } else {
+            console.error(`Failed to add scene ${selectedScene.id} to repository state.`);
+            gainInsight(cost, "Refund: Scene Suggestion Error"); // Refund on state error
+            UI.showTemporaryMessage("Error suggesting scene.", 3000);
+        }
+        // --- MODIFICATION END ---
+    }
+    // Button state update handled by spendInsight -> updateInsightDisplays -> updateSuggestSceneButtonState
+}
+
 
 // --- Rituals & Milestones Logic (Helper) ---
  function checkAndUpdateRituals(action, details = {}) {
