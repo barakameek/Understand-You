@@ -192,7 +192,7 @@ function calculateElementScore(elementName, answersForElement) {
     console.log("Final User Scores:", State.getScores());
 
     UI.showScreen('personaScreen'); // Show Persona screen after setup
-    UI.showTemporaryMessage("Experiment Complete! Explore results.", 4000);
+    UI.showTemporaryMessage("Experiment Complete! Explore your results.", 4000);
 }
 
 // --- Starter Hand ---
@@ -455,21 +455,48 @@ function determineStarterHandAndEssence() {
 
 // Reflection Logic
  function checkTriggerReflectionPrompt(triggerAction = 'other') {
-    const currentState = State.getState(); if (currentState.promptCooldownActive) return; if (currentState.onboardingPhase < Config.ONBOARDING_PHASE.REFLECTION_RITUALS) return; // Check phase
-    if (triggerAction === 'add') State.incrementReflectionTrigger(); if (triggerAction === 'completeQuestionnaire') { State.incrementReflectionTrigger(); State.incrementReflectionTrigger(); State.incrementReflectionTrigger(); }
-    const cardsAdded = currentState.cardsAddedSinceLastPrompt; const triggerThresh = 3; const hasPending = currentState.pendingRarePrompts.length > 0;
-    if (hasPending) { console.log("Pending rare prompt found."); triggerReflectionPrompt('RareConcept'); State.resetReflectionTrigger(true); startReflectionCooldown(); }
-    else if (cardsAdded >= triggerThresh) { console.log("Reflection trigger threshold met."); triggerReflectionPrompt('Standard'); State.resetReflectionTrigger(true); startReflectionCooldown(); }
+    const currentState = State.getState();
+    if (currentState.promptCooldownActive) return;
+    if (currentState.onboardingPhase < Config.ONBOARDING_PHASE.REFLECTION_RITUALS) return; // Check phase
+    if (triggerAction === 'add') State.incrementReflectionTrigger();
+    if (triggerAction === 'completeQuestionnaire') { State.incrementReflectionTrigger(); State.incrementReflectionTrigger(); State.incrementReflectionTrigger(); }
+    const cardsAdded = currentState.cardsAddedSinceLastPrompt;
+    const triggerThresh = 3;
+    const hasPending = currentState.pendingRarePrompts.length > 0;
+    if (hasPending) {
+        console.log("Pending rare prompt found.");
+        triggerReflectionPrompt('RareConcept'); // Logic will shift the prompt from state
+        State.resetReflectionTrigger(true); // Reset counter, start cooldown
+        startReflectionCooldown();
+    }
+    else if (cardsAdded >= triggerThresh) {
+        console.log("Reflection trigger threshold met.");
+        triggerReflectionPrompt('Standard');
+        State.resetReflectionTrigger(true); // Reset counter, start cooldown
+        startReflectionCooldown();
+    }
 }
- function startReflectionCooldown() { if (reflectionCooldownTimeout) clearTimeout(reflectionCooldownTimeout);
-    State.clearReflectionCooldown(); // Ensure flag is false initially
-    State.resetReflectionTrigger(false); // Reset counter
+ function startReflectionCooldown() {
+    if (reflectionCooldownTimeout) clearTimeout(reflectionCooldownTimeout);
     State.setPromptCooldownActive(true); // Set flag in state
-    reflectionCooldownTimeout = setTimeout(() => { State.setPromptCooldownActive(false); console.log("Reflection cooldown ended."); reflectionCooldownTimeout = null; State.saveGameState(); }, 1000 * 60 * 3); // 3 min, save state when done
-}
+    reflectionCooldownTimeout = setTimeout(() => {
+        State.setPromptCooldownActive(false);
+        console.log("Reflection cooldown ended.");
+        reflectionCooldownTimeout = null;
+        State.saveGameState(); // Save the end of the cooldown
+    }, 1000 * 60 * 3); // 3 min
+ }
  function triggerReflectionPrompt(context = 'Standard', targetId = null, category = null) {
-    currentReflectionContext = context; reflectionTargetConceptId = (context === 'Dissonance' || context === 'SceneMeditation') ? targetId : null; currentReflectionCategory = category; currentPromptId = null; // Reset prompt ID
-    let promptPool = []; let title = "Moment for Reflection"; let promptCatLabel = "General"; let selPrompt = null; let showNudge = false; let reward = 5.0;
+    currentReflectionContext = context;
+    reflectionTargetConceptId = (context === 'Dissonance' || context === 'SceneMeditation') ? targetId : null;
+    currentReflectionCategory = category;
+    currentPromptId = null; // Reset prompt ID
+    let promptPool = [];
+    let title = "Moment for Reflection";
+    let promptCatLabel = "General";
+    let selPrompt = null;
+    let showNudge = false;
+    let reward = 5.0;
     console.log(`Trigger reflection: Context=${context}, Target=${targetId}, Category=${category}`);
 
     // Prioritize Rare prompts if available (and not dissonance)
@@ -485,18 +512,26 @@ function determineStarterHandAndEssence() {
                 currentPromptId = selPrompt.id; // Set the ID
                 reward = 7.0;
                 console.log(`Displaying Rare reflection: ${nextRareId}`);
-            } else { console.warn(`Rare prompt text missing: ${nextRareId}`); currentReflectionContext = 'Standard'; /* Fallback */ }
+            } else {
+                console.warn(`Rare prompt text missing: ${nextRareId}`);
+                currentReflectionContext = 'Standard'; // Fallback
+            }
         }
     }
 
     // Determine prompt based on context if no rare prompt was selected
     if (!selPrompt) {
         if (context === 'Dissonance' && targetId) {
-            title = "Dissonance Reflection"; const concept = concepts.find(c => c.id === targetId);
-            promptCatLabel = concept ? concept.name : "Dissonant"; promptPool = reflectionPrompts.Dissonance || []; showNudge = true;
+            title = "Dissonance Reflection";
+            const concept = concepts.find(c => c.id === targetId);
+            promptCatLabel = concept ? concept.name : "Dissonant";
+            promptPool = reflectionPrompts.Dissonance || [];
+            showNudge = true;
             console.log(`Looking for Dissonance prompt for ${promptCatLabel}`);
         } else if (context === 'Guided' && category) {
-            title = "Guided Reflection"; promptCatLabel = category; promptPool = reflectionPrompts.Guided?.[category] || [];
+            title = "Guided Reflection";
+            promptCatLabel = category;
+            promptPool = reflectionPrompts.Guided?.[category] || [];
             reward = Config.GUIDED_REFLECTION_COST + 2;
             console.log(`Looking for Guided prompt: ${category}`);
         } else if (context === 'SceneMeditation' && targetId) {
@@ -504,28 +539,39 @@ function determineStarterHandAndEssence() {
             if (scene?.reflectionPromptId) {
                 selPrompt = reflectionPrompts.SceneMeditation?.[scene.reflectionPromptId];
                 if (selPrompt) {
-                    title = "Scene Meditation"; promptCatLabel = scene.name; currentPromptId = selPrompt.id; // Set the ID
+                    title = "Scene Meditation";
+                    promptCatLabel = scene.name;
+                    currentPromptId = selPrompt.id; // Set the ID
                     reward = (scene.meditationCost || Config.SCENE_MEDITATION_BASE_COST) + 5;
                     console.log(`Displaying Scene Meditation: ${currentPromptId}`);
-                } else { console.warn(`Scene prompt ${scene.reflectionPromptId} missing.`); currentReflectionContext = 'Standard'; /* Fallback */ }
-            } else { console.warn(`Scene ${targetId} or prompt ID missing.`); currentReflectionContext = 'Standard'; /* Fallback */ }
+                } else {
+                    console.warn(`Scene prompt ${scene.reflectionPromptId} missing.`);
+                    currentReflectionContext = 'Standard'; // Fallback
+                }
+            } else {
+                console.warn(`Scene ${targetId} or prompt ID missing.`);
+                currentReflectionContext = 'Standard'; // Fallback
+            }
         }
-
         // Standard prompt selection if no specific prompt found yet
-        if (!selPrompt && currentReflectionContext === 'Standard') {
-            title = "Standard Reflection"; const attune = State.getAttunement();
+        else if (currentReflectionContext === 'Standard') { // Use 'else if' to avoid running after SceneMeditation fallback
+            title = "Standard Reflection";
+            const attune = State.getAttunement();
             const validElems = Object.entries(attune).filter(([k, v]) => v > 0).sort(([,a], [,b]) => b - a); // Sort by attunement desc
             if (validElems.length > 0) {
-                // Prioritize higher attunement elements slightly
                 const topTier = validElems.slice(0, Math.ceil(validElems.length / 2));
                 const [selKey] = topTier.length > 0 ? topTier[Math.floor(Math.random() * topTier.length)] : validElems[Math.floor(Math.random() * validElems.length)];
                 const selName = elementKeyToFullName[selKey];
-                promptPool = reflectionPrompts[selName] || []; promptCatLabel = elementDetails[selName]?.name || selName; currentReflectionCategory = selName; // Store category for attunement reward
+                promptPool = reflectionPrompts[selName] || [];
+                promptCatLabel = elementDetails[selName]?.name || selName;
+                currentReflectionCategory = selName; // Store category for attunement reward
                 console.log(`Looking for Standard prompt: ${promptCatLabel}`);
-            } else { promptPool = []; console.warn("No attunement > 0 for Standard reflection."); }
+            } else {
+                promptPool = [];
+                console.warn("No attunement > 0 for Standard reflection.");
+            }
         }
     }
-
 
     // Select from pool if not already selected (and pool exists)
     if (!selPrompt && promptPool.length > 0) {
@@ -537,16 +583,22 @@ function determineStarterHandAndEssence() {
     }
 
     // Display or handle failure
-    if (selPrompt) { const pData = { title, category: promptCatLabel, prompt: selPrompt, showNudge, reward }; UI.displayReflectionPrompt(pData, currentReflectionContext); }
-    else {
+    if (selPrompt) {
+        const pData = { title, category: promptCatLabel, prompt: selPrompt, showNudge, reward };
+        UI.displayReflectionPrompt(pData, currentReflectionContext);
+    } else {
         console.error(`Could not select prompt for ${context}`);
         if (context === 'Dissonance' && reflectionTargetConceptId) {
             console.warn("Dissonance reflection fail, adding concept.");
             addConceptToGrimoireInternal(reflectionTargetConceptId);
-            UI.hidePopups(); UI.showTemporaryMessage("Reflection unavailable, added concept.", 3500);
+            UI.hidePopups();
+            UI.showTemporaryMessage("Reflection unavailable, added concept.", 3500);
         } else if (context === 'Guided') {
-            gainInsight(Config.GUIDED_REFLECTION_COST, "Refund: No guided prompt"); UI.showTemporaryMessage("No guided reflections available.", 3000);
-        } else { UI.showTemporaryMessage("No reflection prompt found.", 3000); }
+            gainInsight(Config.GUIDED_REFLECTION_COST, "Refund: No guided prompt");
+            UI.showTemporaryMessage("No guided reflections available.", 3000);
+        } else {
+            UI.showTemporaryMessage("No reflection prompt found.", 3000);
+        }
         clearPopupState(); // Clear context if failed
     }
 }
@@ -797,7 +849,6 @@ function attemptExperiment(experimentId) {
     const currentHash = State.getCurrentFocusSetHash();
     const stateHash = State.getState().currentFocusSetHash;
 
-    // If analysis exists, not forced, AND the focus set hasn't changed, return stored HTML
     if (currentTapestryAnalysis && !forceRecalculate && currentHash === stateHash) {
         return currentTapestryAnalysis.fullNarrativeHTML;
     }
@@ -805,14 +856,13 @@ function attemptExperiment(experimentId) {
     const focused = State.getFocusedConcepts();
     const focusCount = focused.size;
     if (focusCount === 0) {
-        currentTapestryAnalysis = null; // Clear analysis if no focus
+        currentTapestryAnalysis = null;
         return 'Mark concepts as "Focus" from the Grimoire to weave your narrative.';
     }
 
     const disc = State.getDiscoveredConcepts();
     const { focusScores } = calculateFocusScores(); // Get average scores
 
-    // Initialize analysis object
     const analysis = {
         dominantElements: [], elementThemes: [], dominantCardTypes: [],
         cardTypeThemes: [], synergies: [], tensions: [],
@@ -885,8 +935,9 @@ function attemptExperiment(experimentId) {
     currentTapestryAnalysis = analysis; // Cache the full analysis object
     console.log("Recalculated Tapestry Analysis:", currentTapestryAnalysis);
 
-    return analysis.fullNarrativeHTML; // Return only the HTML string for direct display
+    return analysis.fullNarrativeHTML; // Return only the HTML string
 }
+
 
  function calculateFocusThemes() { // Used for simple theme list, unchanged
      const focused = State.getFocusedConcepts(); const disc = State.getDiscoveredConcepts(); if (focused.size === 0) return [];
@@ -904,13 +955,13 @@ function checkForFocusUnlocks(silent = false) {
          if (unlocked.has(unlock.id)) return; let met = true; if (!unlock.requiredFocusIds || unlock.requiredFocusIds.length === 0) met = false; else { for (const reqId of unlock.requiredFocusIds) { if (!focused.has(reqId)) { met = false; break; } } }
          if (met) { console.log(`Met reqs for ${unlock.id}`); if (State.addUnlockedFocusItem(unlock.id)) { newlyUnlocked = true; const item = unlock.unlocks; let name = item.name || `ID ${item.id}`; let notif = unlock.description || `Unlocked ${name}`;
                  if (item.type === 'scene') { if (State.addRepositoryItem('scenes', item.id)) { console.log(`Unlocked Scene: ${name}`); notif += ` View in Repo.`; } else notif += ` (Already Discovered)`; }
-                 else if (item.type === 'experiment') { console.log(`Unlocked Exp: ${name}.`); notif += ` Check Repo.`; } // Experiments aren't added to repo state on unlock, just discoverability
+                 else if (item.type === 'experiment') { console.log(`Unlocked Exp: ${name}.`); notif += ` Check Repo.`; } // Experiments aren't added to repo state on unlock
                  else if (item.type === 'insightFragment') { if (State.addRepositoryItem('insights', item.id)) { const iData = elementalInsights.find(i => i.id === item.id); name = iData ? `"${iData.text}"` : `ID ${item.id}`; console.log(`Unlocked Insight: ${item.id}`); notif += ` View in Repo.`; updateMilestoneProgress('repositoryInsightsCount', State.getRepositoryItems().insights.size); } else notif += ` (Already Discovered)`; }
                  if (!silent) UI.showTemporaryMessage(`Focus Synergy: ${notif}`, 5000);
              }
          }
      });
-     if (newlyUnlocked && !silent) { console.log("New Focus Unlocks:", Array.from(State.getUnlockedFocusItems())); if (document.getElementById('repositoryScreen')?.classList.contains('current')) UI.displayRepositoryContent(); if (document.getElementById('personaScreen')?.classList.contains('current')) UI.generateTapestryNarrative(); } // Regenerate narrative if persona screen active
+     if (newlyUnlocked && !silent) { console.log("New Focus Unlocks:", Array.from(State.getUnlockedFocusItems())); if (document.getElementById('repositoryScreen')?.classList.contains('current')) UI.displayRepositoryContent(); if (document.getElementById('personaScreen')?.classList.contains('current')) UI.generateTapestryNarrative(); }
 }
 
 
@@ -1084,7 +1135,7 @@ function generateFocusedContemplation() {
     return task;
 }
 
-// --- handleCompleteContemplation (Grants button reward only) ---
+// --- MODIFIED handleCompleteContemplation (Grants button reward only) ---
  function handleCompleteContemplation(task) {
     if (!task || !task.reward || !task.requiresCompletionButton) return; // Check if completion needed
     console.log(`Contemplation task completed: ${task.type}`);
@@ -1095,6 +1146,69 @@ function generateFocusedContemplation() {
     UI.showTemporaryMessage("Contemplation complete!", 2500);
     UI.clearContemplationTask(); // Clears UI and updates button state via UI function
 }
+
+
+// --- NEW: Suggest Scenes ---
+ function handleSuggestSceneClick() {
+     const focused = State.getFocusedConcepts();
+     if (focused.size === 0) {
+         UI.showTemporaryMessage("Focus on concepts first to suggest relevant scenes.", 3000);
+         return;
+     }
+     const cost = Config.SCENE_SUGGESTION_COST;
+     if (!spendInsight(cost, "Suggest Scene")) {
+         // spendInsight already shows "not enough insight" message
+         return;
+     }
+
+     console.log("Suggesting scenes based on focus...");
+     const { focusScores } = calculateFocusScores();
+     const discoveredScenes = State.getRepositoryItems().scenes;
+
+     // Find top 1-2 dominant elements from focus (score > 4.0)
+     const sortedElements = Object.entries(focusScores)
+         .filter(([key, score]) => score > 4.0)
+         .sort(([, a], [, b]) => b - a);
+
+     const topElements = sortedElements.slice(0, 2).map(([key]) => key);
+     if (topElements.length === 0 && sortedElements.length > 0) {
+         topElements.push(sortedElements[0][0]); // Fallback to the single highest if none are > 4.0
+     } else if (topElements.length === 0) {
+          UI.showTemporaryMessage("Focus is too balanced to suggest specific scenes.", 3000);
+          return; // No dominant elements to base suggestion on
+     }
+
+     console.log("Dominant focus elements for scene suggestion:", topElements);
+
+     // Filter available scenes
+     const relevantUndiscoveredScenes = sceneBlueprints.filter(scene =>
+         topElements.includes(scene.element) && // Match top elements
+         !discoveredScenes.has(scene.id) // Not already discovered
+     );
+
+     if (relevantUndiscoveredScenes.length === 0) {
+         UI.showTemporaryMessage("All relevant scenes for this focus have been discovered.", 3500);
+     } else {
+         // Select one randomly
+         const selectedScene = relevantUndiscoveredScenes[Math.floor(Math.random() * relevantUndiscoveredScenes.length)];
+         if (State.addRepositoryItem('scenes', selectedScene.id)) {
+             console.log(`Suggested Scene: ${selectedScene.name} (ID: ${selectedScene.id})`);
+             UI.showTemporaryMessage(`Scene Suggested: '${selectedScene.name}' added to Repository!`, 4000);
+             // Update repo UI if visible
+             if (document.getElementById('repositoryScreen')?.classList.contains('current')) {
+                 UI.displayRepositoryContent();
+             }
+         } else {
+             // Should not happen if filtering is correct, but handle defensively
+             console.error(`Failed to add scene ${selectedScene.id} to repository state.`);
+             gainInsight(cost, "Refund: Scene Suggestion Error"); // Refund if state update failed
+             UI.showTemporaryMessage("Error suggesting scene.", 3000);
+         }
+     }
+     // Update button states (e.g., insight cost) - done via gainInsight/spendInsight triggering UI update
+     // UI.updateInsightDisplays(); // No need to call explicitly here
+     // UI.updateSuggestSceneButtonState(); // Also handled by UI.updateInsightDisplays
+ }
 
 
 // --- EXPORTS ---
@@ -1130,7 +1244,7 @@ export {
     showTapestryDeepDive, handleDeepDiveNodeClick, handleContemplationNodeClick,
     handleCompleteContemplation,
     // Suggest Scenes (NEW)
-    handleSuggestSceneClick
+    handleSuggestSceneClick // *** Ensure this is exported ***
 };
 
 console.log("gameLogic.js loaded.");
