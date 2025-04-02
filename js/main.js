@@ -8,7 +8,7 @@ console.log("main.js loading...");
 
 // --- Initialization ---
 function initializeApp() {
-    console.log("Initializing Persona Alchemy Lab v13+...");
+    console.log("Initializing Persona Alchemy Lab v14+...");
 
     // Attempt to load game state first
     const loaded = State.loadGameState();
@@ -26,6 +26,7 @@ function initializeApp() {
               UI.populateGrimoireFilters(); // Populate filters
               // Prepare Grimoire display data *before* showing screen
               UI.refreshGrimoireDisplay(); // Call this to ensure grimoire is ready
+              UI.setupInitialUI(); // Ensure UI elements like Suggest Scene button state are set
               // Initial screen display will be handled by showScreen
               UI.showScreen('personaScreen'); // Default to Persona screen after load
               UI.hidePopups(); // Ensure no popups are stuck open
@@ -82,6 +83,7 @@ function attachEventListeners() {
                     UI.updateGrimoireCounter();
                     UI.populateGrimoireFilters();
                     UI.refreshGrimoireDisplay(); // Render grimoire content after load
+                    UI.setupInitialUI(); // Re-apply initial states for buttons etc.
                     UI.showScreen('personaScreen');
                     UI.hidePopups();
                 }
@@ -104,12 +106,6 @@ function attachEventListeners() {
             button.addEventListener('click', () => {
                 const target = button.dataset.target;
                 if (target) {
-                    // Call specific logic wrappers if needed before showing screen
-                    if (target === 'personaScreen') {
-                        GameLogic.displayPersonaScreenLogic(); // Use logic wrapper
-                    } else if (target === 'studyScreen') {
-                        GameLogic.displayStudyScreenLogic(); // Use logic wrapper
-                    }
                     // Let showScreen handle the actual screen switch and other general updates
                     UI.showScreen(target);
                 }
@@ -125,7 +121,6 @@ function attachEventListeners() {
     const closeReflectionBtn = document.getElementById('closeReflectionModalButton');
     const closeSettingsBtn = document.getElementById('closeSettingsPopupButton');
     const closeMilestoneBtn = document.getElementById('closeMilestoneAlertButton');
-    // *** ADD close button for deep dive ***
     const closeDeepDiveBtn = document.getElementById('closeDeepDiveButton');
 
     if (closePopupBtn) closePopupBtn.addEventListener('click', UI.hidePopups);
@@ -133,12 +128,9 @@ function attachEventListeners() {
     if (closeReflectionBtn) closeReflectionBtn.addEventListener('click', UI.hidePopups);
     if (closeSettingsBtn) closeSettingsBtn.addEventListener('click', UI.hidePopups);
     if (closeMilestoneBtn) closeMilestoneBtn.addEventListener('click', UI.hideMilestoneAlert);
-    // *** ADD listener for deep dive close ***
-    if (closeDeepDiveBtn) {
-        closeDeepDiveBtn.addEventListener('click', UI.hidePopups);
-    } else {
-        console.warn("Deep Dive Modal Close Button not found.");
-    }
+    if (closeDeepDiveBtn) closeDeepDiveBtn.addEventListener('click', UI.hidePopups);
+    else console.warn("Deep Dive Modal Close Button not found.");
+
 
     // Concept Detail Popup Actions (Event Delegation on Popup Actions Div)
     const popupActionsDiv = document.querySelector('#conceptDetailPopup .popup-actions');
@@ -155,7 +147,6 @@ function attachEventListeners() {
                } else if (button.classList.contains('popup-sell-button') && conceptId !== null) { // Target sell button by class
                     GameLogic.handleSellConcept(event); // Pass event to get context
                }
-               // Add other popup button handlers here if needed
          });
     }
 
@@ -173,8 +164,11 @@ function attachEventListeners() {
     const grimoireContent = document.getElementById('grimoireContent');
     if (grimoireContent) {
         grimoireContent.addEventListener('click', (event) => {
-            if (event.target.matches('.card-sell-button')) {
-                 event.stopPropagation(); GameLogic.handleSellConcept(event);
+            // Find the closest button element that matches the sell button class
+            const sellButton = event.target.closest('.card-sell-button');
+            if (sellButton) {
+                 event.stopPropagation(); // Prevent card click popup
+                 GameLogic.handleSellConcept(event); // Use the event to find button details
             }
             // Card click to open popup is handled directly in UI.renderCard
         });
@@ -232,31 +226,47 @@ function attachEventListeners() {
           summaryViewBtn.addEventListener('click', () => { personaSummaryDiv.classList.add('current'); personaSummaryDiv.classList.remove('hidden'); personaDetailedDiv.classList.add('hidden'); personaDetailedDiv.classList.remove('current'); summaryViewBtn.classList.add('active'); detailedViewBtn.classList.remove('active'); UI.displayPersonaSummary(); }); // Refresh summary when switching to it
      }
 
-    // Tapestry Deep Dive Button
-    const exploreTapestryBtn = document.getElementById('exploreTapestryButton');
-    if (exploreTapestryBtn) {
-        exploreTapestryBtn.addEventListener('click', GameLogic.showTapestryDeepDive);
+    // Persona Screen Specific Button Delegation
+    const personaScreenDiv = document.getElementById('personaScreen');
+    if (personaScreenDiv) {
+        personaScreenDiv.addEventListener('click', (event) => {
+            const button = event.target.closest('button');
+            if (!button) return;
+
+            if (button.id === 'exploreTapestryButton') {
+                GameLogic.showTapestryDeepDive();
+            } else if (button.id === 'suggestSceneButton') {
+                GameLogic.handleSuggestSceneClick();
+            }
+            // Add other persona screen button handlers here if needed
+        });
     } else {
-        console.warn("Explore Tapestry Button not found.");
+        console.warn("Persona Screen container not found for button delegation.");
     }
 
-    // *** ADD Delegated Listener for Deep Dive Analysis Nodes ***
+
+    // Delegated Listener for Deep Dive Analysis Nodes
     const deepDiveNodesContainer = document.getElementById('deepDiveAnalysisNodes');
     if (deepDiveNodesContainer) {
         deepDiveNodesContainer.addEventListener('click', (event) => {
-            const button = event.target.closest('.deep-dive-node');
-            if (!button) return;
-
+            const button = event.target.closest('.deep-dive-node'); if (!button) return;
             const nodeId = button.dataset.nodeId;
+            // Check if contemplation is on cooldown *before* calling the logic handler
             if (nodeId === 'contemplation') {
-                GameLogic.handleContemplationNodeClick();
-            } else if (nodeId) {
-                GameLogic.handleDeepDiveNodeClick(nodeId);
+                 const now = Date.now();
+                 const cooldownEnd = State.getContemplationCooldownEnd();
+                 if (cooldownEnd && now < cooldownEnd) {
+                     const remaining = Math.ceil((cooldownEnd - now) / 1000); // Seconds
+                     UI.showTemporaryMessage(`Contemplation available in ${remaining}s.`, 3000);
+                     return; // Prevent calling logic if on cooldown
+                 }
+                 // If not on cooldown, proceed to logic handler
+                 GameLogic.handleContemplationNodeClick();
+            } else if (nodeId && nodeId !== 'keyword') { // Ensure keyword isn't handled
+                 GameLogic.handleDeepDiveNodeClick(nodeId);
             }
         });
-    } else {
-        console.warn("Deep Dive Analysis Nodes Container not found.");
-    }
+    } else { console.warn("Deep Dive Analysis Nodes Container not found."); }
     // Note: The listener for the 'Mark Complete' button inside contemplation
     // is added dynamically by UI.displayContemplationTask.
 
