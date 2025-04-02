@@ -44,16 +44,45 @@
              <main id="questionContent"></main>
              <footer>
                  <button id="prevElementButton" class="button back-button" style="visibility: hidden;">Previous</button>
-                 <button id="nextElementButton" class="button next-button">Next / View Persona</button>
+                 <button id="nextElementButton" class="button next-button">Next / Analyze Results</button> <!-- Updated Text -->
              </footer>
         </div>
 
-        <!-- === Navigation Bar (Initially Hidden after Questionnaire) === -->
+        <!-- === Experiment Results Modal (NEW) === -->
+        <div id="experimentResultsModal" class="popup hidden results-modal">
+            <button id="closeResultsModalButton" class="close-button">×</button>
+            <div class="popup-header">
+                <h3>Experiment Complete: Initial Findings</h3>
+            </div>
+            <div class="popup-content">
+                <h4>Core Essence Revealed:</h4>
+                <p>Your experiment yielded the following elemental scores:</p>
+                <div id="resultsScoresDisplay" class="results-scores">
+                    <!-- Scores injected here by ui.js -->
+                </div>
+                <p id="resultsInterpretation" class="results-interp">Interpretation will appear here...</p>
+                <hr class="popup-hr">
+                <h4>Distilled Concepts:</h4>
+                <p>These initial Concept Cards have been added to your Grimoire:</p>
+                <div id="resultsStarterHandDisplay" class="results-starter-hand card-grid-condensed">
+                    <!-- Starter hand cards injected here by ui.js -->
+                </div>
+                <hr class="popup-hr">
+                <h4>Next Step:</h4>
+                <p>Examine these Concepts in your <strong>Grimoire</strong>. Understanding their properties is key to weaving your Persona Tapestry.</p>
+            </div>
+            <div class="popup-actions">
+                <button id="goToGrimoireButton" class="button">Go to Grimoire</button>
+            </div>
+        </div>
+        <!-- === END Experiment Results Modal === -->
+
+        <!-- === Navigation Bar (Initially Hidden until Results Modal is seen) === -->
         <nav id="mainNavBar" class="main-nav hidden">
              <button class="nav-button active" data-target="personaScreen">Persona</button>
              <button class="nav-button" data-target="grimoireScreen">Grimoire (<span id="grimoireCount">0</span>)</button>
              <button class="nav-button hidden-by-flow" data-target="studyScreen">Study</button>
-             <button class="nav-button hidden-by-flow" data-target="repositoryScreen">Repository</button> <!-- Initially hidden -->
+             <button class="nav-button hidden-by-flow" data-target="repositoryScreen">Repository</button> <!-- Initially hidden by flow -->
              <button id="settingsButton" class="nav-button settings-button" title="Settings & Save/Load Options"><i class="fas fa-cog"></i></button>
         </nav>
 
@@ -80,7 +109,6 @@
                          <hr>
                          <h2>Resources <i class="fas fa-info-circle info-icon" title="Insight is the primary currency, earned through discovery, reflection, and rituals. Spend it in The Study to research new Concepts or unlock deeper knowledge."></i></h2>
                          <p>Current Insight: <strong id="userInsightDisplayPersona">0.0</strong> <i class="fas fa-brain insight-icon"></i></p>
-                         <!-- Element Library Div Removed -->
                      </div><!-- End Left Column -->
 
                     <!-- Right Column: Tapestry -->
@@ -140,7 +168,6 @@
         </div> <!-- End Persona Screen -->
 
          <!-- === Grimoire Screen === -->
-       <!-- === Grimoire Screen === -->
          <div id="grimoireScreen" class="screen hidden grimoire-screen">
               <h1>The Grand Grimoire <i class="fas fa-info-circle info-icon" title="Your personal collection of discovered Concept Cards. Filter, sort, view details, mark Concepts for Focus, or sell unwanted Concepts for Insight."></i></h1>
               <!-- Grimoire controls -->
@@ -172,8 +199,7 @@
               <div id="grimoireContent" class="card-grid">
                   <!-- Grimoire cards injected here -->
               </div>
-         </div> 
-
+         </div>
 
         <!-- === Main Study Screen (Initially hidden by flow) === -->
        <div id="studyScreen" class="screen hidden study-screen">
@@ -336,7 +362,7 @@
                  <input type="checkbox" id="scoreNudgeCheckbox" class="hidden">
                  <label for="scoreNudgeCheckbox" id="scoreNudgeLabel" class="hidden score-nudge-label" title="If checked (only available for Dissonance reflections), completing this reflection may slightly adjust your Core Foundation scores towards this Concept's profile.">Allow this reflection to potentially nudge your core understanding?</label>
              </div>
-             <button id="confirmReflectionButton" class="button small-button" disabled>Confirm Reflection (+<span id="reflectionRewardAmount">?</span> <i class="fas fa-brain insight-icon"></i>)</button>
+             <button id="confirmReflectionButton" class="button small-button" disabled>Confirm Reflection (<span id="reflectionRewardAmount">? Insight</span>)</button> <!-- Updated Text -->
          </div> <!-- End Reflection Modal -->
 
          <div id="settingsPopup" class="popup hidden settings-popup">
