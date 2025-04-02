@@ -1038,8 +1038,6 @@ function generateFocusedContemplation() {
 }
 
 
-// --- EXPORTS ---
-// (Exporting specific functions allows other modules to use them)
 export {
     // Questionnaire
     handleQuestionnaireInputChange, handleCheckboxChange, calculateElementScore,
@@ -1071,9 +1069,9 @@ export {
     displayPersonaScreenLogic, displayStudyScreenLogic,
     // Tapestry Deep Dive
     showTapestryDeepDive, handleDeepDiveNodeClick, handleContemplationNodeClick,
-    handleCompleteContemplation,
+    handleCompleteContemplation, // Keep this one
     // Suggest Scenes
-    handleSuggestSceneClick
+    handleSuggestSceneClick // Keep this one
 };
 
 console.log("gameLogic.js loaded.");
