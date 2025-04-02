@@ -53,7 +53,7 @@
              <button class="nav-button active" data-target="personaScreen">Persona</button>
              <button class="nav-button" data-target="grimoireScreen">Grimoire (<span id="grimoireCount">0</span>)</button>
              <button class="nav-button hidden-by-flow" data-target="studyScreen">Study</button>
-             <button class="nav-button hidden-by-flow" data-target="repositoryScreen">Repository</button>
+             <button class="nav-button hidden-by-flow" data-target="repositoryScreen">Repository</button> <!-- Initially hidden -->
              <button id="settingsButton" class="nav-button settings-button" title="Settings & Save/Load Options"><i class="fas fa-cog"></i></button>
         </nav>
 
@@ -74,69 +74,88 @@
                      <div class="persona-column persona-elements-detailed">
                          <h2>Core Foundation <i class="fas fa-info-circle info-icon" title="Your scores across the 6 core elements, based on the initial questionnaire. Expand each for details, interpretations, and your current Attunement level."></i></h2>
                          <p>Your fundamental attributes and elemental attunement. Expand each element.</p>
-                         <div id="personaElementDetails"></div>
+                         <div id="personaElementDetails">
+                             <!-- Element details injected here by ui.js -->
+                         </div>
                          <hr>
                          <h2>Resources <i class="fas fa-info-circle info-icon" title="Insight is the primary currency, earned through discovery, reflection, and rituals. Spend it in The Study to research new Concepts or unlock deeper knowledge."></i></h2>
                          <p>Current Insight: <strong id="userInsightDisplayPersona">0.0</strong> <i class="fas fa-brain insight-icon"></i></p>
+                         <!-- Element Library (Initially hidden by flow) -->
                          <div id="elementLibrary" class="element-library hidden-by-flow">
                               <h2>Element Library <i class="fas fa-info-circle info-icon" title="Unlock deeper written insights about each core element by spending Insight. Higher levels reveal more complex nuances."></i></h2>
                               <p>Unlock deeper knowledge about each core element.</p>
-                              <div id="elementLibraryButtons" class="library-buttons"></div>
+                              <div id="elementLibraryButtons" class="library-buttons">
+                                  <!-- Element library buttons injected here -->
+                              </div>
                               <div id="elementLibraryContent" class="library-content">
                                   <p>Select an Element above to view its deep dive content.</p>
                               </div>
                          </div>
-                     </div>
+                     </div><!-- End Left Column -->
 
                     <!-- Right Column: Tapestry -->
-                   <div class="persona-column persona-constellation">
-     <h2>Persona Tapestry - Focus <i class="fas fa-info-circle info-icon" title="..."></i></h2>
-     <p>Curate concepts to shape your active Persona.</p>
-     <div class="tapestry-area" id="tapestryArea">
-          <h4 id="focusedConceptsHeader">Focused Concepts (0 / 5) <i class="fas fa-info-circle info-icon" title="..."></i></h4>
-          <div id="focusedConceptsDisplay" class="focus-concepts-grid">
-              <li class="focus-placeholder">Focus Concepts from your Grimoire</li>
-          </div>
-          <!-- *** REMOVE THE OLD BUTTON FROM HERE if it exists *** -->
-          <!-- <button id="exploreTapestryButton" class="button hidden-by-flow" disabled title="Focus on concepts first">
-               <i class="fas fa-search-plus"></i> Explore Tapestry Deep Dive
-          </button> -->
-     </div>
-     <div id="focusElementalResonance" class="focus-resonance-section">
-          <h3>Focus Resonance <i class="fas fa-info-circle info-icon" title="..."></i></h3>
-          <p>Average elemental scores of your focused concepts.</p>
-          <div id="focusResonanceBars"></div>
-     </div>
-     <div class="tapestry-narrative-section">
-         <h3>Tapestry Narrative <i class="fas fa-info-circle info-icon" title="..."></i></h3>
-         <p id="tapestryNarrative">Mark concepts as "Focus" to generate narrative...</p>
-         <!-- *** KEEP THIS BUTTON *** -->
-         <button id="exploreTapestryButton" class="button small-button" style="margin-top: 10px;" title="Explore a deeper analysis of your focused tapestry. (Feature WIP)">Explore Tapestry</button>
-     </div>
-     <div class="grimoire-insights">
-         <h3>Focus Themes <i class="fas fa-info-circle info-icon" title="..."></i></h3>
-         <p>Themes emerging from your focused concepts.</p>
-         <ul id="personaThemesList"></ul>
-     </div>
-</div>
-   </div>
-</div>
+                     <div class="persona-column persona-constellation">
+                          <h2>Persona Tapestry - Focus <i class="fas fa-info-circle info-icon" title="Mark Concepts from your Grimoire as 'Focus' here. This shapes your Tapestry Narrative, influences Focus Resonance, and may unlock unique content based on combinations."></i></h2>
+                          <p>Curate concepts to shape your active Persona.</p>
+                          <!-- Tapestry Area: Contains the grid of focused concepts -->
+                          <div class="tapestry-area" id="tapestryArea">
+                               <h4 id="focusedConceptsHeader">Focused Concepts (0 / 5) <i class="fas fa-info-circle info-icon" title="The number of Concepts currently marked as Focus out of your total available slots. Slots can be increased via Milestones."></i></h4>
+                               <div id="focusedConceptsDisplay" class="focus-concepts-grid">
+                                   <li class="focus-placeholder">Focus Concepts from your Grimoire</li>
+                                   <!-- Focused concepts injected here -->
+                               </div>
+                               <!-- The old button location - ensure it's removed or commented out -->
+                               <!--
+                               <button id="exploreTapestryButton" class="button hidden-by-flow" disabled title="Focus on concepts first">
+                                   <i class="fas fa-search-plus"></i> Explore Tapestry Deep Dive
+                               </button>
+                               -->
+                          </div> <!-- End Tapestry Area -->
+                          <!-- Focus Resonance Section -->
+                          <div id="focusElementalResonance" class="focus-resonance-section">
+                               <h3>Focus Resonance <i class="fas fa-info-circle info-icon" title="Shows the average elemental scores calculated ONLY from the Concepts currently marked as 'Focus'. This reflects the overall elemental balance of your curated Tapestry."></i></h3>
+                               <p>Average elemental scores of your focused concepts.</p>
+                               <div id="focusResonanceBars">
+                                   <!-- Resonance bars injected here -->
+                               </div>
+                          </div>
+                          <!-- Tapestry Narrative Section -->
+                          <div class="tapestry-narrative-section">
+                              <h3>Tapestry Narrative <i class="fas fa-info-circle info-icon" title="A dynamically generated interpretation based on your Focused Concepts, highlighting dominant elements and potential synergies between them."></i></h3>
+                              <p id="tapestryNarrative">Mark concepts as "Focus" to generate narrative...</p>
+                              <!-- *** This is the CORRECT location for the Explore button *** -->
+                              <button id="exploreTapestryButton" class="button small-button" style="margin-top: 10px;" title="Explore a deeper analysis of your focused tapestry. (Feature WIP)">Explore Tapestry</button>
+                          </div>
+                          <!-- Grimoire Insights / Focus Themes Section -->
+                          <div class="grimoire-insights">
+                              <h3>Focus Themes <i class="fas fa-info-circle info-icon" title="Identifies the dominant Elements (those with high scores) appearing most frequently among your Focused Concepts."></i></h3>
+                              <p>Themes emerging from your focused concepts.</p>
+                              <ul id="personaThemesList">
+                                  <!-- Themes list items injected here -->
+                              </ul>
+                          </div>
+                     </div> <!-- End Right Column (persona-constellation) -->
+                 </div> <!-- End persona-overview -->
+             </div> <!-- End Detailed View -->
 
              <!-- Summary View -->
              <div id="personaSummaryView" class="persona-view hidden">
                   <h2>Persona Summary <i class="fas fa-info-circle info-icon" title="A concise text overview combining your Core Foundation scores, Tapestry Narrative, and Focus Themes."></i></h2>
                   <div id="summaryContent">
                       <p>Generating summary...</p>
+                      <!-- Summary content injected here -->
                   </div>
-             </div>
-        </div>
+             </div> <!-- End Summary View -->
+        </div> <!-- End Persona Screen -->
 
          <!-- === Grimoire Screen === -->
          <div id="grimoireScreen" class="screen hidden grimoire-screen">
               <h1>The Grand Grimoire <i class="fas fa-info-circle info-icon" title="Your personal collection of discovered Concept Cards. Filter, sort, view details, mark Concepts for Focus, or sell unwanted Concepts for Insight."></i></h1>
+              <!-- Grimoire controls -->
               <div id="grimoireControls">
                   <label for="grimoireSortOrder">Sort:</label>
                   <select id="grimoireSortOrder"><option value="discovered">Date Added</option><option value="name">Name</option><option value="type">Type</option><option value="rarity">Rarity</option></select>
+                  <!-- Filters initially hidden by flow -->
                   <span class="filter-controls hidden-by-flow">
                       <label for="grimoireTypeFilter">Type:</label>
                       <select id="grimoireTypeFilter"><option value="All">All Types</option></select>
@@ -147,36 +166,46 @@
                   </span>
                   <i class="fas fa-info-circle info-icon" title="Use these controls to filter and sort the Concepts displayed in your Grimoire below. More filters unlock as you progress."></i>
               </div>
-              <div id="grimoireContent" class="card-grid"></div>
-         </div>
+              <div id="grimoireContent" class="card-grid">
+                  <!-- Grimoire cards injected here -->
+              </div>
+         </div> <!-- End Grimoire Screen -->
 
 
         <!-- === Main Study Screen (Initially hidden by flow) === -->
         <div id="studyScreen" class="screen hidden study-screen">
              <div class="study-layout-container">
+                 <!-- Left Column: Resources & Actions -->
                  <div class="study-column-left study-resources">
                       <h2>Resources & Actions <i class="fas fa-info-circle info-icon" title="Manage your Insight and perform core actions like Researching specific Elements, taking Guided Reflections, or performing your free Daily Meditation."></i></h2>
                       <p>Current Insight: <strong id="userInsightDisplayStudy">0.0</strong> <i class="fas fa-brain insight-icon"></i></p>
                       <hr>
                       <p>Focus your Insight <i class="fas fa-brain insight-icon"></i> to deepen understanding:</p>
                       <button id="freeResearchButton" class="button free-research-button hidden" title="Once per day, perform research on your least attuned element for free.">Perform Daily Meditation</button>
-                      <div id="researchButtonContainer" class="research-buttons" title="Spend Insight to research a specific Element, potentially discovering new Concepts or Repository items. Cost may decrease slightly with high Attunement in that Element."></div>
+                      <div id="researchButtonContainer" class="research-buttons" title="Spend Insight to research a specific Element, potentially discovering new Concepts or Repository items. Cost may decrease slightly with high Attunement in that Element.">
+                          <!-- Research buttons injected here -->
+                      </div>
+                      <!-- Guided Reflection initially hidden -->
                       <button id="seekGuidanceButton" class="button guidance-button hidden-by-flow" title="Spend Insight for a randomly selected Guided Reflection prompt, offering deeper insights or exploring specific themes.">Seek Guided Reflection (Cost: <span id="guidedReflectionCostDisplay">10</span> <i class="fas fa-brain insight-icon"></i>)</button>
                       <hr>
+                      <!-- Rituals initially hidden -->
                       <div class="rituals-section hidden-by-flow">
                           <h3>Daily Rituals <i class="fas fa-info-circle info-icon" title="Complete these tasks each day for bonus Insight or Attunement. They reset daily. Special Focus Rituals appear here when their required Concepts are focused."></i></h3>
                           <ul id="dailyRitualsDisplay"><li>Unlock rituals by progressing.</li></ul>
                       </div>
-                 </div>
+                 </div> <!-- End Left Column -->
+
+                 <!-- Right Column: Research Bench -->
                  <div class="study-column-right research-bench">
                      <h2>Research Notes <i class="fas fa-info-circle info-icon" title="Results from your Research appear here. Concepts remain until you Add them to your Grimoire or Sell them for Insight. You might also find Repository items here."></i></h2>
                      <div id="researchStatus">Visit The Study to begin research...</div>
                      <div id="researchOutput" class="research-output-area card-grid">
                         <p><i>Research results will appear here.</i></p>
+                        <!-- Research results injected here -->
                      </div>
-                 </div>
-             </div>
-        </div>
+                 </div> <!-- End Right Column -->
+             </div> <!-- End Study Layout -->
+        </div> <!-- End Study Screen -->
 
 
          <!-- === Repository Screen (Initially hidden by flow) === -->
@@ -186,64 +215,126 @@
              <div class="repository-layout">
                  <section id="repositoryFocusUnlocks" class="repository-section">
                      <h2><i class="fas fa-link"></i> Focus-Driven Discoveries <i class="fas fa-info-circle info-icon" title="Special items (Scenes, Insights, Experiments) unlocked automatically by having specific combinations of Concepts marked as 'Focus' on your Persona Tapestry."></i></h2>
-                     <div class="repo-list focus-unlocks-list"><p>Focus on synergistic combinations of Concepts to unlock special items here.</p></div>
+                     <div class="repo-list focus-unlocks-list">
+                         <p>Focus on synergistic combinations of Concepts to unlock special items here.</p>
+                         <!-- Focus unlocks injected here -->
+                     </div>
                  </section>
                  <hr>
                  <section id="repositoryScenes" class="repository-section">
                      <h2><i class="fas fa-scroll"></i> Scene Blueprints <i class="fas fa-info-circle info-icon" title="Rare textual scenarios found during Research. Meditate on them (costs Insight) to trigger unique Reflection prompts and gain deeper understanding."></i></h2>
-                     <div class="repo-list"><p>Conduct research for a chance to discover scene blueprints.</p></div>
+                     <div class="repo-list">
+                         <p>Conduct research for a chance to discover scene blueprints.</p>
+                         <!-- Scene blueprints injected here -->
+                     </div>
                  </section>
                  <hr>
                  <section id="repositoryExperiments" class="repository-section">
                      <h2><i class="fas fa-flask"></i> Alchemical Experiments <i class="fas fa-info-circle info-icon" title="Challenging procedures unlocked by high Attunement in specific Elements. Attempting them costs Insight and may require specific Focused Concepts. Success yields rewards, failure may have minor consequences."></i></h2>
-                     <div class="repo-list"><p>Achieve high Attunement in elements to unlock challenging experiments.</p></div>
+                     <div class="repo-list">
+                         <p>Achieve high Attunement in elements to unlock challenging experiments.</p>
+                         <!-- Experiments injected here -->
+                     </div>
                  </section>
                  <hr>
                  <section id="repositoryInsights" class="repository-section">
                      <h2><i class="fas fa-lightbulb"></i> Elemental Insights <i class="fas fa-info-circle info-icon" title="Short, evocative text fragments related to specific Elements, occasionally discovered during Research. They offer flavor and deepen the lore."></i></h2>
-                     <div class="repo-list"><p>Rare fragments of knowledge occasionally found during research.</p></div>
+                     <div class="repo-list">
+                         <p>Rare fragments of knowledge occasionally found during research.</p>
+                         <!-- Insights injected here -->
+                     </div>
                  </section>
                  <hr>
                  <section id="milestonesSection" class="repository-section">
                       <h2><i class="fas fa-award"></i> Milestones Achieved <i class="fas fa-info-circle info-icon" title="Significant accomplishments tracked throughout your journey. Achieving milestones often grants rewards like Insight or increased Focus Slots."></i></h2>
                       <ul id="milestonesDisplay"><li>Achieve milestones to see them recorded here.</li></ul>
+                      <!-- Milestones list injected here -->
                  </section>
-             </div>
-         </div>
+             </div> <!-- End Repository Layout -->
+         </div> <!-- End Repository Screen -->
 
 
         <!-- === Popups === -->
         <div id="conceptDetailPopup" class="popup hidden card-popup">
               <button id="closePopupButton" class="close-button">×</button>
-              <div class="popup-header"> <span id="popupCardTypeIcon" class="card-type-icon"><i class="fas fa-question-circle"></i></span> <h3 id="popupConceptName">Concept Name</h3> <p id="popupConceptType">Card Type</p> </div>
-              <div class="popup-content">
-                  <div id="popupVisualContainer" class="popup-visual"><i id="popupCardVisual" class="card-visual-placeholder fa-solid fa-image"></i></div>
-                  <div class="popup-details">
-                      <p id="popupDetailedDescription" class="detailed-description">Detailed description...</p> <hr class="popup-hr">
-                      <div class="resonance-summary" id="popupResonanceSummary">Resonance info... <i class="fas fa-info-circle info-icon" title="How closely this Concept's elemental scores align with your current Core Foundation scores. High resonance suggests strong alignment, Dissonant suggests significant divergence."></i></div>
-                      <div class="recipe-view"> <h4>Resonance Analysis <i class="fas fa-info-circle info-icon" title="A deeper look at the alignment between this Concept's elemental 'recipe' and your own, highlighting key similarities and differences."></i></h4> <div id="popupComparisonHighlights">Highlights...</div> <details class="element-details"><summary>View Full Recipe Comparison</summary><div class="profile-comparison"><div class="profile-column"><h5>Concept</h5><div id="popupConceptProfile"></div></div><div class="profile-column"><h5>You</h5><div id="popupUserComparisonProfile"></div></div></div></details> </div> <hr class="popup-hr">
-                       <div id="popupRelatedConcepts" class="related-concepts"></div>
-                       <div id="myNotesSection" class="my-notes-section hidden"><hr class="popup-hr"><h4>My Notes <i class="fas fa-info-circle info-icon" title="Your personal space to jot down thoughts, reflections, or interpretations related to this Concept. Saved automatically."></i></h4><textarea id="myNotesTextarea" rows="3" placeholder="Add your personal reflections here..."></textarea><button id="saveMyNoteButton" class="button small-button">Save Note</button><span id="noteSaveStatus" class="note-status"></span></div>
-                      <div id="popupEvolutionSection" class="evolution-section hidden"><hr class="popup-hr"><h4>Deepen Understanding <i class="fas fa-info-circle info-icon" title="Unlock enhanced art for this Concept by meeting the requirements (Focusing it, having Reflected, sufficient Insight)."></i></h4><button id="evolveArtButton" class="button small-button evolve-button" disabled>Unlock Enhanced Art (Cost: <span id="evolveCost">?</span> <i class="fas fa-brain insight-icon"></i>)</button><p id="evolveEligibility" class="evolve-eligibility-text"></p></div>
-                  </div>
+              <div class="popup-header">
+                  <span id="popupCardTypeIcon" class="card-type-icon"></span>
+                  <h3 id="popupConceptName">Concept Name</h3>
+                  <p id="popupConceptType">Card Type</p>
               </div>
-              <div class="popup-actions"> <button id="addToGrimoireButton" class="button small-button add-grimoire-button" title="Add this Concept to your permanent Grimoire collection.">Add to Grimoire</button> <button id="markAsFocusButton" class="button small-button focus-button hidden" title="Toggle whether this Concept contributes to your Persona Tapestry.">Mark as Focus</button> </div>
-        </div>
+              <div class="popup-content">
+                  <div id="popupVisualContainer" class="popup-visual">
+                      <i id="popupCardVisual" class="card-visual-placeholder fa-solid fa-image"></i>
+                  </div>
+                  <div class="popup-details">
+                      <p id="popupDetailedDescription" class="detailed-description">Detailed description...</p>
+                       <hr class="popup-hr">
+                      <div class="resonance-summary" id="popupResonanceSummary">Resonance info... <i class="fas fa-info-circle info-icon" title="How closely this Concept's elemental scores align with your current Core Foundation scores. High resonance suggests strong alignment, Dissonant suggests significant divergence."></i></div>
+                      <div class="recipe-view">
+                          <h4>Resonance Analysis <i class="fas fa-info-circle info-icon" title="A deeper look at the alignment between this Concept's elemental 'recipe' and your own, highlighting key similarities and differences."></i></h4>
+                          <div id="popupComparisonHighlights">Highlights...</div>
+                          <details class="element-details">
+                              <summary>View Full Recipe Comparison</summary>
+                              <div class="profile-comparison">
+                                  <div class="profile-column"><h5>Concept</h5><div id="popupConceptProfile"></div></div>
+                                  <div class="profile-column"><h5>You</h5><div id="popupUserComparisonProfile"></div></div>
+                              </div>
+                          </details>
+                      </div>
+                       <hr class="popup-hr">
+                       <div id="popupRelatedConcepts" class="related-concepts">
+                            <!-- Related concepts injected here -->
+                       </div>
+                       <!-- Notes initially hidden by flow -->
+                       <div id="myNotesSection" class="my-notes-section hidden">
+                            <hr class="popup-hr">
+                           <h4>My Notes <i class="fas fa-info-circle info-icon" title="Your personal space to jot down thoughts, reflections, or interpretations related to this Concept. Saved automatically."></i></h4>
+                           <textarea id="myNotesTextarea" rows="3" placeholder="Add your personal reflections here..."></textarea>
+                           <button id="saveMyNoteButton" class="button small-button">Save Note</button>
+                           <span id="noteSaveStatus" class="note-status"></span>
+                       </div>
+                       <!-- Evolution initially hidden by flow -->
+                      <div id="popupEvolutionSection" class="evolution-section hidden">
+                          <hr class="popup-hr">
+                          <h4>Deepen Understanding <i class="fas fa-info-circle info-icon" title="Unlock enhanced art for this Concept by meeting the requirements (Focusing it, having Reflected, sufficient Insight)."></i></h4>
+                          <button id="evolveArtButton" class="button small-button evolve-button" disabled>Unlock Enhanced Art (Cost: <span id="evolveCost">?</span> <i class="fas fa-brain insight-icon"></i>)</button>
+                          <p id="evolveEligibility" class="evolve-eligibility-text"></p>
+                      </div>
+                  </div> <!-- End popup-details -->
+              </div> <!-- End popup-content -->
+              <div class="popup-actions">
+                  <button id="addToGrimoireButton" class="button small-button add-grimoire-button" title="Add this Concept to your permanent Grimoire collection.">Add to Grimoire</button>
+                  <!-- Focus button initially hidden by flow -->
+                  <button id="markAsFocusButton" class="button small-button focus-button hidden" title="Toggle whether this Concept contributes to your Persona Tapestry.">Mark as Focus</button>
+                  <!-- Sell button added dynamically by ui.js -->
+              </div>
+        </div> <!-- End Concept Detail Popup -->
 
          <div id="reflectionModal" class="popup hidden reflection-modal">
              <button id="closeReflectionModalButton" class="close-button">×</button>
              <h3 id="reflectionModalTitle">Moment for Reflection <i class="fas fa-info-circle info-icon" title="Pause and consider the presented prompt. Check the box once you've genuinely reflected. Confirming grants Insight and potentially Attunement."></i></h3>
              <p>Regarding <strong id="reflectionElement">Element/Concept</strong>:</p>
              <p id="reflectionPromptText" class="prompt-text">Prompt text...</p>
-             <div class="reflection-confirm"> <input type="checkbox" id="reflectionCheckbox"><label for="reflectionCheckbox">I have taken a moment to reflect on this.</label><br><input type="checkbox" id="scoreNudgeCheckbox" class="hidden"><label for="scoreNudgeCheckbox" id="scoreNudgeLabel" class="hidden score-nudge-label" title="If checked (only available for Dissonance reflections), completing this reflection may slightly adjust your Core Foundation scores towards this Concept's profile.">Allow this reflection to potentially nudge your core understanding?</label> </div>
+             <div class="reflection-confirm">
+                 <input type="checkbox" id="reflectionCheckbox">
+                 <label for="reflectionCheckbox">I have taken a moment to reflect on this.</label>
+                 <br>
+                 <input type="checkbox" id="scoreNudgeCheckbox" class="hidden">
+                 <label for="scoreNudgeCheckbox" id="scoreNudgeLabel" class="hidden score-nudge-label" title="If checked (only available for Dissonance reflections), completing this reflection may slightly adjust your Core Foundation scores towards this Concept's profile.">Allow this reflection to potentially nudge your core understanding?</label>
+             </div>
              <button id="confirmReflectionButton" class="button small-button" disabled>Confirm Reflection (+<span id="reflectionRewardAmount">?</span> <i class="fas fa-brain insight-icon"></i>)</button>
-         </div>
+         </div> <!-- End Reflection Modal -->
 
          <div id="settingsPopup" class="popup hidden settings-popup">
              <button id="closeSettingsPopupButton" class="close-button">×</button>
              <h3>Settings <i class="fas fa-info-circle info-icon" title="Manage your session data. 'Force Save' manually triggers saving. 'Reset All Progress' completely wipes your saved data (use with caution!)."></i></h3>
-             <div class="settings-content"> <p>Manage your session data.</p> <button id="forceSaveButton" class="button small-button">Force Save</button> <button id="resetAppButton" class="button small-button back-button">Reset All Progress</button> <p class="reset-warning"><strong>Warning:</strong> Resetting will erase all scores, discovered concepts, insight, and progress permanently.</p> </div>
-         </div>
+             <div class="settings-content">
+                  <p>Manage your session data.</p>
+                  <button id="forceSaveButton" class="button small-button">Force Save</button>
+                  <button id="resetAppButton" class="button small-button back-button">Reset All Progress</button>
+                  <p class="reset-warning"><strong>Warning:</strong> Resetting will erase all scores, discovered concepts, insight, and progress permanently.</p>
+             </div>
+         </div> <!-- End Settings Popup -->
 
         <!-- *** NEW: Tapestry Deep Dive Modal *** -->
         <div id="tapestryDeepDiveModal" class="popup hidden deep-dive-modal">
@@ -273,10 +364,17 @@
                     <!-- Detailed analysis or contemplation task injected here -->
                 </div>
             </div>
-        </div>
+        </div> <!-- End Deep Dive Modal -->
 
-         <div id="milestoneAlert" class="milestone-alert hidden"> <span id="milestoneAlertText">Milestone Reached!</span> <button id="closeMilestoneAlertButton">×</button> </div>
-         <div id="toastNotification" class="toast hidden"> <span id="toastMessage">Message text here</span> </div>
+         <div id="milestoneAlert" class="milestone-alert hidden">
+             <span id="milestoneAlertText">Milestone Reached!</span>
+             <button id="closeMilestoneAlertButton">×</button>
+         </div> <!-- End Milestone Alert -->
+
+         <div id="toastNotification" class="toast hidden">
+             <span id="toastMessage">Message text here</span>
+         </div> <!-- End Toast -->
+
          <div id="popupOverlay" class="overlay hidden"></div>
 
     </div> <!-- End app-container -->
