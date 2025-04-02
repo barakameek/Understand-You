@@ -463,7 +463,22 @@ export function displayFocusedConceptsPersona() {
         if (conceptData?.concept) {
             const concept = conceptData.concept;
             const item = document.createElement('div'); item.classList.add('focus-concept-item'); item.dataset.conceptId = concept.id; item.title = `View ${concept.name}`;
-            item.innerHTML = `<i class="${Utils.getCardTypeIcon(concept.cardType)}"></i><span class="name">${concept.name}</span><span class="type">(${concept.cardType})</span>`;
+
+            // --- Icon Change Logic ---
+            let iconClass = Utils.getCardTypeIcon(concept.cardType); // Default to type icon
+            let iconColor = '#b8860b'; // Default color
+            if (concept.primaryElement && elementKeyToFullName && elementKeyToFullName[concept.primaryElement]) {
+                const fullElementName = elementKeyToFullName[concept.primaryElement];
+                iconClass = Utils.getElementIcon(fullElementName); // Get ELEMENT icon
+                iconColor = Utils.getElementColor(fullElementName); // Get ELEMENT color
+            } else {
+                console.warn(`Concept ${concept.name} missing valid primaryElement for icon.`);
+            }
+            // --- End Icon Change Logic ---
+
+            // Use element icon and color
+            item.innerHTML = `<i class="${iconClass}" style="color: ${iconColor};"></i><span class="name">${concept.name}</span><span class="type">(${concept.cardType})</span>`;
+
             item.addEventListener('click', () => showConceptDetailPopup(concept.id));
             focusedConceptsDisplay.appendChild(item);
         } else { console.warn(`Focused concept ID ${conceptId} not found.`); const item = document.createElement('div'); item.classList.add('focus-concept-item', 'missing'); item.textContent = `Error: ID ${conceptId}`; focusedConceptsDisplay.appendChild(item); }
