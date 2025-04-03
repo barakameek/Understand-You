@@ -7,7 +7,7 @@ import { elementDetails, elementKeyToFullName, elementNameToKey, concepts, quest
 
 console.log("ui.js loading...");
 
-// --- DOM Element References (Ensure all are correct) ---
+// --- DOM Element References (Assume these are correct) ---
 const saveIndicator = document.getElementById('saveIndicator');
 const screens = document.querySelectorAll('.screen');
 const welcomeScreen = document.getElementById('welcomeScreen');
@@ -255,8 +255,8 @@ export function applyOnboardingPhaseUI(phase) {
 
 // --- Helper functions for phased UI elements ---
 
-// THIS IS THE SINGLE CORRECT VERSION
-function updateNotesSectionVisibility(isDiscovered) {
+// !! ADD EXPORT !!
+export function updateNotesSectionVisibility(isDiscovered) {
     if (myNotesSection) {
         // Show notes only if the concept is discovered AND the phase is STUDY_INSIGHT or later
         const show = isDiscovered && State.getOnboardingPhase() >= Config.ONBOARDING_PHASE.STUDY_INSIGHT;
@@ -274,8 +274,8 @@ function updateNotesSectionVisibility(isDiscovered) {
     }
 }
 
-// THIS IS THE SINGLE CORRECT VERSION
-function updateEvolutionSectionVisibility(conceptData, discoveredData) {
+// !! ADD EXPORT !!
+export function updateEvolutionSectionVisibility(conceptData, discoveredData) {
     if (popupEvolutionSection && conceptData) { // Check conceptData exists
         const show = discoveredData && conceptData.canUnlockArt && !discoveredData.artUnlocked && State.getOnboardingPhase() >= Config.ONBOARDING_PHASE.ADVANCED;
         popupEvolutionSection.classList.toggle('hidden', !show);
@@ -287,14 +287,25 @@ function updateEvolutionSectionVisibility(conceptData, discoveredData) {
     }
 }
 
-// THIS IS THE SINGLE CORRECT VERSION
-function updatePopupSellButtonVisibility(conceptId) {
+
+// !! ADD EXPORT !!
+export function updatePopupSellButtonVisibility(conceptId) {
     const button = conceptDetailPopup?.querySelector('.popup-sell-button');
     if (button) {
         // Show sell button only if Phase 2+ reached
         button.classList.toggle('hidden', State.getOnboardingPhase() < Config.ONBOARDING_PHASE.STUDY_INSIGHT);
     }
 }
+
+// !! ADD EXPORT !!
+export function updateNoteSaveStatus(message, isError = false) {
+     if (noteSaveStatusSpan) {
+         noteSaveStatusSpan.textContent = message;
+         noteSaveStatusSpan.classList.toggle('error', isError);
+         if(message) { setTimeout(() => { noteSaveStatusSpan.textContent = ""; noteSaveStatusSpan.classList.remove('error'); }, 2000); }
+     }
+}
+
 
 // --- Insight Display ---
 export function updateInsightDisplays() {
@@ -610,7 +621,7 @@ export function synthesizeAndDisplayThemesPersona() {
      if (!personaThemesList) return; personaThemesList.innerHTML = '';
      const themes = GameLogic.calculateFocusThemes(); // Get sorted themes
      if (themes.length === 0) { personaThemesList.innerHTML = `<li>${State.getFocusedConcepts().size > 0 ? 'No strong themes detected.' : 'Mark Focused Concepts...'}</li>`; return; }
-     themes.slice(0, 3).forEach(theme => { const li = document.createElement('li'); li.textContent = `${theme.name} Focus (${theme.count} concept${theme.count > 1 ? 's' : ''})`; personaThemesList.appendChild(li); });
+     themes.slice(0, 3).forEach(theme => { const li = document.createElement('li'); li.textContent = `${theme.name} Focus (${theme.count} concept${theme.count > 1 ? 's' : ''})</li>`; personaThemesList.appendChild(li); });
 }
 export function displayPersonaSummary() {
     if (!summaryContentDiv) return;
@@ -948,7 +959,7 @@ export function showConceptDetailPopup(conceptId) {
     if (conceptDetailPopup) conceptDetailPopup.classList.remove('hidden'); if (popupOverlay) popupOverlay.classList.remove('hidden');
 }
 
-export function displayPopupResonance(distance) { /* ... (no changes) ... */
+export function displayPopupResonance(distance) {
     if (!popupResonanceSummary) return; let resonanceLabel, resonanceClass, message;
     if (distance === Infinity || isNaN(distance)) { resonanceLabel = "N/A"; resonanceClass = ""; message = "(Cannot compare)"; }
     else if (distance < 2.5) { resonanceLabel = "Very High"; resonanceClass = "resonance-high"; message = "Strongly aligns."; }
@@ -958,7 +969,7 @@ export function displayPopupResonance(distance) { /* ... (no changes) ... */
     else { resonanceLabel = "Dissonant"; resonanceClass = "resonance-low"; message = "Significant divergence."; }
     popupResonanceSummary.innerHTML = `Resonance: <span class="resonance-indicator ${resonanceClass}">${resonanceLabel}</span> <small>(Dist: ${distance.toFixed(1)})</small><br><small>${message}</small> <i class="fas fa-info-circle info-icon" title="How closely this Concept's elemental scores align with your Core Foundation scores. High resonance suggests strong alignment, Dissonant suggests significant divergence."></i>`;
 }
-export function displayPopupRecipeComparison(conceptData, userCompScores) { /* ... (no changes) ... */
+export function displayPopupRecipeComparison(conceptData, userCompScores) {
      if (!popupConceptProfile || !popupUserComparisonProfile || !popupComparisonHighlights) return;
      popupConceptProfile.innerHTML = ''; popupUserComparisonProfile.innerHTML = ''; popupComparisonHighlights.innerHTML = '';
      let highlightsHTML = '<p><strong>Key Alignments & Differences:</strong></p>'; let hasHighlights = false; const conceptScores = conceptData.elementScores || {};
@@ -982,7 +993,7 @@ export function displayPopupRecipeComparison(conceptData, userCompScores) { /* .
      if (!hasHighlights) highlightsHTML += '<p><em>No strong alignments or major differences identified.</em></p>';
      popupComparisonHighlights.innerHTML = highlightsHTML;
 }
-export function displayPopupRelatedConcepts(conceptData) { /* ... (no changes) ... */
+export function displayPopupRelatedConcepts(conceptData) {
      if (!popupRelatedConcepts) return; popupRelatedConcepts.innerHTML = '';
      if (conceptData.relatedIds && conceptData.relatedIds.length > 0) {
          const details = document.createElement('details'); details.classList.add('related-concepts-details');
@@ -1064,13 +1075,6 @@ export function updatePopupSellButton(conceptId, conceptData, inGrimoire, inRese
         else if (addToGrimoireButton && !addToGrimoireButton.classList.contains('hidden')) { addToGrimoireButton.insertAdjacentElement('afterend', sellButton); }
         else { popupActions.appendChild(sellButton); }
     }
-}
-export function updateNoteSaveStatus(message, isError = false) {
-     if (noteSaveStatusSpan) {
-         noteSaveStatusSpan.textContent = message;
-         noteSaveStatusSpan.classList.toggle('error', isError);
-         if(message) { setTimeout(() => { noteSaveStatusSpan.textContent = ""; noteSaveStatusSpan.classList.remove('error'); }, 2000); }
-     }
 }
 
 
