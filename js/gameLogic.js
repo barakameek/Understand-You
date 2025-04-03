@@ -178,6 +178,33 @@ let currentTapestryAnalysis = null; // Stores the detailed breakdown from calcul
          // Avoid proceeding if index is bad
          return;
     }
+    function goToPrevElement() {
+    const currentState = State.getState();
+    if (currentState.currentElementIndex > 0) {
+        // Get answers from the *current* screen before going back
+        const currentAnswers = UI.getQuestionnaireAnswers();
+        const currentIndex = currentState.currentElementIndex;
+
+        // Save answers for the element we are leaving
+        if (currentIndex >= 0 && currentIndex < elementNames.length) {
+             State.updateAnswers(elementNames[currentIndex], currentAnswers);
+             console.log(`Answers saved for ${elementNames[currentIndex]} on going back:`, currentAnswers);
+        } else {
+            console.warn(`Attempted to save answers for invalid index: ${currentIndex} on going back`);
+            // Decide if we should still allow going back even if save failed
+        }
+
+        // Calculate and set the new index
+        const prevIndex = currentIndex - 1;
+        State.updateElementIndex(prevIndex);
+        console.log(`Moving back from index ${currentIndex} to ${prevIndex}`);
+
+        // Display the previous element's questions
+        UI.displayElementQuestions(prevIndex);
+    } else {
+        console.log("Cannot go back from the first element.");
+    }
+}
 
     const nextIndex = currentIndex + 1; // Calculate next index based on the one we just saved for
 
