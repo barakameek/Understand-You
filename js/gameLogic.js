@@ -165,7 +165,7 @@ let currentTapestryAnalysis = null; // Stores the detailed breakdown from calcul
     });
     return Math.max(0, Math.min(10, score)); // Clamp
 }
- export function goToNextElement() {
+  function goToNextElement() {
     const currentState = State.getState();
     const currentAnswers = UI.getQuestionnaireAnswers(); // Get answers from UI first
     const currentIndex = currentState.currentElementIndex; // Get current index *before* potentially changing it
