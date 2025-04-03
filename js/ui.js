@@ -90,7 +90,7 @@ export function applyOnboardingPhaseUI(phase) {
 // --- Helper functions for phased UI elements ---
 
 // !! KEEP THIS VERSION !!
-function updateNotesSectionVisibility(isDiscovered) {
+ function updateNotesSectionVisibility(isDiscovered) {
     if (myNotesSection) {
         // Show notes only if the concept is discovered AND the phase is STUDY_INSIGHT or later
         const show = isDiscovered && State.getOnboardingPhase() >= Config.ONBOARDING_PHASE.STUDY_INSIGHT;
@@ -107,7 +107,6 @@ function updateNotesSectionVisibility(isDiscovered) {
         }
     }
 }
-
 // !! KEEP THIS VERSION !!
 function updateEvolutionSectionVisibility(conceptData, discoveredData) {
     if (popupEvolutionSection && conceptData) { // Check conceptData exists
