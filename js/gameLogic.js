@@ -178,6 +178,19 @@ let currentTapestryAnalysis = null; // Stores the detailed breakdown from calcul
          // Avoid proceeding if index is bad
          return;
     }
+
+
+    const nextIndex = currentIndex + 1; // Calculate next index based on the one we just saved for
+
+    if (nextIndex >= elementNames.length) {
+         console.log("Reached end of questionnaire, finalizing...");
+         finalizeQuestionnaire(); // This will handle final state saving of the last element
+    } else {
+        console.log(`Moving from index ${currentIndex} to ${nextIndex}`);
+        State.updateElementIndex(nextIndex); // NOW update the state index
+        UI.displayElementQuestions(nextIndex); // Display the *next* set of questions
+    }
+}
     function goToPrevElement() {
     const currentState = State.getState();
     if (currentState.currentElementIndex > 0) {
@@ -203,18 +216,6 @@ let currentTapestryAnalysis = null; // Stores the detailed breakdown from calcul
         UI.displayElementQuestions(prevIndex);
     } else {
         console.log("Cannot go back from the first element.");
-    }
-}
-
-    const nextIndex = currentIndex + 1; // Calculate next index based on the one we just saved for
-
-    if (nextIndex >= elementNames.length) {
-         console.log("Reached end of questionnaire, finalizing...");
-         finalizeQuestionnaire(); // This will handle final state saving of the last element
-    } else {
-        console.log(`Moving from index ${currentIndex} to ${nextIndex}`);
-        State.updateElementIndex(nextIndex); // NOW update the state index
-        UI.displayElementQuestions(nextIndex); // Display the *next* set of questions
     }
 }
  function finalizeQuestionnaire() {
