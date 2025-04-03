@@ -15,19 +15,21 @@ export const SELL_INSIGHT_FACTOR = 0.5;
 export const MAX_FOCUS_SLOTS = 12;
 export const INITIAL_FOCUS_SLOTS = 5;
 export const INITIAL_INSIGHT = 10;
-export const CONTEMPLATION_COST = 3;
+export const CONTEMPLATION_COST = 3; // *** ADDED ***
 export const CONTEMPLATION_COOLDOWN = 2 * 60 * 1000; // 2 minutes
 export const SCENE_SUGGESTION_COST = 12;
 export const SYNERGY_INSIGHT_BONUS = 1.0;
-export const SYNERGY_DISCOVERY_CHANCE = 0.15;
+export const SYNERGY_DISCOVERY_CHANCE = 0.15; // *** ADDED *** 15% chance
 
-// Onboarding Phases (Purpose refined in comments)
+
+
+// Onboarding Phases
 export const ONBOARDING_PHASE = {
     START: 0, // Questionnaire
-    PERSONA_GRIMOIRE: 1, // View Persona/Grimoire, Learn Focus
-    STUDY_INSIGHT: 2, // Unlock Study, Learn Research/Insight/Sell loop
-    REFLECTION_RITUALS: 3, // Unlock Reflection, Rituals, Guidance
-    ADVANCED: 4 // Unlock Repository, Library, Art Evo, Focus Unlocks
+    PERSONA_GRIMOIRE: 1, // View Persona, Grimoire, Learn Focus
+    STUDY_INSIGHT: 2, // Unlock Study, Learn Research/Insight/Sell
+    REFLECTION_RITUALS: 3, // Unlock Reflection, Rituals
+    ADVANCED: 4 // Unlock Repository, Library etc.
 };
 
 // Concept discovery insight values
