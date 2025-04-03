@@ -111,19 +111,21 @@ function attachEventListeners() {
     if (settingsBtn) settingsBtn.addEventListener('click', UI.showSettings);
 
     // --- Results Modal Listener ---
-    const resultsModalBtn = document.getElementById('goToGrimoireButton');
+       const resultsModalBtn = document.getElementById('goToGrimoireButton');
     const closeResultsBtn = document.getElementById('closeResultsModalButton');
     if (resultsModalBtn) {
         resultsModalBtn.addEventListener('click', () => {
             UI.hideExperimentResultsModal();
             UI.showScreen('grimoireScreen'); // Navigate to Grimoire
-            // Grimoire tutorial will trigger via showScreen if needed
         });
     } else { console.error("Go To Grimoire button not found!"); }
     if (closeResultsBtn) {
-         // Decide if closing should just hide or force grimoire? Let's just hide.
-         closeResultsBtn.addEventListener('click', UI.hideExperimentResultsModal);
-    }
+         // *** CHANGE THIS LISTENER ***
+         closeResultsBtn.addEventListener('click', () => {
+            console.log("Results modal closed via 'X', navigating to Grimoire.");
+            UI.hideExperimentResultsModal();
+            UI.showScreen('grimoireScreen'); // Navigate to Grimoire even when closing
+         });
     // --- End Results Modal Listener ---
 
 
