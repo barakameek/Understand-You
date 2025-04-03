@@ -70,7 +70,9 @@ function _triggerSave() {
      const saveIndicator = document.getElementById('saveIndicator');
      if (saveIndicator) saveIndicator.classList.remove('hidden');
      if (saveTimeout) clearTimeout(saveTimeout);
-     saveTimeout = setTimeout(() => {
+
+     // --- MODIFICATION: Make the setTimeout callback async ---
+     saveTimeout = setTimeout(async () => { // Added async here
          try {
              // Prepare state for JSON stringification
              const stateToSave = {
@@ -92,7 +94,8 @@ function _triggerSave() {
          } catch (error) {
               console.error("Error saving game state:", error);
               // Optionally, show a persistent error message to the user via UI
-              const uiModule = await import('./ui.js'); // Dynamic import for error
+              // Now 'await' is valid because the function is async
+              const uiModule = await import('./ui.js');
               uiModule.showTemporaryMessage("SAVE FAILED!", 5000);
           }
          finally {
