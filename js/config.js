@@ -26,16 +26,13 @@ export const SYNERGY_DISCOVERY_CHANCE = 0.15; // 15% chance
 // These phases control access to features *after* the initial guided tutorial is complete.
 export const ONBOARDING_PHASE = {
     START: 0,             // Initial state before questionnaire
-    // Note: Phases below might be reached *during* or *after* the tutorial,
-    // depending on which features the tutorial introduces and when.
-    // The tutorial itself uses ONBOARDING_TUTORIAL_STEP.
     PERSONA_GRIMOIRE: 1,  // Can see Persona & Grimoire, learn Focus (Introduced in Tutorial)
     STUDY_INSIGHT: 2,     // Can use Study, Research, Sell (Introduced in Tutorial)
     REFLECTION_RITUALS: 3,// Can use Reflection, Rituals (Introduced in Tutorial)
     ADVANCED: 4           // Can use Repository, Library, Evolve Art (Introduced in Tutorial / Post-Tutorial)
 };
 
-// --- NEW: Onboarding Tutorial Steps (Initial Guided Flow) ---
+// --- Onboarding Tutorial Steps (Initial Guided Flow) ---
 // String constants for the guided tutorial steps managed in state.js
 export const TUTORIAL_STEP = {
     START: 'start',                     // App loaded, before questionnaire
@@ -48,8 +45,8 @@ export const TUTORIAL_STEP = {
     REFLECTION_INTRO: 'reflection_intro',// Introduce Reflection modal (triggered first time)
     REPOSITORY_INTRO: 'repository_intro', // Introduce Repository (when first relevant item appears or phase allows)
     COMPLETE: 'complete'                // Guided tutorial finished, normal gameplay resumes
+    // Add more steps here as needed for finer control
 };
-// Add more steps here as needed for finer control (e.g., 'research_results_intro', 'attunement_intro', 'deep_dive_intro')
 
 
 // --- Concept Discovery Insight Values ---
