@@ -528,7 +528,13 @@ export function displayElementQuestions(index) {
     if (progressText) progressText.textContent = `Element ${index + 1} / ${elementNames.length}: ${elementData.name || elementName}`;
     if (prevElementButton) prevElementButton.style.visibility = (index > 0) ? 'visible' : 'hidden';
     if (nextElementButton) nextElementButton.textContent = (index === elementNames.length - 1) ? "Analyze Results" : "Next Element"; // Updated text
+ const initialAnswers = currentState.userAnswers?.[elementName] || {};
+    updateDynamicFeedback(elementName, initialAnswers); // Update score display
+    questionContent.querySelectorAll('.slider.q-input').forEach(slider => { // Update all slider text
+        updateSliderFeedbackText(slider, elementName);
+    });
 }
+
 export function updateSliderFeedbackText(sliderElement, elementName) {
     if (!sliderElement || sliderElement.type !== 'range') return;
     const qId = sliderElement.dataset.questionId;
