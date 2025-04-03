@@ -80,11 +80,12 @@ function attachEventListeners() {
     console.log("Attaching event listeners...");
 
     // Welcome Screen
-    const startButton = document.getElementById('startGuidedButton');
-    const loadButton = document.getElementById('loadButton'); // Refetch might be needed if DOM manipulated
+ const startButton = document.getElementById('startGuidedButton');
+    const loadButton = document.getElementById('loadButton');
     if (startButton) startButton.addEventListener('click', () => {
-        State.clearGameState(); // Clears state and initializes correctly
-        UI.initializeQuestionnaireUI();
+        State.clearGameState(); // Clears state (index becomes -1)
+        State.updateElementIndex(0); // *** ADD THIS LINE: Set state index to 0 ***
+        UI.initializeQuestionnaireUI(); // Renders questions for index 0
         UI.showScreen('questionnaireScreen');
         if(loadButton) loadButton.classList.add('hidden');
     });
