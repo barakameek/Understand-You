@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -44,17 +45,16 @@
              <main id="questionContent"></main>
              <footer>
                  <button id="prevElementButton" class="button back-button" style="visibility: hidden;">Previous</button>
-                 <!-- Text changes dynamically in JS -->
-                 <button id="nextElementButton" class="button next-button">Next Element</button>
+                 <button id="nextElementButton" class="button next-button">Next / View Persona</button>
              </footer>
         </div>
 
-        <!-- === Navigation Bar (Initially Hidden after Questionnaire/Tutorial) === -->
+        <!-- === Navigation Bar (Initially Hidden after Questionnaire) === -->
         <nav id="mainNavBar" class="main-nav hidden">
              <button class="nav-button active" data-target="personaScreen">Persona</button>
              <button class="nav-button" data-target="grimoireScreen">Grimoire (<span id="grimoireCount">0</span>)</button>
              <button class="nav-button hidden-by-flow" data-target="studyScreen">Study</button>
-             <button class="nav-button hidden-by-flow" data-target="repositoryScreen">Repository</button>
+             <button class="nav-button hidden-by-flow" data-target="repositoryScreen">Repository</button> <!-- Initially hidden -->
              <button id="settingsButton" class="nav-button settings-button" title="Settings & Save/Load Options"><i class="fas fa-cog"></i></button>
         </nav>
 
@@ -81,6 +81,7 @@
                          <hr>
                          <h2>Resources <i class="fas fa-info-circle info-icon" title="Insight is the primary currency, earned through discovery, reflection, and rituals. Spend it in The Study to research new Concepts or unlock deeper knowledge."></i></h2>
                          <p>Current Insight: <strong id="userInsightDisplayPersona">0.0</strong> <i class="fas fa-brain insight-icon"></i></p>
+                         <!-- Element Library Div Removed -->
                      </div><!-- End Left Column -->
 
                     <!-- Right Column: Tapestry -->
@@ -140,6 +141,7 @@
         </div> <!-- End Persona Screen -->
 
          <!-- === Grimoire Screen === -->
+       <!-- === Grimoire Screen === -->
          <div id="grimoireScreen" class="screen hidden grimoire-screen">
               <h1>The Grand Grimoire <i class="fas fa-info-circle info-icon" title="Your personal collection of discovered Concept Cards. Filter, sort, view details, mark Concepts for Focus, or sell unwanted Concepts for Insight."></i></h1>
               <!-- Grimoire controls -->
@@ -171,7 +173,8 @@
               <div id="grimoireContent" class="card-grid">
                   <!-- Grimoire cards injected here -->
               </div>
-         </div>
+         </div> 
+
 
         <!-- === Main Study Screen (Initially hidden by flow) === -->
        <div id="studyScreen" class="screen hidden study-screen">
@@ -316,7 +319,7 @@
               </div> <!-- End popup-content -->
               <div class="popup-actions">
                   <button id="addToGrimoireButton" class="button small-button add-grimoire-button" title="Add this Concept to your permanent Grimoire collection.">Add to Grimoire</button>
-                  <!-- Focus button shown/hidden based on phase/discovery -->
+                  <!-- Focus button initially hidden by flow -->
                   <button id="markAsFocusButton" class="button small-button focus-button hidden" title="Toggle whether this Concept contributes to your Persona Tapestry.">Mark as Focus</button>
                   <!-- Sell button added dynamically by ui.js -->
               </div>
@@ -386,33 +389,6 @@
              <span id="toastMessage">Message text here</span>
          </div> <!-- End Toast -->
 
-
-         <!-- === NEW: Starting Nebula Modal === -->
-         <div id="startingNebulaModal" class="popup hidden nebula-modal">
-              <button class="close-button">×</button> <!-- Standard close button -->
-              <div id="nebulaModalContent">
-                  <!-- Content injected by UI.showStartingNebulaModal -->
-                  <h2>Initial Analysis Complete!</h2>
-                  <p>Loading results...</p>
-              </div>
-              <div class="popup-actions nebula-actions">
-                   <button id="viewStarCatalogButton" class="button">View Grimoire</button>
-              </div>
-         </div>
-
-         <!-- === NEW: Tutorial Modal === -->
-         <div id="tutorialModal" class="popup hidden tutorial-modal">
-              <button class="close-button">×</button> <!-- Standard close button -->
-              <h3 id="tutorialTitle">Tutorial Step</h3>
-              <div class="tutorial-content">
-                   <p id="tutorialText">Tutorial instructions go here...</p>
-              </div>
-              <div class="popup-actions tutorial-actions">
-                   <button id="tutorialNextButton" class="button">Next</button>
-              </div>
-         </div>
-
-         <!-- === Overlay (Shared by popups and tutorial) === -->
          <div id="popupOverlay" class="overlay hidden"></div>
 
     </div> <!-- End app-container -->
