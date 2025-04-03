@@ -1,3 +1,5 @@
+// js/gameLogic.js - Application Logic
+
 import * as State from './state.js';
 import * as Config from './config.js';
 import * as Utils from './utils.js';
@@ -187,7 +189,7 @@ function goToPrevElement() {
 }
 function finalizeQuestionnaire() {
     console.log("Finalizing questionnaire...");
-    // 1. Save final answers (should be done by goToNextElement call)
+    // 1. Save final answers (should be done by goToNextElement call for the last element)
     // 2. Calculate final scores
     const finalScores = {};
     const allAnswers = State.getState().userAnswers;
@@ -326,7 +328,7 @@ function conductResearch(elementKeyToResearch) {
     const currentAtt = State.getAttunement()[elementKeyToResearch] || 0; const priorityP = []; const secondaryP = []; const tertiaryP = [];
     undiscoveredPool.forEach(c => { const score = c.elementScores?.[elementKeyToResearch] || 0; const isPri = c.primaryElement === elementKeyToResearch; if (isPri || score >= 7.5) priorityP.push({...c}); else if (score >= 4.5) secondaryP.push({...c}); else tertiaryP.push({...c}); });
     const selectedOut = []; let dupeGain = 0; const numResults = 3;
-    const selectWeighted = () => { /* ... (selectWeighted logic remains the same) ... */
+    const selectWeighted = () => {
         const pools = [ { pool: priorityP, mult: 3.5 + (currentAtt / 30) }, { pool: secondaryP, mult: 1.5 + (currentAtt / 60) }, { pool: tertiaryP, mult: 0.8 } ];
         let combined = []; let totalW = 0; const attFactor = 1 + (currentAtt / (Config.MAX_ATTUNEMENT * 1.2));
         pools.forEach(({ pool, mult }) => { pool.forEach(card => { let w = 1.0 * mult; if (card.rarity === 'uncommon') w *= (1.3 * attFactor); else if (card.rarity === 'rare') w *= (0.6 * attFactor); else w *= (1.0 * attFactor); w = Math.max(0.1, w); totalW += w; combined.push({ card, w }); }); });
@@ -555,10 +557,10 @@ function checkTriggerReflectionPrompt(triggerAction = 'other') {
     if (reflectionCooldownTimeout) clearTimeout(reflectionCooldownTimeout);
     State.setPromptCooldownActive(true);
     reflectionCooldownTimeout = setTimeout(() => {
-        State.clearReflectionCooldown(); // Use state function to clear and save
+        State.setPromptCooldownActive(false); // Use state function to clear and save
         console.log("Reflection cooldown ended.");
         reflectionCooldownTimeout = null;
-        // No explicit save needed here, State.clearReflectionCooldown handles it
+        // No explicit save needed here, State.setPromptCooldownActive handles it
     }, 1000 * 60 * 3); // 3 min cooldown
  }
  function triggerReflectionPrompt(context = 'Standard', targetId = null, category = null) {
@@ -719,8 +721,8 @@ function handleConfirmReflection(nudgeAllowed) {
     // No specific attunement for Dissonance by default, handled by generic below if attuneKey is null
 
     // Grant Attunement
-    if (attuneKey) gainAttunementForAction('completeReflection', attuneKey, attuneAmt);
-    else gainAttunementForAction('completeReflectionGeneric', 'All', 0.2); // Generic gain if no key determined
+    if (attuneKey) { gainAttunementForAction('completeReflection', attuneKey, attuneAmt); }
+    else { gainAttunementForAction('completeReflectionGeneric', 'All', 0.2); } // Generic gain if no key determined
 
     // Update Milestones & Rituals
     updateMilestoneProgress(milestoneAct, 1);
@@ -778,7 +780,7 @@ function handleUnlockLibraryLevel(event) {
      if (!key || isNaN(level)) { console.error("Invalid library unlock data"); return; }
      unlockDeepDiveLevel(key, level); // Call the core logic function
 }
-function unlockDeepDiveLevel(elementKey, levelToUnlock) { // Internal function, assumes phase check done by handler
+ function unlockDeepDiveLevel(elementKey, levelToUnlock) { // Internal function, assumes phase check done by handler
     const dData = elementDeepDive[elementKey] || []; const lData = dData.find(l => l.level === levelToUnlock); const curLevel = State.getState().unlockedDeepDiveLevels[elementKey] || 0;
     if (!lData || levelToUnlock !== curLevel + 1) { console.warn(`Library unlock fail: Invalid level/seq.`); return; }
     const cost = lData.insightCost || 0;
@@ -793,16 +795,15 @@ function unlockDeepDiveLevel(elementKey, levelToUnlock) { // Internal function, 
 
             UI.showTemporaryMessage(`${elementKeyToFullName[elementKey]} Insight Lv ${levelToUnlock} Unlocked!`, 3000);
             updateMilestoneProgress('unlockLibrary', levelToUnlock); updateMilestoneProgress('unlockedDeepDiveLevels', State.getState().unlockedDeepDiveLevels); checkAndUpdateRituals('unlockLibrary');
-            // --- *** ADDED: Explicit UI update on Phase Change *** ---
+            // Explicitly check and apply phase UI update *after* state is updated
             const newPhase = State.getOnboardingPhase();
-            if (newPhase === Config.ONBOARDING_PHASE.ADVANCED) { // Check if *this* unlock triggered Phase 4
+            if (newPhase === Config.ONBOARDING_PHASE.ADVANCED) { // Check if this unlock *triggered* Phase 4
                 UI.applyOnboardingPhaseUI(newPhase); // Apply the new phase UI globally
                  UI.showTemporaryMessage("Advanced Features Unlocked!", 3500);
             }
-             // --- *** END ADDED *** ---
         } else { console.error(`State fail unlock library ${elementKey} Lv ${levelToUnlock}`); gainInsight(cost, `Refund: Library unlock error`); }
     }
-
+}
 function handleMeditateScene(event) {
      if (!isActionAllowed(Config.ONBOARDING_PHASE.ADVANCED)) { UI.showTemporaryMessage("Unlock Repository first.", 3000); return; }
      const button = event.target.closest('button'); if (!button || button.disabled) return; const sceneId = button.dataset.sceneId; if (!sceneId) return; meditateOnScene(sceneId);
@@ -958,11 +959,8 @@ function updateMilestoneProgress(trackType, currentValue) {
              // Check by Action Count
              if (m.track.action === trackType) {
                   // Simplification: If trackType matches, assume count increases by 1 for now.
-                  // More complex counting would require tracking action counts in state.
-                  // Let's use a placeholder total count for actions for now.
                   // TODO: Implement proper action count tracking in state if needed.
-                  // For now, many count=1 milestones trigger immediately on first action.
-                  const currentCount = 1; // Placeholder
+                  const currentCount = 1; // Placeholder - Assume action just happened
                   if (currentCount >= (m.track.count || 1)) achieved = true;
             }
              // Check by State Value
@@ -1161,6 +1159,7 @@ function handleCompleteContemplation(task) {
 
 
 // --- EXPORTS ---
+// (Exporting specific functions allows other modules to use them)
 export {
     // Questionnaire
     handleQuestionnaireInputChange, handleCheckboxChange, calculateElementScore,
@@ -1174,10 +1173,10 @@ export {
     checkTriggerReflectionPrompt, triggerReflectionPrompt, handleConfirmReflection,
     triggerGuidedReflection,
     // Library (Integrated)
-    handleUnlockLibraryLevel,
+    handleUnlockLibraryLevel, // Keep handler, logic changed
     // Repository
-    handleMeditateScene,
-    handleAttemptExperiment,
+    handleMeditateScene, // Renamed internal call
+    handleAttemptExperiment, // Renamed internal call
     // Persona Calculation Helpers
     calculateFocusScores, calculateTapestryNarrative, calculateFocusThemes,
     // Focus Unlocks
