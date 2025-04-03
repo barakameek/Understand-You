@@ -780,30 +780,39 @@ function handleUnlockLibraryLevel(event) {
      if (!key || isNaN(level)) { console.error("Invalid library unlock data"); return; }
      unlockDeepDiveLevel(key, level); // Call the core logic function
 }
- function unlockDeepDiveLevel(elementKey, levelToUnlock) { // Internal function, assumes phase check done by handler
+function unlockDeepDiveLevel(elementKey, levelToUnlock) {
     const dData = elementDeepDive[elementKey] || []; const lData = dData.find(l => l.level === levelToUnlock); const curLevel = State.getState().unlockedDeepDiveLevels[elementKey] || 0;
     if (!lData || levelToUnlock !== curLevel + 1) { console.warn(`Library unlock fail: Invalid level/seq.`); return; }
     const cost = lData.insightCost || 0;
     if (spendInsight(cost, `Unlock Library: ${elementKeyToFullName[elementKey]} Lv ${levelToUnlock}`)) {
-        if (State.unlockLibraryLevel(elementKey, levelToUnlock)) { // This now handles the Phase 4 trigger internally
+        const phaseBeforeUnlock = State.getOnboardingPhase(); // Get phase BEFORE state change
+        if (State.unlockLibraryLevel(elementKey, levelToUnlock)) { // This handles the Phase 4 trigger internally
             console.log(`Unlocked ${elementKeyToFullName[elementKey]} level ${levelToUnlock}`);
+            const phaseAfterUnlock = State.getOnboardingPhase(); // Get phase AFTER state change
+
             // Refresh UI for the specific element's deep dive section
             const targetContainer = document.querySelector(`#personaElementDetails .element-deep-dive-container[data-element-key="${elementKey}"]`);
             if (targetContainer) {
-                 UI.displayElementDeepDive(elementKey, targetContainer); // Refresh the specific section
+                 UI.displayElementDeepDive(elementKey, targetContainer);
             } else { console.warn(`Could not find container for ${elementKey} to refresh UI.`); }
 
-            UI.showTemporaryMessage(`${elementKeyToFullName[elementKey]} Insight Lv ${levelToUnlock} Unlocked!`, 3000);
+            UI.showTemporaryMessage(`${elementKeyToFullName[elementKey]} Insight Level ${levelToUnlock} Unlocked!`, 3000);
             updateMilestoneProgress('unlockLibrary', levelToUnlock); updateMilestoneProgress('unlockedDeepDiveLevels', State.getState().unlockedDeepDiveLevels); checkAndUpdateRituals('unlockLibrary');
-            // Explicitly check and apply phase UI update *after* state is updated
-            const newPhase = State.getOnboardingPhase();
-            if (newPhase === Config.ONBOARDING_PHASE.ADVANCED) { // Check if this unlock *triggered* Phase 4
-                UI.applyOnboardingPhaseUI(newPhase); // Apply the new phase UI globally
-                 UI.showTemporaryMessage("Advanced Features Unlocked!", 3500);
+
+            // Check if the phase *actually changed* to Advanced during this unlock
+            if (phaseAfterUnlock === Config.ONBOARDING_PHASE.ADVANCED && phaseBeforeUnlock < Config.ONBOARDING_PHASE.ADVANCED) {
+                console.log("Phase advanced to ADVANCED by library unlock. Applying UI.");
+                UI.applyOnboardingPhaseUI(phaseAfterUnlock); // Apply the new phase UI globally
+                UI.showTemporaryMessage("Advanced Features Unlocked!", 3500);
+            } else {
+                // If phase didn't change but we are already in advanced, ensure UI is consistent
+                // This might be redundant if applyOnboardingPhaseUI is called on screen switch, but safe to include.
+                if (phaseAfterUnlock >= Config.ONBOARDING_PHASE.ADVANCED) {
+                     UI.applyOnboardingPhaseUI(phaseAfterUnlock);
+                }
             }
         } else { console.error(`State fail unlock library ${elementKey} Lv ${levelToUnlock}`); gainInsight(cost, `Refund: Library unlock error`); }
     }
-}
 function handleMeditateScene(event) {
      if (!isActionAllowed(Config.ONBOARDING_PHASE.ADVANCED)) { UI.showTemporaryMessage("Unlock Repository first.", 3000); return; }
      const button = event.target.closest('button'); if (!button || button.disabled) return; const sceneId = button.dataset.sceneId; if (!sceneId) return; meditateOnScene(sceneId);
