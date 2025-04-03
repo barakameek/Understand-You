@@ -435,8 +435,15 @@ hr { border: none; border-top: 1px dashed var(--border-color-light); margin: 18p
 .reset-warning { color: var(--danger-color); font-size: 0.85em; margin-top: 12px; font-weight: bold; }
 
 /* --- Experiment Results Modal (NEW) --- */
-.results-modal { max-width: 700px; /* Slightly wider */ }
-.results-modal .popup-content { text-align: center; gap: 12px; /* Adjust spacing */ }
+.results-modal {
+    max-width: 700px; /* Slightly wider */
+    border: 2px solid var(--border-color-dark); /* Add a slightly darker border */
+}
+.results-modal .popup-content {
+    text-align: center;
+    gap: 15px; /* Increased gap */
+    padding: 20px 25px; /* Added more padding (top/bottom, left/right) */
+}
 .results-scores { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; margin: 10px 0; padding: 10px; background-color: rgba(255,255,255,0.3); border-radius: 6px; }
 .results-score-item { display: flex; flex-direction: column; align-items: center; font-size: 0.9em; min-width: 80px; }
 .results-score-item .element-name { font-weight: bold; color: var(--primary-color); margin-bottom: 3px; }
