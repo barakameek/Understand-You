@@ -111,7 +111,7 @@ function attachEventListeners() {
     if (settingsBtn) settingsBtn.addEventListener('click', UI.showSettings);
 
     // --- Results Modal Listener ---
-       const resultsModalBtn = document.getElementById('goToGrimoireButton');
+     const resultsModalBtn = document.getElementById('goToGrimoireButton');
     const closeResultsBtn = document.getElementById('closeResultsModalButton');
     if (resultsModalBtn) {
         resultsModalBtn.addEventListener('click', () => {
@@ -119,13 +119,13 @@ function attachEventListeners() {
             UI.showScreen('grimoireScreen'); // Navigate to Grimoire
         });
     } else { console.error("Go To Grimoire button not found!"); }
-    if (closeResultsBtn) {
-         // *** CHANGE THIS LISTENER ***
+    if (closeResultsBtn) { // <<< 'if' starts here
          closeResultsBtn.addEventListener('click', () => {
             console.log("Results modal closed via 'X', navigating to Grimoire.");
             UI.hideExperimentResultsModal();
             UI.showScreen('grimoireScreen'); // Navigate to Grimoire even when closing
          });
+    }
     // --- End Results Modal Listener ---
 
 
