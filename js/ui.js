@@ -130,26 +130,31 @@ const closeStartingNebulaButton = startingNebulaModal?.querySelector('.close-but
 
 // --- Tutorial Step Definitions ---
 // Maps step IDs (from Config.TUTORIAL_STEP) to their content and targets
+// --- Tutorial Step Definitions ---
+// Maps step IDs (from Config.TUTORIAL_STEP) to their content and targets
 const tutorialSteps = {
-    [Config.TUTORIAL_STEP.GRIMOIRE_INTRO]: { // <--- Around line 192 might be here
+    [Config.TUTORIAL_STEP.GRIMOIRE_INTRO]: {
         title: "The Grand Grimoire",
         text: "Welcome to your Grimoire! This is where all the Concept Cards you discover are stored. Take a look around.",
         targetElementId: 'grimoireScreen',
         nextStepId: Config.TUTORIAL_STEP.CONCEPT_POPUP_INTRO
-    },
+    }, // Ensure comma is here
+
+    // REMOVED THE COMMENT LINE THAT WAS HERE
+
     [Config.TUTORIAL_STEP.CONCEPT_POPUP_INTRO]: {
         title: "Concept Details",
         text: "Click a Concept Card to see details, elemental resonance, related concepts, and actions like 'Mark as Focus'. Try clicking one!",
         targetElementId: 'grimoireContent',
         nextStepId: Config.TUTORIAL_STEP.FOCUS_INTRO,
-        waitForAction: true // Wait for user to click a card
+        waitForAction: true
     },
      [Config.TUTORIAL_STEP.FOCUS_INTRO]: {
         title: "Focusing Concepts",
         text: "The 'Persona' screen shows your profile. In the 'Focus' area (on the right), you can 'Mark as Focus' Concepts from your Grimoire (via the popup) to shape your Tapestry Narrative.",
-        targetElementId: 'tapestryArea', // Highlight the focus grid area
+        targetElementId: 'tapestryArea',
         nextStepId: Config.TUTORIAL_STEP.STUDY_INTRO,
-        waitForAction: true // Wait for user to actually focus a concept
+        waitForAction: true
     },
      [Config.TUTORIAL_STEP.STUDY_INTRO]: {
         title: "The Alchemist's Study",
@@ -160,21 +165,21 @@ const tutorialSteps = {
     [Config.TUTORIAL_STEP.SELL_INTRO]: {
         title: "Managing Concepts",
         text: "Found Concepts appear in 'Research Notes'. You can 'Add' them to your Grimoire or 'Sell' unwanted ones (here or in the Grimoire) for Insight.",
-        targetElementId: 'researchOutput', // Highlight research results area
+        targetElementId: 'researchOutput',
         nextStepId: Config.TUTORIAL_STEP.REFLECTION_INTRO
     },
     [Config.TUTORIAL_STEP.REFLECTION_INTRO]: {
         title: "Moments for Reflection",
         text: "Discoveries may prompt a 'Moment for Reflection'. Engaging grants Insight and Attunement. Check the Study screen for Rituals too.",
-        targetElementId: 'studyScreen', // Broad context
+        targetElementId: 'studyScreen',
         nextStepId: Config.TUTORIAL_STEP.REPOSITORY_INTRO
     },
     [Config.TUTORIAL_STEP.REPOSITORY_INTRO]: {
         title: "The Repository",
         text: "The Repository (unlocked later) holds special finds: Scene Blueprints, Experiments, unique Insights, and tracks Milestones.",
-        targetElementId: 'repositoryScreen', // Highlight nav button or screen
+        targetElementId: 'repositoryScreen',
         nextStepId: Config.TUTORIAL_STEP.COMPLETE
-    },
+    } // No comma after the last item
 };
 
 // --- Tutorial UI Functions ---
