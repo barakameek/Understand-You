@@ -813,6 +813,7 @@ function unlockDeepDiveLevel(elementKey, levelToUnlock) {
             }
         } else { console.error(`State fail unlock library ${elementKey} Lv ${levelToUnlock}`); gainInsight(cost, `Refund: Library unlock error`); }
     }
+     }
 function handleMeditateScene(event) {
      if (!isActionAllowed(Config.ONBOARDING_PHASE.ADVANCED)) { UI.showTemporaryMessage("Unlock Repository first.", 3000); return; }
      const button = event.target.closest('button'); if (!button || button.disabled) return; const sceneId = button.dataset.sceneId; if (!sceneId) return; meditateOnScene(sceneId);
