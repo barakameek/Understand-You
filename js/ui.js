@@ -130,22 +130,23 @@ const closeStartingNebulaButton = startingNebulaModal?.querySelector('.close-but
 
 // --- Tutorial Step Definitions ---
 // Maps step IDs (from Config.TUTORIAL_STEP) to their content and targets
+// --- Tutorial Step Definitions ---
 const tutorialSteps = {
-    [Config.TUTORIAL_STEP.GRIMOIRE_INTRO]: {
+    'grimoire_intro': { // Changed key
         title: "The Grand Grimoire",
         text: "Welcome to your Grimoire! This is where all the Concept Cards you discover are stored. Take a look around.",
         targetElementId: 'grimoireScreen',
-        nextStepId: Config.TUTORIAL_STEP.CONCEPT_POPUP_INTRO
-    }, // Comma is present
+        nextStepId: Config.TUTORIAL_STEP.CONCEPT_POPUP_INTRO // Keep value as Config ref
+    },
 
-    [Config.TUTORIAL_STEP.CONCEPT_POPUP_INTRO]: {
+    'concept_popup_intro': { // Changed key
         title: "Concept Details",
         text: "Click a Concept Card to see details, elemental resonance, related concepts, and actions like 'Mark as Focus'. Try clicking one!",
         targetElementId: 'grimoireContent',
-        nextStepId: Config.TUTORIAL_STEP.FOCUS_INTRO,
+        nextStepId: Config.TUTORIAL_STEP.FOCUS_INTRO, // Keep value as Config ref
         waitForAction: true
     },
-     [Config.TUTORIAL_STEP.FOCUS_INTRO]: {
+     [Config.TUTORIAL_STEP.FOCUS_INTRO]: { // Keep others as Config refs for now
         title: "Focusing Concepts",
         text: "The 'Persona' screen shows your profile. In the 'Focus' area (on the right), you can 'Mark as Focus' Concepts from your Grimoire (via the popup) to shape your Tapestry Narrative.",
         targetElementId: 'tapestryArea',
@@ -175,7 +176,7 @@ const tutorialSteps = {
         text: "The Repository (unlocked later) holds special finds: Scene Blueprints, Experiments, unique Insights, and tracks Milestones.",
         targetElementId: 'repositoryScreen',
         nextStepId: Config.TUTORIAL_STEP.COMPLETE
-    } // No comma after the last item
+    }
 };
 
 // --- Tutorial UI Functions ---
