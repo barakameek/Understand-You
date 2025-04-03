@@ -1,3 +1,4 @@
+
 // js/gameLogic.js - Application Logic
 
 import * as State from './state.js';
@@ -20,7 +21,7 @@ let reflectionCooldownTimeout = null; // Used for *reflection* prompt cooldown, 
 // --- Tapestry Analysis Cache ---
 let currentTapestryAnalysis = null; // Stores the detailed breakdown from calculateTapestryNarrative
 
-function clearPopupState() {
+  function clearPopupState() {
     currentlyDisplayedConceptId = null;
     currentReflectionContext = null;
     reflectionTargetConceptId = null;
@@ -28,24 +29,12 @@ function clearPopupState() {
     currentPromptId = null;
     // Don't clear currentTapestryAnalysis here, it's linked to focus set
 }
-function setCurrentPopupConcept(conceptId) { currentlyDisplayedConceptId = conceptId; }
-function getCurrentPopupConceptId() { return currentlyDisplayedConceptId; }
+  function setCurrentPopupConcept(conceptId) { currentlyDisplayedConceptId = conceptId; }
+  function getCurrentPopupConceptId() { return currentlyDisplayedConceptId; }
 
-// Helper to check if an action is allowed in the current phase
-function isActionAllowed(requiredPhase) {
-    const currentPhase = State.getOnboardingPhase();
-    if (currentPhase >= requiredPhase) {
-        return true;
-    } else {
-        console.warn(`Action blocked: Requires phase ${requiredPhase}, currently in phase ${currentPhase}.`);
-        // Optionally show a message, but be careful not to spam
-        // UI.showTemporaryMessage("Unlock this feature by progressing further.", 2500);
-        return false;
-    }
-}
 
 // --- Insight & Attunement Management ---
-function gainInsight(amount, source = "Unknown") {
+  function gainInsight(amount, source = "Unknown") {
     if (typeof amount !== 'number' || isNaN(amount) || amount === 0) return;
     const changed = State.changeInsight(amount);
     if (changed) {
@@ -56,7 +45,7 @@ function gainInsight(amount, source = "Unknown") {
     }
 }
 
-function spendInsight(amount, source = "Unknown") {
+  function spendInsight(amount, source = "Unknown") {
     if (typeof amount !== 'number' || isNaN(amount) || amount <= 0) return false;
     if (State.getInsight() >= amount) {
         gainInsight(-amount, source); // Will trigger UI update via gainInsight
@@ -67,13 +56,14 @@ function spendInsight(amount, source = "Unknown") {
     }
 }
 
-function gainAttunementForAction(actionType, elementKey = null, amount = 0.5) {
+  function gainAttunementForAction(actionType, elementKey = null, amount = 0.5) {
     let targetKeys = [];
     let baseAmount = amount;
 
     if (elementKey && State.getAttunement().hasOwnProperty(elementKey)) {
         targetKeys.push(elementKey);
     } else if (actionType === 'completeReflection' && ['Standard', 'SceneMeditation', 'RareConcept'].includes(currentReflectionContext)) {
+         // Determine element from context if possible
          let keyFromContext = null;
          if (currentReflectionContext === 'Standard' && currentReflectionCategory) {
               keyFromContext = elementNameToKey[currentReflectionCategory];
@@ -81,9 +71,11 @@ function gainAttunementForAction(actionType, elementKey = null, amount = 0.5) {
               const scene = sceneBlueprints.find(s => s.reflectionPromptId === currentPromptId);
               keyFromContext = scene?.element || null;
          } else if (currentReflectionContext === 'RareConcept') {
+              // Find concept by uniquePromptId and get its primaryElement
               const cEntry = Array.from(State.getDiscoveredConcepts().entries()).find(([id, data]) => data.concept.uniquePromptId === currentPromptId);
               keyFromContext = cEntry ? cEntry[1].concept.primaryElement : null;
          }
+         // Prioritize context-derived key, fallback to passed elementKey if context is missing/invalid
          if (keyFromContext && State.getAttunement().hasOwnProperty(keyFromContext)) {
               targetKeys.push(keyFromContext);
          } else if (elementKey && State.getAttunement().hasOwnProperty(elementKey)) {
@@ -96,16 +88,14 @@ function gainAttunementForAction(actionType, elementKey = null, amount = 0.5) {
 
     } else if (['generic', 'completeReflectionGeneric', 'scoreNudge', 'ritual', 'milestone', 'experimentSuccess', 'artEvolve', 'addToGrimoire', 'discover', 'markFocus', 'contemplation', 'researchSuccess', 'researchFail', 'researchSpecial'].includes(actionType) || elementKey === 'All') {
         targetKeys = Object.keys(State.getAttunement());
-        // Adjust base amount based on action type for 'All' elements scenarios
         if (actionType === 'scoreNudge') baseAmount = (0.5 / (targetKeys.length || 1));
         else if (actionType === 'completeReflectionGeneric') baseAmount = 0.2;
         else if (actionType === 'generic') baseAmount = 0.1;
-        else if (actionType === 'contemplation' && elementKey === 'All') baseAmount = 0.1;
-        else if (actionType === 'contemplation' && elementKey !== 'All') baseAmount = 0.4; // Higher specific gain
+        else if (actionType === 'contemplation' && elementKey === 'All') baseAmount = 0.1; // Default for 'All' contemplation
+        else if (actionType === 'contemplation' && elementKey !== 'All') baseAmount = 0.4; // Increased gain for specific element contemplation
         else if (actionType === 'researchSuccess') baseAmount = 0.8;
         else if (actionType === 'researchFail') baseAmount = 0.2;
-        else if (actionType === 'researchSpecial') baseAmount = 1.0;
-        // Keep default baseAmount for others like 'ritual', 'milestone', 'artEvolve', etc.
+        else if (actionType === 'researchSpecial') baseAmount = 1.0; // For finding rare items during research
     } else {
         console.warn(`gainAttunement called with invalid parameters or context: action=${actionType}, key=${elementKey}, context=${currentReflectionContext}, category=${currentReflectionCategory}`);
         return;
@@ -115,8 +105,8 @@ function gainAttunementForAction(actionType, elementKey = null, amount = 0.5) {
     targetKeys.forEach(key => {
         if (State.updateAttunement(key, baseAmount)) {
             changed = true;
-            updateMilestoneProgress('elementAttunement', { [key]: State.getAttunement()[key] }); // Specific element update
-            updateMilestoneProgress('elementAttunement', State.getAttunement()); // Generic check for 'all' or 'any' milestones
+            updateMilestoneProgress('elementAttunement', { [key]: State.getAttunement()[key] });
+            updateMilestoneProgress('elementAttunement', State.getAttunement()); // Generic check
         }
     });
 
@@ -131,29 +121,33 @@ function gainAttunementForAction(actionType, elementKey = null, amount = 0.5) {
 
 
 // --- Questionnaire Logic ---
-function handleQuestionnaireInputChange(event) {
+  function handleQuestionnaireInputChange(event) {
     const input = event.target;
     const type = input.dataset.type;
     const currentState = State.getState();
     if (currentState.currentElementIndex < 0 || currentState.currentElementIndex >= elementNames.length) return;
     const elementName = elementNames[currentState.currentElementIndex];
 
+    // Add debug log for first page input changes
+    if (currentState.currentElementIndex === 0) {
+        console.log(`Input Change (Element 0 - ${elementName}): Type=${type}, ID=${input.id}, Value=${input.value}`);
+    }
+
     if (type === 'slider') {
         UI.updateSliderFeedbackText(input, elementName); // Pass element name
     }
-    // Get answers *after* slider feedback is updated but *before* saving state
     const currentAnswers = UI.getQuestionnaireAnswers();
-    State.updateAnswers(elementName, currentAnswers); // Save to state (no auto-save)
-    UI.updateDynamicFeedback(elementName, currentAnswers); // Update dynamic score display
+    State.updateAnswers(elementName, currentAnswers);
+    UI.updateDynamicFeedback(elementName, currentAnswers); // Update dynamic feedback
 }
-function handleCheckboxChange(event) {
+  function handleCheckboxChange(event) {
      const checkbox = event.target; const name = checkbox.name; const maxChoices = parseInt(checkbox.dataset.maxChoices || 2);
      const container = checkbox.closest('.checkbox-options'); if (!container) return;
      const checkedBoxes = container.querySelectorAll(`input[name="${name}"]:checked`);
      if (checkedBoxes.length > maxChoices) { UI.showTemporaryMessage(`Max ${maxChoices} options.`, 2500); checkbox.checked = false; }
      handleQuestionnaireInputChange(event); // Update state and feedback
 }
-function calculateElementScore(elementName, answersForElement) {
+  function calculateElementScore(elementName, answersForElement) {
     const questions = questionnaireGuided[elementName] || []; let score = 5.0;
     questions.forEach(q => {
         const answer = answersForElement[q.qId]; let pointsToAdd = 0; const weight = q.scoreWeight || 1.0;
@@ -163,7 +157,7 @@ function calculateElementScore(elementName, answersForElement) {
         score += pointsToAdd;
     }); return Math.max(0, Math.min(10, score)); // Clamp
 }
-function goToNextElement() {
+  function goToNextElement() {
     const currentState = State.getState();
     const currentAnswers = UI.getQuestionnaireAnswers(); // Get answers from UI first
     if (currentState.currentElementIndex >= 0 && currentState.currentElementIndex < elementNames.length) {
@@ -171,12 +165,12 @@ function goToNextElement() {
     }
     const nextIndex = currentState.currentElementIndex + 1;
     if (nextIndex >= elementNames.length) {
-         finalizeQuestionnaire(); // Handles final save and state transition
+         finalizeQuestionnaire(); // This will handle final state saving
     } else {
         State.updateElementIndex(nextIndex); UI.displayElementQuestions(nextIndex);
     }
 }
-function goToPrevElement() {
+  function goToPrevElement() {
     const currentState = State.getState();
     if (currentState.currentElementIndex > 0) {
         const currentAnswers = UI.getQuestionnaireAnswers(); // Get current answers
@@ -187,10 +181,8 @@ function goToPrevElement() {
         State.updateElementIndex(prevIndex); UI.displayElementQuestions(prevIndex);
     }
 }
-function finalizeQuestionnaire() {
-    console.log("Finalizing questionnaire...");
-    // 1. Save final answers (should be done by goToNextElement call for the last element)
-    // 2. Calculate final scores
+  function finalizeQuestionnaire() {
+    console.log("Finalizing scores...");
     const finalScores = {};
     const allAnswers = State.getState().userAnswers;
     elementNames.forEach(elementName => {
@@ -199,33 +191,28 @@ function finalizeQuestionnaire() {
         if (key) finalScores[key] = score; else console.warn(`No key for ${elementName}`);
     });
     State.updateScores(finalScores);
+    State.setQuestionnaireComplete(); // Sets state, advances phase synchronously
     State.saveAllAnswers(allAnswers); // Explicitly save all collected answers
-    // 3. Set questionnaire complete and advance phase
-    State.setQuestionnaireComplete(); // This advances to Phase 1
-    // 4. Determine starter hand
     determineStarterHandAndEssence();
-    // 5. Update milestones and check login
     updateMilestoneProgress('completeQuestionnaire', 1);
-    checkForDailyLogin(); // Check daily login status
+    checkForDailyLogin();
 
-    // 6. Prepare UI Data *before* showing screens
+    // Prepare UI Data BEFORE showing screens
     UI.updateInsightDisplays();
     UI.updateFocusSlotsDisplay();
     UI.updateGrimoireCounter();
     UI.populateGrimoireFilters();
-    UI.displayDailyRituals(); // Display initial state (likely empty/locked)
+    UI.displayDailyRituals();
     UI.refreshGrimoireDisplay(); // Render grimoire content
-    calculateTapestryNarrative(true); // Calculate initial narrative
-    UI.displayPersonaSummary(); // Prepare summary view
+    calculateTapestryNarrative(true);
+    UI.displayPersonaSummary();
     // --- End Prepare UI Data ---
 
-    // 7. Apply phase UI and show the initial screen
-    UI.applyOnboardingPhaseUI(State.getOnboardingPhase()); // Apply Phase 1 UI
+    UI.applyOnboardingPhaseUI(State.getOnboardingPhase());
     console.log("Final User Scores:", State.getScores());
-    UI.showScreen('personaScreen'); // LAND ON PERSONA SCREEN
-    UI.showTemporaryMessage("Experiment Complete! View your Persona & Grimoire.", 4000);
-    // Suggest next action via tooltip or message
-    UI.showTemporaryMessage("Hint: Explore the Grimoire and 'Focus' on concepts that resonate!", 6000);
+
+    UI.showScreen('personaScreen');
+    UI.showTemporaryMessage("Experiment Complete! Explore your results.", 4000);
 }
 
 // --- Starter Hand ---
@@ -251,20 +238,18 @@ function determineStarterHandAndEssence() {
 
 // --- Core Actions (Research, Reflection, Focus, etc.) ---
 // Screen Logic Wrappers
-function displayPersonaScreenLogic() {
-    if (!isActionAllowed(Config.ONBOARDING_PHASE.PERSONA_GRIMOIRE)) return;
-    calculateTapestryNarrative(true); // Ensure data is fresh
-    UI.displayPersonaScreen(); // Render the screen content
-    // Button state updates handled within displayPersonaScreen/applyOnboardingPhaseUI
+  function displayPersonaScreenLogic() {
+    calculateTapestryNarrative(true);
+    UI.displayPersonaScreen();
+    UI.updateTapestryDeepDiveButton();
+    UI.updateSuggestSceneButtonState();
 }
-function displayStudyScreenLogic() {
-    if (!isActionAllowed(Config.ONBOARDING_PHASE.STUDY_INSIGHT)) return;
+  function displayStudyScreenLogic() {
     UI.displayStudyScreenContent();
 }
 
 // Research Actions
-function handleResearchClick(event) {
-    if (!isActionAllowed(Config.ONBOARDING_PHASE.STUDY_INSIGHT)) return;
+  function handleResearchClick(event) {
     const button = event.currentTarget; const elementKey = button.dataset.elementKey; const cost = parseFloat(button.dataset.cost);
     if (!elementKey || isNaN(cost) || button.disabled) return;
     if (spendInsight(cost, `Research: ${elementKeyToFullName[elementKey]}`)) {
@@ -272,18 +257,9 @@ function handleResearchClick(event) {
         conductResearch(elementKey);
         updateMilestoneProgress('conductResearch', 1);
         checkAndUpdateRituals('conductResearch');
-        // ---- NEW FLOW TRIGGER: First paid research -> Phase 3 ----
-        if (State.getOnboardingPhase() < Config.ONBOARDING_PHASE.REFLECTION_RITUALS) {
-             State.advanceOnboardingPhase(Config.ONBOARDING_PHASE.REFLECTION_RITUALS);
-             UI.applyOnboardingPhaseUI(State.getOnboardingPhase()); // Update UI for new phase
-             UI.showTemporaryMessage("Reflection & Rituals Unlocked!", 3500);
-        }
-        // ---- END NEW FLOW TRIGGER ----
     }
 }
-function handleFreeResearchClick() {
-    // Allow free research even if Study isn't fully unlocked? Let's tie it to Study unlock for simplicity.
-    if (!isActionAllowed(Config.ONBOARDING_PHASE.STUDY_INSIGHT)) return;
+  function handleFreeResearchClick() {
     if (!State.isFreeResearchAvailable()) { UI.showTemporaryMessage("Daily meditation done.", 3000); return; }
     const attunement = State.getAttunement(); let targetKey = 'A'; let minAtt = Config.MAX_ATTUNEMENT + 1;
     for (const key in attunement) { if (attunement[key] < minAtt) { minAtt = attunement[key]; targetKey = key; } }
@@ -294,27 +270,24 @@ function handleFreeResearchClick() {
     updateMilestoneProgress('freeResearch', 1);
     checkAndUpdateRituals('freeResearch');
 }
-function conductResearch(elementKeyToResearch) {
-    // No phase check needed here, called by actions that *are* phase-checked
+  function conductResearch(elementKeyToResearch) {
     const elementFullName = elementKeyToFullName[elementKeyToResearch]; if (!elementFullName) { console.error(`Invalid key: ${elementKeyToResearch}`); return; }
     console.log(`Researching: ${elementFullName}`); UI.displayResearchStatus(`Reviewing ${elementDetails[elementFullName]?.name || elementFullName}...`);
     const discoveredIds = new Set(State.getDiscoveredConcepts().keys()); const discoveredRepo = State.getRepositoryItems(); const undiscoveredPool = concepts.filter(c => !discoveredIds.has(c.id));
     let rareFound = false; const roll = Math.random();
     const insightChance = 0.12; // Probability of finding an insight fragment
     const researchOutElem = document.getElementById('researchOutput');
-    // Only allow finding rare REPO items if phase allows Repository access
-    const canFindRareRepoItem = State.getOnboardingPhase() >= Config.ONBOARDING_PHASE.ADVANCED && researchOutElem && (researchOutElem.children.length === 0 || researchOutElem.querySelector('p > i'));
+    const canFindRare = researchOutElem && (researchOutElem.children.length === 0 || researchOutElem.querySelector('p > i'));
     let foundRepoItem = null;
 
-    // Repository Insight check (Requires Phase 4)
-    if (!rareFound && canFindRareRepoItem && roll < insightChance && elementalInsights.length > 0) {
+    // Insight check
+    if (!rareFound && canFindRare && roll < insightChance && elementalInsights.length > 0) {
         const relevant = elementalInsights.filter(i => i.element === elementKeyToResearch);
         const unseenRel = relevant.filter(i => !discoveredRepo.insights.has(i.id));
         const anyUnseen = elementalInsights.filter(i => !discoveredRepo.insights.has(i.id));
         const pool = unseenRel.length > 0 ? unseenRel : (anyUnseen.length > 0 ? anyUnseen : relevant);
         if (pool.length > 0) { const found = pool[Math.floor(Math.random() * pool.length)]; if (State.addRepositoryItem('insights', found.id)) { rareFound = true; foundRepoItem = {type: 'insight', ...found}; UI.showTemporaryMessage("Insight Fragment Found!", 3500); updateMilestoneProgress('repositoryInsightsCount', State.getRepositoryItems().insights.size); if(document.getElementById('repositoryScreen')?.classList.contains('current')) UI.displayRepositoryContent(); } }
     }
-     // Add checks for finding Scenes or Experiments here if desired, also gated by canFindRareRepoItem
 
     if (rareFound && foundRepoItem) {
         UI.displayResearchResults({ concepts: [], repositoryItems: [foundRepoItem], duplicateInsightGain: 0 });
@@ -323,7 +296,7 @@ function conductResearch(elementKeyToResearch) {
         return;
     }
 
-    // Concept discovery (Always possible if Study is unlocked)
+    // Concept discovery
     if (undiscoveredPool.length === 0) { UI.displayResearchStatus("No more concepts to discover."); if (researchOutElem && researchOutElem.children.length === 0) researchOutElem.innerHTML = '<p><i>Library holds all known concepts.</i></p>'; gainInsight(5.0, "All Concepts Bonus"); return; }
     const currentAtt = State.getAttunement()[elementKeyToResearch] || 0; const priorityP = []; const secondaryP = []; const tertiaryP = [];
     undiscoveredPool.forEach(c => { const score = c.elementScores?.[elementKeyToResearch] || 0; const isPri = c.primaryElement === elementKeyToResearch; if (isPri || score >= 7.5) priorityP.push({...c}); else if (score >= 4.5) secondaryP.push({...c}); else tertiaryP.push({...c}); });
@@ -334,7 +307,7 @@ function conductResearch(elementKeyToResearch) {
         pools.forEach(({ pool, mult }) => { pool.forEach(card => { let w = 1.0 * mult; if (card.rarity === 'uncommon') w *= (1.3 * attFactor); else if (card.rarity === 'rare') w *= (0.6 * attFactor); else w *= (1.0 * attFactor); w = Math.max(0.1, w); totalW += w; combined.push({ card, w }); }); });
         if (combined.length === 0) return null; let pick = Math.random() * totalW;
         for (let i = 0; i < combined.length; i++) { const item = combined[i]; if (pick < item.w) { [priorityP, secondaryP, tertiaryP].forEach(p => { const idx = p.findIndex(c => c.id === item.card.id); if (idx > -1) p.splice(idx, 1); }); return item.card; } pick -= item.w; }
-         const flatP = [...priorityP, ...secondaryP, ...tertiaryP]; if (flatP.length > 0) { const idx = Math.floor(Math.random() * flatP.length); const card = flatP[idx]; [priorityP, secondaryP, tertiaryP].forEach(p => { const i = p.findIndex(c => c.id === card.id); if (i > -1) p.splice(i, 1); }); console.warn("Weighted selection failed, falling back to flat random."); return card; } return null;
+         const flatP = [...priorityP, ...secondaryP, ...tertiaryP]; if (flatP.length > 0) { const idx = Math.floor(Math.random() * flatP.length); const card = flatP[idx]; [priorityP, secondaryP, tertiaryP].forEach(p => { const i = p.findIndex(c => c.id === card.id); if (i > -1) p.splice(i, 1); }); console.warn("Weighted fail, fallback."); return card; } return null;
     };
     let attempts = 0; const maxAtt = numResults * 4;
     while (selectedOut.length < numResults && attempts < maxAtt && (priorityP.length > 0 || secondaryP.length > 0 || tertiaryP.length > 0)) {
@@ -349,13 +322,11 @@ function conductResearch(elementKeyToResearch) {
 }
 
 // Grimoire Actions
-function addConceptToGrimoireById(conceptId, buttonElement = null) {
-    // No phase check here - adding can happen from research before study is fully "unlocked" visually
+  function addConceptToGrimoireById(conceptId, buttonElement = null) {
     if (State.getDiscoveredConcepts().has(conceptId)) { UI.showTemporaryMessage("Already in Grimoire.", 2500); if (buttonElement) UI.updateResearchButtonAfterAction(conceptId, 'add'); return; }
     const concept = concepts.find(c => c.id === conceptId); if (!concept) { console.error("Cannot add concept: Not found. ID:", conceptId); UI.showTemporaryMessage("Error: Concept not found.", 3000); return; }
     const distance = Utils.euclideanDistance(State.getScores(), concept.elementScores);
-    // Dissonance reflection only triggers if reflections are unlocked (Phase 3+)
-    if (distance > Config.DISSONANCE_THRESHOLD && isActionAllowed(Config.ONBOARDING_PHASE.REFLECTION_RITUALS)) {
+    if (distance > Config.DISSONANCE_THRESHOLD && State.getOnboardingPhase() >= Config.ONBOARDING_PHASE.REFLECTION_RITUALS) {
         console.log(`Dissonance on ${concept.name}. Triggering reflection.`);
         triggerReflectionPrompt('Dissonance', concept.id);
     } else {
@@ -363,7 +334,7 @@ function addConceptToGrimoireById(conceptId, buttonElement = null) {
     }
  }
 
-function addConceptToGrimoireInternal(conceptId) {
+  function addConceptToGrimoireInternal(conceptId) {
      const conceptToAdd = concepts.find(c => c.id === conceptId);
      if (!conceptToAdd) { console.error("Internal add fail: Not found. ID:", conceptId); return; }
      if (State.getDiscoveredConcepts().has(conceptId)) return; // Already added
@@ -375,28 +346,30 @@ function addConceptToGrimoireInternal(conceptId) {
          let bonusInsight = 0;
          let synergyMessageShown = false;
 
-         // Synergy Checks
+         // Check for insight synergy bonus and discovery chance
          if (conceptToAdd.relatedIds && conceptToAdd.relatedIds.length > 0) {
              const discoveredMap = State.getDiscoveredConcepts();
-             const undiscoveredRelated = conceptToAdd.relatedIds.filter(id => !discoveredMap.has(id));
-             // Bonus for already discovered
+             const undiscoveredRelated = conceptToAdd.relatedIds.filter(id => !discoveredMap.has(id)); // Find related IDs NOT yet discovered
+
+             // Check for Insight Bonus from ALREADY discovered related concepts
              for (const relatedId of conceptToAdd.relatedIds) {
                  if (discoveredMap.has(relatedId)) {
                      bonusInsight += Config.SYNERGY_INSIGHT_BONUS;
                      if (!synergyMessageShown) {
                          const relatedConcept = discoveredMap.get(relatedId)?.concept;
-                         UI.showTemporaryMessage(`Synergy Bonus: +${Config.SYNERGY_INSIGHT_BONUS.toFixed(1)} Insight (Related to ${relatedConcept?.name || 'known concept'})`, 3500);
+                         UI.showTemporaryMessage(`Synergy Bonus: +${Config.SYNERGY_INSIGHT_BONUS.toFixed(1)} Insight (Related to ${relatedConcept?.name || 'a known concept'})`, 3500);
                          synergyMessageShown = true;
                      }
                  }
              }
-             // Chance to discover related (Only if advanced enough? Let's allow it from Phase 2+)
-             if (isActionAllowed(Config.ONBOARDING_PHASE.STUDY_INSIGHT) && undiscoveredRelated.length > 0 && Math.random() < Config.SYNERGY_DISCOVERY_CHANCE) {
+
+             // Check for Discovery Synergy Chance with UNDISCOVERED related concepts
+             if (undiscoveredRelated.length > 0 && Math.random() < Config.SYNERGY_DISCOVERY_CHANCE) {
                  const relatedIdToDiscover = undiscoveredRelated[Math.floor(Math.random() * undiscoveredRelated.length)];
                  const relatedConceptData = concepts.find(c => c.id === relatedIdToDiscover);
                  if (relatedConceptData) {
                       UI.displayResearchResults({ concepts: [relatedConceptData], repositoryItems: [], duplicateInsightGain: 0 });
-                      UI.showTemporaryMessage(`Synergy Resonance: ${conceptToAdd.name} illuminated ${relatedConceptData.name}! (Check Notes)`, 5000);
+                      UI.showTemporaryMessage(`Synergy Resonance: Adding ${conceptToAdd.name} illuminated ${relatedConceptData.name}! Check Research Notes.`, 5000);
                       console.log(`Synergy discovery: Revealed ${relatedConceptData.name} (ID: ${relatedIdToDiscover})`);
                  }
              }
@@ -407,43 +380,36 @@ function addConceptToGrimoireInternal(conceptId) {
          gainAttunementForAction('addToGrimoire', conceptToAdd.primaryElement, 0.6);
          UI.updateGrimoireCounter();
 
-         // Queue rare prompts regardless of phase, they trigger later
          if (conceptToAdd.rarity === 'rare' && conceptToAdd.uniquePromptId && reflectionPrompts.RareConcept?.[conceptToAdd.uniquePromptId]) {
              State.addPendingRarePrompt(conceptToAdd.uniquePromptId);
              console.log(`Queued rare prompt ${conceptToAdd.uniquePromptId}`);
          }
 
-         // Update UI elements if the concept popup is currently open
-         if (currentlyDisplayedConceptId === conceptId) {
-             const inResearch = !State.getDiscoveredConcepts().has(conceptId) && researchOutput?.querySelector(`.research-result-item[data-concept-id="${conceptId}"]`);
-             UI.updateGrimoireButtonStatus(conceptId, !!inResearch); // Should now be disabled
-             UI.updateFocusButtonStatus(conceptId); // Now available
-             UI.updatePopupSellButton(conceptId, conceptToAdd, true, false); // Now show Grimoire context sell
-             UI.updateNotesSectionVisibility(true); // Show notes if phase allows
-             UI.updateEvolutionSectionVisibility(conceptToAdd, State.getDiscoveredConceptData(conceptId)); // Show evo if phase allows
+         if (currentlyDisplayedConceptId === conceptId) { // Update Popup if open
+             UI.updateGrimoireButtonStatus(conceptId, false);
+             UI.updateFocusButtonStatus(conceptId);
+             const discoveredData = State.getDiscoveredConceptData(conceptId);
+             UI.updatePopupSellButton(conceptId, conceptToAdd, true, false);
+             const notesSect = document.getElementById('myNotesSection'); if(notesSect && State.getOnboardingPhase() >= Config.ONBOARDING_PHASE.STUDY_INSIGHT) notesSect.classList.remove('hidden');
+             const evoSec = document.getElementById('popupEvolutionSection'); if(evoSec && State.getOnboardingPhase() >= Config.ONBOARDING_PHASE.ADVANCED) UI.displayEvolutionSection(conceptToAdd, discoveredData);
          }
 
          UI.updateResearchButtonAfterAction(conceptId, 'add'); // Remove from research notes UI
 
-         // Trigger reflection checks only if reflections are unlocked
-         if (isActionAllowed(Config.ONBOARDING_PHASE.REFLECTION_RITUALS)) {
-            checkTriggerReflectionPrompt('add');
-         }
+         checkTriggerReflectionPrompt('add');
          updateMilestoneProgress('addToGrimoire', 1);
          updateMilestoneProgress('discoveredConcepts.size', State.getDiscoveredConcepts().size);
-         checkAndUpdateRituals('addToGrimoire'); // Update rituals (might complete one)
+         checkAndUpdateRituals('addToGrimoire');
          UI.refreshGrimoireDisplay(); // Refresh grimoire view if it's active
          UI.showTemporaryMessage(`${conceptToAdd.name} added to Grimoire!`, 3000);
 
      } else { console.warn(`State add fail ${conceptToAdd.name}.`); UI.showTemporaryMessage(`Error adding ${conceptToAdd.name}.`, 3000); }
  }
 
-function handleToggleFocusConcept() {
-    // Focusing is central to Phase 1
-    if (!isActionAllowed(Config.ONBOARDING_PHASE.PERSONA_GRIMOIRE)) return;
+  function handleToggleFocusConcept() {
     if (currentlyDisplayedConceptId === null) return;
     const conceptId = currentlyDisplayedConceptId;
-    const result = State.toggleFocusConcept(conceptId); // This now handles the phase 2 trigger internally
+    const result = State.toggleFocusConcept(conceptId);
 
     const conceptName = State.getDiscoveredConceptData(conceptId)?.concept?.name || `ID ${conceptId}`;
 
@@ -456,36 +422,28 @@ function handleToggleFocusConcept() {
               UI.showTemporaryMessage(`${conceptName} marked as Focus!`, 2500); gainInsight(1.0, `Focused on ${conceptName}`);
               const concept = State.getDiscoveredConceptData(conceptId)?.concept; if (concept?.primaryElement) gainAttunementForAction('markFocus', concept.primaryElement, 1.0);
               updateMilestoneProgress('markFocus', 1); updateMilestoneProgress('focusedConcepts.size', State.getFocusedConcepts().size); checkAndUpdateRituals('markFocus');
-               // If phase advanced to STUDY_INSIGHT, update UI
-              if(State.getOnboardingPhase() === Config.ONBOARDING_PHASE.STUDY_INSIGHT) {
-                 UI.applyOnboardingPhaseUI(Config.ONBOARDING_PHASE.STUDY_INSIGHT);
-                 UI.showTemporaryMessage("Study Unlocked! Research new concepts.", 3500);
-              }
          }
          // --- Update UI for both add/remove ---
-         UI.updateFocusButtonStatus(conceptId); // Update button in popup
-         UI.displayFocusedConceptsPersona(); // Update tapestry display
-         UI.updateFocusElementalResonance(); // Update resonance bars
-         calculateTapestryNarrative(true); // Recalculate narrative
-         UI.generateTapestryNarrative(); // Display narrative
-         UI.synthesizeAndDisplayThemesPersona(); // Update themes list
-         if (isActionAllowed(Config.ONBOARDING_PHASE.ADVANCED)) {
-             checkForFocusUnlocks(); // Check unlocks only if advanced features are available
-         }
-         UI.refreshGrimoireDisplay(); // Update card stamps in grimoire view
-         UI.updateTapestryDeepDiveButton(); // Update state of Explore button
-         UI.updateSuggestSceneButtonState(); // Update state of Suggest button
+         UI.updateFocusButtonStatus(conceptId);
+         UI.displayFocusedConceptsPersona();
+         UI.updateFocusElementalResonance();
+         calculateTapestryNarrative(true);
+         UI.generateTapestryNarrative();
+         UI.synthesizeAndDisplayThemesPersona();
+         checkForFocusUnlocks();
+         UI.refreshGrimoireDisplay();
+         UI.updateTapestryDeepDiveButton();
+         UI.updateSuggestSceneButtonState();
     }
 }
-function handleSellConcept(event) {
-     if (!isActionAllowed(Config.ONBOARDING_PHASE.STUDY_INSIGHT)) return; // Selling requires Phase 2
+  function handleSellConcept(event) {
      const button = event.target.closest('button'); if (!button) return;
      const conceptId = parseInt(button.dataset.conceptId);
      const context = button.dataset.context;
      if (isNaN(conceptId)) { console.error("Invalid sell ID:", button.dataset.conceptId); return; }
      sellConcept(conceptId, context);
 }
-function sellConcept(conceptId, context) { // Internal logic, assumes phase check done by handler
+  function sellConcept(conceptId, context) {
     const discovered = State.getDiscoveredConceptData(conceptId);
     const concept = discovered?.concept || concepts.find(c => c.id === conceptId);
     if (!concept) { console.error(`Sell fail: Not found ${conceptId}`); UI.showTemporaryMessage("Error selling.", 3000); return; }
@@ -503,53 +461,48 @@ function sellConcept(conceptId, context) { // Internal logic, assumes phase chec
              focusChanged = State.getFocusedConcepts().has(conceptId);
              if(State.removeDiscoveredConcept(conceptId)) {
                  UI.updateGrimoireCounter();
-                 UI.refreshGrimoireDisplay(); // Update Grimoire view immediately
+                 UI.refreshGrimoireDisplay();
              }
         }
         else if (context === 'research') {
-             UI.updateResearchButtonAfterAction(conceptId, 'sell'); // Remove from research notes view
+             UI.updateResearchButtonAfterAction(conceptId, 'sell');
         }
 
-        // If focus changed, update persona screen elements
         if (focusChanged) {
             UI.displayFocusedConceptsPersona();
             UI.updateFocusElementalResonance();
             calculateTapestryNarrative(true);
             UI.generateTapestryNarrative();
             UI.synthesizeAndDisplayThemesPersona();
-            if (isActionAllowed(Config.ONBOARDING_PHASE.ADVANCED)) { checkForFocusUnlocks(); }
+            checkForFocusUnlocks();
             UI.updateTapestryDeepDiveButton();
             UI.updateSuggestSceneButtonState();
         }
         UI.showTemporaryMessage(`Sold ${concept.name} for ${sellVal.toFixed(1)} Insight.`, 2500);
-        if (currentlyDisplayedConceptId === conceptId) UI.hidePopups(); // Close popup if the sold concept was open
+        if (currentlyDisplayedConceptId === conceptId) UI.hidePopups();
     }
 }
 
 // Reflection Logic
-function checkTriggerReflectionPrompt(triggerAction = 'other') {
-    // Reflection only active from Phase 3 onwards
-    if (!isActionAllowed(Config.ONBOARDING_PHASE.REFLECTION_RITUALS)) return;
-
+  function checkTriggerReflectionPrompt(triggerAction = 'other') {
     const currentState = State.getState();
     if (currentState.promptCooldownActive) return;
+    if (currentState.onboardingPhase < Config.ONBOARDING_PHASE.REFLECTION_RITUALS) return;
     if (triggerAction === 'add') State.incrementReflectionTrigger();
-    // Removed questionnaire trigger, handled separately or not needed
-
+    if (triggerAction === 'completeQuestionnaire') { State.incrementReflectionTrigger(); State.incrementReflectionTrigger(); State.incrementReflectionTrigger(); }
     const cardsAdded = currentState.cardsAddedSinceLastPrompt;
     const triggerThresh = 3;
     const hasPending = currentState.pendingRarePrompts.length > 0;
-
     if (hasPending) {
         console.log("Pending rare prompt found.");
-        triggerReflectionPrompt('RareConcept'); // Trigger rare first
-        State.resetReflectionTrigger(true); // Reset counter and start cooldown
+        triggerReflectionPrompt('RareConcept');
+        State.resetReflectionTrigger(true);
         startReflectionCooldown();
     }
     else if (cardsAdded >= triggerThresh) {
         console.log("Reflection trigger threshold met.");
-        triggerReflectionPrompt('Standard'); // Trigger standard reflection
-        State.resetReflectionTrigger(true); // Reset counter and start cooldown
+        triggerReflectionPrompt('Standard');
+        State.resetReflectionTrigger(true);
         startReflectionCooldown();
     }
 }
@@ -557,61 +510,57 @@ function checkTriggerReflectionPrompt(triggerAction = 'other') {
     if (reflectionCooldownTimeout) clearTimeout(reflectionCooldownTimeout);
     State.setPromptCooldownActive(true);
     reflectionCooldownTimeout = setTimeout(() => {
-        State.setPromptCooldownActive(false); // Use state function to clear and save
+        State.setPromptCooldownActive(false);
         console.log("Reflection cooldown ended.");
         reflectionCooldownTimeout = null;
-        // No explicit save needed here, State.setPromptCooldownActive handles it
-    }, 1000 * 60 * 3); // 3 min cooldown
+        State.saveGameState();
+    }, 1000 * 60 * 3); // 3 min
  }
- function triggerReflectionPrompt(context = 'Standard', targetId = null, category = null) {
-    // Assumes phase check was done by caller (checkTriggerReflectionPrompt, triggerGuidedReflection, meditateOnScene)
+  function triggerReflectionPrompt(context = 'Standard', targetId = null, category = null) {
     currentReflectionContext = context;
     reflectionTargetConceptId = (context === 'Dissonance' || context === 'SceneMeditation') ? targetId : null;
-    currentReflectionCategory = category; // Store passed category (for Guided)
+    currentReflectionCategory = category;
     currentPromptId = null;
     let promptPool = [];
     let title = "Moment for Reflection";
-    let promptCatLabel = "General"; // Display label for the prompt category
+    let promptCatLabel = "General";
     let selPrompt = null;
     let showNudge = false;
-    let reward = 5.0; // Base reward
-
+    let reward = 5.0;
     console.log(`Trigger reflection: Context=${context}, Target=${targetId}, Category=${category}`);
 
-    // Prioritize Rare prompts if available (and context isn't forced like Dissonance)
     if (context !== 'Dissonance') {
-        const nextRareId = State.getNextRarePrompt(); // This removes it from the queue
+        const nextRareId = State.getNextRarePrompt();
         if (nextRareId) {
             selPrompt = reflectionPrompts.RareConcept?.[nextRareId];
             if (selPrompt) {
-                currentReflectionContext = 'RareConcept'; // Update context
+                currentReflectionContext = 'RareConcept';
                 title = "Rare Concept Reflection";
                 const cEntry = Array.from(State.getDiscoveredConcepts().entries()).find(([id, data]) => data.concept.uniquePromptId === nextRareId);
-                promptCatLabel = cEntry ? cEntry[1].concept.name : "Rare Concept"; // Set display label
+                promptCatLabel = cEntry ? cEntry[1].concept.name : "Rare Concept";
                 currentPromptId = selPrompt.id;
-                reward = 7.0; // Higher reward for rare
+                reward = 7.0;
                 console.log(`Displaying Rare reflection: ${nextRareId}`);
             } else {
                 console.warn(`Rare prompt text missing: ${nextRareId}`);
-                // Don't fallback here, let the normal logic try standard/guided
+                currentReflectionContext = 'Standard'; // Fallback
             }
         }
     }
 
-    // If no rare prompt was selected, proceed with the requested context
     if (!selPrompt) {
         if (context === 'Dissonance' && targetId) {
             title = "Dissonance Reflection";
             const concept = concepts.find(c => c.id === targetId);
             promptCatLabel = concept ? concept.name : "Dissonant";
             promptPool = reflectionPrompts.Dissonance || [];
-            showNudge = true; // Allow nudge only for Dissonance
+            showNudge = true;
             console.log(`Looking for Dissonance prompt for ${promptCatLabel}`);
         } else if (context === 'Guided' && category) {
             title = "Guided Reflection";
-            promptCatLabel = category; // Use the passed category for display
+            promptCatLabel = category;
             promptPool = reflectionPrompts.Guided?.[category] || [];
-            reward = Config.GUIDED_REFLECTION_COST + 2; // Reward includes cost refund + bonus
+            reward = Config.GUIDED_REFLECTION_COST + 2;
             console.log(`Looking for Guided prompt: ${category}`);
         } else if (context === 'SceneMeditation' && targetId) {
             const scene = sceneBlueprints.find(s => s.id === targetId);
@@ -625,15 +574,14 @@ function checkTriggerReflectionPrompt(triggerAction = 'other') {
                     console.log(`Displaying Scene Meditation: ${currentPromptId}`);
                 } else {
                     console.warn(`Scene prompt ${scene.reflectionPromptId} missing.`);
-                    // Fallback handled below if selPrompt is still null
+                    currentReflectionContext = 'Standard'; // Fallback
                 }
             } else {
                 console.warn(`Scene ${targetId} or prompt ID missing.`);
-                // Fallback handled below if selPrompt is still null
+                currentReflectionContext = 'Standard'; // Fallback
             }
         }
-        else { // Default to Standard if no other context matched or rare failed
-            currentReflectionContext = 'Standard'; // Ensure context is standard
+        else if (currentReflectionContext === 'Standard') {
             title = "Standard Reflection";
             const attune = State.getAttunement();
             const validElems = Object.entries(attune).filter(([k, v]) => v > 0).sort(([,a], [,b]) => b - a);
@@ -643,7 +591,7 @@ function checkTriggerReflectionPrompt(triggerAction = 'other') {
                 const selName = elementKeyToFullName[selKey];
                 promptPool = reflectionPrompts[selName] || [];
                 promptCatLabel = elementDetails[selName]?.name || selName;
-                currentReflectionCategory = selName; // Store the element name for potential attunement gain
+                currentReflectionCategory = selName;
                 console.log(`Looking for Standard prompt: ${promptCatLabel}`);
             } else {
                 promptPool = [];
@@ -653,52 +601,45 @@ function checkTriggerReflectionPrompt(triggerAction = 'other') {
     }
 
 
-    // Select from the pool if no specific prompt (like Scene/Rare) was already found
     if (!selPrompt && promptPool.length > 0) {
         const seen = State.getState().seenPrompts;
         const available = promptPool.filter(p => !seen.has(p.id));
         selPrompt = available.length > 0 ? available[Math.floor(Math.random() * available.length)] : promptPool[Math.floor(Math.random() * promptPool.length)];
-        currentPromptId = selPrompt.id; // Store the selected prompt ID
-        console.log(`Selected prompt ${currentPromptId} from pool for context ${currentReflectionContext}`);
+        currentPromptId = selPrompt.id;
+        console.log(`Selected prompt ${currentPromptId}`);
     }
 
-    // Display or handle failure
     if (selPrompt) {
         const pData = { title, category: promptCatLabel, prompt: selPrompt, showNudge, reward };
-        UI.displayReflectionPrompt(pData, currentReflectionContext); // Pass context for potential UI variations
+        UI.displayReflectionPrompt(pData, currentReflectionContext);
     } else {
-        console.error(`Could not select prompt for context: ${context} (Initial or Fallback)`);
+        console.error(`Could not select prompt for ${context}`);
         if (context === 'Dissonance' && reflectionTargetConceptId) {
-            console.warn("Dissonance reflection failed, adding concept.");
-            addConceptToGrimoireInternal(reflectionTargetConceptId); // Add directly
+            console.warn("Dissonance reflection fail, adding concept.");
+            addConceptToGrimoireInternal(reflectionTargetConceptId);
             UI.hidePopups();
             UI.showTemporaryMessage("Reflection unavailable, added concept.", 3500);
         } else if (context === 'Guided') {
-            gainInsight(Config.GUIDED_REFLECTION_COST, "Refund: No guided prompt"); // Refund cost
+            gainInsight(Config.GUIDED_REFLECTION_COST, "Refund: No guided prompt");
             UI.showTemporaryMessage("No guided reflections available.", 3000);
         } else {
             UI.showTemporaryMessage("No reflection prompt found.", 3000);
         }
-        clearPopupState(); // Clear temporary state if reflection failed
+        clearPopupState();
     }
 }
-function handleConfirmReflection(nudgeAllowed) {
-    // Assumes reflection is unlocked (Phase 3+) as prompt wouldn't show otherwise
+  function handleConfirmReflection(nudgeAllowed) {
     if (!currentPromptId) { console.error("No current prompt ID."); UI.hidePopups(); return; }
     console.log(`Reflection confirmed: Context=${currentReflectionContext}, Prompt=${currentPromptId}, Nudge=${nudgeAllowed}`);
-    State.addSeenPrompt(currentPromptId); // Mark prompt as seen
-
-    // Determine reward based on context
+    State.addSeenPrompt(currentPromptId);
     let rewardAmt = 5.0; let attuneKey = null; let attuneAmt = 1.0; let milestoneAct = 'completeReflection';
     if (currentReflectionContext === 'Guided') { rewardAmt = Config.GUIDED_REFLECTION_COST + 2; }
     else if (currentReflectionContext === 'RareConcept') { rewardAmt = 7.0; }
     else if (currentReflectionContext === 'SceneMeditation') { const scene = sceneBlueprints.find(s => s.reflectionPromptId === currentPromptId); rewardAmt = (scene?.meditationCost || Config.SCENE_MEDITATION_BASE_COST) + 5; }
-    else if (currentReflectionContext === 'Dissonance') { rewardAmt = 5.0; } // Dissonance reward
-    else { rewardAmt = 5.0; } // Standard reward
+    else { rewardAmt = 5.0; }
 
-    // Handle Dissonance Nudge
     if (currentReflectionContext === 'Dissonance') {
-        milestoneAct = 'completeReflectionDissonance'; attuneAmt = 0.5; // Less attunement for dissonance
+        milestoneAct = 'completeReflectionDissonance'; attuneAmt = 0.5;
         if (nudgeAllowed && reflectionTargetConceptId) {
              console.log("Processing nudge..."); const concept = concepts.find(c => c.id === reflectionTargetConceptId); const scores = State.getScores(); let nudged = false;
              if (concept?.elementScores) { const newScores = { ...scores }; for (const key in scores) { if (scores.hasOwnProperty(key) && concept.elementScores.hasOwnProperty(key)) { const uScore = scores[key]; const cScore = concept.elementScores[key]; const diff = cScore - uScore; if (Math.abs(diff) > 1.5) { const nudgeVal = Math.sign(diff) * Config.SCORE_NUDGE_AMOUNT; newScores[key] = Math.max(0, Math.min(10, uScore + nudgeVal)); if (newScores[key] !== uScore) nudged = true; } } }
@@ -706,39 +647,27 @@ function handleConfirmReflection(nudgeAllowed) {
              } else { console.warn(`Cannot apply nudge, concept data missing for ID ${reflectionTargetConceptId}`); }
          }
          if (reflectionTargetConceptId) {
-             addConceptToGrimoireInternal(reflectionTargetConceptId); // Add concept after dissonance reflection
+             addConceptToGrimoireInternal(reflectionTargetConceptId);
          }
     }
 
-    // Grant Insight Reward
     gainInsight(rewardAmt, `Reflection (${currentReflectionContext || 'Unknown'})`);
-
-    // Determine Attunement Key based on context
     if (currentReflectionContext === 'Standard' && currentReflectionCategory) { attuneKey = elementNameToKey[currentReflectionCategory]; }
-    else if (currentReflectionContext === 'Guided') { attuneKey = null; } // Guided gives generic attunement
+    else if (currentReflectionContext === 'Guided') { attuneKey = null; } // Generic attunement
     else if (currentReflectionContext === 'RareConcept') { const cEntry = Array.from(State.getDiscoveredConcepts().entries()).find(([id, data]) => data.concept.uniquePromptId === currentPromptId); attuneKey = cEntry ? cEntry[1].concept.primaryElement : null; }
     else if (currentReflectionContext === 'SceneMeditation') { const scene = sceneBlueprints.find(s => s.reflectionPromptId === currentPromptId); attuneKey = scene?.element || null; }
-    // No specific attunement for Dissonance by default, handled by generic below if attuneKey is null
 
-    // Grant Attunement
-    if (attuneKey) { gainAttunementForAction('completeReflection', attuneKey, attuneAmt); }
-    else { gainAttunementForAction('completeReflectionGeneric', 'All', 0.2); } // Generic gain if no key determined
+    if (attuneKey) gainAttunementForAction('completeReflection', attuneKey, attuneAmt);
+    else gainAttunementForAction('completeReflectionGeneric', 'All', 0.2);
 
-    // Update Milestones & Rituals
-    updateMilestoneProgress(milestoneAct, 1);
-    checkAndUpdateRituals('completeReflection');
-    // If specific focus ritual was completed via reflection context matching
-    const ritualCtxMatch = `${currentReflectionContext}_${currentPromptId}`;
-    checkAndUpdateRituals('completeReflection', { contextMatch: ritualCtxMatch });
+    updateMilestoneProgress(milestoneAct, 1); checkAndUpdateRituals('completeReflection');
+    const ritualCtxMatch = `${currentReflectionContext}_${currentPromptId}`; checkAndUpdateRituals('completeReflection', { contextMatch: ritualCtxMatch });
 
-    // Clean up UI
-    UI.hidePopups();
-    UI.showTemporaryMessage("Reflection complete! Insight gained.", 3000);
-    clearPopupState(); // Clear temp state
-    // Cooldown is started when prompt is initially triggered
+    UI.hidePopups(); UI.showTemporaryMessage("Reflection complete! Insight gained.", 3000); clearPopupState();
+    // Cooldown handled by checkTriggerReflectionPrompt
 }
-function triggerGuidedReflection() {
-     if (!isActionAllowed(Config.ONBOARDING_PHASE.REFLECTION_RITUALS)) { UI.showTemporaryMessage("Unlock Reflections first.", 3000); return; }
+  function triggerGuidedReflection() {
+     if (State.getOnboardingPhase() < Config.ONBOARDING_PHASE.REFLECTION_RITUALS) { UI.showTemporaryMessage("Unlock Reflections first.", 3000); return; }
      if (spendInsight(Config.GUIDED_REFLECTION_COST, "Guided Reflection")) {
          const cats = Object.keys(reflectionPrompts.Guided || {});
          if (cats.length > 0) { const cat = cats[Math.floor(Math.random() * cats.length)]; console.log(`Triggering guided: ${cat}`); triggerReflectionPrompt('Guided', null, cat); }
@@ -747,78 +676,59 @@ function triggerGuidedReflection() {
 }
 
 // Other Actions
-function attemptArtEvolution() {
-    if (!isActionAllowed(Config.ONBOARDING_PHASE.ADVANCED)) { UI.showTemporaryMessage("Unlock Repository first.", 3000); return; }
+  function attemptArtEvolution() {
     if (currentlyDisplayedConceptId === null) return; const conceptId = currentlyDisplayedConceptId; const discovered = State.getDiscoveredConceptData(conceptId);
     if (!discovered?.concept || discovered.artUnlocked) { UI.showTemporaryMessage("Evolution fail: State error.", 3000); return; }
     const concept = discovered.concept; if (!concept.canUnlockArt) return;
-    const cost = Config.ART_EVOLVE_COST; const isFocused = State.getFocusedConcepts().has(conceptId); const hasReflected = State.getState().seenPrompts.size > 0; // Check if *any* reflection done
-    // Phase check already done above
+    const cost = Config.ART_EVOLVE_COST; const isFocused = State.getFocusedConcepts().has(conceptId); const hasReflected = State.getState().seenPrompts.size > 0; const phaseOK = State.getOnboardingPhase() >= Config.ONBOARDING_PHASE.ADVANCED;
+    if (!phaseOK) { UI.showTemporaryMessage("Unlock Repository first.", 3000); return; }
     if (!isFocused || !hasReflected) { UI.showTemporaryMessage("Check requirements (Focus + Reflection).", 3000); return; }
     if (spendInsight(cost, `Evolve Art: ${concept.name}`)) {
         if (State.unlockArt(conceptId)) {
             console.log(`Art unlocked for ${concept.name}!`); UI.showTemporaryMessage(`Enhanced Art for ${concept.name}!`, 3500);
-            if (currentlyDisplayedConceptId === conceptId) UI.showConceptDetailPopup(conceptId); // Refresh popup
-            UI.refreshGrimoireDisplay(); // Refresh card in grimoire view
+            if (currentlyDisplayedConceptId === conceptId) UI.showConceptDetailPopup(conceptId);
+            UI.refreshGrimoireDisplay();
             gainAttunementForAction('artEvolve', concept.primaryElement, 1.5);
             updateMilestoneProgress('evolveArt', 1); checkAndUpdateRituals('artEvolve');
         } else { console.error(`State unlockArt fail ${concept.name}`); gainInsight(cost, `Refund: Art evolution error`); UI.showTemporaryMessage("Error updating art.", 3000); }
     }
 }
-function handleSaveNote() {
-    if (!isActionAllowed(Config.ONBOARDING_PHASE.STUDY_INSIGHT)) { UI.showTemporaryMessage("Unlock Study first.", 3000); return; }
+  function handleSaveNote() {
     if (currentlyDisplayedConceptId === null) return; const notesTA = document.getElementById('myNotesTextarea'); if (!notesTA) return;
     const noteText = notesTA.value.trim();
-    if (State.updateNotes(currentlyDisplayedConceptId, noteText)) { UI.updateNoteSaveStatus("Saved!"); }
-    else { UI.updateNoteSaveStatus("Error.", true); }
+    if (State.updateNotes(currentlyDisplayedConceptId, noteText)) { const status = document.getElementById('noteSaveStatus'); if (status) { status.textContent = "Saved!"; status.classList.remove('error'); setTimeout(() => { status.textContent = ""; }, 2000); } }
+    else { const status = document.getElementById('noteSaveStatus'); if (status) { status.textContent = "Error."; status.classList.add('error'); } }
 }
-function handleUnlockLibraryLevel(event) {
-     if (!isActionAllowed(Config.ONBOARDING_PHASE.ADVANCED)) { UI.showTemporaryMessage("Unlock Repository first.", 3000); return; }
+  function handleUnlockLibraryLevel(event) {
      const button = event.target.closest('button'); if (!button || button.disabled) return;
      const key = button.dataset.elementKey;
      const level = parseInt(button.dataset.level);
      if (!key || isNaN(level)) { console.error("Invalid library unlock data"); return; }
      unlockDeepDiveLevel(key, level); // Call the core logic function
 }
-function unlockDeepDiveLevel(elementKey, levelToUnlock) {
+ function unlockDeepDiveLevel(elementKey, levelToUnlock) { // Internal function
     const dData = elementDeepDive[elementKey] || []; const lData = dData.find(l => l.level === levelToUnlock); const curLevel = State.getState().unlockedDeepDiveLevels[elementKey] || 0;
     if (!lData || levelToUnlock !== curLevel + 1) { console.warn(`Library unlock fail: Invalid level/seq.`); return; }
     const cost = lData.insightCost || 0;
     if (spendInsight(cost, `Unlock Library: ${elementKeyToFullName[elementKey]} Lv ${levelToUnlock}`)) {
-        const phaseBeforeUnlock = State.getOnboardingPhase(); // Get phase BEFORE state change
-        if (State.unlockLibraryLevel(elementKey, levelToUnlock)) { // This handles the Phase 4 trigger internally
+        if (State.unlockLibraryLevel(elementKey, levelToUnlock)) {
             console.log(`Unlocked ${elementKeyToFullName[elementKey]} level ${levelToUnlock}`);
-            const phaseAfterUnlock = State.getOnboardingPhase(); // Get phase AFTER state change
-
-            // Refresh UI for the specific element's deep dive section
+            // Refresh UI for the specific element
             const targetContainer = document.querySelector(`#personaElementDetails .element-deep-dive-container[data-element-key="${elementKey}"]`);
             if (targetContainer) {
                  UI.displayElementDeepDive(elementKey, targetContainer);
-            } else { console.warn(`Could not find container for ${elementKey} to refresh UI.`); }
-
-            UI.showTemporaryMessage(`${elementKeyToFullName[elementKey]} Insight Level ${levelToUnlock} Unlocked!`, 3000);
-            updateMilestoneProgress('unlockLibrary', levelToUnlock); updateMilestoneProgress('unlockedDeepDiveLevels', State.getState().unlockedDeepDiveLevels); checkAndUpdateRituals('unlockLibrary');
-
-            // Check if the phase *actually changed* to Advanced during this unlock
-            if (phaseAfterUnlock === Config.ONBOARDING_PHASE.ADVANCED && phaseBeforeUnlock < Config.ONBOARDING_PHASE.ADVANCED) {
-                console.log("Phase advanced to ADVANCED by library unlock. Applying UI.");
-                UI.applyOnboardingPhaseUI(phaseAfterUnlock); // Apply the new phase UI globally
-                UI.showTemporaryMessage("Advanced Features Unlocked!", 3500);
             } else {
-                // If phase didn't change but we are already in advanced, ensure UI is consistent
-                // This might be redundant if applyOnboardingPhaseUI is called on screen switch, but safe to include.
-                if (phaseAfterUnlock >= Config.ONBOARDING_PHASE.ADVANCED) {
-                     UI.applyOnboardingPhaseUI(phaseAfterUnlock);
-                }
+                 console.warn(`Could not find container for ${elementKey} to refresh UI after unlock.`);
             }
+            UI.showTemporaryMessage(`${elementKeyToFullName[elementKey]} Insight Lv ${levelToUnlock} Unlocked!`, 3000);
+            updateMilestoneProgress('unlockLibrary', levelToUnlock); updateMilestoneProgress('unlockedDeepDiveLevels', State.getState().unlockedDeepDiveLevels); checkAndUpdateRituals('unlockLibrary');
         } else { console.error(`State fail unlock library ${elementKey} Lv ${levelToUnlock}`); gainInsight(cost, `Refund: Library unlock error`); }
     }
-     }
-function handleMeditateScene(event) {
-     if (!isActionAllowed(Config.ONBOARDING_PHASE.ADVANCED)) { UI.showTemporaryMessage("Unlock Repository first.", 3000); return; }
+}
+  function handleMeditateScene(event) {
      const button = event.target.closest('button'); if (!button || button.disabled) return; const sceneId = button.dataset.sceneId; if (!sceneId) return; meditateOnScene(sceneId);
 }
- function meditateOnScene(sceneId) { // Internal, assumes phase check done
+ function meditateOnScene(sceneId) {
     const scene = sceneBlueprints.find(s => s.id === sceneId); if (!scene) { console.error(`Scene not found: ${sceneId}`); return; }
     const cost = scene.meditationCost || Config.SCENE_MEDITATION_BASE_COST;
     if (spendInsight(cost, `Meditate: ${scene.name}`)) {
@@ -826,13 +736,11 @@ function handleMeditateScene(event) {
         else { console.error(`Prompt ID missing for scene ${sceneId}`); gainInsight(cost, `Refund: Missing scene prompt`); UI.showTemporaryMessage("Meditation fail: Reflection missing.", 3000); }
     }
 }
-function handleAttemptExperiment(event) {
-     if (!isActionAllowed(Config.ONBOARDING_PHASE.ADVANCED)) { UI.showTemporaryMessage("Unlock Repository first.", 3000); return; }
+  function handleAttemptExperiment(event) {
      const button = event.target.closest('button'); if (!button || button.disabled) return; const expId = button.dataset.experimentId; if (!expId) return; attemptExperiment(expId);
 }
- function attemptExperiment(experimentId) { // Internal, assumes phase check done
-     const exp = alchemicalExperiments.find(e => e.id === experimentId); if (!exp) { console.warn(`Exp ${experimentId} not found.`); return; }
-     if (State.getRepositoryItems().experiments.has(experimentId)) { UI.showTemporaryMessage("Experiment already completed.", 3000); return; } // Check if completed
+ function attemptExperiment(experimentId) {
+     const exp = alchemicalExperiments.find(e => e.id === experimentId); if (!exp || State.getRepositoryItems().experiments.has(experimentId)) { console.warn(`Exp ${experimentId} not found/completed.`); return; }
      const attune = State.getAttunement(); const focused = State.getFocusedConcepts(); const insight = State.getInsight();
      if (attune[exp.requiredElement] < exp.requiredAttunement) { UI.showTemporaryMessage("Attunement too low.", 3000); return; }
      let canAttempt = true; let unmetReqs = [];
@@ -843,7 +751,7 @@ function handleAttemptExperiment(event) {
      const cost = exp.insightCost || Config.EXPERIMENT_BASE_COST; if (!spendInsight(cost, `Attempt Exp: ${exp.name}`)) return;
      console.log(`Attempting: ${exp.name}`); updateMilestoneProgress('attemptExperiment', 1); const roll = Math.random();
      if (roll < (exp.successRate || 0.5)) {
-         console.log("Exp Success!"); UI.showTemporaryMessage(`Success! '${exp.name}' yielded results.`, 4000); State.addRepositoryItem('experiments', exp.id); // Add to completed set
+         console.log("Exp Success!"); UI.showTemporaryMessage(`Success! '${exp.name}' yielded results.`, 4000); State.addRepositoryItem('experiments', exp.id);
          if (exp.successReward) {
              if (exp.successReward.type === 'insight') gainInsight(exp.successReward.amount, `Exp Success: ${exp.name}`);
              if (exp.successReward.type === 'attunement') gainAttunementForAction('experimentSuccess', exp.successReward.element || 'All', exp.successReward.amount);
@@ -852,20 +760,17 @@ function handleAttemptExperiment(event) {
                      console.log(`Exp reward: Insight ${exp.successReward.id}`); updateMilestoneProgress('repositoryInsightsCount', State.getRepositoryItems().insights.size);
                  }
              }
-             // Add other reward types here if needed
          }
      } else {
          console.log("Exp Failed."); UI.showTemporaryMessage(`Exp '${exp.name}' failed... ${exp.failureConsequence || "No effect."}`, 4000);
          if (exp.failureConsequence?.includes("Insight loss")) { const loss = parseFloat(exp.failureConsequence.match(/(\d+(\.\d+)?)/)?.[0] || 1); gainInsight(-loss, `Exp Failure: ${exp.name}`); }
          else if (exp.failureConsequence?.includes("attunement decrease")) { const key = exp.requiredElement; if (key) { State.updateAttunement(key, -1.0); UI.displayElementAttunement(); } }
-         // Add other failure consequences here
      }
-     UI.displayRepositoryContent(); // Refresh repository view to show completion status/new insights
+     UI.displayRepositoryContent();
 }
 
 // --- Suggest Scenes ---
 function handleSuggestSceneClick() {
-     if (!isActionAllowed(Config.ONBOARDING_PHASE.ADVANCED)) { UI.showTemporaryMessage("Unlock Repository first.", 3000); return; } // Requires advanced phase
      const focused = State.getFocusedConcepts();
      if (focused.size === 0) {
          UI.showTemporaryMessage("Focus on concepts first to suggest relevant scenes.", 3000);
@@ -881,21 +786,20 @@ function handleSuggestSceneClick() {
      const discoveredScenes = State.getRepositoryItems().scenes;
 
      const sortedElements = Object.entries(focusScores)
-         .filter(([key, score]) => score > 4.0) // Consider elements with moderate+ resonance in focus
+         .filter(([key, score]) => score > 4.0)
          .sort(([, a], [, b]) => b - a);
 
-     const topElements = sortedElements.slice(0, 2).map(([key]) => key); // Consider top 1-2 elements
+     const topElements = sortedElements.slice(0, 2).map(([key]) => key);
      if (topElements.length === 0 && sortedElements.length > 0) {
-         topElements.push(sortedElements[0][0]); // Fallback to the highest if none are above 4.0 but some have resonance
+         topElements.push(sortedElements[0][0]);
      } else if (topElements.length === 0) {
-          UI.showTemporaryMessage("Focus is too broad or weak to suggest specific scenes.", 3000);
+          UI.showTemporaryMessage("Focus is too broad to suggest specific scenes.", 3000);
           gainInsight(cost, "Refund: Scene Suggestion Fail (Broad Focus)");
           return;
      }
 
      console.log("Dominant focus elements for scene suggestion:", topElements);
 
-     // Find scenes matching the dominant element(s) that are NOT yet discovered
      const relevantUndiscoveredScenes = sceneBlueprints.filter(scene =>
          topElements.includes(scene.element) && !discoveredScenes.has(scene.id)
      );
@@ -904,13 +808,13 @@ function handleSuggestSceneClick() {
          UI.showTemporaryMessage("All relevant scenes for this focus have been discovered.", 3500);
          gainInsight(cost, "Refund: All Relevant Scenes Discovered");
      } else {
-         // Select a random scene from the relevant, undiscovered pool
          const selectedScene = relevantUndiscoveredScenes[Math.floor(Math.random() * relevantUndiscoveredScenes.length)];
          const added = State.addRepositoryItem('scenes', selectedScene.id);
          if (added) {
              console.log(`Suggested Scene: ${selectedScene.name} (ID: ${selectedScene.id})`);
              UI.showTemporaryMessage(`Scene Suggested: '${selectedScene.name}' added to Repository!`, 4000);
-             // Explicitly refresh repository if it's the current screen
+             // Explicitly apply phase UI and refresh repository if needed
+             UI.applyOnboardingPhaseUI(State.getOnboardingPhase());
              if (document.getElementById('repositoryScreen')?.classList.contains('current')) {
                  UI.displayRepositoryContent();
              }
@@ -923,31 +827,23 @@ function handleSuggestSceneClick() {
  }
 
 // --- Rituals & Milestones Logic (Helper) ---
-function checkAndUpdateRituals(action, details = {}) {
-    // Rituals only active from Phase 3 onwards
-    if (!isActionAllowed(Config.ONBOARDING_PHASE.REFLECTION_RITUALS)) return;
-
+  function checkAndUpdateRituals(action, details = {}) {
     let ritualCompletedThisCheck = false;
     const currentState = State.getState(); const completedToday = currentState.completedRituals.daily || {}; const focused = currentState.focusedConcepts;
     let currentRitualPool = [...dailyRituals];
-
-    // Add active Focus Rituals to the pool
     if (focusRituals) { focusRituals.forEach(ritual => { if (!ritual.requiredFocusIds || ritual.requiredFocusIds.length === 0) return; const reqIds = new Set(ritual.requiredFocusIds); let allFoc = true; for (const id of reqIds) { if (!focused.has(id)) { allFoc = false; break; } } if (allFoc) currentRitualPool.push({ ...ritual, isFocusRitual: true, period: 'daily' }); }); }
 
     currentRitualPool.forEach(ritual => {
-        const completedData = completedToday[ritual.id] || { completed: false, progress: 0 }; if (completedData.completed) return; // Skip if already done today
-
+        const completedData = completedToday[ritual.id] || { completed: false, progress: 0 }; if (completedData.completed) return;
         const actionMatch = ritual.track.action === action;
-        // Context matching (e.g., for specific reflection completions)
         const contextMatches = ritual.track.contextMatch && details.contextMatch === ritual.track.contextMatch;
 
         if (actionMatch || contextMatches) {
-            const progress = State.completeRitualProgress(ritual.id, 'daily'); // Increment progress in state
+            const progress = State.completeRitualProgress(ritual.id, 'daily');
             const requiredCount = ritual.track.count || 1;
             if (progress >= requiredCount) {
-                console.log(`Ritual Completed: ${ritual.description}`); State.markRitualComplete(ritual.id, 'daily'); // Mark complete in state
+                console.log(`Ritual Completed: ${ritual.description}`); State.markRitualComplete(ritual.id, 'daily');
                 ritualCompletedThisCheck = true;
-                // Grant Reward
                 if (ritual.reward) {
                     if (ritual.reward.type === 'insight') gainInsight(ritual.reward.amount || 0, `Ritual: ${ritual.description}`);
                     else if (ritual.reward.type === 'attunement') gainAttunementForAction('ritual', ritual.reward.element || 'All', ritual.reward.amount || 0);
@@ -956,24 +852,17 @@ function checkAndUpdateRituals(action, details = {}) {
             }
         }
     });
-    if (ritualCompletedThisCheck) UI.displayDailyRituals(); // Update UI if any ritual was completed
+    if (ritualCompletedThisCheck) UI.displayDailyRituals();
 }
-function updateMilestoneProgress(trackType, currentValue) {
+  function updateMilestoneProgress(trackType, currentValue) {
      let milestoneAchievedThisUpdate = false;
      const achievedSet = State.getState().achievedMilestones;
      if (!(achievedSet instanceof Set)) { console.error("CRITICAL ERROR: gameState.achievedMilestones is not a Set!"); return; }
 
      milestones.forEach(m => {
-         if (!achievedSet.has(m.id)) { // Only check unachieved milestones
+         if (!achievedSet.has(m.id)) {
              let achieved = false; const threshold = m.track.threshold; let checkValue = null;
-             // Check by Action Count
-             if (m.track.action === trackType) {
-                  // Simplification: If trackType matches, assume count increases by 1 for now.
-                  // TODO: Implement proper action count tracking in state if needed.
-                  const currentCount = 1; // Placeholder - Assume action just happened
-                  if (currentCount >= (m.track.count || 1)) achieved = true;
-            }
-             // Check by State Value
+             if (m.track.action === trackType) { if (typeof currentValue === 'number' && currentValue >= (m.track.count || 1)) achieved = true; else if ((m.track.count === 1 || !m.track.count) && currentValue) achieved = true; }
              else if (m.track.state === trackType) {
                  const att = State.getAttunement(); const lvls = State.getState().unlockedDeepDiveLevels; const discSize = State.getDiscoveredConcepts().size; const focSize = State.getFocusedConcepts().size; const insCount = State.getRepositoryItems().insights.size; const slots = State.getFocusSlots();
                  if (trackType === 'elementAttunement') {
@@ -989,53 +878,46 @@ function updateMilestoneProgress(trackType, currentValue) {
                  else if (trackType === 'repositoryContents' && m.track.condition === "allTypesPresent") { const i = State.getRepositoryItems(); achieved = i.scenes.size > 0 && i.experiments.size > 0 && i.insights.size > 0; }
                  if (!achieved && checkValue !== null && typeof checkValue === 'number' && checkValue >= threshold) achieved = true;
              }
-             // If Achieved, Grant Reward and Update State
              if (achieved) {
-                 if (State.addAchievedMilestone(m.id)) { // Add to state, returns true if newly added
-                     console.log("Milestone Achieved!", m.description); milestoneAchievedThisUpdate = true;
-                     UI.displayMilestones(); UI.showMilestoneAlert(m.description);
+                 if (State.addAchievedMilestone(m.id)) {
+                     console.log("Milestone Achieved!", m.description); milestoneAchievedThisUpdate = true; UI.displayMilestones(); UI.showMilestoneAlert(m.description);
                      if (m.reward) {
                          if (m.reward.type === 'insight') gainInsight(m.reward.amount || 0, `Milestone: ${m.description}`);
                          else if (m.reward.type === 'attunement') gainAttunementForAction('milestone', m.reward.element || 'All', m.reward.amount || 0);
                          else if (m.reward.type === 'increaseFocusSlots') { const inc = m.reward.amount || 1; if (State.increaseFocusSlots(inc)) { UI.updateFocusSlotsDisplay(); updateMilestoneProgress('focusSlotsTotal', State.getFocusSlots()); } }
                          else if (m.reward.type === 'discoverCard') { const cId = m.reward.cardId; if (cId && !State.getDiscoveredConcepts().has(cId)) { const cDisc = concepts.find(c => c.id === cId); if (cDisc) { addConceptToGrimoireInternal(cId); UI.showTemporaryMessage(`Milestone Reward: Discovered ${cDisc.name}!`, 3500); } } }
-                         // Add other reward types here
                      }
                  }
              }
          }
      });
-     // No save needed here, handled by State setters within rewards or addAchievedMilestone
 }
 
 // --- Daily Login ---
-function checkForDailyLogin() {
+  function checkForDailyLogin() {
     const today = new Date().toDateString();
     const last = State.getState().lastLoginDate;
     if (last !== today) {
         console.log("First login today.");
-        State.resetDailyRituals(); // Resets rituals, grants free research, updates date
+        State.resetDailyRituals();
         gainInsight(5.0, "Daily Bonus");
         UI.showTemporaryMessage("Rituals Reset. Free Research Available!", 3500);
-        // Update relevant UI sections immediately
         UI.displayDailyRituals();
         UI.displayResearchButtons();
     } else {
         console.log("Already logged in today.");
-        // Still refresh button state in case insight changed
-        UI.displayResearchButtons();
+        UI.displayResearchButtons(); // Refresh button state
     }
 }
 
 // --- Persona Calculation Logic Helpers ---
-function calculateFocusScores() {
+  function calculateFocusScores() {
      const scores = { A: 0, I: 0, S: 0, P: 0, C: 0, R: 0 }; const focused = State.getFocusedConcepts(); const disc = State.getDiscoveredConcepts(); const count = focused.size;
      if (count > 0) { focused.forEach(id => { const data = disc.get(id); if (data?.concept?.elementScores) { for (const key in scores) { if (data.concept.elementScores.hasOwnProperty(key)) scores[key] += data.concept.elementScores[key]; } } }); for (const key in scores) scores[key] /= count; } return { focusScores: scores, focusCount: count };
 }
-function calculateTapestryNarrative(forceRecalculate = false) {
+  function calculateTapestryNarrative(forceRecalculate = false) {
     const currentHash = State.getCurrentFocusSetHash();
-    const stateHash = State.getState().currentFocusSetHash; // Get from state
-    // Use cached analysis if hash matches and not forced
+    const stateHash = State.getState().currentFocusSetHash;
     if (currentTapestryAnalysis && !forceRecalculate && currentHash === stateHash) { return currentTapestryAnalysis.fullNarrativeHTML; }
     const focused = State.getFocusedConcepts(); const focusCount = focused.size;
     if (focusCount === 0) { currentTapestryAnalysis = null; return 'Mark concepts as "Focus" from the Grimoire to weave your narrative.'; }
@@ -1075,11 +957,10 @@ function calculateTapestryNarrative(forceRecalculate = false) {
     if (analysis.balanceComment) narrative += analysis.balanceComment + " ";
     analysis.synergies.forEach(syn => { narrative += syn.text + " "; }); analysis.tensions.forEach(ten => { narrative += ten.text + " "; });
     analysis.fullNarrativeRaw = narrative.trim(); analysis.fullNarrativeHTML = analysis.fullNarrativeRaw.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-    currentTapestryAnalysis = analysis; // Cache the result
-    console.log("Recalculated Tapestry Analysis:", currentTapestryAnalysis);
+    currentTapestryAnalysis = analysis; console.log("Recalculated Tapestry Analysis:", currentTapestryAnalysis);
     return analysis.fullNarrativeHTML;
  }
-function calculateFocusThemes() {
+  function calculateFocusThemes() {
      const focused = State.getFocusedConcepts(); const disc = State.getDiscoveredConcepts(); if (focused.size === 0) return [];
      const counts = { A: 0, I: 0, S: 0, P: 0, C: 0, R: 0 }; const thresh = 7.0;
      focused.forEach(id => { const concept = disc.get(id)?.concept; if (concept?.elementScores) { for (const key in concept.elementScores) { if (elementKeyToFullName.hasOwnProperty(key) && concept.elementScores[key] >= thresh) counts[key]++; } } });
@@ -1087,42 +968,35 @@ function calculateFocusThemes() {
 }
 
 // --- Focus Unlocks ---
-function checkForFocusUnlocks(silent = false) {
-     // Focus unlocks require Advanced phase
-     if (!isActionAllowed(Config.ONBOARDING_PHASE.ADVANCED)) return;
+  function checkForFocusUnlocks(silent = false) {
+     if (State.getOnboardingPhase() < Config.ONBOARDING_PHASE.ADVANCED) return;
      console.log("Checking focus unlocks..."); let newlyUnlocked = false;
      const focused = State.getFocusedConcepts(); const unlocked = State.getUnlockedFocusItems();
      focusDrivenUnlocks.forEach(unlock => {
-         if (unlocked.has(unlock.id)) return; // Skip already unlocked
-         let met = true; if (!unlock.requiredFocusIds || unlock.requiredFocusIds.length === 0) met = false; else { for (const reqId of unlock.requiredFocusIds) { if (!focused.has(reqId)) { met = false; break; } } }
-         if (met) { console.log(`Met reqs for ${unlock.id}`); if (State.addUnlockedFocusItem(unlock.id)) { // Add to state
-                 newlyUnlocked = true; const item = unlock.unlocks; let name = item.name || `ID ${item.id}`; let notif = unlock.description || `Unlocked ${name}`;
-                 // Add the unlocked item to the appropriate repository list
+         if (unlocked.has(unlock.id)) return; let met = true; if (!unlock.requiredFocusIds || unlock.requiredFocusIds.length === 0) met = false; else { for (const reqId of unlock.requiredFocusIds) { if (!focused.has(reqId)) { met = false; break; } } }
+         if (met) { console.log(`Met reqs for ${unlock.id}`); if (State.addUnlockedFocusItem(unlock.id)) { newlyUnlocked = true; const item = unlock.unlocks; let name = item.name || `ID ${item.id}`; let notif = unlock.description || `Unlocked ${name}`;
                  if (item.type === 'scene') { if (State.addRepositoryItem('scenes', item.id)) { console.log(`Unlocked Scene: ${name}`); notif += ` View in Repo.`; } else notif += ` (Already Discovered)`; }
-                 else if (item.type === 'experiment') { console.log(`Unlocked Exp: ${name}.`); notif += ` Check Repo.`; } // Experiments aren't 'discovered' until completed
+                 else if (item.type === 'experiment') { console.log(`Unlocked Exp: ${name}.`); notif += ` Check Repo.`; }
                  else if (item.type === 'insightFragment') { if (State.addRepositoryItem('insights', item.id)) { const iData = elementalInsights.find(i => i.id === item.id); name = iData ? `"${iData.text}"` : `ID ${item.id}`; console.log(`Unlocked Insight: ${item.id}`); notif += ` View in Repo.`; updateMilestoneProgress('repositoryInsightsCount', State.getRepositoryItems().insights.size); } else notif += ` (Already Discovered)`; }
                  if (!silent) UI.showTemporaryMessage(`Focus Synergy: ${notif}`, 5000);
              }
          }
      });
-     if (newlyUnlocked && !silent) { console.log("New Focus Unlocks:", Array.from(State.getUnlockedFocusItems())); if (document.getElementById('repositoryScreen')?.classList.contains('current')) UI.displayRepositoryContent(); if (document.getElementById('personaScreen')?.classList.contains('current')) UI.generateTapestryNarrative(); } // Refresh relevant UI
+     if (newlyUnlocked && !silent) { console.log("New Focus Unlocks:", Array.from(State.getUnlockedFocusItems())); if (document.getElementById('repositoryScreen')?.classList.contains('current')) UI.displayRepositoryContent(); if (document.getElementById('personaScreen')?.classList.contains('current')) UI.generateTapestryNarrative(); }
 }
 
 // --- Tapestry Deep Dive Logic ---
-function showTapestryDeepDive() {
-    // Requires at least Phase 1 (Focus available)
-    if (!isActionAllowed(Config.ONBOARDING_PHASE.PERSONA_GRIMOIRE)) { UI.showTemporaryMessage("Unlock Focus first.", 3000); return; }
+  function showTapestryDeepDive() {
     if (State.getFocusedConcepts().size === 0) { UI.showTemporaryMessage("Focus on concepts first to explore the tapestry.", 3000); return; }
-    calculateTapestryNarrative(true); // Ensure analysis is up-to-date
+    calculateTapestryNarrative(true);
     if (!currentTapestryAnalysis) { console.error("Failed to generate tapestry analysis for Deep Dive."); UI.showTemporaryMessage("Error analyzing Tapestry.", 3000); return; }
     UI.displayTapestryDeepDive(currentTapestryAnalysis);
 }
-function handleDeepDiveNodeClick(nodeId) {
+  function handleDeepDiveNodeClick(nodeId) {
     if (!currentTapestryAnalysis) { console.error("Deep Dive Node Click: Analysis missing."); UI.updateDeepDiveContent("<p>Error: Analysis data unavailable.</p>", nodeId); return; }
     console.log(`Logic: Handling Deep Dive node click: ${nodeId}`);
     let content = `<p><em>Analysis for '${nodeId}'...</em></p>`;
     try {
-        // Generate content based on cached analysis
         switch (nodeId) {
             case 'elemental': content = `<h4>Elemental Resonance Breakdown</h4>`; if(currentTapestryAnalysis.elementThemes.length > 0) { content += `<ul>${currentTapestryAnalysis.elementThemes.map(t => `<li>${t.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')}</li>`).join('')}</ul>`; } else { content += `<p>No specific elemental themes detected.</p>`; } content += `<p><small>Dominant Elements: ${currentTapestryAnalysis.dominantElements.length > 0 ? currentTapestryAnalysis.dominantElements.map(e => `${e.name} (${e.score.toFixed(1)})`).join(', ') : 'None strongly dominant'}</small></p>`; if(currentTapestryAnalysis.balanceComment) content += `<p><small>Balance: ${currentTapestryAnalysis.balanceComment}</small></p>`; break;
             case 'archetype': content = `<h4>Concept Archetype Analysis</h4>`; if (currentTapestryAnalysis.cardTypeThemes.length > 0) { content += `<ul>${currentTapestryAnalysis.cardTypeThemes.map(t => `<li>${t.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')}</li>`).join('')}</ul>`; } else { content += `<p>No specific archetype themes detected.</p>`; } content += `<p><small>Focus Distribution: ${currentTapestryAnalysis.dominantCardTypes.length > 0 ? currentTapestryAnalysis.dominantCardTypes.map(ct => `${ct.type} (${ct.count})`).join(', ') : 'None'}</small></p>`; break;
@@ -1130,18 +1004,16 @@ function handleDeepDiveNodeClick(nodeId) {
             default: content = `<p><em>Analysis node '${nodeId}' not recognized.</em></p>`;
         }
     } catch (error) { console.error(`Error generating content for node ${nodeId}:`, error); content = `<p>Error generating analysis for ${nodeId}.</p>`; }
-    UI.updateDeepDiveContent(content, nodeId); // Update the UI with generated content
+    UI.updateDeepDiveContent(content, nodeId);
 }
-function handleContemplationNodeClick() {
-     // Contemplation might be considered advanced or tied to reflection
-     if (!isActionAllowed(Config.ONBOARDING_PHASE.REFLECTION_RITUALS)) { UI.showTemporaryMessage("Unlock Reflection first.", 3000); return; }
+  function handleContemplationNodeClick() {
     if (spendInsight(Config.CONTEMPLATION_COST, "Focused Contemplation")) {
-        const contemplation = generateFocusedContemplation(); // Generate task based on current analysis
+        const contemplation = generateFocusedContemplation();
         if (contemplation) { UI.displayContemplationTask(contemplation); State.setContemplationCooldown(Date.now() + Config.CONTEMPLATION_COOLDOWN); UI.updateContemplationButtonState(); }
         else { UI.updateDeepDiveContent("<p><em>Could not generate contemplation task.</em></p>", 'contemplation'); gainInsight(Config.CONTEMPLATION_COST, "Refund: Contemplation Fail"); UI.updateContemplationButtonState(); }
-    } else { UI.updateContemplationButtonState(); } // Update state even if failed due to cost
+    } else { UI.updateContemplationButtonState(); }
 }
-function generateFocusedContemplation() { // Logic remains the same, uses cached analysis
+function generateFocusedContemplation() {
     if (!currentTapestryAnalysis) { console.error("Cannot generate contemplation: Tapestry analysis missing."); return null; }
     const focused = State.getFocusedConcepts(); const disc = State.getDiscoveredConcepts(); const focusedConceptsArray = Array.from(focused).map(id => disc.get(id)?.concept).filter(Boolean);
     let task = { type: "Default", text: "Reflect on your current focus.", reward: { type: 'insight', amount: 2 }, requiresCompletionButton: true };
@@ -1158,13 +1030,12 @@ function generateFocusedContemplation() { // Logic remains the same, uses cached
     } catch (error) { console.error("Error generating contemplation task:", error); return { type: "Error", text: "An error occurred during generation.", reward: { type: 'none' }, requiresCompletionButton: false }; }
     console.log(`Generated contemplation task of type: ${task.type}`); return task;
 }
-function handleCompleteContemplation(task) {
-    // No phase check needed, button only appears when allowed
+  function handleCompleteContemplation(task) {
     if (!task || !task.reward || !task.requiresCompletionButton) return;
     console.log(`Contemplation task completed: ${task.type}`);
     if (task.reward.type === 'insight' && task.reward.amount > 0) { gainInsight(task.reward.amount, `Contemplation Task`); }
     UI.showTemporaryMessage("Contemplation complete!", 2500);
-    UI.clearContemplationTask(); // Update UI
+    UI.clearContemplationTask();
 }
 
 
