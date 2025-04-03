@@ -165,34 +165,29 @@ let currentTapestryAnalysis = null; // Stores the detailed breakdown from calcul
     });
     return Math.max(0, Math.min(10, score)); // Clamp
 }
- function goToNextElement() {
+ export function goToNextElement() {
     const currentState = State.getState();
     const currentAnswers = UI.getQuestionnaireAnswers(); // Get answers from UI first
-    if (currentState.currentElementIndex >= 0 && currentState.currentElementIndex < elementNames.length) {
-        State.updateAnswers(elementNames[currentState.currentElementIndex], currentAnswers); // Save answers for current element
-        console.log(`Answers saved for ${elementNames[currentState.currentElementIndex]}:`, currentAnswers);
+    const currentIndex = currentState.currentElementIndex; // Get current index *before* potentially changing it
+
+    if (currentIndex >= 0 && currentIndex < elementNames.length) {
+        State.updateAnswers(elementNames[currentIndex], currentAnswers); // Save answers for CURRENT element
+        console.log(`Answers explicitly saved for index ${currentIndex} (${elementNames[currentIndex]}):`, currentAnswers);
     } else {
-         console.warn(`Attempted to save answers for invalid index: ${currentState.currentElementIndex}`);
+         console.warn(`Attempted to save answers for invalid index: ${currentIndex} in goToNextElement`);
+         // Avoid proceeding if index is bad
+         return;
     }
-    const nextIndex = currentState.currentElementIndex + 1;
+
+    const nextIndex = currentIndex + 1; // Calculate next index based on the one we just saved for
+
     if (nextIndex >= elementNames.length) {
-         finalizeQuestionnaire(); // Handles final state saving
+         console.log("Reached end of questionnaire, finalizing...");
+         finalizeQuestionnaire(); // This will handle final state saving of the last element
     } else {
-        State.updateElementIndex(nextIndex); UI.displayElementQuestions(nextIndex);
-    }
-}
- function goToPrevElement() {
-    const currentState = State.getState();
-    if (currentState.currentElementIndex > 0) {
-        const currentAnswers = UI.getQuestionnaireAnswers(); // Get current answers
-        if (currentState.currentElementIndex >= 0 && currentState.currentElementIndex < elementNames.length) {
-             State.updateAnswers(elementNames[currentState.currentElementIndex], currentAnswers); // Save current element's answers
-             console.log(`Answers saved for ${elementNames[currentState.currentElementIndex]} on going back:`, currentAnswers);
-        } else {
-            console.warn(`Attempted to save answers for invalid index: ${currentState.currentElementIndex} on going back`);
-        }
-        const prevIndex = currentState.currentElementIndex - 1;
-        State.updateElementIndex(prevIndex); UI.displayElementQuestions(prevIndex);
+        console.log(`Moving from index ${currentIndex} to ${nextIndex}`);
+        State.updateElementIndex(nextIndex); // NOW update the state index
+        UI.displayElementQuestions(nextIndex); // Display the *next* set of questions
     }
 }
  function finalizeQuestionnaire() {
