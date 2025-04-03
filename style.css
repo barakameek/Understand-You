@@ -436,13 +436,22 @@ hr { border: none; border-top: 1px dashed var(--border-color-light); margin: 18p
 
 /* --- Experiment Results Modal (NEW) --- */
 .results-modal {
-    max-width: 700px; /* Slightly wider */
-    border: 2px solid var(--border-color-dark); /* Add a slightly darker border */
+    max-width: 700px;
+    border: 2px solid var(--border-color-dark);
 }
 .results-modal .popup-content {
     text-align: center;
-    gap: 15px; /* Increased gap */
-    padding: 20px 25px; /* Added more padding (top/bottom, left/right) */
+    gap: 15px;
+    padding: 20px 25px;
+    /* Remove bottom padding here if you only want it below button */
+    /* padding-bottom: 10px; */
+}
+.results-modal .popup-actions {
+    padding-bottom: 20px; /* Add space below the button */
+    padding-top: 10px; /* Add a little space above */
+    border-top: 1px solid var(--border-color-light); /* Add separator */
+    background-color: var(--background-medium); /* Match other popups */
+    text-align: center; /* Center the button */
 }
 .results-scores { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; margin: 10px 0; padding: 10px; background-color: rgba(255,255,255,0.3); border-radius: 6px; }
 .results-score-item { display: flex; flex-direction: column; align-items: center; font-size: 0.9em; min-width: 80px; }
