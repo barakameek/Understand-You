@@ -357,7 +357,10 @@ export function displayElementQuestions(index) {
     const currentState = State.getState();
     if (index >= elementNames.length) {
         const finalAnswers = getQuestionnaireAnswers(); // Get answers from final page
-        if (index > 0) State.updateAnswers(elementNames[index - 1], finalAnswers); // Save final answers
+        // Ensure saving answers for the *last* element before finalizing
+        if (index > 0 && index -1 < elementNames.length) { // Check bounds
+             State.updateAnswers(elementNames[index - 1], finalAnswers);
+        }
         GameLogic.finalizeQuestionnaire();
         return;
     }
@@ -366,10 +369,11 @@ export function displayElementQuestions(index) {
     const questions = questionnaireGuided[elementName] || [];
     if (!questionContent) { console.error("questionContent element missing!"); return; }
 
+    // Get initial answers for this element from state
     const elementAnswers = currentState.userAnswers?.[elementName] || {};
     console.log(`UI: Displaying questions for Index ${index} (${elementName}). State answers:`, JSON.parse(JSON.stringify(elementAnswers)));
 
-    // --- Generate HTML (No Change) ---
+    // --- Generate HTML ---
     let introHTML = `<div class="element-intro"><h2>${elementData.name || elementName}</h2><p><em>${elementData.coreQuestion || ''}</em></p><p>${elementData.coreConcept || 'Loading...'}</p><p><small><strong>Persona Connection:</strong> ${elementData.personaConnection || ''}</small></p></div>`;
     let questionsHTML = '';
     questions.forEach(q => {
@@ -392,30 +396,32 @@ export function displayElementQuestions(index) {
     });
     if(questions.length === 0) questionsHTML = '<p><em>(No questions for this element)</em></p>';
 
+    // --- Render HTML ---
     questionContent.innerHTML = introHTML;
     const introDiv = questionContent.querySelector('.element-intro');
     if (introDiv) introDiv.insertAdjacentHTML('afterend', questionsHTML);
     else questionContent.innerHTML += questionsHTML;
 
-    // --- Attach Listeners (No Change) ---
+    // --- Attach Listeners ---
     questionContent.querySelectorAll('.q-input').forEach(input => {
         const eventType = (input.type === 'range') ? 'input' : 'change';
-        input.removeEventListener(eventType, GameLogic.handleQuestionnaireInputChange);
+        input.removeEventListener(eventType, GameLogic.handleQuestionnaireInputChange); // Remove old listener first
         input.addEventListener(eventType, GameLogic.handleQuestionnaireInputChange);
     });
     questionContent.querySelectorAll('input[type="checkbox"].q-input').forEach(checkbox => {
-        checkbox.removeEventListener('change', GameLogic.handleCheckboxChange);
+        checkbox.removeEventListener('change', GameLogic.handleCheckboxChange); // Remove old listener
         checkbox.addEventListener('change', GameLogic.handleCheckboxChange);
     });
 
-    // --- Explicit Initial UI Updates ---
+    // --- *** Explicit Initial UI Updates *** ---
     if (dynamicScoreFeedback) dynamicScoreFeedback.style.display = 'block';
-    // Update *all* sliders on the current page
+    // Update *all* sliders on the current page after rendering and attaching listeners
     questionContent.querySelectorAll('.slider.q-input').forEach(slider => {
-        updateSliderFeedbackText(slider, elementName); // Pass element name
+        updateSliderFeedbackText(slider, elementName); // Pass element name for context
     });
-    // Update the dynamic score display based on the initial answers
+    // Update the dynamic score display based on the initial answers used for rendering
     updateDynamicFeedback(elementName, elementAnswers);
+    // --- *** END Explicit Initial UI Updates *** ---
 
 
     // Update overall progress display & buttons
@@ -424,7 +430,6 @@ export function displayElementQuestions(index) {
     if (prevElementButton) prevElementButton.style.visibility = (index > 0) ? 'visible' : 'hidden';
     if (nextElementButton) nextElementButton.textContent = (index === elementNames.length - 1) ? "View My Persona" : "Next Element";
 }
-
 export function updateSliderFeedbackText(sliderElement, elementName) {
     if (!sliderElement || sliderElement.type !== 'range' || !elementName) return;
     const qId = sliderElement.dataset.questionId;
