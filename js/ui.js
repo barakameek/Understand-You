@@ -7,7 +7,7 @@ import { elementDetails, elementKeyToFullName, elementNameToKey, concepts, quest
 
 console.log("ui.js loading...");
 
-// --- DOM Element References (Assume these are correct) ---
+// --- DOM Element References (Ensure all are correct) ---
 const saveIndicator = document.getElementById('saveIndicator');
 const screens = document.querySelectorAll('.screen');
 const welcomeScreen = document.getElementById('welcomeScreen');
@@ -255,7 +255,14 @@ export function applyOnboardingPhaseUI(phase) {
 
 // --- Helper functions for phased UI elements ---
 
-// !! ADD EXPORT !!
+export function updateNoteSaveStatus(message, isError = false) {
+     if (noteSaveStatusSpan) {
+         noteSaveStatusSpan.textContent = message;
+         noteSaveStatusSpan.classList.toggle('error', isError);
+         if(message) { setTimeout(() => { noteSaveStatusSpan.textContent = ""; noteSaveStatusSpan.classList.remove('error'); }, 2000); }
+     }
+}
+
 export function updateNotesSectionVisibility(isDiscovered) {
     if (myNotesSection) {
         // Show notes only if the concept is discovered AND the phase is STUDY_INSIGHT or later
@@ -274,7 +281,6 @@ export function updateNotesSectionVisibility(isDiscovered) {
     }
 }
 
-// !! ADD EXPORT !!
 export function updateEvolutionSectionVisibility(conceptData, discoveredData) {
     if (popupEvolutionSection && conceptData) { // Check conceptData exists
         const show = discoveredData && conceptData.canUnlockArt && !discoveredData.artUnlocked && State.getOnboardingPhase() >= Config.ONBOARDING_PHASE.ADVANCED;
@@ -288,7 +294,6 @@ export function updateEvolutionSectionVisibility(conceptData, discoveredData) {
 }
 
 
-// !! ADD EXPORT !!
 export function updatePopupSellButtonVisibility(conceptId) {
     const button = conceptDetailPopup?.querySelector('.popup-sell-button');
     if (button) {
@@ -296,16 +301,6 @@ export function updatePopupSellButtonVisibility(conceptId) {
         button.classList.toggle('hidden', State.getOnboardingPhase() < Config.ONBOARDING_PHASE.STUDY_INSIGHT);
     }
 }
-
-// !! ADD EXPORT !!
-export function updateNoteSaveStatus(message, isError = false) {
-     if (noteSaveStatusSpan) {
-         noteSaveStatusSpan.textContent = message;
-         noteSaveStatusSpan.classList.toggle('error', isError);
-         if(message) { setTimeout(() => { noteSaveStatusSpan.textContent = ""; noteSaveStatusSpan.classList.remove('error'); }, 2000); }
-     }
-}
-
 
 // --- Insight Display ---
 export function updateInsightDisplays() {
@@ -374,6 +369,7 @@ export function displayElementQuestions(index) {
     const elementAnswers = currentState.userAnswers?.[elementName] || {};
     console.log(`UI: Displaying questions for Index ${index} (${elementName}). State answers:`, JSON.parse(JSON.stringify(elementAnswers)));
 
+    // --- Generate HTML (No Change) ---
     let introHTML = `<div class="element-intro"><h2>${elementData.name || elementName}</h2><p><em>${elementData.coreQuestion || ''}</em></p><p>${elementData.coreConcept || 'Loading...'}</p><p><small><strong>Persona Connection:</strong> ${elementData.personaConnection || ''}</small></p></div>`;
     let questionsHTML = '';
     questions.forEach(q => {
@@ -401,23 +397,26 @@ export function displayElementQuestions(index) {
     if (introDiv) introDiv.insertAdjacentHTML('afterend', questionsHTML);
     else questionContent.innerHTML += questionsHTML;
 
-    // Re-attach listeners after modifying innerHTML
+    // --- Attach Listeners (No Change) ---
     questionContent.querySelectorAll('.q-input').forEach(input => {
         const eventType = (input.type === 'range') ? 'input' : 'change';
-        input.removeEventListener(eventType, GameLogic.handleQuestionnaireInputChange); // Remove old listener first
+        input.removeEventListener(eventType, GameLogic.handleQuestionnaireInputChange);
         input.addEventListener(eventType, GameLogic.handleQuestionnaireInputChange);
     });
     questionContent.querySelectorAll('input[type="checkbox"].q-input').forEach(checkbox => {
-        checkbox.removeEventListener('change', GameLogic.handleCheckboxChange); // Remove old listener
+        checkbox.removeEventListener('change', GameLogic.handleCheckboxChange);
         checkbox.addEventListener('change', GameLogic.handleCheckboxChange);
     });
 
-    // Perform initial UI updates for this element
+    // --- Explicit Initial UI Updates ---
     if (dynamicScoreFeedback) dynamicScoreFeedback.style.display = 'block';
+    // Update *all* sliders on the current page
     questionContent.querySelectorAll('.slider.q-input').forEach(slider => {
         updateSliderFeedbackText(slider, elementName); // Pass element name
     });
-    updateDynamicFeedback(elementName, elementAnswers); // Update score display based on loaded answers
+    // Update the dynamic score display based on the initial answers
+    updateDynamicFeedback(elementName, elementAnswers);
+
 
     // Update overall progress display & buttons
     updateElementProgressHeader(index);
@@ -1076,7 +1075,6 @@ export function updatePopupSellButton(conceptId, conceptData, inGrimoire, inRese
         else { popupActions.appendChild(sellButton); }
     }
 }
-
 
 // --- Reflection Modal UI ---
 export function displayReflectionPrompt(promptData, context) {
