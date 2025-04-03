@@ -1,3 +1,4 @@
+// js/ui.js - Handles DOM Manipulation and UI Updates
 import * as State from './state.js';
 import * as Config from './config.js';
 import * as Utils from './utils.js';
@@ -6,17 +7,147 @@ import { elementDetails, elementKeyToFullName, elementNameToKey, concepts, quest
 
 console.log("ui.js loading...");
 
-// --- DOM Element References (Assume these are correct) ---
-// ... (Keep all your DOM references) ...
+// --- DOM Element References (Ensure all are correct) ---
+const saveIndicator = document.getElementById('saveIndicator');
+const screens = document.querySelectorAll('.screen');
+const welcomeScreen = document.getElementById('welcomeScreen');
+const loadButton = document.getElementById('loadButton');
+const questionnaireScreen = document.getElementById('questionnaireScreen');
+const elementProgressHeader = document.getElementById('elementProgressHeader');
+const questionContent = document.getElementById('questionContent');
+const progressText = document.getElementById('progressText');
+const dynamicScoreFeedback = document.getElementById('dynamicScoreFeedback');
+const feedbackElementSpan = document.getElementById('feedbackElement');
+const feedbackScoreSpan = document.getElementById('feedbackScore');
+const feedbackScoreBar = document.getElementById('feedbackScoreBar');
+const prevElementButton = document.getElementById('prevElementButton');
+const nextElementButton = document.getElementById('nextElementButton');
+const mainNavBar = document.getElementById('mainNavBar');
+const navButtons = document.querySelectorAll('.nav-button');
+const settingsButton = document.getElementById('settingsButton');
+const personaScreen = document.getElementById('personaScreen');
+const personaDetailedView = document.getElementById('personaDetailedView');
+const personaSummaryView = document.getElementById('personaSummaryView');
+const showDetailedViewBtn = document.getElementById('showDetailedViewBtn');
+const showSummaryViewBtn = document.getElementById('showSummaryViewBtn');
+const personaElementDetailsDiv = document.getElementById('personaElementDetails');
+const userInsightDisplayPersona = document.getElementById('userInsightDisplayPersona');
+const focusedConceptsDisplay = document.getElementById('focusedConceptsDisplay');
+const focusedConceptsHeader = document.getElementById('focusedConceptsHeader');
+const focusResonanceBarsContainer = document.getElementById('focusResonanceBars');
+const tapestryNarrativeP = document.getElementById('tapestryNarrative');
+const personaThemesList = document.getElementById('personaThemesList');
+const summaryContentDiv = document.getElementById('summaryContent');
+const studyScreen = document.getElementById('studyScreen');
+const userInsightDisplayStudy = document.getElementById('userInsightDisplayStudy');
+const researchButtonContainer = document.getElementById('researchButtonContainer');
+const freeResearchButton = document.getElementById('freeResearchButton');
+const seekGuidanceButton = document.getElementById('seekGuidanceButton');
+const researchStatus = document.getElementById('researchStatus');
+const researchOutput = document.getElementById('researchOutput');
+const dailyRitualsDisplay = document.getElementById('dailyRitualsDisplay');
+const guidedReflectionCostDisplay = document.getElementById('guidedReflectionCostDisplay');
+const grimoireScreen = document.getElementById('grimoireScreen');
+const grimoireCountSpan = document.getElementById('grimoireCount');
+const grimoireControls = document.getElementById('grimoireControls');
+const grimoireFilterControls = grimoireControls?.querySelector('.filter-controls');
+const grimoireTypeFilter = document.getElementById('grimoireTypeFilter');
+const grimoireElementFilter = document.getElementById('grimoireElementFilter');
+const grimoireRarityFilter = document.getElementById('grimoireRarityFilter');
+const grimoireSortOrder = document.getElementById('grimoireSortOrder');
+const grimoireSearchInput = document.getElementById('grimoireSearchInput');
+const grimoireFocusFilter = document.getElementById('grimoireFocusFilter');
+const grimoireContentDiv = document.getElementById('grimoireContent');
+const repositoryScreen = document.getElementById('repositoryScreen');
+const repositoryFocusUnlocksDiv = document.getElementById('repositoryFocusUnlocks')?.querySelector('.repo-list');
+const repositoryScenesDiv = document.getElementById('repositoryScenes')?.querySelector('.repo-list');
+const repositoryExperimentsDiv = document.getElementById('repositoryExperiments')?.querySelector('.repo-list');
+const repositoryInsightsDiv = document.getElementById('repositoryInsights')?.querySelector('.repo-list');
+const milestonesDisplay = document.getElementById('milestonesDisplay');
+const conceptDetailPopup = document.getElementById('conceptDetailPopup');
+const popupOverlay = document.getElementById('popupOverlay');
+const popupCardTypeIcon = document.getElementById('popupCardTypeIcon');
+const popupConceptName = document.getElementById('popupConceptName');
+const popupConceptType = document.getElementById('popupConceptType');
+const popupVisualContainer = document.getElementById('popupVisualContainer');
+const popupDetailedDescription = document.getElementById('popupDetailedDescription');
+const popupResonanceSummary = document.getElementById('popupResonanceSummary');
+const popupComparisonHighlights = document.getElementById('popupComparisonHighlights');
+const popupConceptProfile = document.getElementById('popupConceptProfile');
+const popupUserComparisonProfile = document.getElementById('popupUserComparisonProfile');
+const popupRelatedConcepts = document.getElementById('popupRelatedConcepts');
 const myNotesSection = document.getElementById('myNotesSection');
 const myNotesTextarea = document.getElementById('myNotesTextarea');
+const saveMyNoteButton = document.getElementById('saveMyNoteButton');
 const noteSaveStatusSpan = document.getElementById('noteSaveStatus');
+const closePopupButton = document.getElementById('closePopupButton');
+const addToGrimoireButton = document.getElementById('addToGrimoireButton');
+const markAsFocusButton = document.getElementById('markAsFocusButton');
 const popupEvolutionSection = document.getElementById('popupEvolutionSection');
-// ... (rest of your DOM references) ...
+const evolveArtButton = document.getElementById('evolveArtButton');
+const evolveCostSpan = document.getElementById('evolveCost');
+const evolveEligibility = document.getElementById('evolveEligibility');
+const reflectionModal = document.getElementById('reflectionModal');
+const reflectionModalTitle = document.getElementById('reflectionModalTitle');
+const closeReflectionModalButton = document.getElementById('closeReflectionModalButton');
+const reflectionElement = document.getElementById('reflectionElement');
+const reflectionPromptText = document.getElementById('reflectionPromptText');
+const reflectionCheckbox = document.getElementById('reflectionCheckbox');
+const scoreNudgeCheckbox = document.getElementById('scoreNudgeCheckbox');
+const scoreNudgeLabel = document.getElementById('scoreNudgeLabel');
+const confirmReflectionButton = document.getElementById('confirmReflectionButton');
+const reflectionRewardAmount = document.getElementById('reflectionRewardAmount');
+const settingsPopup = document.getElementById('settingsPopup');
+const closeSettingsPopupButton = document.getElementById('closeSettingsPopupButton');
+const forceSaveButton = document.getElementById('forceSaveButton');
+const resetAppButton = document.getElementById('resetAppButton');
+const milestoneAlert = document.getElementById('milestoneAlert');
+const milestoneAlertText = document.getElementById('milestoneAlertText');
+const closeMilestoneAlertButton = document.getElementById('closeMilestoneAlertButton');
+const toastElement = document.getElementById('toastNotification');
+const toastMessageElement = document.getElementById('toastMessage');
+const exploreTapestryButton = document.getElementById('exploreTapestryButton');
+const suggestSceneButton = document.getElementById('suggestSceneButton');
+const tapestryDeepDiveModal = document.getElementById('tapestryDeepDiveModal');
+const closeDeepDiveButton = document.getElementById('closeDeepDiveButton');
+const deepDiveFocusIcons = document.getElementById('deepDiveFocusIcons');
+const deepDiveNarrativeP = document.getElementById('deepDiveNarrative');
+const deepDiveAnalysisNodes = document.getElementById('deepDiveAnalysisNodes');
+const deepDiveDetailContent = document.getElementById('deepDiveDetailContent');
+const contemplationNodeButton = document.getElementById('contemplationNode');
 
 
 // --- Utility UI Functions ---
-// ... (showTemporaryMessage, showMilestoneAlert, etc.) ...
+let toastTimeout = null;
+export function showTemporaryMessage(message, duration = 3000) {
+    if (!toastElement || !toastMessageElement) { console.warn("Toast elements missing:", message); return; }
+    console.info(`Toast: ${message}`);
+    toastMessageElement.textContent = message;
+    if (toastTimeout) { clearTimeout(toastTimeout); }
+    toastElement.classList.remove('hidden', 'visible');
+    void toastElement.offsetWidth; // Trigger reflow
+    toastElement.classList.add('visible');
+    toastElement.classList.remove('hidden');
+    toastTimeout = setTimeout(() => {
+        toastElement.classList.remove('visible');
+         setTimeout(() => { if (!toastElement.classList.contains('visible')) { toastElement.classList.add('hidden'); } }, 500); // Delay hidden class removal
+        toastTimeout = null;
+    }, duration);
+}
+
+let milestoneTimeout = null;
+export function showMilestoneAlert(text) {
+    if (!milestoneAlert || !milestoneAlertText) return;
+    milestoneAlertText.textContent = `Milestone: ${text}`;
+    milestoneAlert.classList.remove('hidden');
+    if (milestoneTimeout) clearTimeout(milestoneTimeout);
+    milestoneTimeout = setTimeout(hideMilestoneAlert, 5000);
+}
+export function hideMilestoneAlert() {
+    if (milestoneAlert) milestoneAlert.classList.add('hidden');
+    if (milestoneTimeout) clearTimeout(milestoneTimeout);
+    milestoneTimeout = null;
+}
 export function hidePopups() {
     if (conceptDetailPopup) conceptDetailPopup.classList.add('hidden');
     if (reflectionModal) reflectionModal.classList.add('hidden');
@@ -27,7 +158,42 @@ export function hidePopups() {
 }
 
 // --- Screen Management ---
-// ... (showScreen function) ...
+export function showScreen(screenId) {
+    console.log("UI: Showing screen:", screenId);
+    const isPostQuestionnaire = State.getQuestionnaireCompletedStatus(); // Use state getter
+
+    screens.forEach(screen => {
+        screen?.classList.toggle('current', screen.id === screenId);
+        screen?.classList.toggle('hidden', screen.id !== screenId);
+    });
+
+    // Show nav bar only after questionnaire AND not on welcome/questionnaire screen
+    if (mainNavBar) {
+        mainNavBar.classList.toggle('hidden', !isPostQuestionnaire || screenId === 'welcomeScreen' || screenId === 'questionnaireScreen');
+    }
+    // Update active nav button
+    navButtons.forEach(button => {
+        if(button) button.classList.toggle('active', button.dataset.target === screenId);
+    });
+
+    // Trigger logic specific to the screen being shown, only if questionnaire is done
+    if (isPostQuestionnaire) {
+        applyOnboardingPhaseUI(State.getOnboardingPhase()); // Ensure phase UI is applied when switching screens
+        if (screenId === 'personaScreen') GameLogic.displayPersonaScreenLogic();
+        else if (screenId === 'studyScreen') GameLogic.displayStudyScreenLogic();
+        else if (screenId === 'grimoireScreen') refreshGrimoireDisplay(); // Use refresh function
+        else if (screenId === 'repositoryScreen') displayRepositoryContent();
+    } else if (screenId === 'questionnaireScreen') {
+        // If showing questionnaire, ensure onboarding UI doesn't interfere prematurely
+        applyOnboardingPhaseUI(Config.ONBOARDING_PHASE.START);
+    }
+
+    // Scroll to top when changing main screens
+    if (['questionnaireScreen', 'grimoireScreen', 'personaScreen', 'studyScreen', 'repositoryScreen'].includes(screenId)) {
+        window.scrollTo(0, 0);
+    }
+}
+
 
 // --- Onboarding UI Adjustments ---
 export function applyOnboardingPhaseUI(phase) {
@@ -89,8 +255,8 @@ export function applyOnboardingPhaseUI(phase) {
 
 // --- Helper functions for phased UI elements ---
 
-// !! KEEP THIS VERSION !!
- function updateNotesSectionVisibility(isDiscovered) {
+// THIS IS THE SINGLE CORRECT VERSION
+function updateNotesSectionVisibility(isDiscovered) {
     if (myNotesSection) {
         // Show notes only if the concept is discovered AND the phase is STUDY_INSIGHT or later
         const show = isDiscovered && State.getOnboardingPhase() >= Config.ONBOARDING_PHASE.STUDY_INSIGHT;
@@ -107,7 +273,8 @@ export function applyOnboardingPhaseUI(phase) {
         }
     }
 }
-// !! KEEP THIS VERSION !!
+
+// THIS IS THE SINGLE CORRECT VERSION
 function updateEvolutionSectionVisibility(conceptData, discoveredData) {
     if (popupEvolutionSection && conceptData) { // Check conceptData exists
         const show = discoveredData && conceptData.canUnlockArt && !discoveredData.artUnlocked && State.getOnboardingPhase() >= Config.ONBOARDING_PHASE.ADVANCED;
@@ -120,8 +287,7 @@ function updateEvolutionSectionVisibility(conceptData, discoveredData) {
     }
 }
 
-
-// !! KEEP THIS VERSION !!
+// THIS IS THE SINGLE CORRECT VERSION
 function updatePopupSellButtonVisibility(conceptId) {
     const button = conceptDetailPopup?.querySelector('.popup-sell-button');
     if (button) {
@@ -131,7 +297,6 @@ function updatePopupSellButtonVisibility(conceptId) {
 }
 
 // --- Insight Display ---
-// ... (updateInsightDisplays function - unchanged) ...
 export function updateInsightDisplays() {
     const insight = State.getInsight().toFixed(1);
     if (userInsightDisplayPersona) userInsightDisplayPersona.textContent = insight;
@@ -164,7 +329,6 @@ export function updateInsightDisplays() {
 
 
 // --- Questionnaire UI ---
-// ... (initializeQuestionnaireUI, updateElementProgressHeader, displayElementQuestions, updateSliderFeedbackText, updateDynamicFeedback, getQuestionnaireAnswers functions - unchanged) ...
 export function initializeQuestionnaireUI() {
     updateElementProgressHeader(-1); // Show no progress initially
     displayElementQuestions(0); // Display the first set of questions
@@ -290,7 +454,6 @@ export function getQuestionnaireAnswers() {
 }
 
 // --- Persona Screen UI ---
-// ... (displayPersonaScreen, displayElementAttunement, updateFocusSlotsDisplay, displayFocusedConceptsPersona, updateFocusElementalResonance, generateTapestryNarrative, synthesizeAndDisplayThemesPersona, displayPersonaSummary functions - unchanged from previous correction) ...
 export function displayPersonaScreen() {
     if (!personaElementDetailsDiv) { console.error("Persona element details div not found!"); return; }
     console.log("UI: Displaying Persona Screen");
@@ -481,7 +644,75 @@ export function displayPersonaSummary() {
 
 
 // --- Study Screen UI ---
-// ... (displayResearchStatus, displayResearchResults, updateResearchButtonAfterAction functions - unchanged) ...
+export function displayStudyScreenContent() {
+    console.log("UI: Displaying Study Screen Content (Phase checked by caller)");
+    updateInsightDisplays();
+    displayResearchButtons(); // This respects phase for free research button
+    displayDailyRituals(); // This respects phase internally
+    applyOnboardingPhaseUI(State.getOnboardingPhase()); // Ensure sub-elements are correct
+}
+
+export function displayResearchButtons() {
+    if (!researchButtonContainer) return;
+    researchButtonContainer.innerHTML = '';
+    const insight = State.getInsight(); const attunement = State.getAttunement();
+    const showFreeResearch = State.isFreeResearchAvailable() && State.getOnboardingPhase() >= Config.ONBOARDING_PHASE.STUDY_INSIGHT;
+    const showPaidResearch = State.getOnboardingPhase() >= Config.ONBOARDING_PHASE.STUDY_INSIGHT;
+
+    if (freeResearchButton) {
+        freeResearchButton.classList.toggle('hidden', !showFreeResearch && !(State.getOnboardingPhase() >= Config.ONBOARDING_PHASE.STUDY_INSIGHT)); // Hide completely if phase too early
+        if (State.getOnboardingPhase() >= Config.ONBOARDING_PHASE.STUDY_INSIGHT) {
+            freeResearchButton.disabled = !State.isFreeResearchAvailable();
+            freeResearchButton.textContent = State.isFreeResearchAvailable() ? "Perform Daily Meditation (Free Research)" : "Daily Meditation Performed";
+        }
+    }
+
+    if (showPaidResearch) {
+        elementNames.forEach(elName => {
+            const key = elementNameToKey[elName]; const currentAttunement = attunement[key] || 0;
+            let currentCost = Config.BASE_RESEARCH_COST;
+            if (currentAttunement > 80) currentCost = Math.max(5, Config.BASE_RESEARCH_COST - 5);
+            else if (currentAttunement > 50) currentCost = Math.max(5, Config.BASE_RESEARCH_COST - 3);
+            const canAfford = insight >= currentCost; const fullName = elementDetails[elName]?.name || elName;
+            const button = document.createElement('button'); button.classList.add('button', 'research-button');
+            button.dataset.elementKey = key; button.dataset.cost = currentCost; button.disabled = !canAfford;
+            button.title = `Focus on ${fullName} (Cost: ${currentCost} Insight)`;
+            button.innerHTML = `<span class="research-el-icon" style="color: ${Utils.getElementColor(elName)};"><i class="${Utils.getElementIcon(fullName)}"></i></span><span class="research-el-name">${fullName}</span><span class="research-el-cost">${currentCost} <i class="fas fa-brain insight-icon"></i></span>`;
+            researchButtonContainer.appendChild(button);
+        });
+    } else {
+        researchButtonContainer.innerHTML = '<p><i>Unlock Research by focusing on your first concept.</i></p>';
+    }
+
+    if (seekGuidanceButton) seekGuidanceButton.disabled = insight < Config.GUIDED_REFLECTION_COST;
+    if (guidedReflectionCostDisplay) guidedReflectionCostDisplay.textContent = Config.GUIDED_REFLECTION_COST;
+}
+
+export function displayDailyRituals() {
+     if (!dailyRitualsDisplay) return; dailyRitualsDisplay.innerHTML = '';
+     // Check phase before displaying anything
+     if (State.getOnboardingPhase() < Config.ONBOARDING_PHASE.REFLECTION_RITUALS) {
+        dailyRitualsDisplay.innerHTML = '<li>Unlock rituals by progressing.</li>';
+        return;
+     }
+     // --- Proceed with display logic ---
+     const completed = State.getState().completedRituals.daily || {}; const focused = State.getFocusedConcepts();
+     let activeRituals = [...dailyRituals];
+     if (focusRituals) { focusRituals.forEach(ritual => { if (!ritual.requiredFocusIds || ritual.requiredFocusIds.length === 0) return; const reqIds = new Set(ritual.requiredFocusIds); let allFocused = true; for (const id of reqIds) { if (!focused.has(id)) { allFocused = false; break; } } if (allFocused) activeRituals.push({ ...ritual, isFocusRitual: true }); }); }
+     if (activeRituals.length === 0) { dailyRitualsDisplay.innerHTML = '<li>No daily rituals currently active.</li>'; return; }
+     activeRituals.forEach(ritual => {
+         const completedData = completed[ritual.id] || { completed: false, progress: 0 }; const isCompleted = completedData.completed;
+         const li = document.createElement('li'); li.classList.toggle('completed', isCompleted); if(ritual.isFocusRitual) li.classList.add('focus-ritual');
+         let rewardText = '';
+         if (ritual.reward) {
+             if (ritual.reward.type === 'insight') rewardText = `(+${ritual.reward.amount} <i class="fas fa-brain insight-icon"></i>)`;
+             else if (ritual.reward.type === 'attunement') { const elName = ritual.reward.element === 'All' ? 'All' : (elementKeyToFullName[ritual.reward.element] || ritual.reward.element); rewardText = `(+${ritual.reward.amount} ${elName} Attun.)`; }
+             else if (ritual.reward.type === 'token') rewardText = `(+1 ${ritual.reward.tokenType || 'Token'})`;
+         }
+         li.innerHTML = `${ritual.description} <span class="ritual-reward">${rewardText}</span>`;
+         dailyRitualsDisplay.appendChild(li);
+     });
+}
 export function displayResearchStatus(message) { if (researchStatus) researchStatus.textContent = message; }
 
 export function displayResearchResults(results) {
@@ -578,8 +809,15 @@ export function updateResearchButtonAfterAction(conceptId, action) {
     }
     // Could add logic for 'disable' action if needed
 }
+
+
 // --- Grimoire Screen UI ---
-// (displayGrimoire, populateGrimoireFilters, updateGrimoireCounter, refreshGrimoireDisplay remain the same, but respect hidden-by-flow for filters)
+export function updateGrimoireCounter() { if (grimoireCountSpan) grimoireCountSpan.textContent = State.getDiscoveredConcepts().size; }
+export function populateGrimoireFilters() {
+    // No phase check needed here, visibility handled by applyOnboardingPhaseUI
+    if (grimoireTypeFilter) { grimoireTypeFilter.innerHTML = '<option value="All">All Types</option>'; cardTypeKeys.forEach(type => { const option = document.createElement('option'); option.value = type; option.textContent = type; grimoireTypeFilter.appendChild(option); }); }
+    if (grimoireElementFilter) { grimoireElementFilter.innerHTML = '<option value="All">All Elements</option>'; elementNames.forEach(fullName => { const name = elementDetails[fullName]?.name || fullName; const option = document.createElement('option'); option.value = fullName; option.textContent = name; grimoireElementFilter.appendChild(option); }); }
+}
 export function displayGrimoire(filterType = "All", filterElement = "All", sortBy = "discovered", filterRarity = "All", searchTerm = "", filterFocus = "All") {
     if (!grimoireContentDiv) return; grimoireContentDiv.innerHTML = '';
     const discoveredMap = State.getDiscoveredConcepts(); if (discoveredMap.size === 0) { grimoireContentDiv.innerHTML = '<p>Your Grimoire is empty. Visit the Study to Research new Concepts!</p>'; return; }
@@ -600,7 +838,7 @@ export function displayGrimoire(filterType = "All", filterElement = "All", sortB
     });
 
     const rarityOrder = { 'common': 1, 'uncommon': 2, 'rare': 3 };
-    conceptsToDisplay.sort((a, b) => { /* ... sorting logic ... */
+    conceptsToDisplay.sort((a, b) => {
         if (!a.concept || !b.concept) return 0;
         switch (sortBy) {
             case 'name': return a.concept.name.localeCompare(b.concept.name);
@@ -619,16 +857,8 @@ export function displayGrimoire(filterType = "All", filterElement = "All", sortB
     });
 
     if (conceptsToDisplay.length === 0) { grimoireContentDiv.innerHTML = `<p>No discovered concepts match the current filters${searchTermLower ? ' or search term' : ''}.</p>`; }
-    else { conceptsToDisplay.forEach(data => { const cardElement = renderCard(data.concept, 'grimoire'); if (cardElement) { /* Add hover listeners */ cardElement.addEventListener('mouseover', (event) => { /* ... hover logic ... */
-        const currentCard = event.currentTarget; const conceptId = parseInt(currentCard.dataset.conceptId); const conceptData = State.getDiscoveredConceptData(conceptId)?.concept; if (!conceptData || !conceptData.relatedIds) return; currentCard.classList.add('hover-highlight'); const allCards = grimoireContentDiv.querySelectorAll('.concept-card'); allCards.forEach(card => { const cardId = parseInt(card.dataset.conceptId); if (conceptData.relatedIds.includes(cardId) && card !== currentCard) { card.classList.add('related-highlight'); } }); }); cardElement.addEventListener('mouseout', (event) => { const currentCard = event.currentTarget; currentCard.classList.remove('hover-highlight'); const allCards = grimoireContentDiv.querySelectorAll('.concept-card'); allCards.forEach(card => card.classList.remove('related-highlight')); }); grimoireContentDiv.appendChild(cardElement); } }); }
+    else { conceptsToDisplay.forEach(data => { const cardElement = renderCard(data.concept, 'grimoire'); if (cardElement) { /* Add hover listeners */ cardElement.addEventListener('mouseover', (event) => { const currentCard = event.currentTarget; const conceptId = parseInt(currentCard.dataset.conceptId); const conceptData = State.getDiscoveredConceptData(conceptId)?.concept; if (!conceptData || !conceptData.relatedIds) return; currentCard.classList.add('hover-highlight'); const allCards = grimoireContentDiv.querySelectorAll('.concept-card'); allCards.forEach(card => { const cardId = parseInt(card.dataset.conceptId); if (conceptData.relatedIds.includes(cardId) && card !== currentCard) { card.classList.add('related-highlight'); } }); }); cardElement.addEventListener('mouseout', (event) => { const currentCard = event.currentTarget; currentCard.classList.remove('hover-highlight'); const allCards = grimoireContentDiv.querySelectorAll('.concept-card'); allCards.forEach(card => card.classList.remove('related-highlight')); }); grimoireContentDiv.appendChild(cardElement); } }); }
 }
-
-export function populateGrimoireFilters() { // No change needed here, visibility handled by applyOnboardingPhaseUI
-    if (grimoireTypeFilter) { grimoireTypeFilter.innerHTML = '<option value="All">All Types</option>'; cardTypeKeys.forEach(type => { const option = document.createElement('option'); option.value = type; option.textContent = type; grimoireTypeFilter.appendChild(option); }); }
-    if (grimoireElementFilter) { grimoireElementFilter.innerHTML = '<option value="All">All Elements</option>'; elementNames.forEach(fullName => { const name = elementDetails[fullName]?.name || fullName; const option = document.createElement('option'); option.value = fullName; option.textContent = name; grimoireElementFilter.appendChild(option); }); }
-}
-
-export function updateGrimoireCounter() { if (grimoireCountSpan) grimoireCountSpan.textContent = State.getDiscoveredConcepts().size; }
 
 export function refreshGrimoireDisplay() {
      if (grimoireScreen && !grimoireScreen.classList.contains('hidden')) {
@@ -637,17 +867,17 @@ export function refreshGrimoireDisplay() {
          const sortValue = grimoireSortOrder?.value || "discovered";
          const rarityValue = grimoireRarityFilter?.value || "All";
          const searchValue = grimoireSearchInput?.value || "";
-         const focusValue = grimoireFocusFilter?.value || "All";
-         displayGrimoire(typeValue, elementValue, sortValue, rarityValue, searchValue, focusValue);
+         const focusValue = grimoireFocusFilter?.value || "All"; // Get focus value
+         displayGrimoire(typeValue, elementValue, sortValue, rarityValue, searchValue, focusValue); // Pass focus value
      }
 }
 
-// --- Card Rendering ---
-// (renderCard needs to check phase for sell button visibility)
+// --- Card Rendering (Includes Icon Changes and Phase Checks) ---
 export function renderCard(concept, context = 'grimoire') {
     if (!concept || typeof concept.id === 'undefined') { console.warn("renderCard invalid concept:", concept); const d = document.createElement('div'); d.textContent = "Error"; return d; }
     const cardDiv = document.createElement('div'); cardDiv.classList.add('concept-card'); cardDiv.classList.add(`rarity-${concept.rarity || 'common'}`); cardDiv.dataset.conceptId = concept.id; cardDiv.title = `View ${concept.name}`;
     const discoveredData = State.getDiscoveredConceptData(concept.id); const isDiscovered = !!discoveredData; const isFocused = State.getFocusedConcepts().has(concept.id); const artUnlocked = discoveredData?.artUnlocked || false;
+    // Focus star only shown if Phase 1+ reached
     const showFocusStar = isFocused && State.getOnboardingPhase() >= Config.ONBOARDING_PHASE.PERSONA_GRIMOIRE;
 
     const grimoireStampHTML = isDiscovered ? '<span class="grimoire-stamp" title="In Grimoire"><i class="fas fa-book-open"></i></span>' : '';
@@ -678,9 +908,8 @@ export function renderCard(concept, context = 'grimoire') {
     return cardDiv;
 }
 
+
 // --- Concept Detail Popup UI ---
-// (showConceptDetailPopup, displayPopupResonance, displayPopupRecipeComparison, displayPopupRelatedConcepts remain largely the same)
-// (displayEvolutionSection needs phase check)
 export function showConceptDetailPopup(conceptId) {
     const conceptData = concepts.find(c => c.id === conceptId); if (!conceptData) { console.error("Concept data missing:", conceptId); return; }
     const discoveredData = State.getDiscoveredConceptData(conceptId); const inGrimoire = !!discoveredData;
@@ -706,11 +935,11 @@ export function showConceptDetailPopup(conceptId) {
     displayPopupRecipeComparison(conceptData, scores);
     displayPopupRelatedConcepts(conceptData);
 
-    // Update phased sections
-    updateNotesSectionVisibility(inGrimoire); // Respects phase internally
-    updateEvolutionSectionVisibility(conceptData, discoveredData); // Respects phase internally
+    // Update phased sections (calls helpers which check phase internally)
+    updateNotesSectionVisibility(inGrimoire);
+    updateEvolutionSectionVisibility(conceptData, discoveredData);
 
-    // Update action buttons (respect phase internally)
+    // Update action buttons (calls helpers which check phase internally)
     updateGrimoireButtonStatus(conceptId, !!inResearchNotes);
     updateFocusButtonStatus(conceptId);
     updatePopupSellButton(conceptId, conceptData, inGrimoire, !!inResearchNotes);
@@ -791,11 +1020,11 @@ export function displayEvolutionSection(conceptData, discoveredData) {
 export function updateGrimoireButtonStatus(conceptId, inResearchNotes = false) {
     if (!addToGrimoireButton) return;
     const isDiscovered = State.getDiscoveredConcepts().has(conceptId);
-    // Show button only if NOT discovered (i.e., it's in research notes or somehow being viewed without being added)
+    // Show button only if NOT discovered
     addToGrimoireButton.classList.toggle('hidden', isDiscovered);
-    addToGrimoireButton.disabled = false; // It's always enabled if shown (means it can be added)
+    addToGrimoireButton.disabled = false; // Always enabled if shown
     addToGrimoireButton.textContent = "Add to Grimoire";
-    addToGrimoireButton.classList.remove('added'); // Ensure 'added' style is removed if somehow visible when already added
+    addToGrimoireButton.classList.remove('added');
 }
 export function updateFocusButtonStatus(conceptId) {
     if (!markAsFocusButton) return;
@@ -836,16 +1065,6 @@ export function updatePopupSellButton(conceptId, conceptData, inGrimoire, inRese
         else { popupActions.appendChild(sellButton); }
     }
 }
-export function updateNotesSectionVisibility(isDiscovered) { // Renamed from display for clarity
-    if (myNotesSection) {
-        const show = isDiscovered && State.getOnboardingPhase() >= Config.ONBOARDING_PHASE.STUDY_INSIGHT;
-        myNotesSection.classList.toggle('hidden', !show);
-        if (show) {
-             myNotesTextarea.value = State.getDiscoveredConceptData(GameLogic.getCurrentPopupConceptId())?.notes || "";
-             updateNoteSaveStatus(""); // Clear status on show
-        }
-    }
-}
 export function updateNoteSaveStatus(message, isError = false) {
      if (noteSaveStatusSpan) {
          noteSaveStatusSpan.textContent = message;
@@ -854,8 +1073,8 @@ export function updateNoteSaveStatus(message, isError = false) {
      }
 }
 
+
 // --- Reflection Modal UI ---
-// (displayReflectionPrompt remains largely the same)
 export function displayReflectionPrompt(promptData, context) {
     if (!reflectionModal || !promptData || !promptData.prompt) { /* ... error handling ... */
         console.error("Reflection modal or prompt data/text missing.", promptData);
@@ -873,7 +1092,6 @@ export function displayReflectionPrompt(promptData, context) {
 }
 
 // --- Integrated Element Deep Dive UI ---
-// (displayElementDeepDive remains the same, visibility handled by caller/applyOnboardingPhaseUI)
 export function displayElementDeepDive(elementKey, targetContainerElement) {
      if (!targetContainerElement) { console.warn(`UI: Target container not provided for displayElementDeepDive (${elementKey})`); targetContainerElement = personaElementDetailsDiv?.querySelector(`.element-deep-dive-container[data-element-key="${elementKey}"]`); if (!targetContainerElement) { console.error(`UI: Could not find target container for element ${elementKey}`); return; } }
      const deepDiveData = elementDeepDive[elementKey] || [];
@@ -903,7 +1121,6 @@ export function displayElementDeepDive(elementKey, targetContainerElement) {
 
 
 // --- Repository UI ---
-// (displayRepositoryContent, renderRepositoryItem remain largely the same, but check phase)
 export function displayRepositoryContent() {
     const showRepository = State.getOnboardingPhase() >= Config.ONBOARDING_PHASE.ADVANCED;
     if (repositoryScreen) repositoryScreen.classList.toggle('hidden-by-flow', !showRepository); // Toggle whole screen visibility
@@ -969,7 +1186,6 @@ export function renderRepositoryItem(item, type, cost, canAfford, completed = fa
  }
 
 // --- Milestones UI ---
-// (displayMilestones remains the same, but called from displayRepositoryContent)
 export function displayMilestones() {
     if (!milestonesDisplay) return; milestonesDisplay.innerHTML = '';
     const achieved = State.getState().achievedMilestones;
@@ -979,14 +1195,11 @@ export function displayMilestones() {
 }
 
 // --- Settings Popup UI ---
-// (showSettings remains the same)
 export function showSettings() {
     if (settingsPopup) settingsPopup.classList.remove('hidden'); if (popupOverlay) popupOverlay.classList.remove('hidden');
 }
 
 // --- Tapestry Deep Dive UI ---
-// (displayTapestryDeepDive, updateDeepDiveContent, displayContemplationTask, clearContemplationTask remain the same)
-// (updateContemplationButtonState needs phase check)
 export function displayTapestryDeepDive(analysisData) {
     if (!tapestryDeepDiveModal || !popupOverlay || !deepDiveNarrativeP) { console.error("Deep Dive Modal elements missing!"); showTemporaryMessage("Error opening Deep Dive.", 3000); return; }
     console.log("UI: displayTapestryDeepDive called with analysis:", analysisData);
@@ -1008,12 +1221,12 @@ export function updateContemplationButtonState() {
 
     contemplationNodeButton.disabled = disabled; contemplationNodeButton.title = title; contemplationNodeButton.innerHTML = text;
 }
-export function updateDeepDiveContent(htmlContent, nodeId) { /* ... (no changes) ... */
+export function updateDeepDiveContent(htmlContent, nodeId) {
     if (!deepDiveDetailContent) return; console.log(`UI: Updating deep dive content for node: ${nodeId}`);
     deepDiveDetailContent.innerHTML = htmlContent;
     deepDiveAnalysisNodes?.querySelectorAll('.deep-dive-node').forEach(btn => { btn.classList.toggle('active', btn.dataset.nodeId === nodeId); });
 }
-export function displayContemplationTask(task) { /* ... (no changes) ... */
+export function displayContemplationTask(task) {
     if (!deepDiveDetailContent) return; console.log("UI: Displaying contemplation task:", task);
     let html = `<h4>Contemplation Task</h4><p>${task.text}</p>`;
     if (task.requiresCompletionButton) { html += `<button id="completeContemplationBtn" class="button small-button">Mark Complete (+${task.reward.amount} ${task.reward.type === 'insight' ? '<i class="fas fa-brain insight-icon"></i>' : 'Attun.'})</button>`; }
@@ -1022,7 +1235,7 @@ export function displayContemplationTask(task) { /* ... (no changes) ... */
     if (completeBtn) { completeBtn.addEventListener('click', () => { GameLogic.handleCompleteContemplation(task); }, { once: true }); }
     deepDiveAnalysisNodes?.querySelectorAll('.deep-dive-node').forEach(btn => { btn.classList.toggle('active', btn.id === 'contemplationNode'); });
 }
-export function clearContemplationTask() { /* ... (no changes) ... */
+export function clearContemplationTask() {
      if (deepDiveDetailContent) {
          deepDiveDetailContent.innerHTML = '<p>Contemplation acknowledged.</p>';
          setTimeout(() => {
