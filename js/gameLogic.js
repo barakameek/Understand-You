@@ -778,7 +778,7 @@ function handleUnlockLibraryLevel(event) {
      if (!key || isNaN(level)) { console.error("Invalid library unlock data"); return; }
      unlockDeepDiveLevel(key, level); // Call the core logic function
 }
- function unlockDeepDiveLevel(elementKey, levelToUnlock) { // Internal function, assumes phase check done by handler
+function unlockDeepDiveLevel(elementKey, levelToUnlock) { // Internal function, assumes phase check done by handler
     const dData = elementDeepDive[elementKey] || []; const lData = dData.find(l => l.level === levelToUnlock); const curLevel = State.getState().unlockedDeepDiveLevels[elementKey] || 0;
     if (!lData || levelToUnlock !== curLevel + 1) { console.warn(`Library unlock fail: Invalid level/seq.`); return; }
     const cost = lData.insightCost || 0;
@@ -793,14 +793,16 @@ function handleUnlockLibraryLevel(event) {
 
             UI.showTemporaryMessage(`${elementKeyToFullName[elementKey]} Insight Lv ${levelToUnlock} Unlocked!`, 3000);
             updateMilestoneProgress('unlockLibrary', levelToUnlock); updateMilestoneProgress('unlockedDeepDiveLevels', State.getState().unlockedDeepDiveLevels); checkAndUpdateRituals('unlockLibrary');
-            // If phase advanced, update overall UI
-            if (State.getOnboardingPhase() === Config.ONBOARDING_PHASE.ADVANCED) {
-                UI.applyOnboardingPhaseUI(Config.ONBOARDING_PHASE.ADVANCED);
+            // --- *** ADDED: Explicit UI update on Phase Change *** ---
+            const newPhase = State.getOnboardingPhase();
+            if (newPhase === Config.ONBOARDING_PHASE.ADVANCED) { // Check if *this* unlock triggered Phase 4
+                UI.applyOnboardingPhaseUI(newPhase); // Apply the new phase UI globally
                  UI.showTemporaryMessage("Advanced Features Unlocked!", 3500);
             }
+             // --- *** END ADDED *** ---
         } else { console.error(`State fail unlock library ${elementKey} Lv ${levelToUnlock}`); gainInsight(cost, `Refund: Library unlock error`); }
     }
-}
+
 function handleMeditateScene(event) {
      if (!isActionAllowed(Config.ONBOARDING_PHASE.ADVANCED)) { UI.showTemporaryMessage("Unlock Repository first.", 3000); return; }
      const button = event.target.closest('button'); if (!button || button.disabled) return; const sceneId = button.dataset.sceneId; if (!sceneId) return; meditateOnScene(sceneId);
