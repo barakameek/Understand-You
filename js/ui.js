@@ -130,17 +130,13 @@ const closeStartingNebulaButton = startingNebulaModal?.querySelector('.close-but
 
 // --- Tutorial Step Definitions ---
 // Maps step IDs (from Config.TUTORIAL_STEP) to their content and targets
-// --- Tutorial Step Definitions ---
-// Maps step IDs (from Config.TUTORIAL_STEP) to their content and targets
 const tutorialSteps = {
     [Config.TUTORIAL_STEP.GRIMOIRE_INTRO]: {
         title: "The Grand Grimoire",
         text: "Welcome to your Grimoire! This is where all the Concept Cards you discover are stored. Take a look around.",
         targetElementId: 'grimoireScreen',
         nextStepId: Config.TUTORIAL_STEP.CONCEPT_POPUP_INTRO
-    }, // Ensure comma is here
-
-    // REMOVED THE COMMENT LINE THAT WAS HERE
+    }, // Comma is present
 
     [Config.TUTORIAL_STEP.CONCEPT_POPUP_INTRO]: {
         title: "Concept Details",
