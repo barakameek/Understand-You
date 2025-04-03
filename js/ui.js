@@ -1056,13 +1056,18 @@ export function showConceptDetailPopup(conceptId) {
                                        State.getHasSeenGrimoireTutorial() &&
                                        !State.getHasSeenFocusTutorial() &&
                                        State.getFocusedConcepts().size === 0;
-    if (showFocusTutorialHighlight && markAsFocusButton && !markAsFocusButton.classList.contains('hidden')) {
+       if (showFocusTutorialHighlight && markAsFocusButton && !markAsFocusButton.classList.contains('hidden')) {
         console.log("UI: Triggering focus button highlight.");
-        temporaryHighlight(markAsFocusButton, 5000, 'highlight-feature-onboarding popup-highlight'); // Highlight the button itself
+        // *** CHANGE THIS LINE ***
+        // temporaryHighlight(markAsFocusButton, 5000, 'highlight-feature-onboarding popup-highlight');
+        // *** TO THIS (Add classes separately): ***
+        temporaryHighlight(markAsFocusButton, 5000, 'highlight-feature-onboarding');
+        temporaryHighlight(markAsFocusButton, 5000, 'popup-highlight'); // Call again for the second class
+        // *** END CHANGE ***
+
         setTimeout(() => showTemporaryMessage("Focusing adds this to your Persona Tapestry!", 4000), 500);
         // We DON'T set hasSeenFocusTutorial here. That happens when they see the Persona screen update.
     }
-    // --- End Apply Tutorial Highlight ---
 
     // --- Show Popup ---
     console.log("UI: Displaying popup.");
