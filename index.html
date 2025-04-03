@@ -44,45 +44,17 @@
              <main id="questionContent"></main>
              <footer>
                  <button id="prevElementButton" class="button back-button" style="visibility: hidden;">Previous</button>
-                 <button id="nextElementButton" class="button next-button">Next / Analyze Results</button> <!-- Updated Text -->
+                 <!-- Text changes dynamically in JS -->
+                 <button id="nextElementButton" class="button next-button">Next Element</button>
              </footer>
         </div>
 
-        <!-- === Experiment Results Modal (NEW) === -->
-        <div id="experimentResultsModal" class="popup hidden results-modal">
-            <button id="closeResultsModalButton" class="close-button">×</button>
-            <div class="popup-header">
-                <h3>Experiment Complete: Initial Findings</h3>
-            </div>
-            <div class="popup-content">
-                <h4>Core Essence Revealed:</h4>
-                <p>Your experiment yielded the following elemental scores:</p>
-                <div id="resultsScoresDisplay" class="results-scores">
-                    <!-- Scores injected here by ui.js -->
-                </div>
-                <p id="resultsInterpretation" class="results-interp">Interpretation will appear here...</p>
-                <hr class="popup-hr">
-                <h4>Distilled Concepts:</h4>
-                <p>These initial Concept Cards have been added to your Grimoire:</p>
-                <div id="resultsStarterHandDisplay" class="results-starter-hand card-grid-condensed">
-                    <!-- Starter hand cards injected here by ui.js -->
-                </div>
-                <hr class="popup-hr">
-                <h4>Next Step:</h4>
-                <p>Examine these Concepts in your <strong>Grimoire</strong>. Understanding their properties is key to weaving your Persona Tapestry.</p>
-            </div>
-            <div class="popup-actions">
-                <button id="goToGrimoireButton" class="button">Go to Grimoire</button>
-            </div>
-        </div>
-        <!-- === END Experiment Results Modal === -->
-
-        <!-- === Navigation Bar (Initially Hidden until Results Modal is seen) === -->
+        <!-- === Navigation Bar (Initially Hidden after Questionnaire/Tutorial) === -->
         <nav id="mainNavBar" class="main-nav hidden">
              <button class="nav-button active" data-target="personaScreen">Persona</button>
              <button class="nav-button" data-target="grimoireScreen">Grimoire (<span id="grimoireCount">0</span>)</button>
              <button class="nav-button hidden-by-flow" data-target="studyScreen">Study</button>
-             <button class="nav-button hidden-by-flow" data-target="repositoryScreen">Repository</button> <!-- Initially hidden by flow -->
+             <button class="nav-button hidden-by-flow" data-target="repositoryScreen">Repository</button>
              <button id="settingsButton" class="nav-button settings-button" title="Settings & Save/Load Options"><i class="fas fa-cog"></i></button>
         </nav>
 
@@ -344,7 +316,7 @@
               </div> <!-- End popup-content -->
               <div class="popup-actions">
                   <button id="addToGrimoireButton" class="button small-button add-grimoire-button" title="Add this Concept to your permanent Grimoire collection.">Add to Grimoire</button>
-                  <!-- Focus button initially hidden by flow -->
+                  <!-- Focus button shown/hidden based on phase/discovery -->
                   <button id="markAsFocusButton" class="button small-button focus-button hidden" title="Toggle whether this Concept contributes to your Persona Tapestry.">Mark as Focus</button>
                   <!-- Sell button added dynamically by ui.js -->
               </div>
@@ -362,7 +334,7 @@
                  <input type="checkbox" id="scoreNudgeCheckbox" class="hidden">
                  <label for="scoreNudgeCheckbox" id="scoreNudgeLabel" class="hidden score-nudge-label" title="If checked (only available for Dissonance reflections), completing this reflection may slightly adjust your Core Foundation scores towards this Concept's profile.">Allow this reflection to potentially nudge your core understanding?</label>
              </div>
-             <button id="confirmReflectionButton" class="button small-button" disabled>Confirm Reflection (<span id="reflectionRewardAmount">? Insight</span>)</button> <!-- Updated Text -->
+             <button id="confirmReflectionButton" class="button small-button" disabled>Confirm Reflection (+<span id="reflectionRewardAmount">?</span> <i class="fas fa-brain insight-icon"></i>)</button>
          </div> <!-- End Reflection Modal -->
 
          <div id="settingsPopup" class="popup hidden settings-popup">
@@ -414,6 +386,33 @@
              <span id="toastMessage">Message text here</span>
          </div> <!-- End Toast -->
 
+
+         <!-- === NEW: Starting Nebula Modal === -->
+         <div id="startingNebulaModal" class="popup hidden nebula-modal">
+              <button class="close-button">×</button> <!-- Standard close button -->
+              <div id="nebulaModalContent">
+                  <!-- Content injected by UI.showStartingNebulaModal -->
+                  <h2>Initial Analysis Complete!</h2>
+                  <p>Loading results...</p>
+              </div>
+              <div class="popup-actions nebula-actions">
+                   <button id="viewStarCatalogButton" class="button">View Grimoire</button>
+              </div>
+         </div>
+
+         <!-- === NEW: Tutorial Modal === -->
+         <div id="tutorialModal" class="popup hidden tutorial-modal">
+              <button class="close-button">×</button> <!-- Standard close button -->
+              <h3 id="tutorialTitle">Tutorial Step</h3>
+              <div class="tutorial-content">
+                   <p id="tutorialText">Tutorial instructions go here...</p>
+              </div>
+              <div class="popup-actions tutorial-actions">
+                   <button id="tutorialNextButton" class="button">Next</button>
+              </div>
+         </div>
+
+         <!-- === Overlay (Shared by popups and tutorial) === -->
          <div id="popupOverlay" class="overlay hidden"></div>
 
     </div> <!-- End app-container -->
