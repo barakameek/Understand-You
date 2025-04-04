@@ -270,14 +270,15 @@ export function updateInsightDisplays() {
 // *** Keep only ONE definition of this function ***
 // --- Questionnaire UI ---
 export function initializeQuestionnaireUI() {
-    console.log("UI: Initializing Questionnaire UI"); // Log entry
+    console.log("UI: Initializing Questionnaire UI");
+    State.updateElementIndex(0); // *** Ensure state index is explicitly set to 0 HERE ***
     updateElementProgressHeader(-1); // Show no progress initially
     displayElementQuestions(0); // Display the first set of questions
 
-  
-
-    if (mainNavBar) mainNavBar.classList.add('hidden');
-    if (dynamicScoreFeedback) dynamicScoreFeedback.style.display = 'none'; // Keep hidden initially until update runs
+  if (mainNavBar) mainNavBar.classList.add('hidden');
+    // Dynamic feedback visibility is now handled within updateDynamicFeedback
+    if (dynamicScoreFeedback) dynamicScoreFeedback.style.display = 'none';
+    console.log("UI: Questionnaire UI initialized, index set to 0.");
 }
 export function updateElementProgressHeader(activeIndex) {
     if (!elementProgressHeader) return; elementProgressHeader.innerHTML = '';
@@ -831,11 +832,11 @@ export function renderCard(concept, context = 'grimoire') {
     // --- End Action Buttons ---
 
   cardDiv.innerHTML = `
-        <div class="card-header">
+          <div class="card-header">
             <i class="${cardTypeIcon} card-type-icon" title="${concept.cardType}"></i>
             <span class="card-name">${concept.name}</span>
-             {/* REMOVED: focus star in header */}
-             <span class="card-stamps">${focusStampHTML}</span> {/* Put stamps here */}
+            {/* REMOVED THIS LINE */}
+             <span class="card-stamps">${focusStampHTML}</span> {/* Stamp moved here */}
         </div>
         <div class="card-visual">
             ${visualContent}
@@ -843,7 +844,7 @@ export function renderCard(concept, context = 'grimoire') {
         <div class="card-footer">
             <div class="card-affinities">${affinitiesHTML || '<small style="color:#888; font-style: italic;">Basic Affinity</small>'}</div>
             <p class="card-brief-desc">${concept.briefDescription || '...'}</p>
-            ${actionButtonsHTML} {/* REMOVED: Inject buttons */}
+            ${actionButtonsHTML} {/* REMOVED THIS COMMENT */}
         </div>`;
 
     // Main click listener for popup (excluding action button clicks)
