@@ -584,12 +584,16 @@ const cardTypeThemes = {
 
 // --- NEW: Onboarding Tasks ---
 export const onboardingTasks = [
-    { id: 'task01', phaseRequired: Config.ONBOARDING_PHASE.PERSONA_GRIMOIRE, description: "View Your Grimoire", reward: { type: 'insight', amount: 1 }, track: { action: 'showScreen', value: 'grimoireScreen' }, hint: "Click the 'Grimoire' tab in the navigation bar." },
-    { id: 'task02', phaseRequired: Config.ONBOARDING_PHASE.PERSONA_GRIMOIRE, description: "Focus Your First Concept", reward: { type: 'insight', amount: 2 }, track: { action: 'markFocus', count: 1 }, hint: "Open a Concept card (from Grimoire or Research) and click 'Mark as Focus', or use the ☆ button on the card in the Grimoire." },
-    { id: 'task03', phaseRequired: Config.ONBOARDING_PHASE.STUDY_INSIGHT, description: "Conduct Research", reward: { type: 'insight', amount: 2 }, track: { action: 'conductResearch', count: 1 }, hint: "Go to the 'Study' tab and click one of the Element research buttons (costs Insight)." },
-    { id: 'task04', phaseRequired: Config.ONBOARDING_PHASE.STUDY_INSIGHT, description: "Add a Concept from Research", reward: { type: 'insight', amount: 1 }, track: { action: 'addToGrimoireFromResearch', count: 1 }, hint: "After Researching, click 'Add to Grimoire' on a resulting Concept card in the 'Research Notes' area." }, // Need specific tracking
-    { id: 'task05', phaseRequired: Config.ONBOARDING_PHASE.REFLECTION_RITUALS, description: "Complete a Reflection", reward: { type: 'insight', amount: 3 }, track: { action: 'completeReflection', count: 1 }, hint: "Reflections trigger automatically sometimes, or use 'Seek Guidance'." },
-    { id: 'task06', phaseRequired: Config.ONBOARDING_PHASE.ADVANCED, description: "Visit the Repository", reward: { type: 'insight', amount: 1 }, track: { action: 'showScreen', value: 'repositoryScreen' }, hint: "Click the 'Repository' tab in the navigation bar." }
+    // Replace Config.ONBOARDING_PHASE.PERSONA_GRIMOIRE with 1
+    { id: 'task01', phaseRequired: 1, description: "View Your Grimoire", reward: { type: 'insight', amount: 1 }, track: { action: 'showScreen', value: 'grimoireScreen' }, hint: "Click the 'Grimoire' tab in the navigation bar." },
+    { id: 'task02', phaseRequired: 1, description: "Focus Your First Concept", reward: { type: 'insight', amount: 2 }, track: { action: 'markFocus', count: 1 }, hint: "Open a Concept card (from Grimoire or Research) and click 'Mark as Focus', or use the ☆ button on the card in the Grimoire." },
+    // Replace Config.ONBOARDING_PHASE.STUDY_INSIGHT with 2
+    { id: 'task03', phaseRequired: 2, description: "Conduct Research", reward: { type: 'insight', amount: 2 }, track: { action: 'conductResearch', count: 1 }, hint: "Go to the 'Study' tab and click one of the Element research buttons (costs Insight)." },
+    { id: 'task04', phaseRequired: 2, description: "Add a Concept from Research", reward: { type: 'insight', amount: 1 }, track: { action: 'addToGrimoireFromResearch', count: 1 }, hint: "After Researching, click 'Add to Grimoire' on a resulting Concept card in the 'Research Notes' area." },
+    // Replace Config.ONBOARDING_PHASE.REFLECTION_RITUALS with 3
+    { id: 'task05', phaseRequired: 3, description: "Complete a Reflection", reward: { type: 'insight', amount: 3 }, track: { action: 'completeReflection', count: 1 }, hint: "Reflections trigger automatically sometimes, or use 'Seek Guidance'." },
+    // Replace Config.ONBOARDING_PHASE.ADVANCED with 4
+    { id: 'task06', phaseRequired: 4, description: "Visit the Repository", reward: { type: 'insight', amount: 1 }, track: { action: 'showScreen', value: 'repositoryScreen' }, hint: "Click the 'Repository' tab in the navigation bar." }
 ];
 
 // --- Ensure all previous exports are still here ---
@@ -601,18 +605,18 @@ export {
     elementDeepDive,
     focusRituals,
     sceneBlueprints,
-    alchemicalExperiments, // Ensure this is declared above with const
+    alchemicalExperiments,
     elementalInsights,
     focusDrivenUnlocks,
     dailyRituals,
     milestones,
-    elementKeyToFullName, // Export map
-    elementNameToKey,     // Export reverse map
-    cardTypeKeys,         // Export array
-    elementNames,         // Export array
-    elementInteractionThemes, // New export
-    cardTypeThemes          // New export
-    
+    onboardingTasks, // Export the tasks
+    elementKeyToFullName,
+    elementNameToKey,
+    cardTypeKeys,
+    elementNames,
+    elementInteractionThemes,
+    cardTypeThemes
 };
 
 console.log("data.js exports defined.");
