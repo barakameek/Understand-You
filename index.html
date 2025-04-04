@@ -80,7 +80,6 @@
                          <hr>
                          <h2>Resources <i class="fas fa-info-circle info-icon" title="Insight is the primary currency, earned through discovery, reflection, and rituals. Spend it in The Study to research new Concepts or unlock deeper knowledge."></i></h2>
                          <p>Current Insight: <strong id="userInsightDisplayPersona">0.0</strong> <i class="fas fa-brain insight-icon"></i></p>
-                         <!-- Element Library Div Removed -->
                      </div><!-- End Left Column -->
 
                     <!-- Right Column: Tapestry -->
@@ -92,11 +91,17 @@
                                <h4 id="focusedConceptsHeader">Focused Concepts (0 / 5) <i class="fas fa-info-circle info-icon" title="The number of Concepts currently marked as Focus out of your total available slots. Slots can be increased via Milestones."></i></h4>
                                <div id="focusedConceptsDisplay" class="focus-concepts-grid">
                                    <li class="focus-placeholder">Focus Concepts from your Grimoire</li>
-                                   <!-- Focused concepts injected here -->
                                </div>
                           </div> <!-- End Tapestry Area -->
 
-                          <!-- REMOVED Focus Resonance Section -->
+                           <!-- Focus Themes Section (MOVED HERE) -->
+                           <div class="grimoire-insights">
+                              <h3>Focus Themes <i class="fas fa-info-circle info-icon" title="Highlights the dominant Elements based on your Focused Concepts."></i></h3>
+                              <p>Dominant elemental themes emerging from your focus.</p>
+                              <ul id="personaThemesList">
+                                  <!-- Themes list items injected here -->
+                              </ul>
+                          </div>
 
                           <!-- Tapestry Narrative Section -->
                           <div class="tapestry-narrative-section">
@@ -107,19 +112,24 @@
                                   <button id="exploreTapestryButton" class="button small-button hidden-by-flow" title="Explore a deeper analysis of your focused tapestry.">
                                       Explore Tapestry
                                   </button>
-                                  <button id="suggestSceneButton" class="button small-button hidden-by-flow" title="Suggest relevant scenes (Cost: 12 Insight)">
+                                  <button id="suggestSceneButton" class="button small-button hidden-by-flow" title="Suggest resonant scenes (Cost: 12 Insight)">
                                       Suggest Scenes (<span id="sceneSuggestCostDisplay">12</span> <i class="fas fa-brain insight-icon"></i>)
                                   </button>
+                                  <!-- MOVED BUTTON HERE -->
+                                  <button id="seekGuidanceButton" class="button small-button guidance-button hidden-by-flow" title="Spend Insight for a randomly selected Guided Reflection prompt, offering deeper insights or exploring specific themes.">
+                                      Seek Guidance (<span id="guidedReflectionCostDisplay">10</span> <i class="fas fa-brain insight-icon"></i>)
+                                  </button>
                               </div>
+                               <!-- NEW: Container for Scene Suggestions -->
+                              <div id="sceneSuggestionOutput" class="scene-suggestion-output hidden">
+                                    <h4>Scene Suggestion:</h4>
+                                    <p>Based on your current focus, this scene may resonate:</p>
+                                    <div id="suggestedSceneContent">
+                                        <!-- Suggested scene will be rendered here -->
+                                    </div>
+                               </div>
                           </div>
-                          <!-- Grimoire Insights / Focus Themes Section -->
-                          <div class="grimoire-insights">
-                              <h3>Focus Themes <i class="fas fa-info-circle info-icon" title="Identifies the dominant Elements (those with high scores) appearing most frequently among your Focused Concepts."></i></h3>
-                              <p>Themes emerging from your focused concepts.</p>
-                              <ul id="personaThemesList">
-                                  <!-- Themes list items injected here -->
-                              </ul>
-                          </div>
+
                      </div> <!-- End Right Column (persona-constellation) -->
                  </div> <!-- End persona-overview -->
              </div> <!-- End Detailed View -->
@@ -171,7 +181,7 @@
 
         <!-- === Main Study Screen (Initially hidden by flow) === -->
        <div id="studyScreen" class="screen hidden study-screen">
-             <h1>The Alchemist's Study <i class="fas fa-info-circle info-icon" title="Conduct research, perform rituals, and seek guidance to deepen your understanding."></i></h1>
+             <h1>The Alchemist's Study <i class="fas fa-info-circle info-icon" title="Conduct research, perform rituals, and deepen your understanding."></i></h1>
 
              <!-- Control Console Area -->
              <div class="study-control-console">
@@ -181,7 +191,7 @@
                  <div class="action-buttons-area">
                      <p>Actions:</p>
                      <button id="freeResearchButton" class="button free-research-button hidden" title="Once per day, perform research on your least attuned element for free.">Perform Daily Meditation</button>
-                     <button id="seekGuidanceButton" class="button guidance-button hidden-by-flow" title="Spend Insight for a randomly selected Guided Reflection prompt, offering deeper insights or exploring specific themes.">Seek Guided Reflection (<span id="guidedReflectionCostDisplay">10</span> <i class="fas fa-brain insight-icon"></i>)</button>
+                     {/* REMOVED Seek Guidance Button from here */}
                  </div>
                  <div class="research-selection-area">
                      <p>Conduct Research:</p>
@@ -374,7 +384,7 @@
         </div> <!-- End Deep Dive Modal -->
 
          <!-- === Generic Info Popup (NEW) === -->
-        <div id="infoPopup" class="popup hidden info-popup">
+         <div id="infoPopup" class="popup hidden info-popup">
              <button id="closeInfoPopupButton" class="close-button">×</button>
              <div class="popup-header">
                  <h3>Information</h3>
