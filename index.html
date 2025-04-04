@@ -20,6 +20,12 @@
         <!-- === Saving Indicator === -->
         <div id="saveIndicator" class="save-indicator hidden"><i class="fas fa-save"></i> Saving...</div>
 
+        <!-- === Task Notification Area === -->
+        <div id="taskNotificationArea" class="task-notification-area hidden">
+             <span id="taskNotificationText">New Task Available!</span>
+             <button id="taskDismissButton" class="tiny-button">✕</button>
+        </div>
+
         <!-- === Welcome Screen === -->
         <div id="welcomeScreen" class="screen current">
              <h1>Welcome to the Persona Alchemy Lab! <i class="fas fa-info-circle info-icon" title="This is the entry point to the application. Start a new 'Experiment' (questionnaire) or load your previous session."></i></h1>
@@ -52,8 +58,10 @@
         <nav id="mainNavBar" class="main-nav hidden">
              <button class="nav-button active" data-target="personaScreen">Persona</button>
              <button class="nav-button" data-target="grimoireScreen">Grimoire (<span id="grimoireCount">0</span>)</button>
-             <button class="nav-button hidden-by-flow" data-target="studyScreen">Study</button>
-             <button class="nav-button hidden-by-flow" data-target="repositoryScreen">Repository</button> <!-- Initially hidden -->
+             {/* Phase 2 */}
+             <button class="nav-button feature-phase-2-hidden" data-target="studyScreen">Study</button>
+             {/* Phase 4 */}
+             <button class="nav-button feature-phase-4-hidden" data-target="repositoryScreen">Repository</button>
              <button id="settingsButton" class="nav-button settings-button" title="Settings & Save/Load Options"><i class="fas fa-cog"></i></button>
         </nav>
 
@@ -106,9 +114,12 @@
                               <h3>Tapestry Narrative <i class="fas fa-info-circle info-icon" title="A dynamically generated interpretation based on your Focused Concepts, highlighting dominant elements and potential synergies between them."></i></h3>
                               <p id="tapestryNarrative">Mark concepts as "Focus" to generate narrative...</p>
                               <div class="tapestry-actions">
-                                  <button id="exploreTapestryButton" class="button small-button hidden-by-flow" title="Explore a deeper analysis of your focused tapestry.">Explore Tapestry</button>
-                                  <button id="suggestSceneButton" class="button small-button hidden-by-flow" title="Suggest resonant scenes (Cost: 12 Insight)">Suggest Scenes (<span id="sceneSuggestCostDisplay">12</span> <i class="fas fa-brain insight-icon"></i>)</button>
-                                  <button id="seekGuidanceButton" class="button small-button guidance-button hidden-by-flow" title="Spend Insight for a randomly selected Guided Reflection prompt, offering deeper insights or exploring specific themes.">Seek Guidance (<span id="guidedReflectionCostDisplay">10</span> <i class="fas fa-brain insight-icon"></i>)</button>
+                                   {/* Phase 1 */}
+                                  <button id="exploreTapestryButton" class="button small-button feature-phase-1-hidden" title="Explore a deeper analysis of your focused tapestry.">Explore Tapestry</button>
+                                  {/* Phase 1 */}
+                                  <button id="suggestSceneButton" class="button small-button feature-phase-1-hidden" title="Suggest resonant scenes (Cost: 12 Insight)">Suggest Scenes (<span id="sceneSuggestCostDisplay">12</span> <i class="fas fa-brain insight-icon"></i>)</button>
+                                   {/* Phase 3 */}
+                                  <button id="seekGuidanceButton" class="button small-button guidance-button feature-phase-3-hidden" title="Spend Insight for a randomly selected Guided Reflection prompt, offering deeper insights or exploring specific themes.">Seek Guidance (<span id="guidedReflectionCostDisplay">10</span> <i class="fas fa-brain insight-icon"></i>)</button>
                               </div>
                               <div id="sceneSuggestionOutput" class="scene-suggestion-output hidden">
                                     <h4>Scene Suggestion:</h4>
@@ -141,7 +152,8 @@
                   <select id="grimoireSortOrder">
                       <option value="discovered">Date Added</option><option value="name">Name</option><option value="type">Type</option><option value="rarity">Rarity</option><option value="resonance">Resonance</option>
                   </select>
-                  <span class="filter-controls hidden-by-flow">
+                  {/* Phase 2 */}
+                  <span class="filter-controls feature-phase-2-hidden">
                       <label for="grimoireTypeFilter">Type:</label>
                       <select id="grimoireTypeFilter"><option value="All">All Types</option></select>
                       <label for="grimoireElementFilter">Element:</label>
@@ -162,7 +174,7 @@
 
 
         <!-- === Main Study Screen === -->
-       <div id="studyScreen" class="screen hidden study-screen">
+       <div id="studyScreen" class="screen hidden study-screen feature-phase-2-hidden"> {/* Phase 2 Screen */}
              <h1>The Alchemist's Study <i class="fas fa-info-circle info-icon" title="Conduct research, perform rituals, and deepen your understanding."></i></h1>
              <div class="study-control-console">
                  <div class="insight-display-area">
@@ -170,7 +182,7 @@
                  </div>
                  <div class="action-buttons-area">
                      <p>Actions:</p>
-                     <button id="freeResearchButton" class="button free-research-button hidden" title="Once per day, perform research on your least attuned element for free.">Perform Daily Meditation</button>
+                     <button id="freeResearchButton" class="button free-research-button" title="Once per day, perform research on your least attuned element for free.">Perform Daily Meditation</button>
                      {/* Seek Guidance Button Moved */}
                  </div>
                  <div class="research-selection-area">
@@ -189,7 +201,8 @@
                         <p><i>Research results will appear here.</i></p>
                      </div>
                  </div>
-                 <div class="rituals-alcove hidden-by-flow">
+                 {/* Phase 3 */}
+                 <div class="rituals-alcove feature-phase-3-hidden">
                       <h3>Daily Rituals <i class="fas fa-info-circle info-icon" title="Complete these tasks each day for bonus Insight or Attunement. They reset daily. Special Focus Rituals appear here when their required Concepts are focused."></i></h3>
                       <ul id="dailyRitualsDisplay"><li>Unlock rituals by progressing.</li></ul>
                  </div>
@@ -197,7 +210,8 @@
         </div> <!-- End Study Screen -->
 
          <!-- === Repository Screen === -->
-         <div id="repositoryScreen" class="screen hidden repository-screen">
+         {/* Phase 4 */}
+         <div id="repositoryScreen" class="screen hidden repository-screen feature-phase-4-hidden">
              <h1>Repository <i class="fas fa-info-circle info-icon" title="A collection of rare discoveries beyond standard Concepts: Scene Blueprints for meditation, Alchemical Experiments requiring high Attunement, collected Elemental Insight fragments, and special unlocks driven by your Focused Concepts. Milestones are also tracked here."></i></h1>
              <p>Unlock this area by achieving milestones and conducting research.</p>
              <div class="repository-layout">
@@ -268,14 +282,16 @@
                        <div id="popupRelatedConcepts" class="related-concepts">
                             <!-- Related concepts injected here -->
                        </div>
-                       <div id="myNotesSection" class="my-notes-section hidden">
+                       {/* Phase 2 */}
+                       <div id="myNotesSection" class="my-notes-section feature-phase-2-hidden">
                             <hr class="popup-hr">
                            <h4>My Notes <i class="fas fa-info-circle info-icon" title="Your personal space to jot down thoughts, reflections, or interpretations related to this Concept. Saved automatically."></i></h4>
                            <textarea id="myNotesTextarea" rows="3" placeholder="Add your personal reflections here..."></textarea>
                            <button id="saveMyNoteButton" class="button small-button">Save Note</button>
                            <span id="noteSaveStatus" class="note-status"></span>
                        </div>
-                      <div id="popupEvolutionSection" class="evolution-section hidden">
+                        {/* Phase 4 */}
+                      <div id="popupEvolutionSection" class="evolution-section feature-phase-4-hidden">
                           <hr class="popup-hr">
                           <h4>Deepen Understanding <i class="fas fa-info-circle info-icon" title="Unlock enhanced art for this Concept by meeting the requirements (Focusing it, having Reflected, sufficient Insight)."></i></h4>
                           <button id="evolveArtButton" class="button small-button evolve-button" disabled>Unlock Enhanced Art (Cost: <span id="evolveCost">?</span> <i class="fas fa-brain insight-icon"></i>)</button>
@@ -285,8 +301,9 @@
               </div> <!-- End popup-content -->
               <div class="popup-actions">
                   <button id="addToGrimoireButton" class="button small-button add-grimoire-button" title="Add this Concept to your permanent Grimoire collection.">Add to Grimoire</button>
-                  <button id="markAsFocusButton" class="button small-button focus-button hidden" title="Toggle whether this Concept contributes to your Persona Tapestry.">Mark as Focus</button>
-                  <!-- Sell button added dynamically by ui.js -->
+                  {/* Phase 1 */}
+                  <button id="markAsFocusButton" class="button small-button focus-button feature-phase-1-hidden" title="Toggle whether this Concept contributes to your Persona Tapestry.">Mark as Focus</button>
+                  {/* Sell button added dynamically by ui.js, checks phase internally */}
               </div>
         </div> <!-- End Concept Detail Popup -->
 
