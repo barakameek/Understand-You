@@ -1,3 +1,4 @@
+
 // js/ui.js - Handles DOM Manipulation and UI Updates
 import * as State from './state.js';
 import * as Config from './config.js';
@@ -34,7 +35,7 @@ const personaElementDetailsDiv = document.getElementById('personaElementDetails'
 const userInsightDisplayPersona = document.getElementById('userInsightDisplayPersona');
 const focusedConceptsDisplay = document.getElementById('focusedConceptsDisplay');
 const focusedConceptsHeader = document.getElementById('focusedConceptsHeader');
-const focusResonanceBarsContainer = document.getElementById('focusResonanceBars');
+// REMOVED: const focusResonanceBarsContainer = document.getElementById('focusResonanceBars');
 const tapestryNarrativeP = document.getElementById('tapestryNarrative');
 const personaThemesList = document.getElementById('personaThemesList');
 const summaryContentDiv = document.getElementById('summaryContent');
@@ -191,10 +192,10 @@ export function showScreen(screenId) {
 // --- Onboarding UI Adjustments ---
 export function applyOnboardingPhaseUI(phase) {
     console.log(`UI: Applying onboarding phase ${phase}`);
-    const isPhase1 = phase >= Config.ONBOARDING_PHASE.PERSONA_GRIMOIRE;
-    const isPhase2 = phase >= Config.ONBOARDING_PHASE.STUDY_INSIGHT;
-    const isPhase3 = phase >= Config.ONBOARDING_PHASE.REFLECTION_RITUALS;
-    const isPhase4 = phase >= Config.ONBOARDING_PHASE.ADVANCED;
+    const isPhase1 = phase >= Config.ONBOARDING_PHASE.PERSONA_GRIMOIRE; // Persona/Grimoire/Focus
+    const isPhase2 = phase >= Config.ONBOARDING_PHASE.STUDY_INSIGHT; // Study/Research/Sell
+    const isPhase3 = phase >= Config.ONBOARDING_PHASE.REFLECTION_RITUALS; // Reflection/Rituals/Guidance
+    const isPhase4 = phase >= Config.ONBOARDING_PHASE.ADVANCED; // Repo/Evolve/DeepDiveUnlock
 
     navButtons.forEach(button => { // Nav Bar
         if (!button) return; const target = button.dataset.target; let hide = false;
@@ -204,8 +205,9 @@ export function applyOnboardingPhaseUI(phase) {
     });
 
     // Toggle visibility for Deep Dive sections within Persona details
+    // Show the container earlier, but gate unlock button later (handled in displayElementDeepDive)
     const deepDiveContainers = personaElementDetailsDiv?.querySelectorAll('.element-deep-dive-container');
-    deepDiveContainers?.forEach(container => container.classList.toggle('hidden', !isPhase4));
+    deepDiveContainers?.forEach(container => container.classList.toggle('hidden', !isPhase1)); // Show container earlier
 
     if (grimoireFilterControls) grimoireFilterControls.classList.toggle('hidden-by-flow', !isPhase2); // Grimoire Filters
     if (seekGuidanceButton) seekGuidanceButton.classList.toggle('hidden-by-flow', !isPhase3); // Study - Guidance
@@ -222,8 +224,12 @@ export function applyOnboardingPhaseUI(phase) {
          updateGrimoireButtonStatus(popupConceptId, !!inResearch);
          updatePopupSellButton(popupConceptId, concept, !!discoveredData, !!inResearch); // Depends on Phase 2
          if (myNotesSection) myNotesSection.classList.toggle('hidden', !isPhase2 || !discoveredData);
-         if (popupEvolutionSection) popupEvolutionSection.classList.toggle('hidden', !isPhase4 || !discoveredData || !concept?.canUnlockArt || discoveredData?.artUnlocked);
-         if(concept && discoveredData) displayEvolutionSection(concept, discoveredData); // Handles internal phase check
+         if (popupEvolutionSection) {
+            // Show evolution section only if phase is ADVANCED and other conditions met
+            const showEvo = isPhase4 && discoveredData && concept?.canUnlockArt && !discoveredData?.artUnlocked;
+            popupEvolutionSection.classList.toggle('hidden', !showEvo);
+            if (showEvo) displayEvolutionSection(concept, discoveredData); // Update button state if shown
+         }
     }
 
     updateTapestryDeepDiveButton(); // Depends on Phase 1
@@ -239,8 +245,8 @@ export function updateInsightDisplays() {
     if (seekGuidanceButton) seekGuidanceButton.disabled = State.getInsight() < Config.GUIDED_REFLECTION_COST;
     if (guidedReflectionCostDisplay) guidedReflectionCostDisplay.textContent = Config.GUIDED_REFLECTION_COST;
 
-    // Refresh Deep Dive unlock buttons if Persona screen is visible and phase allows
-    if (personaScreen?.classList.contains('current') && State.getOnboardingPhase() >= Config.ONBOARDING_PHASE.ADVANCED) {
+    // Refresh Deep Dive unlock buttons if Persona screen is visible
+    if (personaScreen?.classList.contains('current')) {
         const deepDiveContainers = personaElementDetailsDiv?.querySelectorAll('.element-deep-dive-container');
         deepDiveContainers?.forEach(container => {
             const elementKey = container.dataset.elementKey;
@@ -405,7 +411,7 @@ export function displayPersonaScreen() {
     console.log("UI: Displaying Persona Screen");
     personaElementDetailsDiv.innerHTML = '';
     const scores = State.getScores();
-    const showDeepDive = State.getOnboardingPhase() >= Config.ONBOARDING_PHASE.ADVANCED;
+    const showDeepDiveContainer = State.getOnboardingPhase() >= Config.ONBOARDING_PHASE.PERSONA_GRIMOIRE; // Show container earlier
 
     elementNames.forEach(elementName => {
         const key = elementNameToKey[elementName];
@@ -425,7 +431,7 @@ export function displayPersonaScreen() {
         const deepDiveContainer = document.createElement('div');
         deepDiveContainer.classList.add('element-deep-dive-container');
         deepDiveContainer.dataset.elementKey = key;
-        deepDiveContainer.classList.toggle('hidden', !showDeepDive);
+        deepDiveContainer.classList.toggle('hidden', !showDeepDiveContainer); // Toggle container visibility
 
         details.innerHTML = `
             <summary class="element-detail-header">
@@ -450,20 +456,20 @@ export function displayPersonaScreen() {
 
         const descriptionDiv = details.querySelector('.element-description');
         if (descriptionDiv) {
-            descriptionDiv.appendChild(deepDiveContainer);
+            descriptionDiv.appendChild(deepDiveContainer); // Add the container structure
         }
 
         personaElementDetailsDiv.appendChild(details);
 
-        if (showDeepDive) {
-            displayElementDeepDive(key, deepDiveContainer);
+        if (showDeepDiveContainer) {
+            displayElementDeepDive(key, deepDiveContainer); // Populate the container content
         }
     });
 
     displayElementAttunement();
     updateInsightDisplays();
     displayFocusedConceptsPersona();
-    updateFocusElementalResonance();
+    // REMOVED: updateFocusElementalResonance();
     generateTapestryNarrative();
     synthesizeAndDisplayThemesPersona();
     displayPersonaSummary();
@@ -530,17 +536,7 @@ export function displayFocusedConceptsPersona() {
     });
     updateSuggestSceneButtonState();
 }
-export function updateFocusElementalResonance() {
-     if (!focusResonanceBarsContainer) return; focusResonanceBarsContainer.innerHTML = '';
-     const { focusScores } = GameLogic.calculateFocusScores();
-     elementNames.forEach(elName => {
-         const key = elementNameToKey[elName]; const avgScore = focusScores[key] || 0; const percentage = Math.max(0, Math.min(100, (avgScore / 10) * 100));
-         const color = Utils.getElementColor(elName); const name = elementDetails[elName]?.name || elName;
-         const item = document.createElement('div'); item.classList.add('focus-resonance-item');
-         item.innerHTML = `<span class="focus-resonance-name">${name}:</span><div class="focus-resonance-bar-container" title="${avgScore.toFixed(1)} Avg Score"><div class="focus-resonance-bar" style="width: ${percentage}%; background-color: ${color};"></div></div>`;
-         focusResonanceBarsContainer.appendChild(item);
-     });
-}
+// REMOVED: export function updateFocusElementalResonance() { ... }
 export function generateTapestryNarrative() {
      if (!tapestryNarrativeP) return;
      const narrative = GameLogic.calculateTapestryNarrative();
@@ -772,15 +768,19 @@ export function refreshGrimoireDisplay() {
      }
 }
 
-// --- Card Rendering (Includes Icon Changes) ---
+// --- Card Rendering (Includes Icon Changes & New Focus Button) ---
 export function renderCard(concept, context = 'grimoire') {
     if (!concept || typeof concept.id === 'undefined') { console.warn("renderCard invalid concept:", concept); const d = document.createElement('div'); d.textContent = "Error"; return d; }
-    const cardDiv = document.createElement('div'); cardDiv.classList.add('concept-card'); cardDiv.classList.add(`rarity-${concept.rarity || 'common'}`); cardDiv.dataset.conceptId = concept.id; cardDiv.title = `View ${concept.name}`;
-    const discoveredData = State.getDiscoveredConceptData(concept.id); const isDiscovered = !!discoveredData; const isFocused = State.getFocusedConcepts().has(concept.id); const artUnlocked = discoveredData?.artUnlocked || false;
-    const showFocusStar = isFocused && State.getOnboardingPhase() >= Config.ONBOARDING_PHASE.PERSONA_GRIMOIRE;
+    const cardDiv = document.createElement('div'); cardDiv.classList.add('concept-card'); cardDiv.classList.add(`rarity-${concept.rarity || 'common'}`); cardDiv.dataset.conceptId = concept.id; cardDiv.title = `View Details: ${concept.name}`; // Default title
 
-    const grimoireStampHTML = isDiscovered ? '<span class="grimoire-stamp" title="In Grimoire"><i class="fas fa-book-open"></i></span>' : '';
-    const focusStampHTML = showFocusStar ? '<span class="focus-indicator" title="Focused Concept">★</span>' : '';
+    const discoveredData = State.getDiscoveredConceptData(concept.id);
+    const isDiscovered = !!discoveredData;
+    const isFocused = State.getFocusedConcepts().has(concept.id);
+    const artUnlocked = discoveredData?.artUnlocked || false;
+    const phaseAllowsFocus = isDiscovered && State.getOnboardingPhase() >= Config.ONBOARDING_PHASE.PERSONA_GRIMOIRE;
+    const phaseAllowsSell = isDiscovered && context === 'grimoire' && State.getOnboardingPhase() >= Config.ONBOARDING_PHASE.STUDY_INSIGHT;
+
+    const focusStampHTML = isFocused ? '<span class="focus-indicator" title="Focused Concept">★</span>' : '';
     const cardTypeIcon = Utils.getCardTypeIcon(concept.cardType);
 
     let affinitiesHTML = '';
@@ -788,10 +788,7 @@ export function renderCard(concept, context = 'grimoire') {
         Object.entries(concept.elementScores).forEach(([key, score]) => {
             const level = Utils.getAffinityLevel(score);
             if (level && elementKeyToFullName[key]) {
-                const fullName = elementKeyToFullName[key];
-                const color = Utils.getElementColor(fullName);
-                const iconClass = Utils.getElementIcon(fullName);
-                const elementNameDetail = elementDetails[fullName]?.name || fullName;
+                const fullName = elementKeyToFullName[key]; const color = Utils.getElementColor(fullName); const iconClass = Utils.getElementIcon(fullName); const elementNameDetail = elementDetails[fullName]?.name || fullName;
                 affinitiesHTML += `<span class="affinity affinity-${level.toLowerCase()}" style="border-color: ${color}; background-color: ${Utils.hexToRgba(color, 0.1)};" title="${elementNameDetail} Affinity: ${level} (${score.toFixed(1)})"><i class="${iconClass}" style="color: ${color};"></i></span> `;
             }
         });
@@ -802,20 +799,58 @@ export function renderCard(concept, context = 'grimoire') {
     else if (concept.visualHandle) { visualIconClass = "fas fa-image card-visual-placeholder"; visualTitle = "Art Placeholder"; }
     const visualContent = `<i class="${visualIconClass}" title="${visualTitle}"></i>`;
 
-    let sellButtonHTML = '';
-    if (context === 'grimoire' && State.getOnboardingPhase() >= Config.ONBOARDING_PHASE.STUDY_INSIGHT) {
+    // --- Action Buttons on Card ---
+    let actionButtonsHTML = '<div class="card-actions">'; // Wrapper for buttons
+
+    // Sell Button
+    if (phaseAllowsSell) {
         let discoveryValue = Config.CONCEPT_DISCOVERY_INSIGHT[concept.rarity] || Config.CONCEPT_DISCOVERY_INSIGHT.default;
         const sellValue = discoveryValue * Config.SELL_INSIGHT_FACTOR;
-        sellButtonHTML = `<button class="button small-button secondary-button sell-button card-sell-button" data-concept-id="${concept.id}" data-context="grimoire" title="Sell for ${sellValue.toFixed(1)} Insight.">Sell <i class="fas fa-brain insight-icon"></i>${sellValue.toFixed(1)}</button>`;
+        actionButtonsHTML += `<button class="button tiny-button secondary-button sell-button card-sell-button" data-concept-id="${concept.id}" data-context="grimoire" title="Sell (${sellValue.toFixed(1)} Insight)"><i class="fas fa-dollar-sign"></i></button>`;
     }
 
-    cardDiv.innerHTML = `<div class="card-header"><i class="${cardTypeIcon} card-type-icon" title="${concept.cardType}"></i><span class="card-name">${concept.name}</span><span class="card-stamps">${focusStampHTML}${grimoireStampHTML}</span></div><div class="card-visual">${visualContent}</div><div class="card-footer"><div class="card-affinities">${affinitiesHTML || '<small style="color:#888; font-style: italic;">Basic Affinity</small>'}</div><p class="card-brief-desc">${concept.briefDescription || '...'}</p>${sellButtonHTML}</div>`;
+    // Focus Button
+    if (phaseAllowsFocus) {
+        const slotsFull = State.getFocusedConcepts().size >= State.getFocusSlots() && !isFocused;
+        const buttonClass = isFocused ? 'marked' : '';
+        const buttonIcon = isFocused ? 'fa-star' : 'fa-regular fa-star'; // Solid vs regular star
+        const buttonTitle = slotsFull ? `Focus Slots Full (${State.getFocusSlots()})` : (isFocused ? 'Remove Focus' : 'Mark as Focus');
+        actionButtonsHTML += `<button class="button tiny-button card-focus-button ${buttonClass}" data-concept-id="${concept.id}" title="${buttonTitle}" ${slotsFull ? 'disabled' : ''}><i class="fas ${buttonIcon}"></i></button>`;
+    }
 
-    if (context !== 'no-click') { cardDiv.addEventListener('click', (event) => { if (event.target.closest('button')) return; showConceptDetailPopup(concept.id); }); }
-    if (context === 'research-output') { cardDiv.title = `Click to view details (Not in Grimoire)`; cardDiv.querySelector('.card-footer .sell-button')?.remove(); }
+    actionButtonsHTML += '</div>'; // Close wrapper
+    // --- End Action Buttons ---
+
+
+    cardDiv.innerHTML = `
+        <div class="card-header">
+            <i class="${cardTypeIcon} card-type-icon" title="${concept.cardType}"></i>
+            <span class="card-name">${concept.name}</span>
+            ${focusStampHTML} {/* Display focus star in header still? */}
+        </div>
+        <div class="card-visual">
+            ${visualContent}
+        </div>
+        <div class="card-footer">
+            <div class="card-affinities">${affinitiesHTML || '<small style="color:#888; font-style: italic;">Basic Affinity</small>'}</div>
+            <p class="card-brief-desc">${concept.briefDescription || '...'}</p>
+            ${actionButtonsHTML} {/* Inject buttons */}
+        </div>`;
+
+    // Main click listener for popup (excluding action button clicks)
+    if (context !== 'no-click') {
+        cardDiv.addEventListener('click', (event) => {
+            if (event.target.closest('.card-actions button')) return; // Don't open popup if button clicked
+            showConceptDetailPopup(concept.id);
+        });
+    }
+
+    if (context === 'research-output') {
+        cardDiv.title = `Click to view details (Not in Grimoire)`;
+        cardDiv.querySelector('.card-actions')?.remove(); // No actions on research cards
+    }
     return cardDiv;
 }
-
 
 // --- Concept Detail Popup UI ---
 export function showConceptDetailPopup(conceptId) {
@@ -855,7 +890,7 @@ export function showConceptDetailPopup(conceptId) {
     }
 
     updateGrimoireButtonStatus(conceptId, !!inResearchNotes);
-    updateFocusButtonStatus(conceptId);
+    updateFocusButtonStatus(conceptId); // Still used for the popup's focus button
     updatePopupSellButton(conceptId, conceptData, inGrimoire, !!inResearchNotes);
 
     if (conceptDetailPopup) conceptDetailPopup.classList.remove('hidden'); if (popupOverlay) popupOverlay.classList.remove('hidden');
@@ -935,7 +970,7 @@ export function updateFocusButtonStatus(conceptId) {
     if (!markAsFocusButton) return;
     const isDiscovered = State.getDiscoveredConcepts().has(conceptId);
     const isFocused = State.getFocusedConcepts().has(conceptId);
-    const slotsFull = State.getFocusedConcepts().size >= State.getFocusSlots();
+    const slotsFull = State.getFocusedConcepts().size >= State.getFocusSlots() && !isFocused;
     const phaseAllowsFocus = State.getOnboardingPhase() >= Config.ONBOARDING_PHASE.PERSONA_GRIMOIRE;
     const showButton = isDiscovered && phaseAllowsFocus;
     markAsFocusButton.classList.toggle('hidden', !showButton);
@@ -1006,15 +1041,12 @@ export function displayElementDeepDive(elementKey, targetContainerElement) {
      const currentLevel = unlockedLevels[elementKey] || 0;
      const elementName = elementKeyToFullName[elementKey] || elementKey;
      const insight = State.getInsight();
-     const showDeepDive = State.getOnboardingPhase() >= Config.ONBOARDING_PHASE.ADVANCED;
+     const showUnlockButton = State.getOnboardingPhase() >= Config.ONBOARDING_PHASE.ADVANCED; // Gate button by phase
 
      targetContainerElement.innerHTML = `<h5 class="deep-dive-section-title">${elementDetails[elementName]?.name || elementName} Insights</h5>`;
 
-     if (!showDeepDive) {
-         targetContainerElement.innerHTML += '<p><i>Unlock the Repository to delve deeper.</i></p>';
-         return;
-     }
-
+     // Show container based on earlier phase (already handled by parent caller)
+     // But check if *any* content should be shown or just title/unlock
      if (deepDiveData.length === 0) { targetContainerElement.innerHTML += '<p>No deep dive content available.</p>'; return; }
 
      let displayedContent = false;
@@ -1025,14 +1057,20 @@ export function displayElementDeepDive(elementKey, targetContainerElement) {
          }
      });
 
+     // Add placeholder text if no levels are unlocked yet
      if (!displayedContent && currentLevel === 0) {
-         targetContainerElement.innerHTML = `<h5 class="deep-dive-section-title">${elementDetails[elementName]?.name || elementName} Insights</h5>`;
+         targetContainerElement.innerHTML += '<p><i>Unlock the first level to begin exploring.</i></p>';
+     } else if (!displayedContent && currentLevel > 0) {
+         // This case shouldn't happen if data is correct, but handle it
+          targetContainerElement.innerHTML += '<p><i>Error displaying content.</i></p>';
      }
+
 
      const nextLevel = currentLevel + 1;
      const nextLevelData = deepDiveData.find(l => l.level === nextLevel);
 
-     if (nextLevelData) {
+     // Show unlock section if there's a next level AND the phase allows unlocking
+     if (nextLevelData && showUnlockButton) {
          const cost = nextLevelData.insightCost || 0;
          const canAfford = insight >= cost;
          targetContainerElement.innerHTML += `
@@ -1047,10 +1085,12 @@ export function displayElementDeepDive(elementKey, targetContainerElement) {
                  </button>
                  ${!canAfford ? `<p class='unlock-error'>Insufficient Insight (${insight.toFixed(1)}/${cost})</p>` : ''}
              </div>`;
-     } else if (displayedContent) {
+     } else if (nextLevelData && !showUnlockButton) {
+        // If there's a next level but phase doesn't allow unlocking yet
+         targetContainerElement.innerHTML += `<div class="library-unlock"><p><i>Further insights available later.</i></p></div>`;
+     } else if (displayedContent && !nextLevelData) {
+         // All levels unlocked
          targetContainerElement.innerHTML += '<p class="all-unlocked-message"><i>All insights unlocked for this element.</i></p>';
-     } else if (!displayedContent && currentLevel > 0) {
-          targetContainerElement.innerHTML += '<p><i>Error displaying content.</i></p>';
      }
 }
 
@@ -1076,7 +1116,7 @@ export function displayRepositoryContent() {
          if (isUnlockedByAttunement) {
              let canAttempt = true; let unmetReqs = [];
              if (exp.requiredFocusConceptIds) { for (const reqId of exp.requiredFocusConceptIds) { if (!focused.has(reqId)) { canAttempt = false; const c = concepts.find(c=>c.id === reqId); unmetReqs.push(c ? c.name : `ID ${reqId}`); } } }
-             if (exp.requiredFocusConceptTypes) { for (const typeReq of exp.requiredFocusConceptTypes) { let typeMet = false; const dMap = State.getDiscoveredConcepts(); for (const fId of focused) { const c = dMap.get(fId)?.concept; if (c?.cardType === typeReq) { typeMet = true; break; } } if (!typeMet) { canAttempt = false; unmetReqs.push(`Type: ${typeReq}`); } } }
+             if (exp.requiredFocusConceptTypes) { for (const typeReq of exp.requiredFocusConceptTypes) { let met = false; const dMap = State.getDiscoveredConcepts(); for (const fId of focused) { const c = dMap.get(fId)?.concept; if (c?.cardType === typeReq) { met = true; break; } } if (!met) { canAttempt = false; unmetReqs.push(`Type: ${typeReq}`); } } }
              const cost = exp.insightCost || Config.EXPERIMENT_BASE_COST; const canAfford = insight >= cost; if (!canAfford) unmetReqs.push("Insight");
              repositoryExperimentsDiv.appendChild(renderRepositoryItem(exp, 'experiment', cost, canAfford && canAttempt && !alreadyCompleted, alreadyCompleted, unmetReqs)); experimentsDisplayed++;
          }
@@ -1101,10 +1141,12 @@ export function renderRepositoryItem(item, type, cost, canAfford, completed = fa
      let buttonTitle = ''; let buttonText = '';
      if (type === 'scene') {
          buttonText = `Meditate (${cost} <i class="fas fa-brain insight-icon"></i>)`; if (!canAfford) buttonTitle = `Requires ${cost} Insight`;
+         // Add data-scene-id instead of onclick
          actionsHTML = `<button class="button small-button" data-scene-id="${item.id}" ${buttonDisabled ? 'disabled' : ''} title="${buttonTitle}">${buttonText}</button>`;
      } else if (type === 'experiment') {
          buttonText = `Attempt (${cost} <i class="fas fa-brain insight-icon"></i>)`; if (completed) buttonTitle = "Completed";
          else if (unmetReqs.length > 0 && unmetReqs[0] === "Insight") buttonTitle = `Requires ${cost} Insight`; else if (unmetReqs.length > 0) buttonTitle = `Requires: ${unmetReqs.join(', ')}`; else if (!canAfford) buttonTitle = `Requires ${cost} Insight`;
+         // Add data-experiment-id instead of onclick
          actionsHTML = `<button class="button small-button" data-experiment-id="${item.id}" ${buttonDisabled ? 'disabled' : ''} title="${buttonTitle}">${buttonText}</button>`;
          if (completed) actionsHTML += ` <span class="completed-text">(Completed)</span>`; else if (unmetReqs.length > 0 && unmetReqs[0] === "Insight") actionsHTML += ` <small class="req-missing">(Insufficient Insight)</small>`; else if (unmetReqs.length > 0) actionsHTML += ` <small class="req-missing">(Requires: ${unmetReqs.join(', ')})</small>`;
      }
