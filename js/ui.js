@@ -1918,29 +1918,53 @@ export function displayRepositoryContent() {
      if (experimentsDisplayed === 0) { repositoryExperimentsDiv.innerHTML = '<p>Increase Attunement to unlock Experiments.</p>'; }
 
      // Display Elemental Insights (CHECK THIS AREA - Around Line 1068)
-     if (repoItems.insights.size > 0) {
-         const insightsByElement = {}; elementNames.forEach(elName => insightsByElement[elementNameToKey[elName]] = []);
-         repoItems.insights.forEach(insightId => { const insight = elementalInsights.find(i => i.id === insightId); if (insight) { if (!insightsByElement[insight.element]) insightsByElement[insight.element] = []; insightsByElement[insight.element].push(insight); } else { console.warn(`Insight ID ${insightId} not found.`); } });
+    if (repoItems.insights.size > 0) {
+         const insightsByElement = {};
+         elementNames.forEach(elName => {
+            const key = elementNameToKey[elName]; // Get the key 'A', 'I', etc.
+            if (key) { // Ensure key exists
+                insightsByElement[key] = [];
+            }
+         });
+         // Populate the arrays
+         repoItems.insights.forEach(insightId => {
+            const insight = elementalInsights.find(i => i.id === insightId);
+            if (insight && insightsByElement[insight.element]) { // Check if the element key exists
+                 insightsByElement[insight.element].push(insight);
+            } else if (insight) {
+                 console.warn(`Insight ${insightId} has unknown or unmapped element key: ${insight.element}`);
+            } else {
+                 console.warn(`Insight ID ${insightId} not found in elementalInsights data.`);
+            }
+         });
+
          let insightsHTML = '';
+         // Loop through the organized insights
          for (const key in insightsByElement) {
              if (insightsByElement[key].length > 0) {
-                 // *** Potential issue area LIKELY HERE ***
-                 // Make sure template literals and variable access are correct
                  const fullElementName = elementKeyToFullName[key];
-                 const elementNameDisplay = elementDetails[fullElementName]?.name || key; // Use full name from details map or key
-                 insightsHTML += `<h5>${elementNameDisplay} Insights:</h5><ul>`; // Check this line carefully
+                 // Use the name from elementDetails if available, otherwise fallback to the key
+                 const elementNameDisplay = elementDetails[fullElementName]?.name || key;
+
+                 // *** CHECK THIS LINE VERY CAREFULLY (around :44) ***
+                 // Ensure backticks are correct, ${} are closed, no stray characters
+                 insightsHTML += `<h5>${elementNameDisplay} Insights:</h5><ul>`; // <<< LIKELY ERROR SOURCE
+
+                 // Sort and add list items
                  insightsByElement[key].sort((a, b) => a.id.localeCompare(b.id)).forEach(insight => {
-                     // Ensure insight.text is treated as a string and properly escaped if necessary, though unlikely needed here
-                     insightsHTML += `<li>"${insight.text}"</li>`; // Check quotes and template literal context
+                     // Ensure text is properly handled (though usually fine in li)
+                     insightsHTML += `<li>"${insight.text}"</li>`; // Check quotes
                  });
-                 insightsHTML += `</ul>`; // Check closing tag
+                 insightsHTML += `</ul>`; // Ensure closing tag
              }
-         } // <<< Make sure this brace isn't missing
-         repositoryInsightsDiv.innerHTML = insightsHTML || '<p>No Elemental Insights collected yet.</p>'; // Use fallback if insightsHTML is empty after loop
-     } else {
+         } // End for...in loop
+
+         // Set innerHTML only once after building the string
+         repositoryInsightsDiv.innerHTML = insightsHTML || '<p>No Elemental Insights collected yet.</p>';
+
+     } else { // If no insights discovered at all
          repositoryInsightsDiv.innerHTML = '<p>No Elemental Insights collected.</p>';
      }
-
      displayMilestones(); // Display milestones after repository items
      // GameLogic.updateMilestoneProgress('repositoryContents', null); // Let GameLogic handle calling this check if needed
  }
