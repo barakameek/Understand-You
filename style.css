@@ -1060,3 +1060,37 @@ hr { border: none; border-top: 1px dashed var(--border-color-light); margin: 18p
   from { box-shadow: 0 0 6px 2px rgba(255, 215, 0, 0.6); } /* Gold */
   to { box-shadow: 0 0 15px 5px rgba(255, 215, 0, 0.9); }
 }
+/* --- Task Notification --- */
+.task-notification-area {
+    position: fixed;
+    top: 55px; /* Below save indicator */
+    left: 10px;
+    background-color: rgba(255, 193, 7, 0.9); /* var(--warning-color) with alpha */
+    color: #333;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 0.8em;
+    z-index: 115;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+.task-notification-area.hidden {
+    opacity: 0;
+    transform: translateY(-20px);
+    pointer-events: none;
+}
+#taskNotificationText {
+    font-weight: bold;
+}
+#taskDismissButton {
+    background: rgba(0,0,0,0.1);
+    border: 1px solid rgba(0,0,0,0.2);
+    color: #333;
+    padding: 2px 5px; /* Adjust */
+    min-width: auto;
+    min-height: auto;
+    line-height: 1;
+}
