@@ -845,12 +845,12 @@ export function renderCard(concept, context = 'grimoire') {
     actionButtonsHTML += '</div>'; // Close wrapper
     // --- End Action Buttons ---
 
-
-    cardDiv.innerHTML = `
+  cardDiv.innerHTML = `
         <div class="card-header">
             <i class="${cardTypeIcon} card-type-icon" title="${concept.cardType}"></i>
             <span class="card-name">${concept.name}</span>
-            ${focusStampHTML} {/* Display focus star in header */}
+             {/* REMOVED: focus star in header */}
+             <span class="card-stamps">${focusStampHTML}</span> {/* Put stamps here */}
         </div>
         <div class="card-visual">
             ${visualContent}
@@ -858,7 +858,7 @@ export function renderCard(concept, context = 'grimoire') {
         <div class="card-footer">
             <div class="card-affinities">${affinitiesHTML || '<small style="color:#888; font-style: italic;">Basic Affinity</small>'}</div>
             <p class="card-brief-desc">${concept.briefDescription || '...'}</p>
-            ${actionButtonsHTML} {/* Inject buttons */}
+            ${actionButtonsHTML} {/* REMOVED: Inject buttons */}
         </div>`;
 
     // Main click listener for popup (excluding action button clicks)
