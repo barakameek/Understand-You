@@ -1,3 +1,4 @@
+
 // js/state.js - Manages Application State and Persistence
 import * as Config from './config.js';
 import { elementNames } from '../data.js'; // Only import needed data
@@ -86,45 +87,44 @@ export function loadGameState() {
         try {
             const loadedState = JSON.parse(savedData);
             console.log("Saved data found.");
-            gameState = createInitialGameState(); // Start fresh
+            // Start fresh but merge known properties carefully
+            gameState = createInitialGameState();
 
-            // Merge loaded data carefully
-            gameState.userScores = typeof loadedState.userScores === 'object' && loadedState.userScores !== null ? { ...gameState.userScores, ...loadedState.userScores } : gameState.userScores;
-            // *** Load userAnswers carefully ***
-            gameState.userAnswers = typeof loadedState.userAnswers === 'object' && loadedState.userAnswers !== null ? loadedState.userAnswers : {};
-            // *** Ensure all element keys exist in loaded userAnswers ***
-            elementNames.forEach(name => {
-                if (!gameState.userAnswers[name]) {
-                    gameState.userAnswers[name] = {};
-                }
-            });
-            // *** End userAnswers loading fixes ***
-            gameState.discoveredConcepts = new Map(Array.isArray(loadedState.discoveredConcepts) ? loadedState.discoveredConcepts : []);
-            gameState.focusedConcepts = new Set(Array.isArray(loadedState.focusedConcepts) ? loadedState.focusedConcepts : []);
-            gameState.focusSlotsTotal = typeof loadedState.focusSlotsTotal === 'number' ? loadedState.focusSlotsTotal : gameState.focusSlotsTotal;
-            gameState.userInsight = typeof loadedState.userInsight === 'number' ? loadedState.userInsight : gameState.userInsight;
-            gameState.elementAttunement = typeof loadedState.elementAttunement === 'object' && loadedState.elementAttunement !== null ? { ...gameState.elementAttunement, ...loadedState.elementAttunement } : gameState.elementAttunement;
-            gameState.unlockedDeepDiveLevels = typeof loadedState.unlockedDeepDiveLevels === 'object' && loadedState.unlockedDeepDiveLevels !== null ? { ...gameState.unlockedDeepDiveLevels, ...loadedState.unlockedDeepDiveLevels } : gameState.unlockedDeepDiveLevels;
-            gameState.achievedMilestones = new Set(Array.isArray(loadedState.achievedMilestones) ? loadedState.achievedMilestones : []);
-            gameState.completedRituals = typeof loadedState.completedRituals === 'object' && loadedState.completedRituals !== null ? loadedState.completedRituals : gameState.completedRituals;
-            gameState.lastLoginDate = typeof loadedState.lastLoginDate === 'string' ? loadedState.lastLoginDate : gameState.lastLoginDate;
-            gameState.freeResearchAvailableToday = typeof loadedState.freeResearchAvailableToday === 'boolean' ? loadedState.freeResearchAvailableToday : gameState.freeResearchAvailableToday;
-            gameState.seenPrompts = new Set(Array.isArray(loadedState.seenPrompts) ? loadedState.seenPrompts : []);
-            gameState.currentElementIndex = typeof loadedState.currentElementIndex === 'number' ? loadedState.currentElementIndex : gameState.currentElementIndex;
-            gameState.questionnaireCompleted = typeof loadedState.questionnaireCompleted === 'boolean' ? loadedState.questionnaireCompleted : gameState.questionnaireCompleted;
-            gameState.cardsAddedSinceLastPrompt = typeof loadedState.cardsAddedSinceLastPrompt === 'number' ? loadedState.cardsAddedSinceLastPrompt : gameState.cardsAddedSinceLastPrompt;
-            gameState.promptCooldownActive = typeof loadedState.promptCooldownActive === 'boolean' ? loadedState.promptCooldownActive : gameState.promptCooldownActive;
-            gameState.discoveredRepositoryItems = {
-                scenes: new Set(Array.isArray(loadedState.discoveredRepositoryItems?.scenes) ? loadedState.discoveredRepositoryItems.scenes : []),
-                experiments: new Set(Array.isArray(loadedState.discoveredRepositoryItems?.experiments) ? loadedState.discoveredRepositoryItems.experiments : []),
-                insights: new Set(Array.isArray(loadedState.discoveredRepositoryItems?.insights) ? loadedState.discoveredRepositoryItems.insights : []),
-            };
-            gameState.pendingRarePrompts = Array.isArray(loadedState.pendingRarePrompts) ? loadedState.pendingRarePrompts : gameState.pendingRarePrompts;
-            gameState.unlockedFocusItems = new Set(Array.isArray(loadedState.unlockedFocusItems) ? loadedState.unlockedFocusItems : []);
-            gameState.contemplationCooldownEnd = typeof loadedState.contemplationCooldownEnd === 'number' ? loadedState.contemplationCooldownEnd : gameState.contemplationCooldownEnd;
-            gameState.onboardingPhase = typeof loadedState.onboardingPhase === 'number' ? loadedState.onboardingPhase : gameState.onboardingPhase;
+            // Merge known properties, falling back to initial defaults if missing/invalid in loaded data
+            if (typeof loadedState.userScores === 'object' && loadedState.userScores !== null) gameState.userScores = { ...gameState.userScores, ...loadedState.userScores };
+            if (typeof loadedState.userAnswers === 'object' && loadedState.userAnswers !== null) gameState.userAnswers = loadedState.userAnswers;
+            // Ensure all element keys exist in loaded userAnswers, initializing if necessary
+            elementNames.forEach(name => { if (!gameState.userAnswers[name]) gameState.userAnswers[name] = {}; });
 
-            gameState.currentFocusSetHash = _calculateFocusSetHash();
+            if (Array.isArray(loadedState.discoveredConcepts)) gameState.discoveredConcepts = new Map(loadedState.discoveredConcepts);
+            if (Array.isArray(loadedState.focusedConcepts)) gameState.focusedConcepts = new Set(loadedState.focusedConcepts);
+            if (typeof loadedState.focusSlotsTotal === 'number' && !isNaN(loadedState.focusSlotsTotal)) gameState.focusSlotsTotal = loadedState.focusSlotsTotal;
+            if (typeof loadedState.userInsight === 'number' && !isNaN(loadedState.userInsight)) gameState.userInsight = loadedState.userInsight;
+            if (typeof loadedState.elementAttunement === 'object' && loadedState.elementAttunement !== null) gameState.elementAttunement = { ...gameState.elementAttunement, ...loadedState.elementAttunement };
+            if (typeof loadedState.unlockedDeepDiveLevels === 'object' && loadedState.unlockedDeepDiveLevels !== null) gameState.unlockedDeepDiveLevels = { ...gameState.unlockedDeepDiveLevels, ...loadedState.unlockedDeepDiveLevels };
+            if (Array.isArray(loadedState.achievedMilestones)) gameState.achievedMilestones = new Set(loadedState.achievedMilestones);
+            if (typeof loadedState.completedRituals === 'object' && loadedState.completedRituals !== null) gameState.completedRituals = loadedState.completedRituals;
+            if (typeof loadedState.lastLoginDate === 'string') gameState.lastLoginDate = loadedState.lastLoginDate;
+            if (typeof loadedState.freeResearchAvailableToday === 'boolean') gameState.freeResearchAvailableToday = loadedState.freeResearchAvailableToday;
+            if (Array.isArray(loadedState.seenPrompts)) gameState.seenPrompts = new Set(loadedState.seenPrompts);
+            if (typeof loadedState.currentElementIndex === 'number' && !isNaN(loadedState.currentElementIndex)) gameState.currentElementIndex = loadedState.currentElementIndex;
+            if (typeof loadedState.questionnaireCompleted === 'boolean') gameState.questionnaireCompleted = loadedState.questionnaireCompleted;
+            if (typeof loadedState.cardsAddedSinceLastPrompt === 'number' && !isNaN(loadedState.cardsAddedSinceLastPrompt)) gameState.cardsAddedSinceLastPrompt = loadedState.cardsAddedSinceLastPrompt;
+            if (typeof loadedState.promptCooldownActive === 'boolean') gameState.promptCooldownActive = loadedState.promptCooldownActive;
+            // Load Repository Items carefully, ensuring Sets exist
+            gameState.discoveredRepositoryItems = { scenes: new Set(), experiments: new Set(), insights: new Set() };
+             if (typeof loadedState.discoveredRepositoryItems === 'object' && loadedState.discoveredRepositoryItems !== null) {
+                 if (Array.isArray(loadedState.discoveredRepositoryItems.scenes)) gameState.discoveredRepositoryItems.scenes = new Set(loadedState.discoveredRepositoryItems.scenes);
+                 if (Array.isArray(loadedState.discoveredRepositoryItems.experiments)) gameState.discoveredRepositoryItems.experiments = new Set(loadedState.discoveredRepositoryItems.experiments);
+                 if (Array.isArray(loadedState.discoveredRepositoryItems.insights)) gameState.discoveredRepositoryItems.insights = new Set(loadedState.discoveredRepositoryItems.insights);
+             }
+            if (Array.isArray(loadedState.pendingRarePrompts)) gameState.pendingRarePrompts = loadedState.pendingRarePrompts;
+            if (Array.isArray(loadedState.unlockedFocusItems)) gameState.unlockedFocusItems = new Set(loadedState.unlockedFocusItems);
+            if (typeof loadedState.contemplationCooldownEnd === 'number' && !isNaN(loadedState.contemplationCooldownEnd)) gameState.contemplationCooldownEnd = loadedState.contemplationCooldownEnd;
+            // Ensure onboarding phase is valid or default
+            gameState.onboardingPhase = (typeof loadedState.onboardingPhase === 'number' && Object.values(Config.ONBOARDING_PHASE).includes(loadedState.onboardingPhase)) ? loadedState.onboardingPhase : Config.ONBOARDING_PHASE.START;
+
+            gameState.currentFocusSetHash = _calculateFocusSetHash(); // Recalculate hash on load
 
             console.log("Game state loaded successfully.");
             return true;
@@ -175,23 +175,27 @@ export function saveAllAnswers(allAnswers) {
     saveGameState();
 }
 export function updateAnswers(elementName, answersForElement) {
-    // *** Ensure the property exists before trying to spread into it ***
+    // Ensure the property exists before trying to spread into it
     if (!gameState.userAnswers) { gameState.userAnswers = {}; } // Initialize if missing
     if (!gameState.userAnswers[elementName]) { gameState.userAnswers[elementName] = {}; }
-    // *** End Ensure ***
+    // Update only the specific element's answers
     gameState.userAnswers[elementName] = { ...answersForElement };
-    // No save here, saved implicitly by other actions
+    // No save here, saved implicitly by finalizeQuestionnaire or other actions
 }
 export function updateElementIndex(index) {
     gameState.currentElementIndex = index;
-    // No save here
+    // No save here, questionnaire progress isn't critical to persist mid-way typically
 }
 export function setQuestionnaireComplete() {
-    gameState.currentElementIndex = elementNames.length; // Use length to mark finished
+    gameState.currentElementIndex = elementNames.length; // Mark finished
     if (!gameState.questionnaireCompleted) {
         gameState.questionnaireCompleted = true;
-        advanceOnboardingPhase(Config.ONBOARDING_PHASE.PERSONA_GRIMOIRE); // Progress phase
+        // Advance phase ONLY if it's not already at or beyond PERSONA_GRIMOIRE
+        if (gameState.onboardingPhase < Config.ONBOARDING_PHASE.PERSONA_GRIMOIRE) {
+             advanceOnboardingPhase(Config.ONBOARDING_PHASE.PERSONA_GRIMOIRE);
+        }
     }
+    saveGameState(); // Save completion status
     return true;
 }
 export function advanceOnboardingPhase(targetPhase) {
@@ -221,6 +225,7 @@ export function addDiscoveredConcept(conceptId, conceptData) {
     if (!(gameState.discoveredConcepts instanceof Map)) { console.error("CRITICAL ERROR: gameState.discoveredConcepts is not a Map in addDiscoveredConcept!"); gameState.discoveredConcepts = new Map(); }
     if (!gameState.discoveredConcepts.has(conceptId)) {
         gameState.discoveredConcepts.set(conceptId, { concept: conceptData, discoveredTime: Date.now(), artUnlocked: false, notes: "" });
+        // Advance phase based on discovery *if needed*
         if (gameState.onboardingPhase < Config.ONBOARDING_PHASE.STUDY_INSIGHT && gameState.discoveredConcepts.size >= 1) { advanceOnboardingPhase(Config.ONBOARDING_PHASE.STUDY_INSIGHT); }
         saveGameState();
         return true;
@@ -231,6 +236,7 @@ export function removeDiscoveredConcept(conceptId) {
     if (!(gameState.discoveredConcepts instanceof Map)) { console.error("CRITICAL ERROR: gameState.discoveredConcepts is not a Map in removeDiscoveredConcept!"); return false; }
     if (gameState.discoveredConcepts.has(conceptId)) {
         gameState.discoveredConcepts.delete(conceptId);
+        // If removed concept was focused, remove from focus too
         if (gameState.focusedConcepts.has(conceptId)) { gameState.focusedConcepts.delete(conceptId); gameState.currentFocusSetHash = _calculateFocusSetHash(); }
         saveGameState();
         return true;
@@ -245,6 +251,7 @@ export function toggleFocusConcept(conceptId) {
     else {
         if (gameState.focusedConcepts.size >= gameState.focusSlotsTotal) { return 'slots_full'; }
         gameState.focusedConcepts.add(conceptId); result = 'added';
+        // Advance phase based on focusing *if needed*
         if (gameState.onboardingPhase < Config.ONBOARDING_PHASE.STUDY_INSIGHT && gameState.focusedConcepts.size >= 1) { advanceOnboardingPhase(Config.ONBOARDING_PHASE.STUDY_INSIGHT); }
     }
     gameState.currentFocusSetHash = _calculateFocusSetHash(); // Update hash
@@ -267,6 +274,7 @@ export function unlockArt(conceptId) {
     const data = gameState.discoveredConcepts.get(conceptId);
     if (data && !data.artUnlocked) {
         data.artUnlocked = true; gameState.discoveredConcepts.set(conceptId, data);
+        // Advance phase based on art unlock *if needed*
         if (gameState.onboardingPhase < Config.ONBOARDING_PHASE.ADVANCED) { advanceOnboardingPhase(Config.ONBOARDING_PHASE.ADVANCED); }
         saveGameState();
         return true;
@@ -278,7 +286,11 @@ export function unlockLibraryLevel(elementKey, level) {
         const currentLevel = gameState.unlockedDeepDiveLevels[elementKey];
         if (level === currentLevel + 1) {
             gameState.unlockedDeepDiveLevels[elementKey] = level;
-            if (gameState.onboardingPhase < Config.ONBOARDING_PHASE.ADVANCED && Object.values(gameState.unlockedDeepDiveLevels).some(l => l >= 1)) { advanceOnboardingPhase(Config.ONBOARDING_PHASE.ADVANCED); }
+             // Advance phase based on library unlock *if needed*
+            const anyLevelOne = Object.values(gameState.unlockedDeepDiveLevels).some(l => l >= 1);
+            if (gameState.onboardingPhase < Config.ONBOARDING_PHASE.ADVANCED && anyLevelOne) {
+                advanceOnboardingPhase(Config.ONBOARDING_PHASE.ADVANCED);
+            }
             saveGameState();
             return true;
         }
@@ -305,11 +317,14 @@ export function addAchievedMilestone(milestoneId) {
     if (!(gameState.achievedMilestones instanceof Set)) { console.error("CRITICAL ERROR: gameState.achievedMilestones is not a Set!"); gameState.achievedMilestones = new Set();}
     if (!gameState.achievedMilestones.has(milestoneId)) {
         gameState.achievedMilestones.add(milestoneId);
-        if (milestoneId === 'ms01' && gameState.onboardingPhase < Config.ONBOARDING_PHASE.PERSONA_GRIMOIRE) advanceOnboardingPhase(Config.ONBOARDING_PHASE.PERSONA_GRIMOIRE);
-        if (milestoneId === 'ms03' && gameState.onboardingPhase < Config.ONBOARDING_PHASE.PERSONA_GRIMOIRE) advanceOnboardingPhase(Config.ONBOARDING_PHASE.PERSONA_GRIMOIRE);
-        if (milestoneId === 'ms05' && gameState.onboardingPhase < Config.ONBOARDING_PHASE.STUDY_INSIGHT) advanceOnboardingPhase(Config.ONBOARDING_PHASE.STUDY_INSIGHT);
-        if (milestoneId === 'ms07' && gameState.onboardingPhase < Config.ONBOARDING_PHASE.REFLECTION_RITUALS) advanceOnboardingPhase(Config.ONBOARDING_PHASE.REFLECTION_RITUALS);
-        if (['ms60', 'ms70', 'ms71'].includes(milestoneId) && gameState.onboardingPhase < Config.ONBOARDING_PHASE.ADVANCED) advanceOnboardingPhase(Config.ONBOARDING_PHASE.ADVANCED);
+        // --- Onboarding Phase Advancement Tied to Milestones ---
+        // Only advance if the current phase is *before* the target phase unlocked by the milestone.
+        if (milestoneId === 'ms01' && gameState.onboardingPhase < Config.ONBOARDING_PHASE.PERSONA_GRIMOIRE) advanceOnboardingPhase(Config.ONBOARDING_PHASE.PERSONA_GRIMOIRE); // First Concept Added -> Phase 1
+        if (milestoneId === 'ms03' && gameState.onboardingPhase < Config.ONBOARDING_PHASE.PERSONA_GRIMOIRE) advanceOnboardingPhase(Config.ONBOARDING_PHASE.PERSONA_GRIMOIRE); // First Focus -> Phase 1
+        if (milestoneId === 'ms05' && gameState.onboardingPhase < Config.ONBOARDING_PHASE.STUDY_INSIGHT) advanceOnboardingPhase(Config.ONBOARDING_PHASE.STUDY_INSIGHT);     // First Research -> Phase 2
+        if (milestoneId === 'ms07' && gameState.onboardingPhase < Config.ONBOARDING_PHASE.REFLECTION_RITUALS) advanceOnboardingPhase(Config.ONBOARDING_PHASE.REFLECTION_RITUALS); // First Reflection -> Phase 3
+        if (['ms60', 'ms70', 'ms71'].includes(milestoneId) && gameState.onboardingPhase < Config.ONBOARDING_PHASE.ADVANCED) advanceOnboardingPhase(Config.ONBOARDING_PHASE.ADVANCED); // First Library/Scene/Experiment -> Phase 4
+        // -------------------------------------------------------
         saveGameState();
         return true;
     }
@@ -321,10 +336,12 @@ export function addSeenPrompt(promptId) {
 }
 export function incrementReflectionTrigger() {
     gameState.cardsAddedSinceLastPrompt++;
+    // No save here, only relevant for triggering, not critical state
 }
 export function resetReflectionTrigger(startCooldown = false) {
     gameState.cardsAddedSinceLastPrompt = 0;
     if (startCooldown) { setPromptCooldownActive(true); }
+    // Save state handled by gameLogic cooldown timeout or other actions
 }
 export function setPromptCooldownActive(isActive) {
     gameState.promptCooldownActive = isActive;
@@ -334,9 +351,12 @@ export function clearReflectionCooldown() {
     gameState.promptCooldownActive = false; saveGameState();
 }
 export function addRepositoryItem(itemType, itemId) {
-    if (!(gameState.discoveredRepositoryItems[itemType] instanceof Set)) { console.error(`CRITICAL ERROR: gameState.discoveredRepositoryItems.${itemType} is not a Set!`); gameState.discoveredRepositoryItems[itemType] = new Set();}
+    if (!gameState.discoveredRepositoryItems || typeof gameState.discoveredRepositoryItems !== 'object') { console.error(`CRITICAL ERROR: gameState.discoveredRepositoryItems is not an object!`); gameState.discoveredRepositoryItems = { scenes: new Set(), experiments: new Set(), insights: new Set() };}
+    if (!gameState.discoveredRepositoryItems[itemType] || !(gameState.discoveredRepositoryItems[itemType] instanceof Set)) { console.error(`CRITICAL ERROR: gameState.discoveredRepositoryItems.${itemType} is not a Set!`); gameState.discoveredRepositoryItems[itemType] = new Set();}
+
     if (gameState.discoveredRepositoryItems[itemType] && !gameState.discoveredRepositoryItems[itemType].has(itemId)) {
         gameState.discoveredRepositoryItems[itemType].add(itemId);
+        // Advance phase based on repo item *if needed*
         const repoNotEmpty = Object.values(gameState.discoveredRepositoryItems).some(set => set.size > 0);
         if (gameState.onboardingPhase < Config.ONBOARDING_PHASE.ADVANCED && repoNotEmpty) { advanceOnboardingPhase(Config.ONBOARDING_PHASE.ADVANCED); }
         saveGameState();
@@ -358,6 +378,7 @@ export function addUnlockedFocusItem(unlockId) {
     if (!(gameState.unlockedFocusItems instanceof Set)) { console.error("CRITICAL ERROR: gameState.unlockedFocusItems is not a Set!"); gameState.unlockedFocusItems = new Set();}
     if (!gameState.unlockedFocusItems.has(unlockId)) {
         gameState.unlockedFocusItems.add(unlockId);
+        // Advance phase based on focus unlock *if needed*
         if (gameState.onboardingPhase < Config.ONBOARDING_PHASE.ADVANCED) { advanceOnboardingPhase(Config.ONBOARDING_PHASE.ADVANCED); }
         saveGameState();
         return true;
