@@ -75,7 +75,7 @@
                          <h2>Core Foundation <i class="fas fa-info-circle info-icon" title="Your scores across the 6 core elements, based on the initial questionnaire. Expand each for details, interpretations, current Attunement, and unlockable Insights."></i></h2>
                          <p>Your fundamental attributes and elemental attunement. Expand each element.</p>
                          <div id="personaElementDetails">
-                             <!-- Element details injected here -->
+                             <!-- Element details injected here by ui.js, including the integrated Deep Dive section -->
                          </div>
                          <hr>
                          <h2>Resources <i class="fas fa-info-circle info-icon" title="Insight is the primary currency, earned through discovery, reflection, and rituals. Spend it in The Study to research new Concepts or unlock deeper knowledge."></i></h2>
@@ -83,7 +83,7 @@
                      </div><!-- End Left Column -->
 
                     <!-- Right Column: Tapestry -->
-                   
+                     <div class="persona-column persona-constellation">
                           <h2>Persona Tapestry - Focus <i class="fas fa-info-circle info-icon" title="Mark Concepts from your Grimoire as 'Focus' here. This shapes your Tapestry Narrative and may unlock unique content based on combinations."></i></h2>
                           <p>Curate concepts to shape your active Persona.</p>
                           <!-- Tapestry Area: Contains the grid of focused concepts -->
@@ -94,7 +94,7 @@
                                </div>
                           </div> <!-- End Tapestry Area -->
 
-                          <div class="grimoire-insights"> {/* REMOVED THE COMMENT HERE */}
+                           <div class="grimoire-insights"> {/* Focus Themes Section */}
                               <h3>Focus Themes <i class="fas fa-info-circle info-icon" title="Highlights the dominant Elements based on your Focused Concepts."></i></h3>
                               <p>Dominant elemental themes emerging from your focus.</p>
                               <ul id="personaThemesList">
@@ -171,7 +171,7 @@
                  <div class="action-buttons-area">
                      <p>Actions:</p>
                      <button id="freeResearchButton" class="button free-research-button hidden" title="Once per day, perform research on your least attuned element for free.">Perform Daily Meditation</button>
-                     {/* Button removed */}
+                     {/* Seek Guidance Button Moved */}
                  </div>
                  <div class="research-selection-area">
                      <p>Conduct Research:</p>
