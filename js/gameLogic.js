@@ -1042,9 +1042,10 @@ export function checkForDailyLogin() {
     const last = State.getState().lastLoginDate;
     if (last !== today) {
         console.log("First login today.");
-        State.resetDailyRituals(); // Handles saving
-        gainInsight(5.0, "Daily Bonus");
-        UI.showTemporaryMessage("Rituals Reset. Free Research Available!", 3500);
+        State.resetDailyRituals(); // State handles saving the reset
+        gainInsight(5.0, "Daily Bonus"); // Logic handles insight gain
+        UI.showTemporaryMessage("Rituals Reset. Free Research Available!", 3500); // UI shows message
+        // UI updates triggered by the logic
         UI.displayDailyRituals();
         UI.displayResearchButtons();
     } else {
@@ -1052,7 +1053,6 @@ export function checkForDailyLogin() {
         UI.displayResearchButtons(); // Refresh button state just in case
     }
 }
-
 
 // --- Persona Calculation Logic Helpers ---
 export function calculateFocusScores() { // Keep export if used elsewhere (e.g., for scene suggestion)
