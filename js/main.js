@@ -68,18 +68,54 @@ function attachEventListeners() { // <<< FUNCTION DEFINITION START
     document.body.addEventListener('click', (event) => {
         const infoIcon = event.target.closest('.info-icon');
         if (infoIcon) {
-            event.preventDefault(); // Prevent any default action if icon is inside a link/button
-            event.stopPropagation(); // Stop propagation to avoid unintended side effects
+            event.preventDefault();
+            event.stopPropagation();
             const message = infoIcon.getAttribute('title');
-            if (message) {
-                // Use a slightly longer duration for info tooltips
-                UI.showTemporaryMessage(message, 4500);
+            const infoPopup = document.getElementById('infoPopup');
+            const infoContent = document.getElementById('infoPopupContent');
+            const overlay = document.getElementById('popupOverlay');
+
+            if (message && infoPopup && infoContent && overlay) {
+                infoContent.textContent = message;
+                infoPopup.classList.remove('hidden');
+                overlay.classList.remove('hidden');
+            } else {
+                console.warn("Could not display info popup. Message or elements missing.");
+                if(message) UI.showTemporaryMessage(message, 4000); // Fallback to toast if popup fails
             }
         }
     });
-    // --- End NEW Listener ---
 
-    // *** MOVED THE REST OF THE LISTENER CODE INSIDE HERE ***
+    // Add listeners to close the info popup
+    const closeInfoBtn = document.getElementById('closeInfoPopupButton');
+    const confirmInfoBtn = document.getElementById('confirmInfoPopupButton'); // Get OK button
+    const infoPopup = document.getElementById('infoPopup'); // Get popup element
+
+    const hideInfoPopup = () => {
+        if (infoPopup) infoPopup.classList.add('hidden');
+        // Check if any *other* popups are open before hiding overlay
+        const otherPopups = document.querySelectorAll('.popup:not(#infoPopup):not(.hidden)');
+        if (otherPopups.length === 0 && popupOverlay) {
+            popupOverlay.classList.add('hidden');
+        }
+    };
+
+    if (closeInfoBtn) closeInfoBtn.addEventListener('click', hideInfoPopup);
+    if (confirmInfoBtn) confirmInfoBtn.addEventListener('click', hideInfoPopup); // OK button also closes
+
+    // Ensure overlay click also closes info popup if it's the only one open
+    if (overlay) {
+        overlay.addEventListener('click', () => {
+            if (infoPopup && !infoPopup.classList.contains('hidden')) {
+                 const otherPopups = document.querySelectorAll('.popup:not(#infoPopup):not(.hidden)');
+                 if (otherPopups.length === 0) {
+                     hideInfoPopup(); // Close info popup if it's the only one
+                 } else {
+                     // If other popups are open, the main hidePopups logic will handle the overlay
+                 }
+            }
+        });
+    }
 
     // Welcome Screen
     const startButton = document.getElementById('startGuidedButton');
