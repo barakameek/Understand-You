@@ -1,3 +1,5 @@
+// --- START OF FILE main.js ---
+
 // js/main.js - Application Entry Point, Event Listeners, Initialization
 import * as State from './state.js';
 import * as UI from './ui.js';
@@ -159,12 +161,26 @@ function attachEventListeners() { // No changes needed here from previous versio
 
     // Grimoire Filters & Card Interaction (Delegation)
     const grimoireControls = document.getElementById('grimoireControls');
-    if (grimoireControls) { grimoireControls.addEventListener('change', UI.refreshGrimoireDisplay); }
+    if (grimoireControls) { grimoireControls.addEventListener('change', UI.refreshGrimoireDisplay); grimoireControls.addEventListener('input', UI.refreshGrimoireDisplay); /* Refresh on search input too */ }
     const grimoireContent = document.getElementById('grimoireContent');
     if (grimoireContent) {
         grimoireContent.addEventListener('click', (event) => {
-            const sellButton = event.target.closest('.card-sell-button');
-            if (sellButton) { event.stopPropagation(); GameLogic.handleSellConcept(event); }
+            const targetButton = event.target.closest('button');
+            if (!targetButton) return; // Ignore clicks not on buttons
+
+            const conceptIdStr = targetButton.dataset.conceptId;
+            if (conceptIdStr) {
+                const conceptId = parseInt(conceptIdStr);
+                if (!isNaN(conceptId)) {
+                    if (targetButton.classList.contains('card-sell-button')) {
+                        event.stopPropagation(); // Prevent card click
+                        GameLogic.handleSellConcept(event);
+                    } else if (targetButton.classList.contains('card-focus-button')) {
+                        event.stopPropagation(); // Prevent card click
+                        GameLogic.handleCardFocusToggle(conceptId); // Call the new handler
+                    }
+                }
+            }
         });
     }
 
@@ -193,15 +209,25 @@ function attachEventListeners() { // No changes needed here from previous versio
         });
     }
 
-     // Element Library (Delegation)
-     const libraryButtonsContainer = document.getElementById('elementLibraryButtons');
-     if (libraryButtonsContainer) { libraryButtonsContainer.addEventListener('click', (event) => { const button = event.target.closest('button'); if (button && button.dataset.elementKey) UI.displayElementDeepDive(button.dataset.elementKey); }); }
-     const libraryContentContainer = document.getElementById('elementLibraryContent');
-      if (libraryContentContainer) { libraryContentContainer.addEventListener('click', (event) => { if (event.target.matches('.unlock-button')) GameLogic.handleUnlockLibraryLevel(event); }); }
+     // Integrated Element Deep Dive Unlock (Delegation)
+     const personaElementDetails = document.getElementById('personaElementDetails');
+     if (personaElementDetails) {
+         personaElementDetails.addEventListener('click', (event) => {
+             if (event.target.matches('.unlock-button')) {
+                 GameLogic.handleUnlockLibraryLevel(event);
+             }
+         });
+     } else { console.warn("Persona Element Details container not found for Deep Dive Unlock delegation."); }
 
      // Repository Actions (Delegation)
      const repositoryContainer = document.getElementById('repositoryScreen');
-     if (repositoryContainer) { repositoryContainer.addEventListener('click', (event) => { const button = event.target.closest('button'); if (!button) return; if (button.dataset.sceneId) GameLogic.handleMeditateScene(event); else if (button.dataset.experimentId) GameLogic.handleAttemptExperiment(event); }); }
+     if (repositoryContainer) {
+         repositoryContainer.addEventListener('click', (event) => {
+             const button = event.target.closest('button'); if (!button) return;
+             if (button.dataset.sceneId) { GameLogic.handleMeditateScene(event); }
+             else if (button.dataset.experimentId) { GameLogic.handleAttemptExperiment(event); }
+         });
+     } else { console.warn("Repository Screen container not found for delegation."); }
 
     // Settings Popup Actions
     const forceSaveBtn = document.getElementById('forceSaveButton');
