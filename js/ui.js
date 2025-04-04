@@ -268,14 +268,32 @@ export function updateInsightDisplays() {
 
 // --- Questionnaire UI ---
 // *** Keep only ONE definition of this function ***
+// --- Questionnaire UI ---
 export function initializeQuestionnaireUI() {
+    console.log("UI: Initializing Questionnaire UI"); // Log entry
     updateElementProgressHeader(-1); // Show no progress initially
     displayElementQuestions(0); // Display the first set of questions
-    if (mainNavBar) mainNavBar.classList.add('hidden');
-    // Keep dynamic feedback hidden initially, let displayElementQuestions show it
-    if (dynamicScoreFeedback) dynamicScoreFeedback.style.display = 'none';
-}
 
+    // *** NEW: Force initial update for the first element AFTER displayElementQuestions ***
+    // This ensures the DOM is definitely populated before we try to update based on initial state.
+    // We use a small timeout to ensure the browser has rendered the elements.
+    setTimeout(() => {
+        console.log("UI: Forcing initial questionnaire UI update for index 0");
+        const currentState = State.getState();
+        const elementName = elementNames[0]; // Specifically target the first element
+        const elementAnswers = currentState.userAnswers?.[elementName] || {};
+        updateDynamicFeedback(elementName, elementAnswers); // Update score display
+        // Also update slider feedback text
+        const firstSlider = questionContent?.querySelector('.slider.q-input');
+        if (firstSlider) {
+            updateSliderFeedbackText(firstSlider, elementName);
+        }
+        console.log("UI: Initial questionnaire UI update complete.");
+    }, 50); // 50ms delay - adjust if needed, but usually sufficient
+
+    if (mainNavBar) mainNavBar.classList.add('hidden');
+    if (dynamicScoreFeedback) dynamicScoreFeedback.style.display = 'none'; // Keep hidden initially until update runs
+}
 export function updateElementProgressHeader(activeIndex) {
     if (!elementProgressHeader) return; elementProgressHeader.innerHTML = '';
     elementNames.forEach((name, index) => {
