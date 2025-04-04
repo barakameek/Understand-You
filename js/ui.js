@@ -802,19 +802,21 @@ export function renderCard(concept, context = 'grimoire') {
     // --- Action Buttons on Card ---
     let actionButtonsHTML = '<div class="card-actions">'; // Wrapper for buttons
 
-    // Sell Button
+    // Sell Button (Icon Only)
     if (phaseAllowsSell) {
         let discoveryValue = Config.CONCEPT_DISCOVERY_INSIGHT[concept.rarity] || Config.CONCEPT_DISCOVERY_INSIGHT.default;
         const sellValue = discoveryValue * Config.SELL_INSIGHT_FACTOR;
+        // CHANGED: Use dollar icon, put value in title
         actionButtonsHTML += `<button class="button tiny-button secondary-button sell-button card-sell-button" data-concept-id="${concept.id}" data-context="grimoire" title="Sell (${sellValue.toFixed(1)} Insight)"><i class="fas fa-dollar-sign"></i></button>`;
     }
 
-    // Focus Button
+    // Focus Button (Icon Only)
     if (phaseAllowsFocus) {
         const slotsFull = State.getFocusedConcepts().size >= State.getFocusSlots() && !isFocused;
         const buttonClass = isFocused ? 'marked' : '';
         const buttonIcon = isFocused ? 'fa-star' : 'fa-regular fa-star'; // Solid vs regular star
         const buttonTitle = slotsFull ? `Focus Slots Full (${State.getFocusSlots()})` : (isFocused ? 'Remove Focus' : 'Mark as Focus');
+        // CHANGED: Use star icon
         actionButtonsHTML += `<button class="button tiny-button card-focus-button ${buttonClass}" data-concept-id="${concept.id}" title="${buttonTitle}" ${slotsFull ? 'disabled' : ''}><i class="fas ${buttonIcon}"></i></button>`;
     }
 
