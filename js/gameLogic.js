@@ -871,6 +871,14 @@ function determineStarterHandAndEssence() {
 // --- Suggest Scenes ---
 function handleSuggestSceneClick() {
      const focused = State.getFocusedConcepts();
+     const suggestionOutputDiv = document.getElementById('sceneSuggestionOutput');
+     const suggestedSceneContentDiv = document.getElementById('suggestedSceneContent');
+
+     // Clear previous suggestion if any
+     if (suggestionOutputDiv) suggestionOutputDiv.classList.add('hidden');
+     if (suggestedSceneContentDiv) suggestedSceneContentDiv.innerHTML = '';
+
+
      if (focused.size === 0) {
          UI.showTemporaryMessage("Focus on concepts first to suggest relevant scenes.", 3000);
          return;
@@ -885,12 +893,12 @@ function handleSuggestSceneClick() {
      const discoveredScenes = State.getRepositoryItems().scenes;
 
      const sortedElements = Object.entries(focusScores)
-         .filter(([key, score]) => score > 4.0)
+         .filter(([key, score]) => score > 4.0) // Threshold for considering an element dominant
          .sort(([, a], [, b]) => b - a);
 
-     const topElements = sortedElements.slice(0, 2).map(([key]) => key);
+     const topElements = sortedElements.slice(0, 2).map(([key]) => key); // Consider top 2 elements
      if (topElements.length === 0 && sortedElements.length > 0) {
-         topElements.push(sortedElements[0][0]);
+         topElements.push(sortedElements[0][0]); // Fallback to top 1 if none above threshold
      } else if (topElements.length === 0) {
           UI.showTemporaryMessage("Focus is too broad to suggest specific scenes.", 3000);
           gainInsight(cost, "Refund: Scene Suggestion Fail (Broad Focus)");
@@ -899,27 +907,39 @@ function handleSuggestSceneClick() {
 
      console.log("Dominant focus elements for scene suggestion:", topElements);
 
+     // Find relevant scenes NOT YET discovered
      const relevantUndiscoveredScenes = sceneBlueprints.filter(scene =>
          topElements.includes(scene.element) && !discoveredScenes.has(scene.id)
      );
 
      if (relevantUndiscoveredScenes.length === 0) {
-         UI.showTemporaryMessage("All relevant scenes for this focus have been discovered.", 3500);
-         gainInsight(cost, "Refund: All Relevant Scenes Discovered");
+         UI.showTemporaryMessage("All relevant scenes for this focus have been discovered. Check Repository.", 3500);
+          // No refund here, the insight was spent on the *attempt* to find one
      } else {
          const selectedScene = relevantUndiscoveredScenes[Math.floor(Math.random() * relevantUndiscoveredScenes.length)];
-         const added = State.addRepositoryItem('scenes', selectedScene.id);
+         const added = State.addRepositoryItem('scenes', selectedScene.id); // Still add to state
+
          if (added) {
              console.log(`Suggested Scene: ${selectedScene.name} (ID: ${selectedScene.id})`);
-             UI.showTemporaryMessage(`Scene Suggested: '${selectedScene.name}' added to Repository!`, 4000);
-             // Explicitly apply phase UI and refresh repository if needed
-             UI.applyOnboardingPhaseUI(State.getOnboardingPhase());
+             // Render the scene directly in the UI
+             if (suggestionOutputDiv && suggestedSceneContentDiv) {
+                  const sceneCost = selectedScene.meditationCost || Config.SCENE_MEDITATION_BASE_COST;
+                  const canAfford = State.getInsight() >= sceneCost;
+                  const sceneElement = UI.renderRepositoryItem(selectedScene, 'scene', sceneCost, canAfford); // Render it
+                  suggestedSceneContentDiv.appendChild(sceneElement);
+                  suggestionOutputDiv.classList.remove('hidden'); // Show the output area
+             } else {
+                 console.error("Scene suggestion UI elements not found!");
+             }
+             UI.showTemporaryMessage(`Scene Suggested: '${selectedScene.name}'! See details below.`, 4000);
+
+             // Refresh repository if it's visible
              if (document.getElementById('repositoryScreen')?.classList.contains('current')) {
                  UI.displayRepositoryContent();
              }
          } else {
-             console.error(`Failed to add scene ${selectedScene.id} to repository state.`);
-             gainInsight(cost, "Refund: Scene Suggestion Error");
+             console.error(`Failed to add scene ${selectedScene.id} to repository state, though it was selected.`);
+             gainInsight(cost, "Refund: Scene Suggestion Error (State Add Fail)");
              UI.showTemporaryMessage("Error suggesting scene.", 3000);
          }
      }
