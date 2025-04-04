@@ -61,8 +61,32 @@ function initializeApp() {
 }
 
 // --- Event Listeners ---
-function attachEventListeners() { // No changes needed here from previous version
+
+function attachEventListeners() {
     console.log("Attaching event listeners...");
+
+    // ... (keep all existing listeners) ...
+
+    // --- NEW: Delegated Click Listener for Info Icons ---
+    document.body.addEventListener('click', (event) => {
+        const infoIcon = event.target.closest('.info-icon');
+        if (infoIcon) {
+            event.preventDefault(); // Prevent any default action if icon is inside a link/button
+            event.stopPropagation(); // Stop propagation to avoid unintended side effects
+            const message = infoIcon.getAttribute('title');
+            if (message) {
+                // Use a slightly longer duration for info tooltips
+                UI.showTemporaryMessage(message, 4500);
+            }
+        }
+    });
+    // --- End NEW Listener ---
+
+
+    // ... (rest of the attachEventListeners function) ...
+
+    console.log("Event listeners attached.");
+}
 
     // Welcome Screen
     const startButton = document.getElementById('startGuidedButton');
