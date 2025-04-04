@@ -291,56 +291,69 @@ export function updateElementProgressHeader(activeIndex) {
     });
 }
 export function displayElementQuestions(index) {
-    const currentState = State.getState();
-    if (index >= elementNames.length) {
-        // ... (keep existing finalization logic) ...
+    // *** ADDED: Explicitly get index from state *inside* the function ***
+    const actualIndex = State.getState().currentElementIndex;
+    // Use actualIndex if valid, otherwise fallback to passed index (for safety)
+    // If actualIndex is -1 (initial state before init), use the passed index (which should be 0)
+    const displayIndex = (actualIndex >= 0 && actualIndex < elementNames.length) ? actualIndex : index;
+
+    console.log(`UI: Displaying questions requested for index ${index}, using actual state index ${displayIndex}`);
+
+    // Check if we should finalize BEFORE proceeding
+    if (displayIndex >= elementNames.length) {
+        // Ensure final answers are saved before finalizing
+        const lastElementIndex = elementNames.length - 1;
+        if (lastElementIndex >= 0) {
+            const finalAnswers = getQuestionnaireAnswers(); // Get answers from the final displayed page
+            if (Object.keys(finalAnswers).length > 0) { // Only update if answers were found
+                 State.updateAnswers(elementNames[lastElementIndex], finalAnswers);
+            }
+        }
         GameLogic.finalizeQuestionnaire();
         return;
     }
-    const elementName = elementNames[index];
+
+    const elementName = elementNames[displayIndex]; // *** Use displayIndex ***
     const elementData = elementDetails[elementName] || {};
     const questions = questionnaireGuided[elementName] || [];
     if (!questionContent) { console.error("questionContent element missing!"); return; }
 
-    // 1. Get current answers for this element from state
-    const elementAnswers = currentState.userAnswers?.[elementName] || {};
-    console.log(`UI: Displaying questions for Index ${index} (${elementName}). Initial answers from state:`, JSON.parse(JSON.stringify(elementAnswers)));
+    // Get current answers for this element from state using the correct index
+    const elementAnswers = State.getState().userAnswers?.[elementName] || {};
+    console.log(`UI: Answers for ${elementName} (Index ${displayIndex}):`, JSON.parse(JSON.stringify(elementAnswers)));
 
-    // 2. Generate HTML using these answers for defaults
+    // Generate HTML using these answers for defaults
     let introHTML = `<div class="element-intro"><h2>${elementData.name || elementName}</h2><p><em>${elementData.coreQuestion || ''}</em></p><p>${elementData.coreConcept || 'Loading...'}</p><p><small><strong>Persona Connection:</strong> ${elementData.personaConnection || ''}</small></p></div>`;
     let questionsHTML = '';
     questions.forEach(q => {
         let inputHTML = `<div class="question-block" id="block_${q.qId}"><h3 class="question-title">${q.text}</h3><div class="input-container">`;
-        const savedAnswer = elementAnswers[q.qId];
-        // *** Ensure savedAnswer is converted correctly for slider ***
+        const savedAnswer = elementAnswers[q.qId]; // Use answers fetched based on displayIndex
+
         let sliderValue = q.defaultValue;
         if (q.type === "slider") {
-            sliderValue = (savedAnswer !== undefined && !isNaN(parseFloat(savedAnswer))) ? parseFloat(savedAnswer) : q.defaultValue;
-        }
-        // *** End Ensure ***
-
-        if (q.type === "slider") {
-            inputHTML += `<div class="slider-container"><input type="range" id="${q.qId}" class="slider q-input" min="${q.minValue}" max="${q.maxValue}" step="${q.step || 0.5}" value="${sliderValue}" data-question-id="${q.qId}" data-type="slider"><div class="label-container"><span class="label-text">${q.minLabel}</span><span class="label-text">${q.maxLabel}</span></div><p class="value-text">Selected: <span id="display_${q.qId}">${parseFloat(sliderValue).toFixed(1)}</span></p><p class="slider-feedback" id="feedback_${q.qId}"></p></div>`;
+             sliderValue = (savedAnswer !== undefined && !isNaN(parseFloat(savedAnswer))) ? parseFloat(savedAnswer) : q.defaultValue;
+             inputHTML += `<div class="slider-container"><input type="range" id="${q.qId}" class="slider q-input" min="${q.minValue}" max="${q.maxValue}" step="${q.step || 0.5}" value="${sliderValue}" data-question-id="${q.qId}" data-type="slider"><div class="label-container"><span class="label-text">${q.minLabel}</span><span class="label-text">${q.maxLabel}</span></div><p class="value-text">Selected: <span id="display_${q.qId}">${parseFloat(sliderValue).toFixed(1)}</span></p><p class="slider-feedback" id="feedback_${q.qId}"></p></div>`;
         } else if (q.type === "radio") {
-            inputHTML += `<div class="radio-options">`;
-            q.options.forEach(opt => { const checked = savedAnswer === opt.value ? 'checked' : ''; inputHTML += `<div><input type="radio" id="${q.qId}_${opt.value}" class="q-input" name="${q.qId}" value="${opt.value}" ${checked} data-question-id="${q.qId}" data-type="radio"><label for="${q.qId}_${opt.value}">${opt.value}</label></div>`; });
-            inputHTML += `</div>`;
+             inputHTML += `<div class="radio-options">`;
+             q.options.forEach(opt => { const checked = savedAnswer === opt.value ? 'checked' : ''; inputHTML += `<div><input type="radio" id="${q.qId}_${opt.value}" class="q-input" name="${q.qId}" value="${opt.value}" ${checked} data-question-id="${q.qId}" data-type="radio"><label for="${q.qId}_${opt.value}">${opt.value}</label></div>`; });
+             inputHTML += `</div>`;
         } else if (q.type === "checkbox") {
-            inputHTML += `<div class="checkbox-options">`;
-            q.options.forEach(opt => { const checked = Array.isArray(savedAnswer) && savedAnswer.includes(opt.value) ? 'checked' : ''; inputHTML += `<div><input type="checkbox" id="${q.qId}_${opt.value}" class="q-input" name="${q.qId}" value="${opt.value}" ${checked} data-question-id="${q.qId}" data-max-choices="${q.maxChoices || 2}" data-type="checkbox"><label for="${q.qId}_${opt.value}">${opt.value}</label></div>`; });
-            inputHTML += `</div>`;
+             inputHTML += `<div class="checkbox-options">`;
+             q.options.forEach(opt => { const checked = Array.isArray(savedAnswer) && savedAnswer.includes(opt.value) ? 'checked' : ''; inputHTML += `<div><input type="checkbox" id="${q.qId}_${opt.value}" class="q-input" name="${q.qId}" value="${opt.value}" ${checked} data-question-id="${q.qId}" data-max-choices="${q.maxChoices || 2}" data-type="checkbox"><label for="${q.qId}_${opt.value}">${opt.value}</label></div>`; });
+             inputHTML += `</div>`;
         }
         inputHTML += `</div></div>`; questionsHTML += inputHTML;
     });
-    if(questions.length === 0) questionsHTML = '<p><em>(No questions for this element)</em></p>';
+    if (questions.length === 0) questionsHTML = '<p><em>(No questions for this element)</em></p>';
 
-    // 3. Insert HTML into the DOM
+
+    // Insert HTML into the DOM
     questionContent.innerHTML = introHTML;
     const introDiv = questionContent.querySelector('.element-intro');
     if (introDiv) introDiv.insertAdjacentHTML('afterend', questionsHTML);
     else questionContent.innerHTML += questionsHTML;
 
-    // 4. Attach event listeners **AFTER** HTML is fully inserted
+    // Attach event listeners **AFTER** HTML is fully inserted
     questionContent.querySelectorAll('.q-input').forEach(input => {
         const eventType = (input.type === 'range') ? 'input' : 'change';
         // Clear potentially stale listeners (robustness)
@@ -352,21 +365,20 @@ export function displayElementQuestions(index) {
         checkbox.addEventListener('change', GameLogic.handleCheckboxChange);
     });
 
-    // 5. Perform initial UI updates **AFTER** listeners are attached
-    
-      questionContent.querySelectorAll('.slider.q-input').forEach(slider => {
-        updateSliderFeedbackText(slider, elementName);
+    // Perform initial UI updates using the correct index and answers
+    // Dynamic feedback visibility is handled inside updateDynamicFeedback now
+    questionContent.querySelectorAll('.slider.q-input').forEach(slider => {
+        updateSliderFeedbackText(slider, elementName); // Pass correct elementName
     });
-    // *** Explicitly call updateDynamicFeedback AFTER rendering AND listener attachment ***
-    updateDynamicFeedback(elementName, elementAnswers); // Use the answers fetched at the start
+    updateDynamicFeedback(elementName, elementAnswers); // Use correct elementName & answers
 
-    // 6. Update overall progress display & buttons
-    updateElementProgressHeader(index);
-    if (progressText) progressText.textContent = `Element ${index + 1} / ${elementNames.length}: ${elementData.name || elementName}`;
-    if (prevElementButton) prevElementButton.style.visibility = (index > 0) ? 'visible' : 'hidden';
-    if (nextElementButton) nextElementButton.textContent = (index === elementNames.length - 1) ? "View My Persona" : "Next Element";
+    // Update overall progress display & buttons using displayIndex
+    updateElementProgressHeader(displayIndex); // *** Use displayIndex ***
+    if (progressText) progressText.textContent = `Element ${displayIndex + 1} / ${elementNames.length}: ${elementData.name || elementName}`;
+    if (prevElementButton) prevElementButton.style.visibility = (displayIndex > 0) ? 'visible' : 'hidden';
+    if (nextElementButton) nextElementButton.textContent = (displayIndex === elementNames.length - 1) ? "View My Persona" : "Next Element";
 
-    console.log(`UI: Finished displaying questions for ${elementName}`); // Add log
+    console.log(`UI: Finished displaying questions for ${elementName} at index ${displayIndex}`);
 }
 export function updateSliderFeedbackText(sliderElement, elementName) {
     if (!sliderElement || sliderElement.type !== 'range') return;
