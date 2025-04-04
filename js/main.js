@@ -1,10 +1,67 @@
+// --- START OF FILE main.js ---
+
+// js/main.js - Application Entry Point, Event Listeners, Initialization
 import * as State from './state.js';
 import * as UI from './ui.js';
 import * as GameLogic from './gameLogic.js';
 import * as Config from './config.js'; // Ensure Config is imported
 
 console.log("main.js loading...");
-function attachEventListeners() {
+
+// --- Initialization ---
+function initializeApp() {
+    console.log("Initializing Persona Alchemy Lab v14+...");
+
+    // Attempt to load game state first
+    const loaded = State.loadGameState(); // This now populates the `gameState` variable
+
+    // **Crucially, update UI *after* state is confirmed loaded or cleared**
+    UI.updateInsightDisplays(); // Update displays with potentially loaded insight
+
+    if (loaded) {
+        console.log("Existing session loaded.");
+         if (State.getState().questionnaireCompleted) {
+              console.log("Continuing session...");
+              GameLogic.checkForDailyLogin(); // Check daily status *after* loading state
+              UI.applyOnboardingPhaseUI(State.getOnboardingPhase()); // Apply UI visibility
+              GameLogic.calculateTapestryNarrative(true); // Ensure analysis is current for UI updates
+              // Update other UI elements that depend on loaded state
+              UI.updateFocusSlotsDisplay();
+              UI.updateGrimoireCounter();
+              UI.populateGrimoireFilters();
+              UI.refreshGrimoireDisplay(); // Prepare Grimoire display data
+              UI.setupInitialUI(); // Ensure button states are correct after load
+              UI.showScreen('personaScreen'); // Default to Persona screen after load
+              UI.hidePopups(); // Ensure no popups are stuck open
+         } else {
+              console.log("Loaded state incomplete. Restarting questionnaire.");
+              // State is loaded, but questionnaire wasn't done. Reset index.
+              State.updateElementIndex(0); // Reset index only
+              // ** Ensure userAnswers is ready **
+              // This is handled by loadGameState ensuring all element keys exist
+              UI.initializeQuestionnaireUI(); // Setup questionnaire UI
+              UI.showScreen('questionnaireScreen');
+         }
+         const loadBtn = document.getElementById('loadButton');
+         if(loadBtn) loadBtn.classList.add('hidden'); // Hide load button
+
+    } else {
+        console.log("No valid saved session found or load error. Starting fresh.");
+        // State.clearGameState() was already called implicitly by loadGameState failing
+        // or explicitly if needed depending on error handling preference
+        UI.setupInitialUI(); // Setup initial UI for a new game (Welcome Screen)
+         if (localStorage.getItem(Config.SAVE_KEY)) {
+             UI.showTemporaryMessage("Error loading session. Starting fresh.", 4000);
+         }
+    }
+
+    console.log("Initialization complete. Attaching event listeners.");
+    attachEventListeners(); // Call the function to attach listeners
+    console.log("Application ready.");
+} // <<< End of initializeApp function
+
+// --- Event Listeners ---
+function attachEventListeners() { // <<< FUNCTION DEFINITION START
     console.log("Attaching event listeners...");
 
     // *** MOVED ALL ELEMENT DECLARATIONS TO THE TOP ***
@@ -41,10 +98,10 @@ function attachEventListeners() {
     const personaSummaryDiv = document.getElementById('personaSummaryView');
     const personaScreenDiv = document.getElementById('personaScreen');
     const deepDiveNodesContainer = document.getElementById('deepDiveAnalysisNodes');
-    const closeInfoBtn = document.getElementById('closeInfoPopupButton'); // Declared HERE
-    const confirmInfoBtn = document.getElementById('confirmInfoPopupButton'); // Declared HERE
-    const infoPopupElement = document.getElementById('infoPopup'); // Declared HERE (changed name)
-    const overlayElement = document.getElementById('popupOverlay'); // Declared HERE (changed name)
+    const closeInfoBtn = document.getElementById('closeInfoPopupButton');
+    const confirmInfoBtn = document.getElementById('confirmInfoPopupButton');
+    const infoPopupElement = document.getElementById('infoPopup');
+    const overlayElement = document.getElementById('popupOverlay'); // Renamed for clarity
     // *** END OF MOVED DECLARATIONS ***
 
 
@@ -52,23 +109,22 @@ function attachEventListeners() {
     document.body.addEventListener('click', (event) => {
         const infoIcon = event.target.closest('.info-icon');
         if (infoIcon) {
-            event.preventDefault(); // Prevent any default action if icon is inside a link/button
-            event.stopPropagation(); // Stop propagation to avoid unintended side effects
+            event.preventDefault();
+            event.stopPropagation();
             const message = infoIcon.getAttribute('title');
-            // Use the variables declared at the top scope
             if (message && infoPopupElement && overlayElement) {
-                 const infoContent = document.getElementById('infoPopupContent'); // Get content element here
+                 const infoContent = document.getElementById('infoPopupContent');
                  if(infoContent){
                     infoContent.textContent = message;
                     infoPopupElement.classList.remove('hidden');
                     overlayElement.classList.remove('hidden');
                  } else {
                     console.warn("Info popup content element missing.");
-                    UI.showTemporaryMessage(message, 4000); // Fallback
+                    UI.showTemporaryMessage(message, 4000);
                  }
             } else {
                 console.warn("Could not display info popup. Message or elements missing.");
-                if(message) UI.showTemporaryMessage(message, 4000); // Fallback to toast if popup fails
+                if(message) UI.showTemporaryMessage(message, 4000);
             }
         }
     });
@@ -76,25 +132,18 @@ function attachEventListeners() {
     // Add listeners to close the info popup
     const hideInfoPopup = () => {
         if (infoPopupElement) infoPopupElement.classList.add('hidden');
-        // Check if any *other* popups are open before hiding overlay
         const otherPopups = document.querySelectorAll('.popup:not(#infoPopup):not(.hidden)');
-        if (otherPopups.length === 0 && overlayElement) { // Check overlayElement exists here
+        if (otherPopups.length === 0 && overlayElement) {
             overlayElement.classList.add('hidden');
         }
     };
 
-    // REMOVED duplicate declarations here
-    // const closeInfoBtn = document.getElementById('closeInfoPopupButton');
-    // const confirmInfoBtn = document.getElementById('confirmInfoPopupButton');
-    // const infoPopupElement = document.getElementById('infoPopup');
-
-    // Use the variables declared at the top scope
     if (closeInfoBtn) closeInfoBtn.addEventListener('click', hideInfoPopup);
     if (confirmInfoBtn) confirmInfoBtn.addEventListener('click', hideInfoPopup);
     // --- End Info Icon Handling ---
 
 
-    // --- Original Event Listeners (Now guaranteed to have elements declared) ---
+    // --- Original Event Listeners ---
 
     // Welcome Screen
     if (startButton) startButton.addEventListener('click', () => {
@@ -154,16 +203,17 @@ function attachEventListeners() {
     if (closePopupBtn) closePopupBtn.addEventListener('click', UI.hidePopups);
     // Modify overlay listener to handle infoPopup correctly
     if (overlayElement) {
-        overlayElement.removeEventListener('click', UI.hidePopups); // Remove any previous generic listener
+        // Keep only one listener for the overlay
         overlayElement.addEventListener('click', () => {
              if (infoPopupElement && !infoPopupElement.classList.contains('hidden')) {
                  const otherPopups = document.querySelectorAll('.popup:not(#infoPopup):not(.hidden)');
                  if (otherPopups.length === 0) {
-                     hideInfoPopup();
+                     hideInfoPopup(); // Close only info popup if it's alone
                      return;
                  }
              }
-             UI.hidePopups(); // General hide for other cases
+             // If info popup wasn't the only one open, or wasn't open at all, close all popups
+             UI.hidePopups();
         });
     } else { console.error("Popup Overlay element not found!"); }
 
@@ -287,6 +337,7 @@ function attachEventListeners() {
 } // <<< Correct closing brace for attachEventListeners
 
 // --- Start the App ---
+// *** MOVED THIS BLOCK TO THE END ***
 if (document.readyState === 'loading') {
     // Wait for the DOM to be fully loaded before initializing
     document.addEventListener('DOMContentLoaded', initializeApp);
