@@ -294,7 +294,7 @@ function attachEventListeners() {
     } else { console.warn("Deep Dive Analysis Nodes Container not found."); }
 
     console.log("Event listeners attached.");
-}
+} // Closes attachEventListeners function
 
 // --- Start the App ---
 if (document.readyState === 'loading') {
@@ -304,3 +304,4 @@ if (document.readyState === 'loading') {
 }
 
 console.log("main.js loaded.");
+// NO extra brace here
