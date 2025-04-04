@@ -73,10 +73,11 @@ function initializeApp() {
                 initialScreen = 'constellationMapScreen'; // Default to Constellation Map
             }
         } else {
-    
-console.log("Loaded state incomplete (charting not done). Starting charting.");   State.updateElementIndex(0);   UI.initializeQuestionnaireUI();      // Immediately trigger slider update so that the score display is correct on load   const slider = document.querySelector('input[type="range"]');   if (slider) {     slider.dispatchEvent(new Event('input'));   }      initialScreen = 'chartingScreen';
-        
-        
+            console.log("Loaded state incomplete (charting not done). Starting charting.");
+            State.updateElementIndex(0);
+            UI.initializeQuestionnaireUI(); // Renamed? initializeChartingUI?
+            initialScreen = 'chartingScreen'; // Renamed screen ID
+        }
         const loadBtn = document.getElementById('loadButton');
         if (loadBtn) loadBtn.classList.add('hidden');
 
