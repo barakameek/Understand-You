@@ -73,10 +73,12 @@ p { margin-bottom: 15px; color: #5a4a3a; font-size: 1em; text-align: left; }
 hr { border: none; border-top: 1px dashed var(--border-color-light); margin: 18px 0; }
 .popup-hr { border-top: 1px solid var(--border-color-light); margin: 10px 0; }
 .info-icon {
-    color: #aaa;
+    color: #999; /* Lighter grey */
     margin-left: 6px;
-    cursor: help; /* Change cursor to indicate help/info */
+    cursor: help; /* Ensure help cursor */
     font-size: 0.9em;
+    transition: color 0.2s ease;
+    border-bottom: 1px dotted transparent; /* Add subtle underline */
 }
 
 /* --- Study Theme Buttons (Specific Overrides) --- */
@@ -202,6 +204,7 @@ hr { border: none; border-top: 1px dashed var(--border-color-light); margin: 18p
 }
 .tapestry-actions .button {
     margin: 0; /* Remove individual margins if flex gap is used */
+}
     .scene-suggestion-output {
     margin-top: 20px;
     padding: 15px;
@@ -263,7 +266,6 @@ hr { border: none; border-top: 1px dashed var(--border-color-light); margin: 18p
     padding-top: 0;
     border-top: none; /* Remove top border */
 }
-
 .element-detail-header strong { font-size: 1.05em; color: var(--link-color); font-family: 'Merriweather', serif; font-weight: 700; }
 .element-detail-header span { font-weight: bold; color: var(--primary-color); font-size: 1.05em; }
 .element-detail-header .score-label { font-style: italic; margin-left: 4px; color: #7a5230; font-size: 0.85em; }
@@ -423,9 +425,21 @@ hr { border: none; border-top: 1px dashed var(--border-color-light); margin: 18p
 #grimoireContent { background-color: #fff8e7; padding: 15px; border-radius: 8px; border: 1px solid var(--border-color-dark); margin-top: 8px; max-height: calc(100vh - 200px); overflow-y: auto; }
 
 /* --- Concept Card Basic Style & Rarity --- */
-.concept-card { border-radius: 8px; padding: 10px; text-align: center; cursor: pointer; position: relative; display: flex; flex-direction: column; height: 280px; overflow: hidden; background: linear-gradient(145deg, var(--background-light), #fdf5e6); border: 1px solid var(--border-color-light); box-shadow: 0 3px 6px rgba(80, 50, 20, 0.1); transition: all 0.2s ease-in-out;    box-shadow: 0 6px 12px rgba(80, 50, 20, 0.15);
+.concept-card {
+    /* ... other styles ... */
+    position: relative; /* <<< VERIFY/ADD THIS */
+    display: flex;
+    flex-direction: column;
+    height: 280px; /* Or your desired height */
+    overflow: visible; /* <<< CHANGE from hidden to allow hover scale */
+    /* ... other styles ... */
 }
-.concept-card:hover { transform: translateY(-3px) scale(1.03); box-shadow: 0 6px 12px rgba(80, 50, 20, 0.15); z-index: 10; }
+.concept-card:hover {
+    transform: translateY(-3px) scale(1.03);
+    box-shadow: 0 6px 12px rgba(80, 50, 20, 0.15);
+    z-index: 10; /* Ensure hover card is on top */
+}
+
 .concept-card.rarity-common { border-left: 5px solid #cd7f32; }
 .concept-card.rarity-uncommon { border-left: 5px solid #c0c0c0; background: linear-gradient(145deg, #f8f8f8, #efefef); box-shadow: 0 3px 6px rgba(80, 50, 20, 0.1), inset 0 0 3px rgba(150, 150, 150, 0.1); }
 .concept-card.rarity-rare { border-left: 5px solid var(--accent-color); background: radial-gradient(ellipse at top left, #fffacd, #faf0e6); box-shadow: 0 3px 6px rgba(80, 50, 20, 0.1), 0 0 6px var(--highlight-glow); }
@@ -441,7 +455,10 @@ hr { border: none; border-top: 1px dashed var(--border-color-light); margin: 18p
 .card-visual .card-visual-placeholder { font-size: 3em; color: #b8a880; }
 .card-visual .card-art-unlocked { font-size: 3.5em; color: var(--primary-color); }
 .card-visual .card-art-image { display: block; width: 100%; height: 100%; object-fit: cover; }
-.card-footer { font-size: 0.8em; color: #6a5a4a; margin-top: 6px; min-height: 85px; /* Adjusted min-height for actions */ overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; }
+  .card-footer {
+        min-height: 70px; /* Adjust if needed */
+        padding-bottom: 35px; /* Ensure padding still works */
+    }
 .card-affinities {
     margin-bottom: 4px;
     line-height: 1.3;
@@ -471,8 +488,11 @@ hr { border: none; border-top: 1px dashed var(--border-color-light); margin: 18p
     /* Color is set inline via style */
 }
 .card-affinities .affinity-high { font-weight: bold; }
-.card-brief-desc { font-style: italic; font-size: 0.85em; line-height: 1.3; text-align: center; font-family: 'Merriweather', serif; display: -webkit-box; -webkit-line-clamp: 2; /* Limit to 2 lines */ -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; max-height: calc(1.3em * 2); margin: 4px 0; flex-grow: 1; }
-/* NEW: Card Actions Container */
+  .card-brief-desc {
+        -webkit-line-clamp: 2;
+        max-height: calc(1.3em * 2);
+    }
+
 .card-actions {
     margin-top: 5px; /* Space above actions */
     display: flex;
@@ -490,19 +510,10 @@ hr { border: none; border-top: 1px dashed var(--border-color-light); margin: 18p
 .card-actions button:disabled {
     cursor: not-allowed;
 }
-.tiny-button {
-    padding: 4px 8px; /* Adjusted padding for icons */
-    font-size: 0.8em; /* Slightly larger font for icon clarity */
-    border-radius: 50%; /* Make them circular */
-    line-height: 1; /* Tighten line height */
-    min-width: 28px; /* Ensure minimum width */
-    min-height: 28px; /* Ensure minimum height */
-    display: inline-flex; /* Align icon centrally */
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.2); /* Add subtle shadow */
-    transition: background-color 0.2s ease, transform 0.1s ease;
-}
+  .tiny-button { /* Maybe slightly larger touch target */
+         min-width: 30px;
+         min-height: 30px;
+     }
 .tiny-button i {
     margin: 0; /* Remove icon margin */
     font-size: 0.95em; /* Adjust icon size */
@@ -1124,3 +1135,165 @@ hr { border: none; border-top: 1px dashed var(--border-color-light); margin: 18p
     color: var(--primary-color); /* Darken on hover */
     border-bottom-color: #ccc;
 }
+/* --- NEW STYLES ADDED --- */
+
+/* --- Card Actions & Tiny Buttons --- */
+.card-actions {
+    margin-top: auto; /* Push to bottom relative to footer content */
+    padding-top: 5px; /* Space above actions */
+    display: flex;
+    justify-content: center; /* Center buttons */
+    gap: 8px; /* Increased gap slightly */
+    position: absolute; /* Position over the bottom */
+    bottom: 8px;       /* Position from bottom of card */
+    left: 0;
+    right: 0;
+    /* pointer-events: none; REMOVED */
+}
+
+.card-actions button {
+    pointer-events: auto; /* ENSURE BUTTONS ARE CLICKABLE */
+}
+.card-actions button:disabled {
+    cursor: not-allowed; /* Add appropriate cursor */
+}
+
+.tiny-button {
+    padding: 4px 8px; /* Adjusted padding for icons */
+    font-size: 0.8em; /* Slightly larger font for icon clarity */
+    border-radius: 50%; /* Make them circular */
+    line-height: 1; /* Tighten line height */
+    min-width: 28px; /* Ensure minimum width */
+    min-height: 28px; /* Ensure minimum height */
+    display: inline-flex; /* Align icon centrally */
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2); /* Add subtle shadow */
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+.tiny-button i {
+    margin: 0; /* Remove icon margin */
+    font-size: 0.95em; /* Adjust icon size */
+    line-height: 1;
+}
+.tiny-button:hover:not(:disabled) {
+    transform: scale(1.1); /* Slight scale on hover */
+}
+
+.card-sell-button { /* Style specific to the card's sell button */
+    background-color: #e74c3c; /* Reddish for sell */
+    border-color: #c0392b;
+    color: white;
+}
+.card-sell-button:hover:not(:disabled) {
+    background-color: #c0392b;
+}
+
+.card-focus-button { /* Style specific to the card's focus button */
+    background-color: var(--secondary-color); /* Tan */
+    border-color: var(--border-color-dark);
+    color: var(--primary-color); /* Brown icon */
+}
+.card-focus-button.marked {
+    background-color: var(--accent-color); /* Gold when focused */
+    border-color: #b8860b;
+    color: var(--primary-color);
+}
+.card-focus-button:hover:not(:disabled) {
+     background-color: #e0d0b0; /* Lighter tan */
+}
+.card-focus-button.marked:hover:not(:disabled) {
+     background-color: #ffeca0; /* Lighter gold */
+}
+.card-focus-button:disabled { /* Style for disabled focus button */
+    background-color: #ccc;
+    border-color: #aaa;
+    color: #777;
+    opacity: 0.6;
+}
+
+/* --- Info Popup --- */
+.info-popup {
+    max-width: 450px; /* Smaller max width */
+    max-height: 60vh; /* Limit height */
+    width: 90%; /* Responsive width */
+}
+.info-popup .popup-header h3 {
+    font-size: 1.2em;
+    text-align: center;
+    color: var(--link-color);
+    margin: 0; /* Remove default margin */
+    padding: 10px 40px 10px 15px; /* Match other popups */
+}
+.info-popup .popup-content {
+    padding: 20px;
+    text-align: center; /* Center text */
+    overflow-y: auto;
+}
+#infoPopupContent {
+    font-size: 0.95em;
+    line-height: 1.5;
+    color: var(--text-color);
+    text-align: left; /* Keep info text left-aligned */
+    margin: 0; /* Remove default margins */
+}
+.info-popup .popup-actions {
+     padding: 10px 15px;
+     border-top: 1px solid var(--border-color-light);
+     background-color: var(--background-medium);
+     text-align: center; /* Center OK button */
+}
+
+/* --- Scene Suggestion Output --- */
+.scene-suggestion-output {
+    margin-top: 20px;
+    padding: 15px;
+    background-color: rgba(255, 248, 220, 0.7); /* Light gold background */
+    border: 1px dashed var(--primary-color);
+    border-radius: 6px;
+    text-align: left;
+}
+.scene-suggestion-output.hidden {
+    display: none;
+}
+.scene-suggestion-output h4 {
+    margin-top: 0;
+    margin-bottom: 8px;
+    color: var(--primary-color);
+    font-family: 'Garamond', serif;
+    font-size: 1.1em;
+    text-align: center;
+    border-bottom: 1px solid var(--border-color-light);
+    padding-bottom: 4px;
+}
+.scene-suggestion-output p {
+    font-size: 0.9em;
+    margin-bottom: 10px;
+    font-style: italic;
+    text-align: center;
+}
+#suggestedSceneContent .repository-item { /* Style suggested scene */
+    background-color: transparent;
+    border: none;
+    padding: 0;
+    border-left: none;
+    margin-top: 5px;
+    box-shadow: none; /* Remove any inherited shadow */
+}
+#suggestedSceneContent .repository-item h4 {
+    text-align: left;
+    font-size: 1.05em;
+    border: none;
+    padding-bottom: 0;
+}
+#suggestedSceneContent .repository-item p {
+     text-align: left;
+     font-style: normal;
+     font-size: 0.95em;
+}
+#suggestedSceneContent .repo-actions {
+    margin-top: 10px;
+    text-align: center; /* Center meditate button */
+}
+
+/* --- END OF NEW STYLES --- */
