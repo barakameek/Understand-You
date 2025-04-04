@@ -583,7 +583,7 @@ const cardTypeThemes = {
 };
 
 // --- NEW: Onboarding Tasks ---
-
+ const onboardingTasks = [
     { id: 'task01', phaseRequired: 1, description: "View Your Grimoire", reward: { type: 'insight', amount: 1 }, track: { action: 'showScreen', value: 'grimoireScreen' }, hint: "Click the 'Grimoire' tab in the navigation bar." },
     { id: 'task02', phaseRequired: 1, description: "Focus Your First Concept", reward: { type: 'insight', amount: 2 }, track: { action: 'markFocus', count: 1 }, hint: "Open a Concept card (from Grimoire or Research) and click 'Mark as Focus', or use the ☆ button on the card in the Grimoire." },
     { id: 'task03', phaseRequired: 2, description: "Conduct Research", reward: { type: 'insight', amount: 2 }, track: { action: 'conductResearch', count: 1 }, hint: "Go to the 'Study' tab and click one of the Element research buttons (costs Insight)." },
@@ -596,6 +596,7 @@ const cardTypeThemes = {
 
 // --- FINAL EXPORT BLOCK ---
 export {
+    onboardingTasks,
     elementDetails,
     concepts,
     questionnaireGuided,
@@ -616,9 +617,6 @@ export {
     elementInteractionThemes,
     cardTypeThemes
 };
-
-console.log("data.js exports defined.");
-console.log("data.js finished.");
 
 console.log("data.js exports defined.");
 console.log("data.js finished.");
