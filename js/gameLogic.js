@@ -1320,23 +1320,6 @@ export function checkTaskCompletion(action, value = null) {
 }
 
 
-// --- Daily Login ---
-export function checkForDailyLogin() {
-    const today = new Date().toDateString();
-    const last = State.getState().lastLoginDate;
-    if (last !== today) {
-        console.log("First login today.");
-        State.resetDailyRituals(); // Handles saving
-        gainInsight(5.0, "Daily Bonus");
-        UI.showTemporaryMessage("Rituals Reset. Free Research Available!", 3500);
-        UI.displayDailyRituals();
-        UI.displayResearchButtons();
-        checkTaskCompletion('dailyLogin'); // Check task
-    } else {
-        console.log("Already logged in today.");
-        UI.displayResearchButtons(); // Refresh button state
-    }
-}
 
 
 // --- Milestone Logic ---
