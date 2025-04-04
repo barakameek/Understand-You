@@ -56,16 +56,13 @@ function initializeApp() {
     }
 
     console.log("Initialization complete. Attaching event listeners.");
-    attachEventListeners();
+    attachEventListeners(); // Call the function to attach listeners
     console.log("Application ready.");
 }
 
 // --- Event Listeners ---
-
-function attachEventListeners() {
+function attachEventListeners() { // <<< FUNCTION DEFINITION START
     console.log("Attaching event listeners...");
-
-    // ... (keep all existing listeners) ...
 
     // --- NEW: Delegated Click Listener for Info Icons ---
     document.body.addEventListener('click', (event) => {
@@ -82,11 +79,7 @@ function attachEventListeners() {
     });
     // --- End NEW Listener ---
 
-
-    // ... (rest of the attachEventListeners function) ...
-
-    console.log("Event listeners attached.");
-}
+    // *** MOVED THE REST OF THE LISTENER CODE INSIDE HERE ***
 
     // Welcome Screen
     const startButton = document.getElementById('startGuidedButton');
@@ -293,8 +286,11 @@ function attachEventListeners() {
         });
     } else { console.warn("Deep Dive Analysis Nodes Container not found."); }
 
+
+    // *** THIS IS THE FINAL CONSOLE LOG INSIDE THE FUNCTION ***
     console.log("Event listeners attached.");
-} // Closes attachEventListeners function
+
+} // <<< FUNCTION DEFINITION END (Ensure this brace matches the function definition start)
 
 // --- Start the App ---
 if (document.readyState === 'loading') {
@@ -304,4 +300,3 @@ if (document.readyState === 'loading') {
 }
 
 console.log("main.js loaded.");
-// NO extra brace here
