@@ -782,9 +782,25 @@ export function refreshGrimoireDisplay() {
 
 // --- Card Rendering (Includes Icon Changes & New Focus Button) ---
 // --- Card Rendering (Includes Icon Changes & New Focus Button) ---
-export function renderCard(concept, context = 'grimoire') {
-    if (!concept || typeof concept.id === 'undefined') { console.warn("renderCard invalid concept:", concept); const d = document.createElement('div'); d.textContent = "Error"; return d; }
-    const cardDiv = document.createElement('div'); cardDiv.classList.add('concept-card'); cardDiv.classList.add(`rarity-${concept.rarity || 'common'}`); cardDiv.dataset.conceptId = concept.id; cardDiv.title = `View Details: ${concept.name}`; // Default title
+// --- Card Rendering (Includes Icon Changes & New Focus Button) ---
+export function renderCard(concept, context = 'grimoire') { // FUNCTION START
+    // Check for invalid input FIRST
+    if (!concept || typeof concept.id === 'undefined') {
+        console.warn("renderCard invalid concept:", concept);
+        const errorDiv = document.createElement('div');
+        errorDiv.textContent = "Error rendering card";
+        errorDiv.style.color = 'red';
+        errorDiv.style.padding = '10px';
+        errorDiv.style.border = '1px solid red';
+        return errorDiv; // Return the error div *inside* the function
+    }
+
+    // Proceed with rendering if concept is valid
+    const cardDiv = document.createElement('div');
+    cardDiv.classList.add('concept-card');
+    cardDiv.classList.add(`rarity-${concept.rarity || 'common'}`);
+    cardDiv.dataset.conceptId = concept.id;
+    cardDiv.title = `View Details: ${concept.name}`;
 
     const discoveredData = State.getDiscoveredConceptData(concept.id);
     const isDiscovered = !!discoveredData;
@@ -812,17 +828,13 @@ export function renderCard(concept, context = 'grimoire') {
     else if (concept.visualHandle) { visualIconClass = "fas fa-image card-visual-placeholder"; visualTitle = "Art Placeholder"; }
     const visualContent = `<i class="${visualIconClass}" title="${visualTitle}"></i>`;
 
-    // --- Action Buttons on Card ---
-    let actionButtonsHTML = '<div class="card-actions">'; // Wrapper for buttons
-
-    // Sell Button (Icon Only)
+    // Action Buttons
+    let actionButtonsHTML = '<div class="card-actions">';
     if (phaseAllowsSell) {
         let discoveryValue = Config.CONCEPT_DISCOVERY_INSIGHT[concept.rarity] || Config.CONCEPT_DISCOVERY_INSIGHT.default;
         const sellValue = discoveryValue * Config.SELL_INSIGHT_FACTOR;
         actionButtonsHTML += `<button class="button tiny-button secondary-button sell-button card-sell-button" data-concept-id="${concept.id}" data-context="grimoire" title="Sell (${sellValue.toFixed(1)} Insight)"><i class="fas fa-dollar-sign"></i></button>`;
     }
-
-    // Focus Button (Icon Only)
     if (phaseAllowsFocus) {
         const slotsFull = State.getFocusedConcepts().size >= State.getFocusSlots() && !isFocused;
         const buttonClass = isFocused ? 'marked' : '';
@@ -830,17 +842,14 @@ export function renderCard(concept, context = 'grimoire') {
         const buttonTitle = slotsFull ? `Focus Slots Full (${State.getFocusSlots()})` : (isFocused ? 'Remove Focus' : 'Mark as Focus');
         actionButtonsHTML += `<button class="button tiny-button card-focus-button ${buttonClass}" data-concept-id="${concept.id}" title="${buttonTitle}" ${slotsFull ? 'disabled' : ''}><i class="fas ${buttonIcon}"></i></button>`;
     }
+    actionButtonsHTML += '</div>';
 
-    actionButtonsHTML += '</div>'; // Close wrapper
-    // --- End Action Buttons ---
-
-
+    // Assemble Card HTML
     cardDiv.innerHTML = `
         <div class="card-header">
             <i class="${cardTypeIcon} card-type-icon" title="${concept.cardType}"></i>
             <span class="card-name">${concept.name}</span>
-             {/* REMOVED */}
-             <span class="card-stamps">${focusStampHTML}</span> {/* Ensure stamps are still here */}
+            <span class="card-stamps">${focusStampHTML}</span>
         </div>
         <div class="card-visual">
             ${visualContent}
@@ -848,31 +857,30 @@ export function renderCard(concept, context = 'grimoire') {
         <div class="card-footer">
             <div class="card-affinities">${affinitiesHTML || '<small style="color:#888; font-style: italic;">Basic Affinity</small>'}</div>
             <p class="card-brief-desc">${concept.briefDescription || '...'}</p>
-            ${actionButtonsHTML} {/* REMOVED */}
+            ${actionButtonsHTML}
         </div>`;
 
-    // ... (rest of the function) ...
-}
-    // Main click listener for popup (excluding action button clicks)
+    // Add main click listener for popup (excluding action button clicks)
     if (context !== 'no-click') {
         cardDiv.addEventListener('click', (event) => {
-            // Ensure click isn't on an action button within the card actions div
             if (event.target.closest('.card-actions button')) {
                 console.log("Card action button clicked, preventing popup.");
-                return;
+                return; // Valid return inside this function
             }
              console.log("Card body clicked, showing popup for ID:", concept.id);
             showConceptDetailPopup(concept.id);
         });
     }
 
-
     if (context === 'research-output') {
         cardDiv.title = `Click to view details (Not in Grimoire)`;
         cardDiv.querySelector('.card-actions')?.remove(); // No actions on research cards
     }
-    return cardDiv;
-}
+
+    // *** THE FINAL RETURN MUST BE INSIDE THE FUNCTION ***
+    return cardDiv; // This should be the last line inside the function block
+
+
 // --- Concept Detail Popup UI ---
 export function showConceptDetailPopup(conceptId) {
     const conceptData = concepts.find(c => c.id === conceptId); if (!conceptData) { console.error("Concept data missing:", conceptId); return; }
