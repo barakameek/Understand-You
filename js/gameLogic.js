@@ -1,3 +1,5 @@
+// --- START OF FILE gameLogic.js ---
+
 
 // js/gameLogic.js - Application Logic
 
@@ -21,6 +23,9 @@ let reflectionCooldownTimeout = null; // Used for *reflection* prompt cooldown, 
 // --- Tapestry Analysis Cache ---
 let currentTapestryAnalysis = null; // Stores the detailed breakdown from calculateTapestryNarrative
 
+// --- Exported Functions ---
+
+// --- Initialization & Core State ---
   function clearPopupState() {
     currentlyDisplayedConceptId = null;
     currentReflectionContext = null;
@@ -406,36 +411,55 @@ function determineStarterHandAndEssence() {
      } else { console.warn(`State add fail ${conceptToAdd.name}.`); UI.showTemporaryMessage(`Error adding ${conceptToAdd.name}.`, 3000); }
  }
 
+// Handles focus toggle from the POPUP button
   function handleToggleFocusConcept() {
     if (currentlyDisplayedConceptId === null) return;
-    const conceptId = currentlyDisplayedConceptId;
-    const result = State.toggleFocusConcept(conceptId);
+    handleCardFocusToggle(currentlyDisplayedConceptId); // Reuse logic
+    // Update the button within the popup specifically
+    UI.updateFocusButtonStatus(currentlyDisplayedConceptId);
+}
 
+// Handles focus toggle from the CARD button
+  function handleCardFocusToggle(conceptId) {
+    if (isNaN(conceptId)) return;
+    const result = State.toggleFocusConcept(conceptId);
     const conceptName = State.getDiscoveredConceptData(conceptId)?.concept?.name || `ID ${conceptId}`;
 
-    if (result === 'not_discovered') { UI.showTemporaryMessage("Cannot focus undiscovered concept.", 3000); }
+    if (result === 'not_discovered') { UI.showTemporaryMessage("Concept not in Grimoire.", 3000); }
     else if (result === 'slots_full') { UI.showTemporaryMessage(`Focus slots full (${State.getFocusSlots()}).`, 3000); }
     else {
-         if (result === 'removed') {
-              UI.showTemporaryMessage(`${conceptName} removed from Focus.`, 2500); checkAndUpdateRituals('removeFocus');
-         } else { // added
-              UI.showTemporaryMessage(`${conceptName} marked as Focus!`, 2500); gainInsight(1.0, `Focused on ${conceptName}`);
-              const concept = State.getDiscoveredConceptData(conceptId)?.concept; if (concept?.primaryElement) gainAttunementForAction('markFocus', concept.primaryElement, 1.0);
-              updateMilestoneProgress('markFocus', 1); updateMilestoneProgress('focusedConcepts.size', State.getFocusedConcepts().size); checkAndUpdateRituals('markFocus');
-         }
-         // --- Update UI for both add/remove ---
-         UI.updateFocusButtonStatus(conceptId);
-         UI.displayFocusedConceptsPersona();
-         UI.updateFocusElementalResonance();
-         calculateTapestryNarrative(true);
-         UI.generateTapestryNarrative();
-         UI.synthesizeAndDisplayThemesPersona();
-         checkForFocusUnlocks();
-         UI.refreshGrimoireDisplay();
-         UI.updateTapestryDeepDiveButton();
-         UI.updateSuggestSceneButtonState();
+        if (result === 'removed') {
+            UI.showTemporaryMessage(`${conceptName} removed from Focus.`, 2500);
+            checkAndUpdateRituals('removeFocus');
+        } else { // added
+            UI.showTemporaryMessage(`${conceptName} marked as Focus!`, 2500);
+            gainInsight(1.0, `Focused on ${conceptName}`);
+            const concept = State.getDiscoveredConceptData(conceptId)?.concept;
+            if (concept?.primaryElement) gainAttunementForAction('markFocus', concept.primaryElement, 1.0);
+            updateMilestoneProgress('markFocus', 1);
+            updateMilestoneProgress('focusedConcepts.size', State.getFocusedConcepts().size);
+            checkAndUpdateRituals('markFocus');
+        }
+        // --- Update UI for both add/remove ---
+        // Refresh Grimoire to update card appearance
+        UI.refreshGrimoireDisplay();
+        // Update Persona screen displays
+        UI.displayFocusedConceptsPersona();
+        // REMOVED: UI.updateFocusElementalResonance();
+        calculateTapestryNarrative(true);
+        UI.generateTapestryNarrative();
+        UI.synthesizeAndDisplayThemesPersona();
+        checkForFocusUnlocks();
+        UI.updateTapestryDeepDiveButton();
+        UI.updateSuggestSceneButtonState();
+
+        // Also update the popup button if this concept's popup is open
+        if (currentlyDisplayedConceptId === conceptId) {
+            UI.updateFocusButtonStatus(conceptId);
+        }
     }
 }
+
   function handleSellConcept(event) {
      const button = event.target.closest('button'); if (!button) return;
      const conceptId = parseInt(button.dataset.conceptId);
@@ -470,7 +494,7 @@ function determineStarterHandAndEssence() {
 
         if (focusChanged) {
             UI.displayFocusedConceptsPersona();
-            UI.updateFocusElementalResonance();
+            // REMOVED: UI.updateFocusElementalResonance();
             calculateTapestryNarrative(true);
             UI.generateTapestryNarrative();
             UI.synthesizeAndDisplayThemesPersona();
@@ -518,7 +542,7 @@ function determineStarterHandAndEssence() {
  }
   function triggerReflectionPrompt(context = 'Standard', targetId = null, category = null) {
     currentReflectionContext = context;
-    reflectionTargetConceptId = (context === 'Dissonance' || context === 'SceneMeditation') ? targetId : null;
+    reflectionTargetConceptId = (context === 'Dissonance') ? targetId : null; // Keep targetId for Dissonance
     currentReflectionCategory = category;
     currentPromptId = null;
     let promptPool = [];
@@ -529,7 +553,7 @@ function determineStarterHandAndEssence() {
     let reward = 5.0;
     console.log(`Trigger reflection: Context=${context}, Target=${targetId}, Category=${category}`);
 
-    if (context !== 'Dissonance') {
+    if (context !== 'Dissonance' && context !== 'SceneMeditation') { // Don't use pending if Dissonance or Scene
         const nextRareId = State.getNextRarePrompt();
         if (nextRareId) {
             selPrompt = reflectionPrompts.RareConcept?.[nextRareId];
@@ -543,11 +567,12 @@ function determineStarterHandAndEssence() {
                 console.log(`Displaying Rare reflection: ${nextRareId}`);
             } else {
                 console.warn(`Rare prompt text missing: ${nextRareId}`);
-                currentReflectionContext = 'Standard'; // Fallback
+                currentReflectionContext = 'Standard'; // Fallback if rare prompt missing
             }
         }
     }
 
+    // Determine prompt pool if no rare prompt was selected or context dictates
     if (!selPrompt) {
         if (context === 'Dissonance' && targetId) {
             title = "Dissonance Reflection";
@@ -565,51 +590,43 @@ function determineStarterHandAndEssence() {
         } else if (context === 'SceneMeditation' && targetId) {
             const scene = sceneBlueprints.find(s => s.id === targetId);
             if (scene?.reflectionPromptId) {
-                selPrompt = reflectionPrompts.SceneMeditation?.[scene.reflectionPromptId];
+                selPrompt = reflectionPrompts.SceneMeditation?.[scene.reflectionPromptId]; // Select Scene prompt *here*
                 if (selPrompt) {
-                    title = "Scene Meditation";
-                    promptCatLabel = scene.name;
-                    currentPromptId = selPrompt.id;
+                    title = "Scene Meditation"; promptCatLabel = scene.name; currentPromptId = selPrompt.id;
                     reward = (scene.meditationCost || Config.SCENE_MEDITATION_BASE_COST) + 5;
                     console.log(`Displaying Scene Meditation: ${currentPromptId}`);
-                } else {
-                    console.warn(`Scene prompt ${scene.reflectionPromptId} missing.`);
-                    currentReflectionContext = 'Standard'; // Fallback
-                }
-            } else {
-                console.warn(`Scene ${targetId} or prompt ID missing.`);
-                currentReflectionContext = 'Standard'; // Fallback
-            }
+                } else { console.warn(`Scene prompt ${scene.reflectionPromptId} missing.`); currentReflectionContext = 'Standard'; } // Fallback
+            } else { console.warn(`Scene ${targetId} or prompt ID missing.`); currentReflectionContext = 'Standard'; } // Fallback
         }
-        else if (currentReflectionContext === 'Standard') {
-            title = "Standard Reflection";
-            const attune = State.getAttunement();
-            const validElems = Object.entries(attune).filter(([k, v]) => v > 0).sort(([,a], [,b]) => b - a);
-            if (validElems.length > 0) {
-                const topTier = validElems.slice(0, Math.ceil(validElems.length / 2));
-                const [selKey] = topTier.length > 0 ? topTier[Math.floor(Math.random() * topTier.length)] : validElems[Math.floor(Math.random() * validElems.length)];
-                const selName = elementKeyToFullName[selKey];
-                promptPool = reflectionPrompts[selName] || [];
-                promptCatLabel = elementDetails[selName]?.name || selName;
-                currentReflectionCategory = selName;
-                console.log(`Looking for Standard prompt: ${promptCatLabel}`);
-            } else {
-                promptPool = [];
-                console.warn("No attunement > 0 for Standard reflection.");
-            }
+        else { // Standard context (or fallback)
+             currentReflectionContext = 'Standard'; // Ensure context is Standard
+             title = "Standard Reflection";
+             const attune = State.getAttunement();
+             const validElems = Object.entries(attune).filter(([k, v]) => v > 0).sort(([,a], [,b]) => b - a);
+             if (validElems.length > 0) {
+                 const topTier = validElems.slice(0, Math.ceil(validElems.length / 2));
+                 const [selKey] = topTier.length > 0 ? topTier[Math.floor(Math.random() * topTier.length)] : validElems[Math.floor(Math.random() * validElems.length)];
+                 const selName = elementKeyToFullName[selKey];
+                 promptPool = reflectionPrompts[selName] || [];
+                 promptCatLabel = elementDetails[selName]?.name || selName;
+                 currentReflectionCategory = selName; // Set category for Standard
+                 console.log(`Looking for Standard prompt: ${promptCatLabel}`);
+             } else { promptPool = []; console.warn("No attunement > 0 for Standard reflection."); }
         }
     }
 
 
+    // Select from pool if no specific prompt was found yet (e.g., for Standard, Guided, Dissonance)
     if (!selPrompt && promptPool.length > 0) {
         const seen = State.getState().seenPrompts;
         const available = promptPool.filter(p => !seen.has(p.id));
         selPrompt = available.length > 0 ? available[Math.floor(Math.random() * available.length)] : promptPool[Math.floor(Math.random() * promptPool.length)];
         currentPromptId = selPrompt.id;
-        console.log(`Selected prompt ${currentPromptId}`);
+        console.log(`Selected prompt ${currentPromptId} from pool.`);
     }
 
-    if (selPrompt) {
+    // Display or handle failure
+    if (selPrompt && currentPromptId) { // Ensure we have both prompt text and ID
         const pData = { title, category: promptCatLabel, prompt: selPrompt, showNudge, reward };
         UI.displayReflectionPrompt(pData, currentReflectionContext);
     } else {
@@ -647,7 +664,7 @@ function determineStarterHandAndEssence() {
              } else { console.warn(`Cannot apply nudge, concept data missing for ID ${reflectionTargetConceptId}`); }
          }
          if (reflectionTargetConceptId) {
-             addConceptToGrimoireInternal(reflectionTargetConceptId);
+             addConceptToGrimoireInternal(reflectionTargetConceptId); // Add concept after reflection completes
          }
     }
 
@@ -726,9 +743,11 @@ function determineStarterHandAndEssence() {
     }
 }
   function handleMeditateScene(event) {
-     const button = event.target.closest('button'); if (!button || button.disabled) return; const sceneId = button.dataset.sceneId; if (!sceneId) return; meditateOnScene(sceneId);
+     const button = event.target.closest('button'); if (!button || button.disabled) return;
+     const sceneId = button.dataset.sceneId; if (!sceneId) return;
+     meditateOnScene(sceneId); // Call internal logic function
 }
- function meditateOnScene(sceneId) {
+ function meditateOnScene(sceneId) { // Internal logic function
     const scene = sceneBlueprints.find(s => s.id === sceneId); if (!scene) { console.error(`Scene not found: ${sceneId}`); return; }
     const cost = scene.meditationCost || Config.SCENE_MEDITATION_BASE_COST;
     if (spendInsight(cost, `Meditate: ${scene.name}`)) {
@@ -1048,6 +1067,7 @@ export {
     // Core Logic & Actions
     gainInsight, spendInsight, gainAttunementForAction,
     addConceptToGrimoireById, addConceptToGrimoireInternal, handleToggleFocusConcept,
+    handleCardFocusToggle, // New handler for card button
     handleResearchClick, handleFreeResearchClick, conductResearch,
     attemptArtEvolution, handleSaveNote, handleSellConcept, sellConcept,
     // Reflection
