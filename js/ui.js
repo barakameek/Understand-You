@@ -1918,12 +1918,13 @@ export function displayRepositoryContent() {
      if (experimentsDisplayed === 0) { repositoryExperimentsDiv.innerHTML = '<p>Increase Attunement to unlock Experiments.</p>'; }
 
      // Display Elemental Insights (CHECK THIS AREA - Around Line 1068)
-    if (repoItems.insights.size > 0) {
+   if (repoItems.insights.size > 0) {
          const insightsByElement = {};
          elementNames.forEach(elName => {
             const key = elementNameToKey[elName];
             if (key) { insightsByElement[key] = []; }
          });
+
          repoItems.insights.forEach(insightId => {
             const insight = elementalInsights.find(i => i.id === insightId);
             if (insight && insightsByElement[insight.element]) {
@@ -1931,31 +1932,40 @@ export function displayRepositoryContent() {
             } else if (insight) {
                  console.warn(`Insight ${insightId} has unknown element key: ${insight.element}`);
             } else {
-                 console.warn(`Insight ID ${insightId} not found.`);
+                 console.warn(`Insight ID ${insightId} not found in elementalInsights data.`);
             }
          });
 
-         let insightsHTML = '';
+         let finalHtml = ''; // Use a different variable name
          for (const key in insightsByElement) {
              if (insightsByElement[key].length > 0) {
                  const fullElementName = elementKeyToFullName[key];
                  const elementNameDisplay = elementDetails[fullElementName]?.name || key;
 
-                 // *** SIMPLIFIED LINE - TRY THIS ***
-                 insightsHTML += '<h5>' + elementNameDisplay + ' Insights:</h5><ul>';
-                 // *** END SIMPLIFIED LINE ***
+                 // Build heading separately
+                 let headingHtml = '<h5>' + elementNameDisplay + ' Insights:</h5>';
+                 finalHtml += headingHtml; // Add heading
 
+                 // Start list
+                 finalHtml += '<ul>';
+
+                 // Add list items
                  insightsByElement[key].sort((a, b) => a.id.localeCompare(b.id)).forEach(insight => {
-                     insightsHTML += `<li>"${insight.text}"</li>`; // This line is less likely to be the issue
+                     // Very basic list item construction
+                     finalHtml += '<li>"' + insight.text + '"</li>';
                  });
-                 insightsHTML += `</ul>`;
+
+                 // Close list
+                 finalHtml += '</ul>';
              }
-         }
-         repositoryInsightsDiv.innerHTML = insightsHTML || '<p>No Elemental Insights collected yet.</p>';
-     } else {
+         } // End for...in loop
+
+         // Set innerHTML
+         repositoryInsightsDiv.innerHTML = finalHtml || '<p>No Elemental Insights collected yet.</p>';
+
+     } else { // If no insights discovered at all
          repositoryInsightsDiv.innerHTML = '<p>No Elemental Insights collected.</p>';
      }
-
 
          let insightsHTML = '';
          // Loop through the organized insights
