@@ -1039,3 +1039,24 @@ hr { border: none; border-top: 1px dashed var(--border-color-light); margin: 18p
      background-color: var(--background-medium);
      text-align: center; /* Center OK button */
 }
+/* Features hidden until Phase 1 (Persona/Grimoire/Focus) */
+.feature-phase-1-hidden { display: none !important; }
+/* Features hidden until Phase 2 (Study/Research/Sell) */
+.feature-phase-2-hidden { display: none !important; }
+/* Features hidden until Phase 3 (Reflection/Rituals) */
+.feature-phase-3-hidden { display: none !important; }
+/* Features hidden until Phase 4 (Advanced/Repo/Evolve) */
+.feature-phase-4-hidden { display: none !important; }
+
+/* Highlight for Newly Unlocked Features */
+.new-feature-highlight {
+    animation: pulseGlowThick 2s 3 alternate; /* Pulse 3 times */
+    box-shadow: 0 0 8px 2px var(--accent-color); /* Use accent color */
+    border-radius: 6px; /* Rounded corners for highlight */
+    transition: box-shadow 0.5s ease-out; /* Smooth fade out */
+}
+
+@keyframes pulseGlowThick {
+  from { box-shadow: 0 0 6px 2px rgba(255, 215, 0, 0.6); } /* Gold */
+  to { box-shadow: 0 0 15px 5px rgba(255, 215, 0, 0.9); }
+}
