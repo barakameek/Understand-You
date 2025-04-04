@@ -777,6 +777,7 @@ export function refreshGrimoireDisplay() {
 }
 
 // --- Card Rendering (Includes Icon Changes & New Focus Button) ---
+// --- Card Rendering (Includes Icon Changes & New Focus Button) ---
 export function renderCard(concept, context = 'grimoire') {
     if (!concept || typeof concept.id === 'undefined') { console.warn("renderCard invalid concept:", concept); const d = document.createElement('div'); d.textContent = "Error"; return d; }
     const cardDiv = document.createElement('div'); cardDiv.classList.add('concept-card'); cardDiv.classList.add(`rarity-${concept.rarity || 'common'}`); cardDiv.dataset.conceptId = concept.id; cardDiv.title = `View Details: ${concept.name}`; // Default title
@@ -814,7 +815,6 @@ export function renderCard(concept, context = 'grimoire') {
     if (phaseAllowsSell) {
         let discoveryValue = Config.CONCEPT_DISCOVERY_INSIGHT[concept.rarity] || Config.CONCEPT_DISCOVERY_INSIGHT.default;
         const sellValue = discoveryValue * Config.SELL_INSIGHT_FACTOR;
-        // Use dollar icon, put value in title
         actionButtonsHTML += `<button class="button tiny-button secondary-button sell-button card-sell-button" data-concept-id="${concept.id}" data-context="grimoire" title="Sell (${sellValue.toFixed(1)} Insight)"><i class="fas fa-dollar-sign"></i></button>`;
     }
 
@@ -822,21 +822,21 @@ export function renderCard(concept, context = 'grimoire') {
     if (phaseAllowsFocus) {
         const slotsFull = State.getFocusedConcepts().size >= State.getFocusSlots() && !isFocused;
         const buttonClass = isFocused ? 'marked' : '';
-        const buttonIcon = isFocused ? 'fa-star' : 'fa-regular fa-star'; // Solid vs regular star
+        const buttonIcon = isFocused ? 'fa-star' : 'fa-regular fa-star';
         const buttonTitle = slotsFull ? `Focus Slots Full (${State.getFocusSlots()})` : (isFocused ? 'Remove Focus' : 'Mark as Focus');
-        // Use star icon
         actionButtonsHTML += `<button class="button tiny-button card-focus-button ${buttonClass}" data-concept-id="${concept.id}" title="${buttonTitle}" ${slotsFull ? 'disabled' : ''}><i class="fas ${buttonIcon}"></i></button>`;
     }
 
     actionButtonsHTML += '</div>'; // Close wrapper
     // --- End Action Buttons ---
 
-  cardDiv.innerHTML = `
-          <div class="card-header">
+
+    cardDiv.innerHTML = `
+        <div class="card-header">
             <i class="${cardTypeIcon} card-type-icon" title="${concept.cardType}"></i>
             <span class="card-name">${concept.name}</span>
-            {/* REMOVED THIS LINE */}
-             <span class="card-stamps">${focusStampHTML}</span> {/* Stamp moved here */}
+             {/* REMOVED */}
+             <span class="card-stamps">${focusStampHTML}</span> {/* Ensure stamps are still here */}
         </div>
         <div class="card-visual">
             ${visualContent}
@@ -844,9 +844,11 @@ export function renderCard(concept, context = 'grimoire') {
         <div class="card-footer">
             <div class="card-affinities">${affinitiesHTML || '<small style="color:#888; font-style: italic;">Basic Affinity</small>'}</div>
             <p class="card-brief-desc">${concept.briefDescription || '...'}</p>
-            ${actionButtonsHTML} {/* REMOVED THIS COMMENT */}
+            ${actionButtonsHTML} {/* REMOVED */}
         </div>`;
 
+    // ... (rest of the function) ...
+}
     // Main click listener for popup (excluding action button clicks)
     if (context !== 'no-click') {
         cardDiv.addEventListener('click', (event) => {
