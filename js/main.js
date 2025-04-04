@@ -1,4 +1,64 @@
-function attachEventListeners() {
+import * as State from './state.js';
+import * as UI from './ui.js';
+import * as GameLogic from './gameLogic.js';
+import * as Config from './config.js'; // Ensure Config is imported
+
+console.log("main.js loading...");
+
+// --- Initialization ---
+function initializeApp() {
+    console.log("Initializing Persona Alchemy Lab v14+...");
+
+    // Attempt to load game state first
+    const loaded = State.loadGameState(); // This now populates the `gameState` variable
+
+    // **Crucially, update UI *after* state is confirmed loaded or cleared**
+    UI.updateInsightDisplays(); // Update displays with potentially loaded insight
+
+    if (loaded) {
+        console.log("Existing session loaded.");
+         if (State.getState().questionnaireCompleted) {
+              console.log("Continuing session...");
+              GameLogic.checkForDailyLogin(); // Check daily status *after* loading state
+              UI.applyOnboardingPhaseUI(State.getOnboardingPhase()); // Apply UI visibility
+              GameLogic.calculateTapestryNarrative(true); // Ensure analysis is current for UI updates
+              // Update other UI elements that depend on loaded state
+              UI.updateFocusSlotsDisplay();
+              UI.updateGrimoireCounter();
+              UI.populateGrimoireFilters();
+              UI.refreshGrimoireDisplay(); // Prepare Grimoire display data
+              UI.setupInitialUI(); // Ensure button states are correct after load
+              UI.showScreen('personaScreen'); // Default to Persona screen after load
+              UI.hidePopups(); // Ensure no popups are stuck open
+         } else {
+              console.log("Loaded state incomplete. Restarting questionnaire.");
+              // State is loaded, but questionnaire wasn't done. Reset index.
+              State.updateElementIndex(0); // Reset index only
+              // ** Ensure userAnswers is ready **
+              // This is handled by loadGameState ensuring all element keys exist
+              UI.initializeQuestionnaireUI(); // Setup questionnaire UI
+              UI.showScreen('questionnaireScreen');
+         }
+         const loadBtn = document.getElementById('loadButton');
+         if(loadBtn) loadBtn.classList.add('hidden'); // Hide load button
+
+    } else {
+        console.log("No valid saved session found or load error. Starting fresh.");
+        // State.clearGameState() was already called implicitly by loadGameState failing
+        // or explicitly if needed depending on error handling preference
+        UI.setupInitialUI(); // Setup initial UI for a new game (Welcome Screen)
+         if (localStorage.getItem(Config.SAVE_KEY)) {
+             UI.showTemporaryMessage("Error loading session. Starting fresh.", 4000);
+         }
+    }
+
+    console.log("Initialization complete. Attaching event listeners.");
+    attachEventListeners(); // Call the function to attach listeners
+    console.log("Application ready.");
+}
+
+// --- Event Listeners ---
+function attachEventListeners() { // <<< FUNCTION DEFINITION START
     console.log("Attaching event listeners...");
 
     // *** MOVED ALL ELEMENT DECLARATIONS TO THE TOP ***
@@ -276,10 +336,14 @@ function attachEventListeners() {
 } // <<< Correct closing brace for attachEventListeners
 
 // --- Start the App ---
+// THIS BLOCK WAS THE PROBLEM - Moved initializeApp call inside DOMContentLoaded
 if (document.readyState === 'loading') {
+    // Wait for the DOM to be fully loaded before initializing
     document.addEventListener('DOMContentLoaded', initializeApp);
 } else {
+    // If the DOM is already loaded, initialize immediately
     initializeApp();
 }
+
 
 console.log("main.js loaded.");
