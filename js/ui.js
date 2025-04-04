@@ -441,17 +441,9 @@ export function displayPersonaScreen() {
         deepDiveContainer.dataset.elementKey = key;
         deepDiveContainer.classList.toggle('hidden', !showDeepDiveContainer); // Toggle container visibility
 
-        details.innerHTML = `
+       details.innerHTML = `
             <summary class="element-detail-header">
-                <div>
-                    <i class="${iconClass} element-icon-indicator" style="color: ${color};" title="${elementData.name || elementName}"></i>
-                    <strong>${elementData.name || elementName}:</strong>
-                    <span>${score?.toFixed(1) ?? '?'}</span>
-                    <span class="score-label">(${scoreLabel})</span>
-                </div>
-                <div class="score-bar-container">
-                    <div style="width: ${barWidth}%; background-color: ${color};"></div>
-                </div>
+                {/* ... header content ... */}
             </summary>
             <div class="element-description">
                 <p><strong>Core Concept:</strong> ${elementData.coreConcept || ''}</p>
@@ -459,7 +451,7 @@ export function displayPersonaScreen() {
                 <hr>
                 <p><strong>Your Score (${scoreLabel}):</strong> ${interpretation}</p>
                 <p><small><strong>Examples:</strong> ${elementData.examples || ''}</small></p>
-                {/* Attunement and Deep Dive will be added below */}
+                 {/* REMOVED THIS COMMENT */}
             </div>`;
 
         const descriptionDiv = details.querySelector('.element-description');
