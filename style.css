@@ -193,9 +193,77 @@ hr { border: none; border-top: 1px dashed var(--border-color-light); margin: 18p
     display: inline-block; /* Ensure it shows when not hidden */
 }
 .tapestry-actions {
-    margin-top: 10px;
-    text-align: center; /* Or left/right */
+    margin-top: 15px; /* Increased margin */
+    text-align: center;
+    display: flex; /* Use flexbox for better alignment */
+    flex-wrap: wrap; /* Allow wrapping on small screens */
+    justify-content: center; /* Center buttons */
+    gap: 8px; /* Space between buttons */
 }
+.tapestry-actions .button {
+    margin: 0; /* Remove individual margins if flex gap is used */
+    .scene-suggestion-output {
+    margin-top: 20px;
+    padding: 15px;
+    background-color: rgba(255, 248, 220, 0.7); /* Light gold background */
+    border: 1px dashed var(--primary-color);
+    border-radius: 6px;
+    text-align: left;
+}
+.scene-suggestion-output.hidden {
+    display: none;
+}
+.scene-suggestion-output h4 {
+    margin-top: 0;
+    margin-bottom: 8px;
+    color: var(--primary-color);
+    font-family: 'Garamond', serif;
+    font-size: 1.1em;
+    text-align: center;
+    border-bottom: 1px solid var(--border-color-light);
+    padding-bottom: 4px;
+}
+.scene-suggestion-output p {
+    font-size: 0.9em;
+    margin-bottom: 10px;
+    font-style: italic;
+    text-align: center;
+}
+#suggestedSceneContent .repository-item {
+    background-color: transparent; /* Remove double background */
+    border: none;
+    padding: 0;
+    border-left: none;
+    margin-top: 5px;
+}
+#suggestedSceneContent .repository-item h4 {
+    text-align: left;
+    font-size: 1.05em;
+    border: none;
+    padding-bottom: 0;
+}
+#suggestedSceneContent .repository-item p {
+     text-align: left;
+     font-style: normal;
+     font-size: 0.95em;
+}
+#suggestedSceneContent .repo-actions {
+    margin-top: 10px;
+    text-align: center; /* Center meditate button */
+}
+
+/* Move Focus Themes above Narrative */
+.persona-constellation .grimoire-insights {
+    margin-bottom: 20px; /* Add space below themes */
+     border-bottom: 1px dashed #c8b89a; /* Add separator */
+     padding-bottom: 15px;
+}
+.persona-constellation .tapestry-narrative-section {
+    margin-top: 0; /* Remove top margin */
+    padding-top: 0;
+    border-top: none; /* Remove top border */
+}
+
 .element-detail-header strong { font-size: 1.05em; color: var(--link-color); font-family: 'Merriweather', serif; font-weight: 700; }
 .element-detail-header span { font-weight: bold; color: var(--primary-color); font-size: 1.05em; }
 .element-detail-header .score-label { font-style: italic; margin-left: 4px; color: #7a5230; font-size: 0.85em; }
