@@ -406,11 +406,18 @@ hr { border: none; border-top: 1px dashed var(--border-color-light); margin: 18p
 .card-brief-desc { font-style: italic; font-size: 0.85em; line-height: 1.3; text-align: center; font-family: 'Merriweather', serif; display: -webkit-box; -webkit-line-clamp: 2; /* Limit to 2 lines */ -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; max-height: calc(1.3em * 2); margin: 4px 0; flex-grow: 1; }
 /* NEW: Card Actions Container */
 .card-actions {
-    margin-top: auto; /* Push actions to bottom */
-    padding-top: 5px; /* Space above actions */
+    margin-top: 5px; /* Space above actions */
+    display: flex;
+    justify-content: center; /* Center buttons */
+    gap: 5px; /* Space between buttons */
+    position: absolute; /* Position over the bottom */
+    bottom: 5px; /* Adjust distance from bottom */
+    left: 0;
+    right: 0;
+    pointer-events: none; /* Allow clicks through the container */
 }
 .card-actions button {
-    cursor: pointer; /* Ensure pointer cursor */
+    pointer-events: auto; /* Make buttons clickable */
 }
 .card-actions button:disabled {
     cursor: not-allowed;
@@ -420,17 +427,23 @@ hr { border: none; border-top: 1px dashed var(--border-color-light); margin: 18p
     font-size: 0.8em; /* Slightly larger font for icon clarity */
     border-radius: 50%; /* Make them circular */
     line-height: 1; /* Tighten line height */
-    min-width: 26px; /* Ensure minimum width */
-    min-height: 26px; /* Ensure minimum height */
+    min-width: 28px; /* Ensure minimum width */
+    min-height: 28px; /* Ensure minimum height */
     display: inline-flex; /* Align icon centrally */
     align-items: center;
     justify-content: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2); /* Add subtle shadow */
+    transition: background-color 0.2s ease, transform 0.1s ease;
 }
 .tiny-button i {
     margin: 0; /* Remove icon margin */
     font-size: 0.95em; /* Adjust icon size */
     line-height: 1;
 }
+.tiny-button:hover:not(:disabled) {
+    transform: scale(1.1); /* Slight scale on hover */
+}
+
 .card-sell-button {
     background-color: #e74c3c; /* Reddish for sell */
     border-color: #c0392b;
@@ -450,7 +463,6 @@ hr { border: none; border-top: 1px dashed var(--border-color-light); margin: 18p
     border-color: #b8860b;
     color: var(--primary-color);
 }
-
 .card-focus-button:hover:not(:disabled) {
      background-color: #e0d0b0; /* Lighter tan */
 }
@@ -679,17 +691,22 @@ hr { border: none; border-top: 1px dashed var(--border-color-light); margin: 18p
     .concept-card { height: 260px; padding: 8px; }
     .card-header .card-name { font-size: 0.95em; }
     .card-visual .card-visual-placeholder { font-size: 2.5em; }
-    .card-footer {
-    min-height: 90px; /* Increased slightly more for button space */
-    justify-content: flex-end; /* Push content down */
+.card-footer {
+    min-height: 75px; /* Reduced min-height as buttons overlay */
+    padding-bottom: 35px; /* Add padding to prevent overlap with absolute buttons */
+    position: relative; /* Needed for absolute positioning of actions */
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start; /* Align content top */
 }
+
     .card-affinities .affinity { font-size: 0.8em; padding: 1px 4px; }
-  .card-brief-desc {
+ .card-brief-desc {
     margin-bottom: 5px; /* Add margin below description */
     -webkit-line-clamp: 2; /* Keep line limit */
      max-height: calc(1.3em * 2);
+     flex-grow: 0; /* Don't let it grow too much */
 }
-
     .button { padding: 6px 15px; font-size: 0.8em; }
     .small-button { padding: 5px 10px; font-size: 0.75em; }
     .nav-button { padding: 5px 6px; font-size: 0.8em; }
