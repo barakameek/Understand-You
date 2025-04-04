@@ -29,11 +29,11 @@ export const CONTEMPLATION_COOLDOWN = 3 * 60 * 1000; // 3 minutes cooldown for C
 // --- Onboarding Phases ---
 // These still represent functional unlocks, even with the interactive tutorial overlaying them.
 export const ONBOARDING_PHASE = {
-    START: 0, // Charting Phase (Questionnaire)
-    PERSONA_GRIMOIRE: 1, // View Constellation Map / Star Catalog / Align Stars Unlocked
-    STUDY_INSIGHT: 2, // Unlock Observatory / Scanning / Insight Usage / Signal Analysis (Sell)
-    REFLECTION_RITUALS: 3, // Unlock Reflection Prompts / Stellar Harmonics (Rituals)
-    ADVANCED: 4 // Unlock Cartography / Star Evolution / Force Insights
+    START: 0,
+    PERSONA_GRIMOIRE: 1,
+    STUDY_INSIGHT: 2,
+    REFLECTION_RITUALS: 3,
+    ADVANCED: 4
 };
 
 // --- Star (Concept) Discovery Insight Values ---
