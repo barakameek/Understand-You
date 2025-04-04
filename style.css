@@ -1003,10 +1003,49 @@ hr { border: none; border-top: 1px dashed var(--border-color-light); margin: 18p
         min-width: 250px; /* Ensure it doesn't get too small */
         max-width: 350px;
     }
-}
+
 
 @media (min-width: 1100px) {
      .research-selection-area .research-buttons {
          grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
     }
+    }
+.info-popup {
+    max-width: 450px; /* Smaller max width */
+    max-height: 60vh; /* Limit height */
 }
+.info-popup .popup-header h3 {
+    font-size: 1.2em;
+    text-align: center;
+    color: var(--link-color);
+}
+.info-popup .popup-content {
+    padding: 20px;
+    text-align: center; /* Center text */
+    overflow-y: auto;
+}
+#infoPopupContent {
+    font-size: 0.95em;
+    line-height: 1.5;
+    color: var(--text-color);
+}
+.info-popup .popup-actions {
+     padding: 10px 15px;
+     border-top: 1px solid var(--border-color-light);
+     background-color: var(--background-medium);
+     text-align: center; /* Center OK button */
+}
+
+/* Ensure info icon is clickable */
+.info-icon {
+    color: #999; /* Lighter grey */
+    margin-left: 6px;
+    cursor: help; /* Use help cursor */
+    font-size: 0.9em;
+    transition: color 0.2s ease;
+}
+.info-icon:hover {
+    color: var(--primary-color); /* Darken on hover */
+}
+}
+    
