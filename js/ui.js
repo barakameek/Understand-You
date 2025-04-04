@@ -561,10 +561,38 @@ export function generateTapestryNarrative() {
 }
 export function synthesizeAndDisplayThemesPersona() {
      if (!personaThemesList) return; personaThemesList.innerHTML = '';
-     const themes = GameLogic.calculateFocusThemes();
-     if (themes.length === 0) { personaThemesList.innerHTML = `<li>${State.getFocusedConcepts().size > 0 ? 'No strong themes detected.' : 'Mark Focused Concepts...'}</li>`; return; }
-     themes.slice(0, 3).forEach(theme => { const li = document.createElement('li'); li.textContent = `${theme.name} Focus (${theme.count} concept${theme.count > 1 ? 's' : ''})`; personaThemesList.appendChild(li); });
-}
+     const themes = GameLogic.calculateFocusThemes(); // Get sorted themes {key, name, count}
+
+     if (themes.length === 0) {
+         personaThemesList.innerHTML = `<li>${State.getFocusedConcepts().size > 0 ? 'Focus is currently balanced.' : 'Mark Focused Concepts...'}</li>`;
+         return;
+     }
+
+     // Display only the top theme
+     const topTheme = themes[0];
+     const li = document.createElement('li');
+     // Customize message based on how dominant it is
+     let emphasis = "Strongly";
+     if (themes.length > 1 && topTheme.count <= themes[1].count + 1) { // If close to second theme
+         emphasis = "Primarily";
+     } else if (topTheme.count < 3) { // If only 1 or 2 concepts contribute
+         emphasis = "Leaning towards";
+     }
+     li.textContent = `${emphasis} focused on ${topTheme.name}`;
+     li.style.borderLeft = `3px solid ${Utils.getElementColor(elementKeyToFullName[topTheme.key])}`; // Add color indicator
+     li.style.paddingLeft = '8px';
+     personaThemesList.appendChild(li);
+
+     // Optionally, add a note if balanced despite a top theme
+     if (themes.length > 1 && topTheme.count <= themes[1].count + 1) {
+         const balanceLi = document.createElement('li');
+         balanceLi.innerHTML = `<small>(with other influences present)</small>`;
+         balanceLi.style.fontSize = '0.85em';
+         balanceLi.style.color = '#666';
+         balanceLi.style.paddingLeft = '20px'; // Indent slightly
+         personaThemesList.appendChild(balanceLi);
+     }
+
 export function displayPersonaSummary() {
     if (!summaryContentDiv) return;
     summaryContentDiv.innerHTML = '<p>Generating summary...</p>';
