@@ -4,61 +4,7 @@ import * as GameLogic from './gameLogic.js';
 import * as Config from './config.js'; // Ensure Config is imported
 
 console.log("main.js loading...");
-
-// --- Initialization ---
-function initializeApp() {
-    console.log("Initializing Persona Alchemy Lab v14+...");
-
-    // Attempt to load game state first
-    const loaded = State.loadGameState(); // This now populates the `gameState` variable
-
-    // **Crucially, update UI *after* state is confirmed loaded or cleared**
-    UI.updateInsightDisplays(); // Update displays with potentially loaded insight
-
-    if (loaded) {
-        console.log("Existing session loaded.");
-         if (State.getState().questionnaireCompleted) {
-              console.log("Continuing session...");
-              GameLogic.checkForDailyLogin(); // Check daily status *after* loading state
-              UI.applyOnboardingPhaseUI(State.getOnboardingPhase()); // Apply UI visibility
-              GameLogic.calculateTapestryNarrative(true); // Ensure analysis is current for UI updates
-              // Update other UI elements that depend on loaded state
-              UI.updateFocusSlotsDisplay();
-              UI.updateGrimoireCounter();
-              UI.populateGrimoireFilters();
-              UI.refreshGrimoireDisplay(); // Prepare Grimoire display data
-              UI.setupInitialUI(); // Ensure button states are correct after load
-              UI.showScreen('personaScreen'); // Default to Persona screen after load
-              UI.hidePopups(); // Ensure no popups are stuck open
-         } else {
-              console.log("Loaded state incomplete. Restarting questionnaire.");
-              // State is loaded, but questionnaire wasn't done. Reset index.
-              State.updateElementIndex(0); // Reset index only
-              // ** Ensure userAnswers is ready **
-              // This is handled by loadGameState ensuring all element keys exist
-              UI.initializeQuestionnaireUI(); // Setup questionnaire UI
-              UI.showScreen('questionnaireScreen');
-         }
-         const loadBtn = document.getElementById('loadButton');
-         if(loadBtn) loadBtn.classList.add('hidden'); // Hide load button
-
-    } else {
-        console.log("No valid saved session found or load error. Starting fresh.");
-        // State.clearGameState() was already called implicitly by loadGameState failing
-        // or explicitly if needed depending on error handling preference
-        UI.setupInitialUI(); // Setup initial UI for a new game (Welcome Screen)
-         if (localStorage.getItem(Config.SAVE_KEY)) {
-             UI.showTemporaryMessage("Error loading session. Starting fresh.", 4000);
-         }
-    }
-
-    console.log("Initialization complete. Attaching event listeners.");
-    attachEventListeners(); // Call the function to attach listeners
-    console.log("Application ready.");
-}
-
-// --- Event Listeners ---
-function attachEventListeners() { // <<< FUNCTION DEFINITION START
+function attachEventListeners() {
     console.log("Attaching event listeners...");
 
     // *** MOVED ALL ELEMENT DECLARATIONS TO THE TOP ***
@@ -95,27 +41,31 @@ function attachEventListeners() { // <<< FUNCTION DEFINITION START
     const personaSummaryDiv = document.getElementById('personaSummaryView');
     const personaScreenDiv = document.getElementById('personaScreen');
     const deepDiveNodesContainer = document.getElementById('deepDiveAnalysisNodes');
-    const closeInfoBtn = document.getElementById('closeInfoPopupButton'); // Add info popup buttons
-    const confirmInfoBtn = document.getElementById('confirmInfoPopupButton');
-    const infoPopup = document.getElementById('infoPopup');
+    const closeInfoBtn = document.getElementById('closeInfoPopupButton'); // Declared HERE
+    const confirmInfoBtn = document.getElementById('confirmInfoPopupButton'); // Declared HERE
+    const infoPopupElement = document.getElementById('infoPopup'); // Declared HERE (changed name)
+    const overlayElement = document.getElementById('popupOverlay'); // Declared HERE (changed name)
     // *** END OF MOVED DECLARATIONS ***
 
 
     // --- Delegated Click Listener for Info Icons ---
-     document.body.addEventListener('click', (event) => {
+    document.body.addEventListener('click', (event) => {
         const infoIcon = event.target.closest('.info-icon');
         if (infoIcon) {
-            event.preventDefault();
-            event.stopPropagation();
+            event.preventDefault(); // Prevent any default action if icon is inside a link/button
+            event.stopPropagation(); // Stop propagation to avoid unintended side effects
             const message = infoIcon.getAttribute('title');
-            const infoPopup = document.getElementById('infoPopup');
-            const infoContent = document.getElementById('infoPopupContent');
-            const overlay = document.getElementById('popupOverlay'); // Ensure overlay is accessible
-
-            if (message && infoPopup && infoContent && overlay) {
-                infoContent.textContent = message;
-                infoPopup.classList.remove('hidden');
-                overlay.classList.remove('hidden'); // Show overlay for the popup
+            // Use the variables declared at the top scope
+            if (message && infoPopupElement && overlayElement) {
+                 const infoContent = document.getElementById('infoPopupContent'); // Get content element here
+                 if(infoContent){
+                    infoContent.textContent = message;
+                    infoPopupElement.classList.remove('hidden');
+                    overlayElement.classList.remove('hidden');
+                 } else {
+                    console.warn("Info popup content element missing.");
+                    UI.showTemporaryMessage(message, 4000); // Fallback
+                 }
             } else {
                 console.warn("Could not display info popup. Message or elements missing.");
                 if(message) UI.showTemporaryMessage(message, 4000); // Fallback to toast if popup fails
@@ -124,11 +74,6 @@ function attachEventListeners() { // <<< FUNCTION DEFINITION START
     });
 
     // Add listeners to close the info popup
-    const closeInfoBtn = document.getElementById('closeInfoPopupButton');
-    const confirmInfoBtn = document.getElementById('confirmInfoPopupButton');
-    const infoPopupElement = document.getElementById('infoPopup'); // Use different var name
-    const overlayElement = document.getElementById('popupOverlay'); // Use different var name
-
     const hideInfoPopup = () => {
         if (infoPopupElement) infoPopupElement.classList.add('hidden');
         // Check if any *other* popups are open before hiding overlay
@@ -138,39 +83,30 @@ function attachEventListeners() { // <<< FUNCTION DEFINITION START
         }
     };
 
+    // REMOVED duplicate declarations here
+    // const closeInfoBtn = document.getElementById('closeInfoPopupButton');
+    // const confirmInfoBtn = document.getElementById('confirmInfoPopupButton');
+    // const infoPopupElement = document.getElementById('infoPopup');
+
+    // Use the variables declared at the top scope
     if (closeInfoBtn) closeInfoBtn.addEventListener('click', hideInfoPopup);
     if (confirmInfoBtn) confirmInfoBtn.addEventListener('click', hideInfoPopup);
+    // --- End Info Icon Handling ---
 
-    // Modify overlay listener to handle infoPopup correctly
-    if (overlayElement) {
-        overlayElement.removeEventListener('click', UI.hidePopups); // Remove generic listener first
-        overlayElement.addEventListener('click', () => {
-            // If the info popup is the only one open, close it specifically
-             if (infoPopupElement && !infoPopupElement.classList.contains('hidden')) {
-                 const otherPopups = document.querySelectorAll('.popup:not(#infoPopup):not(.hidden)');
-                 if (otherPopups.length === 0) {
-                     hideInfoPopup(); // Close info popup if it's the only one
-                     return; // Prevent hidePopups from running unnecessarily
-                 }
-             }
-             // Otherwise, let the general hidePopups handle other cases
-             UI.hidePopups();
-        });
-    } else { console.error("Popup Overlay element not found!"); }
 
     // --- Original Event Listeners (Now guaranteed to have elements declared) ---
 
     // Welcome Screen
     if (startButton) startButton.addEventListener('click', () => {
-        State.clearGameState(); // Clears state and initializes userAnswers correctly
+        State.clearGameState();
         UI.initializeQuestionnaireUI();
         UI.showScreen('questionnaireScreen');
         if(loadButton) loadButton.classList.add('hidden');
     });
     if (loadButton && !loadButton.classList.contains('hidden')) {
         loadButton.addEventListener('click', () => {
-            if(State.loadGameState()){ // Reload state
-                UI.updateInsightDisplays(); // Update UI after load
+            if(State.loadGameState()){
+                UI.updateInsightDisplays();
                 if (State.getState().questionnaireCompleted) {
                     GameLogic.checkForDailyLogin();
                     UI.applyOnboardingPhaseUI(State.getOnboardingPhase());
@@ -184,7 +120,7 @@ function attachEventListeners() { // <<< FUNCTION DEFINITION START
                     UI.hidePopups();
                 }
                 else {
-                    State.updateElementIndex(0); // Reset index if questionnaire incomplete
+                    State.updateElementIndex(0);
                     UI.initializeQuestionnaireUI();
                     UI.showScreen('questionnaireScreen');
                 }
@@ -208,7 +144,7 @@ function attachEventListeners() { // <<< FUNCTION DEFINITION START
         if(!button.classList.contains('settings-button')) {
             button.addEventListener('click', () => {
                 const target = button.dataset.target;
-                if (target) { UI.showScreen(target); } // Let showScreen handle logic calls
+                if (target) { UI.showScreen(target); }
             });
         }
     });
@@ -216,21 +152,20 @@ function attachEventListeners() { // <<< FUNCTION DEFINITION START
 
     // Popups & Modals Close Buttons
     if (closePopupBtn) closePopupBtn.addEventListener('click', UI.hidePopups);
-    // *** IMPORTANT: Check overlay *exists* before adding listener ***
-    if (overlay) {
-        overlay.addEventListener('click', () => {
-            // If the info popup is the only one open, close it specifically
-             if (infoPopup && !infoPopup.classList.contains('hidden')) {
+    // Modify overlay listener to handle infoPopup correctly
+    if (overlayElement) {
+        overlayElement.removeEventListener('click', UI.hidePopups); // Remove any previous generic listener
+        overlayElement.addEventListener('click', () => {
+             if (infoPopupElement && !infoPopupElement.classList.contains('hidden')) {
                  const otherPopups = document.querySelectorAll('.popup:not(#infoPopup):not(.hidden)');
                  if (otherPopups.length === 0) {
-                     hideInfoPopup(); // Close info popup if it's the only one
-                     return; // Prevent hidePopups from running unnecessarily
+                     hideInfoPopup();
+                     return;
                  }
              }
-             // Otherwise, let the general hidePopups handle other cases
-             UI.hidePopups();
+             UI.hidePopups(); // General hide for other cases
         });
-    } else { console.error("Popup Overlay element not found!"); } // Added error log
+    } else { console.error("Popup Overlay element not found!"); }
 
     if (closeReflectionBtn) closeReflectionBtn.addEventListener('click', UI.hidePopups);
     if (closeSettingsBtn) closeSettingsBtn.addEventListener('click', UI.hidePopups);
@@ -256,22 +191,21 @@ function attachEventListeners() { // <<< FUNCTION DEFINITION START
     if (saveNoteBtn) saveNoteBtn.addEventListener('click', GameLogic.handleSaveNote);
 
     // Grimoire Filters & Card Interaction (Delegation)
-    if (grimoireControls) { grimoireControls.addEventListener('change', UI.refreshGrimoireDisplay); grimoireControls.addEventListener('input', UI.refreshGrimoireDisplay); /* Refresh on search input too */ }
+    if (grimoireControls) { grimoireControls.addEventListener('change', UI.refreshGrimoireDisplay); grimoireControls.addEventListener('input', UI.refreshGrimoireDisplay); }
     if (grimoireContent) {
         grimoireContent.addEventListener('click', (event) => {
             const targetButton = event.target.closest('button');
-            if (!targetButton) return; // Ignore clicks not on buttons
-
+            if (!targetButton) return;
             const conceptIdStr = targetButton.dataset.conceptId;
             if (conceptIdStr) {
                 const conceptId = parseInt(conceptIdStr);
                 if (!isNaN(conceptId)) {
                     if (targetButton.classList.contains('card-sell-button')) {
-                        event.stopPropagation(); // Prevent card click
+                        event.stopPropagation();
                         GameLogic.handleSellConcept(event);
                     } else if (targetButton.classList.contains('card-focus-button')) {
-                        event.stopPropagation(); // Prevent card click
-                        GameLogic.handleCardFocusToggle(conceptId); // Call the new handler
+                        event.stopPropagation();
+                        GameLogic.handleCardFocusToggle(conceptId);
                     }
                 }
             }
@@ -353,7 +287,6 @@ function attachEventListeners() { // <<< FUNCTION DEFINITION START
 } // <<< Correct closing brace for attachEventListeners
 
 // --- Start the App ---
-// THIS BLOCK WAS THE PROBLEM - Moved initializeApp call inside DOMContentLoaded
 if (document.readyState === 'loading') {
     // Wait for the DOM to be fully loaded before initializing
     document.addEventListener('DOMContentLoaded', initializeApp);
@@ -361,6 +294,5 @@ if (document.readyState === 'loading') {
     // If the DOM is already loaded, initialize immediately
     initializeApp();
 }
-
 
 console.log("main.js loaded.");
