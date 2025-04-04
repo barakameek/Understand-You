@@ -426,12 +426,12 @@ export function getQuestionnaireAnswers() {
 }
 
 // --- Persona Screen UI ---
-export function displayPersonaScreen() {
+
     if (!personaElementDetailsDiv) { console.error("Persona element details div not found!"); return; }
     console.log("UI: Displaying Persona Screen");
     personaElementDetailsDiv.innerHTML = '';
     const scores = State.getScores();
-    const showDeepDiveContainer = State.getOnboardingPhase() >= Config.ONBOARDING_PHASE.PERSONA_GRIMOIRE; // Show container earlier
+    const showDeepDiveContainer = State.getOnboardingPhase() >= Config.ONBOARDING_PHASE.PERSONA_GRIMOIRE;
 
     elementNames.forEach(elementName => {
         const key = elementNameToKey[elementName];
@@ -451,11 +451,20 @@ export function displayPersonaScreen() {
         const deepDiveContainer = document.createElement('div');
         deepDiveContainer.classList.add('element-deep-dive-container');
         deepDiveContainer.dataset.elementKey = key;
-        deepDiveContainer.classList.toggle('hidden', !showDeepDiveContainer); // Toggle container visibility
+        deepDiveContainer.classList.toggle('hidden', !showDeepDiveContainer);
 
-       details.innerHTML = `
+        // *** MODIFY THE SUMMARY innerHTML ***
+        details.innerHTML = `
             <summary class="element-detail-header">
-                {/* ... header content ... */}
+                 <div>  {/* This div contains icon, name, score */}
+                    <i class="${iconClass} element-icon-indicator" style="color: ${color};" title="${elementData.name || elementName}"></i>
+                    <strong>${elementData.name || elementName}:</strong>
+                    <span>${score?.toFixed(1) ?? '?'}</span>
+                    <span class="score-label">(${scoreLabel})</span>
+                </div>
+                <div class="score-bar-container"> {/* This div contains the bar */}
+                    <div style="width: ${barWidth}%; background-color: ${color};"></div>
+                </div>
             </summary>
             <div class="element-description">
                 <p><strong>Core Concept:</strong> ${elementData.coreConcept || ''}</p>
@@ -463,25 +472,25 @@ export function displayPersonaScreen() {
                 <hr>
                 <p><strong>Your Score (${scoreLabel}):</strong> ${interpretation}</p>
                 <p><small><strong>Examples:</strong> ${elementData.examples || ''}</small></p>
-                 {/* REMOVED THIS COMMENT */}
+                 {/* Attunement and Deep Dive will be added below - THIS COMMENT IS FINE HERE, it's inside JS code */}
             </div>`;
+        // *** END MODIFICATION ***
 
         const descriptionDiv = details.querySelector('.element-description');
         if (descriptionDiv) {
-            descriptionDiv.appendChild(deepDiveContainer); // Add the container structure
+            descriptionDiv.appendChild(deepDiveContainer);
         }
 
         personaElementDetailsDiv.appendChild(details);
 
         if (showDeepDiveContainer) {
-            displayElementDeepDive(key, deepDiveContainer); // Populate the container content
+            displayElementDeepDive(key, deepDiveContainer);
         }
     });
 
     displayElementAttunement();
     updateInsightDisplays();
     displayFocusedConceptsPersona();
-    // REMOVED: updateFocusElementalResonance();
     generateTapestryNarrative();
     synthesizeAndDisplayThemesPersona();
     displayPersonaSummary();
@@ -1304,13 +1313,22 @@ export function updateSuggestSceneButtonState() {
 // --- Initial UI Setup Helper ---
 export function setupInitialUI() {
     console.log("UI: Setting up initial UI state...");
-    applyOnboardingPhaseUI(Config.ONBOARDING_PHASE.START);
-    if(mainNavBar) mainNavBar.classList.add('hidden');
-    showScreen('welcomeScreen');
-    if(loadButton) loadButton.classList.toggle('hidden', !localStorage.getItem(Config.SAVE_KEY));
-    updateSuggestSceneButtonState();
+    applyOnboardingPhaseUI(Config.ONBOARDING_PHASE.START); // Start with base phase
+    if(mainNavBar) mainNavBar.classList.add('hidden'); // Hide nav bar initially
+    showScreen('welcomeScreen'); // Show welcome screen
+
+    // *** ENSURE THIS LOGIC IS PRESENT AND CORRECT ***
+    const loadBtn = document.getElementById('loadButton');
+    if (loadBtn) {
+        // Show the load button ONLY if save data exists in localStorage
+        loadBtn.classList.toggle('hidden', !localStorage.getItem(Config.SAVE_KEY));
+    } else {
+        console.warn("Load button element not found during initial setup.");
+    }
+    // --- END OF VERIFICATION ---
+
+    updateSuggestSceneButtonState(); // Update other buttons based on initial (likely empty) state
     updateTapestryDeepDiveButton();
 }
-
 
 console.log("ui.js loaded.");
