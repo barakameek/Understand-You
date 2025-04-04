@@ -592,7 +592,7 @@ export function synthesizeAndDisplayThemesPersona() {
          balanceLi.style.paddingLeft = '20px'; // Indent slightly
          personaThemesList.appendChild(balanceLi);
      }
-
+}
 export function displayPersonaSummary() {
     if (!summaryContentDiv) return;
     summaryContentDiv.innerHTML = '<p>Generating summary...</p>';
