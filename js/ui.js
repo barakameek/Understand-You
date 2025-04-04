@@ -880,6 +880,7 @@ export function renderCard(concept, context = 'grimoire') { // FUNCTION START
     // *** THE FINAL RETURN MUST BE INSIDE THE FUNCTION ***
     return cardDiv; // This should be the last line inside the function block
 
+ }
 
 // --- Concept Detail Popup UI ---
 export function showConceptDetailPopup(conceptId) {
