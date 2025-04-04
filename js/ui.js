@@ -119,6 +119,34 @@ const deepDiveAnalysisNodes = document.getElementById('deepDiveAnalysisNodes');
 const deepDiveDetailContent = document.getElementById('deepDiveDetailContent');
 const contemplationNodeButton = document.getElementById('contemplationNode');
 
+// --- Task Notification UI ---
+const taskNotificationArea = document.getElementById('taskNotificationArea');
+const taskNotificationText = document.getElementById('taskNotificationText');
+const taskDismissButton = document.getElementById('taskDismissButton');
+let taskNotificationTimeout = null;
+
+export function showTaskNotification(message) {
+    if (!taskNotificationArea || !taskNotificationText) return;
+    console.log("Showing task notification:", message);
+    taskNotificationText.textContent = message;
+    taskNotificationArea.classList.remove('hidden');
+    if (taskNotificationTimeout) clearTimeout(taskNotificationTimeout);
+    // Optionally auto-hide after a long time, or require manual dismiss
+    // taskNotificationTimeout = setTimeout(hideTaskNotification, 15000); // e.g., 15 seconds
+}
+
+export function hideTaskNotification() {
+    if (taskNotificationArea) taskNotificationArea.classList.add('hidden');
+    if (taskNotificationTimeout) clearTimeout(taskNotificationTimeout);
+    taskNotificationTimeout = null;
+}
+
+// Add listener for dismiss button in main.js or ui.js init
+if (taskDismissButton) {
+    taskDismissButton.addEventListener('click', hideTaskNotification);
+} else {
+    console.warn("Task Dismiss Button not found for listener attachment.");
+}
 // --- Utility UI Functions ---
 let toastTimeout = null;
 export function showTemporaryMessage(message, duration = 3000) {
