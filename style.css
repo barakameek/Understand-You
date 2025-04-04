@@ -401,37 +401,64 @@ hr { border: none; border-top: 1px dashed var(--border-color-light); margin: 18p
 .card-brief-desc { font-style: italic; font-size: 0.85em; line-height: 1.3; text-align: center; font-family: 'Merriweather', serif; display: -webkit-box; -webkit-line-clamp: 2; /* Limit to 2 lines */ -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; max-height: calc(1.3em * 2); margin: 4px 0; flex-grow: 1; }
 /* NEW: Card Actions Container */
 .card-actions {
-    margin-top: 5px; /* Space above actions */
-    display: flex;
-    justify-content: center; /* Center buttons */
-    gap: 5px; /* Space between buttons */
+    margin-top: auto; /* Push actions to bottom */
+    padding-top: 5px; /* Space above actions */
 }
-/* NEW: Tiny Button Style */
+.card-actions button {
+    cursor: pointer; /* Ensure pointer cursor */
+}
+.card-actions button:disabled {
+    cursor: not-allowed;
+}
 .tiny-button {
-    padding: 3px 7px; /* Smaller padding */
-    font-size: 0.75em; /* Smaller font */
-    border-radius: 10px; /* Smaller radius */
+    padding: 4px 8px; /* Adjusted padding for icons */
+    font-size: 0.8em; /* Slightly larger font for icon clarity */
+    border-radius: 50%; /* Make them circular */
     line-height: 1; /* Tighten line height */
-    min-width: 28px; /* Ensure minimum width for icons */
+    min-width: 26px; /* Ensure minimum width */
+    min-height: 26px; /* Ensure minimum height */
+    display: inline-flex; /* Align icon centrally */
+    align-items: center;
+    justify-content: center;
 }
 .tiny-button i {
-    margin-right: 0; /* Remove default icon margin if present */
-    font-size: 0.9em; /* Slightly smaller icon */
+    margin: 0; /* Remove icon margin */
+    font-size: 0.95em; /* Adjust icon size */
+    line-height: 1;
 }
+.card-sell-button {
+    background-color: #e74c3c; /* Reddish for sell */
+    border-color: #c0392b;
+    color: white;
+}
+.card-sell-button:hover:not(:disabled) {
+    background-color: #c0392b;
+}
+
 .card-focus-button {
-    background-color: var(--warning-color);
-    border-color: #b8860b;
-    color: var(--text-color);
+    background-color: var(--secondary-color); /* Tan */
+    border-color: var(--border-color-dark);
+    color: var(--primary-color); /* Brown icon */
 }
 .card-focus-button.marked {
-    background-color: #ffaa00;
-    border-color: #cc8400;
+    background-color: var(--accent-color); /* Gold when focused */
+    border-color: #b8860b;
+    color: var(--primary-color);
 }
+
+.card-focus-button:hover:not(:disabled) {
+     background-color: #e0d0b0; /* Lighter tan */
+}
+.card-focus-button.marked:hover:not(:disabled) {
+     background-color: #ffeca0; /* Lighter gold */
+}
+
 .card-focus-button:disabled {
     background-color: #ccc;
     border-color: #aaa;
     color: #777;
     opacity: 0.6;
+    cursor: not-allowed; /* Add cursor style for disabled */
 }
 
 /* --- Grimoire Screen --- */
@@ -647,9 +674,17 @@ hr { border: none; border-top: 1px dashed var(--border-color-light); margin: 18p
     .concept-card { height: 260px; padding: 8px; }
     .card-header .card-name { font-size: 0.95em; }
     .card-visual .card-visual-placeholder { font-size: 2.5em; }
-    .card-footer { min-height: 70px; }
+    .card-footer {
+    min-height: 90px; /* Increased slightly more for button space */
+    justify-content: flex-end; /* Push content down */
+}
     .card-affinities .affinity { font-size: 0.8em; padding: 1px 4px; }
-    .card-brief-desc { font-size: 0.8em; -webkit-line-clamp: 2; max-height: calc(1.3em * 2); }
+  .card-brief-desc {
+    margin-bottom: 5px; /* Add margin below description */
+    -webkit-line-clamp: 2; /* Keep line limit */
+     max-height: calc(1.3em * 2);
+}
+
     .button { padding: 6px 15px; font-size: 0.8em; }
     .small-button { padding: 5px 10px; font-size: 0.75em; }
     .nav-button { padding: 5px 6px; font-size: 0.8em; }
