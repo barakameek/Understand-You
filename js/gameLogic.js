@@ -126,81 +126,162 @@ let currentTapestryAnalysis = null; // Stores the detailed breakdown from calcul
 
 
 // --- Questionnaire Logic ---
-  function handleQuestionnaireInputChange(event) {
+ function handleQuestionnaireInputChange(event) {
+    console.log("Input change detected:", event.target.id, event.target.value); // Log detection
     const input = event.target;
     const type = input.dataset.type;
     const currentState = State.getState();
-    if (currentState.currentElementIndex < 0 || currentState.currentElementIndex >= elementNames.length) return;
+
+    if (currentState.currentElementIndex < 0 || currentState.currentElementIndex >= elementNames.length) {
+        console.warn("Questionnaire input change outside valid index.");
+        return;
+    }
     const elementName = elementNames[currentState.currentElementIndex];
 
-    // Add debug log for first page input changes
-    if (currentState.currentElementIndex === 0) {
-        console.log(`Input Change (Element 0 - ${elementName}): Type=${type}, ID=${input.id}, Value=${input.value}`);
-    }
-
-    if (type === 'slider') {
-        UI.updateSliderFeedbackText(input, elementName); // Pass element name
-    }
+    // 1. Immediately get the current answers directly from the UI
     const currentAnswers = UI.getQuestionnaireAnswers();
+
+    // 2. Update the state (save happens later or via other actions)
     State.updateAnswers(elementName, currentAnswers);
-    UI.updateDynamicFeedback(elementName, currentAnswers); // Update dynamic feedback
+
+    // 3. Force UI updates immediately using the collected answers
+    if (type === 'slider') {
+        // Find the specific slider element again (important!)
+        const sliderElement = document.getElementById(input.id);
+        if(sliderElement) {
+             UI.updateSliderFeedbackText(sliderElement, elementName); // Pass element name and the actual element
+        } else {
+            console.warn(`Could not find slider element ${input.id} to update feedback.`);
+        }
+    }
+    // Always update the dynamic feedback score display
+    UI.updateDynamicFeedback(elementName, currentAnswers);
+    console.log(`Forced UI update for ${elementName} with answers:`, currentAnswers);
 }
-  function handleCheckboxChange(event) {
+
+/**
+ * Handles checkbox changes, enforcing maximum choices.
+ * @param {Event} event - The change event object.
+ */
+function handleCheckboxChange(event) {
      const checkbox = event.target; const name = checkbox.name; const maxChoices = parseInt(checkbox.dataset.maxChoices || 2);
      const container = checkbox.closest('.checkbox-options'); if (!container) return;
      const checkedBoxes = container.querySelectorAll(`input[name="${name}"]:checked`);
-     if (checkedBoxes.length > maxChoices) { UI.showTemporaryMessage(`Max ${maxChoices} options.`, 2500); checkbox.checked = false; }
-     handleQuestionnaireInputChange(event); // Update state and feedback
+     if (checkedBoxes.length > maxChoices) {
+        UI.showTemporaryMessage(`Max ${maxChoices} options.`, 2500);
+        checkbox.checked = false;
+        // Re-trigger input change to update state/UI after unchecking
+        handleQuestionnaireInputChange(event);
+     } else {
+        // Trigger normal update if within limits
+        handleQuestionnaireInputChange(event);
+     }
 }
-  function calculateElementScore(elementName, answersForElement) {
+
+/**
+ * Calculates the score for a specific element based on its answers.
+ * @param {string} elementName - The name of the element (e.g., "Attraction").
+ * @param {object} answersForElement - An object containing question IDs and their answers for this element.
+ * @returns {number} The calculated score (0-10).
+ */
+function calculateElementScore(elementName, answersForElement) {
     const questions = questionnaireGuided[elementName] || []; let score = 5.0;
     questions.forEach(q => {
         const answer = answersForElement[q.qId]; let pointsToAdd = 0; const weight = q.scoreWeight || 1.0;
-        if (q.type === 'slider') { const value = (answer !== undefined && !isNaN(answer)) ? parseFloat(answer) : q.defaultValue; const baseValue = q.defaultValue !== undefined ? q.defaultValue : 5; pointsToAdd = (value - baseValue) * weight; }
-        else if (q.type === 'radio') { const opt = q.options.find(o => o.value === answer); pointsToAdd = opt ? (opt.points || 0) * weight : 0; }
-        else if (q.type === 'checkbox' && Array.isArray(answer)) { answer.forEach(val => { const opt = q.options.find(o => o.value === val); pointsToAdd += opt ? (opt.points || 0) * weight : 0; }); }
+        if (q.type === 'slider') {
+            // Ensure default value is used if answer is missing or invalid
+            const value = (answer !== undefined && !isNaN(parseFloat(answer))) ? parseFloat(answer) : q.defaultValue;
+            const baseValue = q.defaultValue !== undefined ? q.defaultValue : 5; // Assume 5 if default missing
+            pointsToAdd = (value - baseValue) * weight;
+        }
+        else if (q.type === 'radio') {
+            const opt = q.options.find(o => o.value === answer);
+            pointsToAdd = opt ? (opt.points || 0) * weight : 0;
+        }
+        else if (q.type === 'checkbox' && Array.isArray(answer)) {
+            answer.forEach(val => {
+                const opt = q.options.find(o => o.value === val);
+                pointsToAdd += opt ? (opt.points || 0) * weight : 0;
+            });
+        }
         score += pointsToAdd;
-    }); return Math.max(0, Math.min(10, score)); // Clamp
+    });
+    return Math.max(0, Math.min(10, score)); // Clamp score between 0 and 10
 }
-  function goToNextElement() {
+
+/**
+ * Saves answers for the current element and moves to the next questionnaire element/screen.
+ */
+function goToNextElement() {
     const currentState = State.getState();
     const currentAnswers = UI.getQuestionnaireAnswers(); // Get answers from UI first
+
     if (currentState.currentElementIndex >= 0 && currentState.currentElementIndex < elementNames.length) {
-        State.updateAnswers(elementNames[currentState.currentElementIndex], currentAnswers); // Save answers for current element
+        const elementName = elementNames[currentState.currentElementIndex];
+        State.updateAnswers(elementName, currentAnswers); // Save answers for current element to state
+        console.log(`Saved answers for ${elementName}:`, currentAnswers);
+    } else {
+        console.warn("goToNextElement called with invalid index:", currentState.currentElementIndex);
     }
+
     const nextIndex = currentState.currentElementIndex + 1;
     if (nextIndex >= elementNames.length) {
-         finalizeQuestionnaire(); // This will handle final state saving
+         finalizeQuestionnaire(); // Move to finalization if this was the last element
     } else {
-        State.updateElementIndex(nextIndex); UI.displayElementQuestions(nextIndex);
+        State.updateElementIndex(nextIndex); // Update state index
+        UI.displayElementQuestions(nextIndex); // Display next set of questions
     }
 }
-  function goToPrevElement() {
+
+/**
+ * Saves answers for the current element and moves to the previous questionnaire element/screen.
+ */
+function goToPrevElement() {
     const currentState = State.getState();
+
     if (currentState.currentElementIndex > 0) {
         const currentAnswers = UI.getQuestionnaireAnswers(); // Get current answers
-        if (currentState.currentElementIndex >= 0 && currentState.currentElementIndex < elementNames.length) {
-             State.updateAnswers(elementNames[currentState.currentElementIndex], currentAnswers); // Save current element's answers
+        if (currentState.currentElementIndex < elementNames.length) { // Ensure index is valid before saving
+             const elementName = elementNames[currentState.currentElementIndex];
+             State.updateAnswers(elementName, currentAnswers); // Save current element's answers
+             console.log(`Saved answers for ${elementName} before going back.`);
         }
+
         const prevIndex = currentState.currentElementIndex - 1;
-        State.updateElementIndex(prevIndex); UI.displayElementQuestions(prevIndex);
+        State.updateElementIndex(prevIndex); // Update state index
+        UI.displayElementQuestions(prevIndex); // Display previous questions
+    } else {
+        console.log("Already at the first element.");
     }
 }
-  function finalizeQuestionnaire() {
+
+/**
+ * Finalizes the questionnaire process, calculates final scores,
+ * determines starter hand, updates milestones, and transitions to the main app view.
+ */
+function finalizeQuestionnaire() {
     console.log("Finalizing scores...");
     const finalScores = {};
-    const allAnswers = State.getState().userAnswers;
+    const allAnswers = State.getState().userAnswers; // Get all answers from state
+
+    // Recalculate all scores based on the potentially updated final answers
     elementNames.forEach(elementName => {
         const score = calculateElementScore(elementName, allAnswers[elementName] || {});
         const key = elementNameToKey[elementName];
-        if (key) finalScores[key] = score; else console.warn(`No key for ${elementName}`);
+        if (key) {
+            finalScores[key] = score;
+        } else {
+            console.warn(`No key found for element name: ${elementName}`);
+        }
     });
-    State.updateScores(finalScores);
-    State.setQuestionnaireComplete(); // Sets state, advances phase synchronously
-    State.saveAllAnswers(allAnswers); // Explicitly save all collected answers
-    determineStarterHandAndEssence();
-    updateMilestoneProgress('completeQuestionnaire', 1);
-    checkForDailyLogin();
+
+    State.updateScores(finalScores); // Update scores in state
+    State.setQuestionnaireComplete(); // Mark questionnaire as done, advance phase
+    State.saveAllAnswers(allAnswers); // Explicitly save the final complete answer set
+
+    determineStarterHandAndEssence(); // Grant initial concepts
+    updateMilestoneProgress('completeQuestionnaire', 1); // Trigger milestone
+    checkForDailyLogin(); // Perform daily check
 
     // Prepare UI Data BEFORE showing screens
     UI.updateInsightDisplays();
@@ -209,14 +290,14 @@ let currentTapestryAnalysis = null; // Stores the detailed breakdown from calcul
     UI.populateGrimoireFilters();
     UI.displayDailyRituals();
     UI.refreshGrimoireDisplay(); // Render grimoire content
-    calculateTapestryNarrative(true);
+    calculateTapestryNarrative(true); // Ensure narrative is based on final scores/focus
     UI.displayPersonaSummary();
     // --- End Prepare UI Data ---
 
-    UI.applyOnboardingPhaseUI(State.getOnboardingPhase());
+    UI.applyOnboardingPhaseUI(State.getOnboardingPhase()); // Set UI visibility based on phase
     console.log("Final User Scores:", State.getScores());
 
-    UI.showScreen('personaScreen');
+    UI.showScreen('personaScreen'); // Transition to Persona screen
     UI.showTemporaryMessage("Experiment Complete! Explore your results.", 4000);
 }
 
