@@ -367,8 +367,8 @@ export function displayElementQuestions(index) {
     });
 
     // 5. Perform initial UI updates **AFTER** listeners are attached
-    if (dynamicScoreFeedback) dynamicScoreFeedback.style.display = 'block';
-    questionContent.querySelectorAll('.slider.q-input').forEach(slider => {
+    
+      questionContent.querySelectorAll('.slider.q-input').forEach(slider => {
         updateSliderFeedbackText(slider, elementName);
     });
     // *** Explicitly call updateDynamicFeedback AFTER rendering AND listener attachment ***
