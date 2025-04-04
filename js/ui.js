@@ -1887,20 +1887,23 @@ export function displayElementDeepDive(elementKey, targetContainerElement) {
 // --- Repository UI ---
 export function displayRepositoryContent() {
      const showRepository = State.getOnboardingPhase() >= Config.ONBOARDING_PHASE.ADVANCED;
-     if (repositoryScreen) repositoryScreen.classList.toggle('hidden', !showRepository); // Use hidden directly, not hidden-by-flow
-     if(!showRepository) return; // Exit if screen shouldn't be shown
+     if (repositoryScreen) repositoryScreen.classList.toggle('hidden', !showRepository); // Use hidden directly
+     if(!showRepository) return;
 
      if (!repositoryFocusUnlocksDiv || !repositoryScenesDiv || !repositoryExperimentsDiv || !repositoryInsightsDiv) { console.error("Repo list containers missing!"); return; }
      console.log("UI: Displaying Repository Content");
      repositoryFocusUnlocksDiv.innerHTML = ''; repositoryScenesDiv.innerHTML = ''; repositoryExperimentsDiv.innerHTML = ''; repositoryInsightsDiv.innerHTML = '';
      const repoItems = State.getRepositoryItems(); const unlockedFocusData = State.getUnlockedFocusItems(); const attunement = State.getAttunement(); const focused = State.getFocusedConcepts(); const insight = State.getInsight();
 
+     // Display Focus-Driven Unlocks (Seems ok)
      if (unlockedFocusData.size > 0) { unlockedFocusData.forEach(unlockId => { const unlockData = focusDrivenUnlocks.find(u => u.id === unlockId); if (unlockData?.unlocks) { const item = unlockData.unlocks; const div = document.createElement('div'); div.classList.add('repository-item', 'focus-unlock-item'); let itemHTML = `<h4>${item.name || `Unlock: ${unlockData.id}`} (${item.type})</h4>`; if (unlockData.description) itemHTML += `<p><em>Source: ${unlockData.description}</em></p>`; if (item.type === 'insightFragment') { const iData = elementalInsights.find(i => i.id === item.id); itemHTML += `<p><em>"${iData?.text || item.text || "..."}"</em></p>`; } else itemHTML += `<p>Details below.</p>`; div.innerHTML = itemHTML; repositoryFocusUnlocksDiv.appendChild(div); } }); }
      else { repositoryFocusUnlocksDiv.innerHTML = '<p>Focus synergistic Concepts to unlock items.</p>'; }
 
+     // Display Scene Blueprints (Seems ok)
      if (repoItems.scenes.size > 0) { repoItems.scenes.forEach(sceneId => { const scene = sceneBlueprints.find(s => s.id === sceneId); if (scene) { const cost = scene.meditationCost || Config.SCENE_MEDITATION_BASE_COST; const canAfford = insight >= cost; repositoryScenesDiv.appendChild(renderRepositoryItem(scene, 'scene', cost, canAfford)); } else { console.warn(`Scene ID ${sceneId} not found.`); } }); }
      else { repositoryScenesDiv.innerHTML = '<p>No Scene Blueprints discovered.</p>'; }
 
+     // Display Alchemical Experiments (Seems ok)
      let experimentsDisplayed = 0;
      alchemicalExperiments.forEach(exp => {
          const isUnlockedByAttunement = attunement[exp.requiredElement] >= exp.requiredAttunement; const alreadyCompleted = repoItems.experiments.has(exp.id);
@@ -1914,16 +1917,32 @@ export function displayRepositoryContent() {
      });
      if (experimentsDisplayed === 0) { repositoryExperimentsDiv.innerHTML = '<p>Increase Attunement to unlock Experiments.</p>'; }
 
+     // Display Elemental Insights (CHECK THIS AREA - Around Line 1068)
      if (repoItems.insights.size > 0) {
          const insightsByElement = {}; elementNames.forEach(elName => insightsByElement[elementNameToKey[elName]] = []);
          repoItems.insights.forEach(insightId => { const insight = elementalInsights.find(i => i.id === insightId); if (insight) { if (!insightsByElement[insight.element]) insightsByElement[insight.element] = []; insightsByElement[insight.element].push(insight); } else { console.warn(`Insight ID ${insightId} not found.`); } });
          let insightsHTML = '';
-         for (const key in insightsByElement) { if (insightsByElement[key].length > 0) { insightsHTML += `<h5>${elementDetails[elementKeyToFullName[key]]?.name || key} Insights:</h5><ul>`; insightsByElement[key].sort((a, b) => a.id.localeCompare(b.id)).forEach(insight => { insightsHTML += `<li>"${insight.text}"</li>`; }); insightsHTML += `</ul>`; } }
-         repositoryInsightsDiv.innerHTML = insightsHTML || '<p>No Elemental Insights collected.</p>';
-     } else { repositoryInsightsDiv.innerHTML = '<p>No Elemental Insights collected.</p>'; }
+         for (const key in insightsByElement) {
+             if (insightsByElement[key].length > 0) {
+                 // *** Potential issue area LIKELY HERE ***
+                 // Make sure template literals and variable access are correct
+                 const fullElementName = elementKeyToFullName[key];
+                 const elementNameDisplay = elementDetails[fullElementName]?.name || key; // Use full name from details map or key
+                 insightsHTML += `<h5>${elementNameDisplay} Insights:</h5><ul>`; // Check this line carefully
+                 insightsByElement[key].sort((a, b) => a.id.localeCompare(b.id)).forEach(insight => {
+                     // Ensure insight.text is treated as a string and properly escaped if necessary, though unlikely needed here
+                     insightsHTML += `<li>"${insight.text}"</li>`; // Check quotes and template literal context
+                 });
+                 insightsHTML += `</ul>`; // Check closing tag
+             }
+         } // <<< Make sure this brace isn't missing
+         repositoryInsightsDiv.innerHTML = insightsHTML || '<p>No Elemental Insights collected yet.</p>'; // Use fallback if insightsHTML is empty after loop
+     } else {
+         repositoryInsightsDiv.innerHTML = '<p>No Elemental Insights collected.</p>';
+     }
 
-     displayMilestones();
-     GameLogic.updateMilestoneProgress('repositoryContents', null);
+     displayMilestones(); // Display milestones after repository items
+     // GameLogic.updateMilestoneProgress('repositoryContents', null); // Let GameLogic handle calling this check if needed
  }
 export function renderRepositoryItem(item, type, cost, canAfford, completed = false, unmetReqs = []) {
      const div = document.createElement('div'); div.classList.add('repository-item', `repo-item-${type}`); if (completed) div.classList.add('completed');
