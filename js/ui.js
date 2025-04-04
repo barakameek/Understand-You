@@ -1921,22 +1921,41 @@ export function displayRepositoryContent() {
     if (repoItems.insights.size > 0) {
          const insightsByElement = {};
          elementNames.forEach(elName => {
-            const key = elementNameToKey[elName]; // Get the key 'A', 'I', etc.
-            if (key) { // Ensure key exists
-                insightsByElement[key] = [];
-            }
+            const key = elementNameToKey[elName];
+            if (key) { insightsByElement[key] = []; }
          });
-         // Populate the arrays
          repoItems.insights.forEach(insightId => {
             const insight = elementalInsights.find(i => i.id === insightId);
-            if (insight && insightsByElement[insight.element]) { // Check if the element key exists
+            if (insight && insightsByElement[insight.element]) {
                  insightsByElement[insight.element].push(insight);
             } else if (insight) {
-                 console.warn(`Insight ${insightId} has unknown or unmapped element key: ${insight.element}`);
+                 console.warn(`Insight ${insightId} has unknown element key: ${insight.element}`);
             } else {
-                 console.warn(`Insight ID ${insightId} not found in elementalInsights data.`);
+                 console.warn(`Insight ID ${insightId} not found.`);
             }
          });
+
+         let insightsHTML = '';
+         for (const key in insightsByElement) {
+             if (insightsByElement[key].length > 0) {
+                 const fullElementName = elementKeyToFullName[key];
+                 const elementNameDisplay = elementDetails[fullElementName]?.name || key;
+
+                 // *** SIMPLIFIED LINE - TRY THIS ***
+                 insightsHTML += '<h5>' + elementNameDisplay + ' Insights:</h5><ul>';
+                 // *** END SIMPLIFIED LINE ***
+
+                 insightsByElement[key].sort((a, b) => a.id.localeCompare(b.id)).forEach(insight => {
+                     insightsHTML += `<li>"${insight.text}"</li>`; // This line is less likely to be the issue
+                 });
+                 insightsHTML += `</ul>`;
+             }
+         }
+         repositoryInsightsDiv.innerHTML = insightsHTML || '<p>No Elemental Insights collected yet.</p>';
+     } else {
+         repositoryInsightsDiv.innerHTML = '<p>No Elemental Insights collected.</p>';
+     }
+
 
          let insightsHTML = '';
          // Loop through the organized insights
