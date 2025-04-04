@@ -1010,14 +1010,18 @@ hr { border: none; border-top: 1px dashed var(--border-color-light); margin: 18p
          grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
     }
     }
+/* Info Popup Styles */
 .info-popup {
     max-width: 450px; /* Smaller max width */
     max-height: 60vh; /* Limit height */
+    width: 90%; /* Responsive width */
 }
 .info-popup .popup-header h3 {
     font-size: 1.2em;
     text-align: center;
     color: var(--link-color);
+    margin: 0; /* Remove default margin */
+    padding: 10px 40px 10px 15px; /* Match other popups */
 }
 .info-popup .popup-content {
     padding: 20px;
@@ -1028,6 +1032,8 @@ hr { border: none; border-top: 1px dashed var(--border-color-light); margin: 18p
     font-size: 0.95em;
     line-height: 1.5;
     color: var(--text-color);
+    text-align: left; /* Keep info text left-aligned */
+    margin: 0; /* Remove default margins */
 }
 .info-popup .popup-actions {
      padding: 10px 15px;
@@ -1043,9 +1049,10 @@ hr { border: none; border-top: 1px dashed var(--border-color-light); margin: 18p
     cursor: help; /* Use help cursor */
     font-size: 0.9em;
     transition: color 0.2s ease;
+    /* Add a subtle visual cue */
+    border-bottom: 1px dotted transparent;
 }
 .info-icon:hover {
     color: var(--primary-color); /* Darken on hover */
+    border-bottom-color: #ccc;
 }
-}
-    
