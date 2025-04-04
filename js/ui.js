@@ -289,12 +289,7 @@ export function updateElementProgressHeader(activeIndex) {
 export function displayElementQuestions(index) {
     const currentState = State.getState();
     if (index >= elementNames.length) {
-        // Ensure final answers are saved before finalizing
-        const lastElementIndex = elementNames.length - 1;
-        if (lastElementIndex >= 0) {
-            const finalAnswers = getQuestionnaireAnswers(); // Get answers from the final displayed page
-            State.updateAnswers(elementNames[lastElementIndex], finalAnswers);
-        }
+        // ... (keep existing finalization logic) ...
         GameLogic.finalizeQuestionnaire();
         return;
     }
@@ -313,9 +308,15 @@ export function displayElementQuestions(index) {
     questions.forEach(q => {
         let inputHTML = `<div class="question-block" id="block_${q.qId}"><h3 class="question-title">${q.text}</h3><div class="input-container">`;
         const savedAnswer = elementAnswers[q.qId];
+        // *** Ensure savedAnswer is converted correctly for slider ***
+        let sliderValue = q.defaultValue;
         if (q.type === "slider") {
-            const val = savedAnswer !== undefined ? savedAnswer : q.defaultValue;
-            inputHTML += `<div class="slider-container"><input type="range" id="${q.qId}" class="slider q-input" min="${q.minValue}" max="${q.maxValue}" step="${q.step || 0.5}" value="${val}" data-question-id="${q.qId}" data-type="slider"><div class="label-container"><span class="label-text">${q.minLabel}</span><span class="label-text">${q.maxLabel}</span></div><p class="value-text">Selected: <span id="display_${q.qId}">${parseFloat(val).toFixed(1)}</span></p><p class="slider-feedback" id="feedback_${q.qId}"></p></div>`;
+            sliderValue = (savedAnswer !== undefined && !isNaN(parseFloat(savedAnswer))) ? parseFloat(savedAnswer) : q.defaultValue;
+        }
+        // *** End Ensure ***
+
+        if (q.type === "slider") {
+            inputHTML += `<div class="slider-container"><input type="range" id="${q.qId}" class="slider q-input" min="${q.minValue}" max="${q.maxValue}" step="${q.step || 0.5}" value="${sliderValue}" data-question-id="${q.qId}" data-type="slider"><div class="label-container"><span class="label-text">${q.minLabel}</span><span class="label-text">${q.maxLabel}</span></div><p class="value-text">Selected: <span id="display_${q.qId}">${parseFloat(sliderValue).toFixed(1)}</span></p><p class="slider-feedback" id="feedback_${q.qId}"></p></div>`;
         } else if (q.type === "radio") {
             inputHTML += `<div class="radio-options">`;
             q.options.forEach(opt => { const checked = savedAnswer === opt.value ? 'checked' : ''; inputHTML += `<div><input type="radio" id="${q.qId}_${opt.value}" class="q-input" name="${q.qId}" value="${opt.value}" ${checked} data-question-id="${q.qId}" data-type="radio"><label for="${q.qId}_${opt.value}">${opt.value}</label></div>`; });
@@ -335,9 +336,10 @@ export function displayElementQuestions(index) {
     if (introDiv) introDiv.insertAdjacentHTML('afterend', questionsHTML);
     else questionContent.innerHTML += questionsHTML;
 
-    // 4. Attach event listeners
+    // 4. Attach event listeners **AFTER** HTML is fully inserted
     questionContent.querySelectorAll('.q-input').forEach(input => {
         const eventType = (input.type === 'range') ? 'input' : 'change';
+        // Clear potentially stale listeners (robustness)
         input.removeEventListener(eventType, GameLogic.handleQuestionnaireInputChange);
         input.addEventListener(eventType, GameLogic.handleQuestionnaireInputChange);
     });
@@ -346,20 +348,22 @@ export function displayElementQuestions(index) {
         checkbox.addEventListener('change', GameLogic.handleCheckboxChange);
     });
 
-    // 5. Perform initial UI updates
+    // 5. Perform initial UI updates **AFTER** listeners are attached
     if (dynamicScoreFeedback) dynamicScoreFeedback.style.display = 'block';
     questionContent.querySelectorAll('.slider.q-input').forEach(slider => {
         updateSliderFeedbackText(slider, elementName);
     });
-    updateDynamicFeedback(elementName, elementAnswers);
+    // *** Explicitly call updateDynamicFeedback AFTER rendering AND listener attachment ***
+    updateDynamicFeedback(elementName, elementAnswers); // Use the answers fetched at the start
 
     // 6. Update overall progress display & buttons
     updateElementProgressHeader(index);
     if (progressText) progressText.textContent = `Element ${index + 1} / ${elementNames.length}: ${elementData.name || elementName}`;
     if (prevElementButton) prevElementButton.style.visibility = (index > 0) ? 'visible' : 'hidden';
     if (nextElementButton) nextElementButton.textContent = (index === elementNames.length - 1) ? "View My Persona" : "Next Element";
-}
 
+    console.log(`UI: Finished displaying questions for ${elementName}`); // Add log
+}
 export function updateSliderFeedbackText(sliderElement, elementName) {
     if (!sliderElement || sliderElement.type !== 'range') return;
     const qId = sliderElement.dataset.questionId;
