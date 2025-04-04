@@ -44,7 +44,7 @@
              <main id="questionContent"></main>
              <footer>
                  <button id="prevElementButton" class="button back-button" style="visibility: hidden;">Previous</button>
-                 <button id="nextElementButton" class="button next-button">Next /<button id="nextElementButton" class="button next-button">Next / View Persona</button>
+                 <button id="nextElementButton" class="button next-button">Next / View Persona</button>
              </footer>
         </div>
 
@@ -85,7 +85,7 @@
 
                     <!-- Right Column: Tapestry -->
                      <div class="persona-column persona-constellation">
-                          <h2>Persona Tapestry - Focus <i class="fas fa-info-circle info-icon" title="Mark Concepts from your Grimoire as 'Focus' here. This shapes your Tapestry Narrative, influences Focus Resonance, and may unlock unique content based on combinations."></i></h2>
+                          <h2>Persona Tapestry - Focus <i class="fas fa-info-circle info-icon" title="Mark Concepts from your Grimoire as 'Focus' here. This shapes your Tapestry Narrative and may unlock unique content based on combinations."></i></h2>
                           <p>Curate concepts to shape your active Persona.</p>
                           <!-- Tapestry Area: Contains the grid of focused concepts -->
                           <div class="tapestry-area" id="tapestryArea">
@@ -95,8 +95,9 @@
                                    <!-- Focused concepts injected here -->
                                </div>
                           </div> <!-- End Tapestry Area -->
+
                           <!-- REMOVED Focus Resonance Section -->
-                          <!-- <div id="focusElementalResonance" class="focus-resonance-section"> ... </div> -->
+
                           <!-- Tapestry Narrative Section -->
                           <div class="tapestry-narrative-section">
                               <h3>Tapestry Narrative <i class="fas fa-info-circle info-icon" title="A dynamically generated interpretation based on your Focused Concepts, highlighting dominant elements and potential synergies between them."></i></h3>
@@ -134,7 +135,6 @@
         </div> <!-- End Persona Screen -->
 
          <!-- === Grimoire Screen === -->
-       <!-- === Grimoire Screen === -->
          <div id="grimoireScreen" class="screen hidden grimoire-screen">
               <h1>The Grand Grimoire <i class="fas fa-info-circle info-icon" title="Your personal collection of discovered Concept Cards. Filter, sort, view details, mark Concepts for Focus, or sell unwanted Concepts for Insight."></i></h1>
               <!-- Grimoire controls -->
@@ -372,6 +372,20 @@
                 </div>
             </div>
         </div> <!-- End Deep Dive Modal -->
+
+         <!-- === Generic Info Popup (NEW) === -->
+         <div id="infoPopup" class="popup hidden info-popup">
+             <button id="closeInfoPopupButton" class="close-button">×</button>
+             <div class="popup-header">
+                 <h3>Information</h3>
+             </div>
+             <div class="popup-content">
+                 <p id="infoPopupContent">Info text goes here.</p>
+             </div>
+             <div class="popup-actions">
+                <button id="confirmInfoPopupButton" class="button small-button">OK</button>
+            </div>
+         </div>
 
          <div id="milestoneAlert" class="milestone-alert hidden">
              <span id="milestoneAlertText">Milestone Reached!</span>
