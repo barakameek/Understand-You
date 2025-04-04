@@ -126,14 +126,15 @@ let currentTapestryAnalysis = null; // Stores the detailed breakdown from calcul
 
 
 // --- Questionnaire Logic ---
- function handleQuestionnaireInputChange(event) {
+function handleQuestionnaireInputChange(event) {
     console.log("Input change detected:", event.target.id, event.target.value); // Log detection
     const input = event.target;
     const type = input.dataset.type;
     const currentState = State.getState();
 
+    // *** ADD CHECK FOR -1, although initializeQuestionnaireUI should prevent this ***
     if (currentState.currentElementIndex < 0 || currentState.currentElementIndex >= elementNames.length) {
-        console.warn("Questionnaire input change outside valid index.");
+        console.warn(`Questionnaire input change outside valid index (${currentState.currentElementIndex}). Ignoring.`);
         return;
     }
     const elementName = elementNames[currentState.currentElementIndex];
@@ -146,10 +147,9 @@ let currentTapestryAnalysis = null; // Stores the detailed breakdown from calcul
 
     // 3. Force UI updates immediately using the collected answers
     if (type === 'slider') {
-        // Find the specific slider element again (important!)
         const sliderElement = document.getElementById(input.id);
         if(sliderElement) {
-             UI.updateSliderFeedbackText(sliderElement, elementName); // Pass element name and the actual element
+             UI.updateSliderFeedbackText(sliderElement, elementName);
         } else {
             console.warn(`Could not find slider element ${input.id} to update feedback.`);
         }
@@ -158,7 +158,6 @@ let currentTapestryAnalysis = null; // Stores the detailed breakdown from calcul
     UI.updateDynamicFeedback(elementName, currentAnswers);
     console.log(`Forced UI update for ${elementName} with answers:`, currentAnswers);
 }
-
 /**
  * Handles checkbox changes, enforcing maximum choices.
  * @param {Event} event - The change event object.
