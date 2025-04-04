@@ -1053,6 +1053,7 @@ export function checkForDailyLogin() {
     }
 }
 
+
 // --- Persona Calculation Logic Helpers ---
 export function calculateFocusScores() { // Keep export if used elsewhere (e.g., for scene suggestion)
      const scores = { A: 0, I: 0, S: 0, P: 0, C: 0, R: 0 }; const focused = State.getFocusedConcepts(); const disc = State.getDiscoveredConcepts(); const count = focused.size;
