@@ -281,8 +281,8 @@ let currentTapestryAnalysis = null; // Stores the detailed breakdown
 }
 
 // Research Actions
- function handleResearchClick(event) {
-    const button = event.currentTarget; // The clicked element
+ export function handleResearchClick(event) {
+    const button = event.currentTarget; // The clicked element (div in discovery, button in standard)
     const elementKey = button.dataset.elementKey;
     const isFreeAttempt = event.isFree; // Flag passed from UI listener for discovery mode
     let cost = 0;
@@ -296,8 +296,11 @@ let currentTapestryAnalysis = null; // Stores the detailed breakdown
         }
         if (State.useInitialFreeResearch()) { // This decrements the count in state
             console.log(`Used initial free research on ${elementKey}. ${State.getInitialFreeResearchRemaining()} left.`);
-            // Refresh discovery UI to show updated free count
-            if (studyScreen?.classList.contains('current')) UI.displayStudyScreen_DiscoveryMode();
+            // Cost remains 0
+            // --- FIX HERE ---
+            // Refresh study UI to show updated free count
+            if (studyScreen?.classList.contains('current')) UI.displayStudyScreenContent(); // Use the unified function
+            // --- END FIX ---
         } else {
             // Should not happen if check above passes, but handle gracefully
             console.warn("Failed to use initial free research despite check.");
