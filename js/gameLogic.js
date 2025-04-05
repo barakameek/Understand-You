@@ -1074,15 +1074,17 @@ function attemptExperiment(experimentId) {
         State.resetDailyRituals(); // Resets daily rituals, sets flag, updates date (triggers save)
         gainInsight(5.0, "Daily Login Bonus");
         UI.showTemporaryMessage("Daily Rituals Reset. Free Research Available!", 3500);
-        UI.displayDailyRituals(); // Refresh ritual display
+        UI.displayDailyRituals(); // Refresh ritual display if visible
     } else {
         console.log("Already logged in today.");
     }
-    // Refresh buttons that depend on daily state
-    if(State.getOnboardingPhase() >= Config.ONBOARDING_PHASE.STUDY_INSIGHT) {
-        UI.displayResearchButtons();
+
+    // --- FIX: Refresh Study Screen UI if visible ---
+    // Refresh buttons that depend on daily state by re-rendering the whole study screen content
+    const studyScreen = document.getElementById('studyScreen'); // Check existence
+    if (studyScreen?.classList.contains('current') && State.getOnboardingPhase() >= Config.ONBOARDING_PHASE.PERSONA_GRIMOIRE) {
+         UI.displayStudyScreenContent(); // Use the unified function to refresh
     }
-}
 
 // --- Persona Calculation Logic Helpers ---
  function calculateFocusScores() {
