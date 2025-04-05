@@ -297,7 +297,7 @@ let currentTapestryAnalysis = null; // Stores the detailed breakdown
         if (State.useInitialFreeResearch()) { // This decrements the count in state
             console.log(`Used initial free research on ${elementKey}. ${State.getInitialFreeResearchRemaining()} left.`);
             // Cost remains 0
-            // --- FIX HERE ---
+         // --- FIX HERE ---
             // Refresh study UI to show updated free count
             if (studyScreen?.classList.contains('current')) UI.displayStudyScreenContent(); // Use the unified function
             // --- END FIX ---
