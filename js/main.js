@@ -1,10 +1,10 @@
-// --- START OF FILE main.js --- (Corrected - Final Version)
+// --- START OF FILE main.js --- (Corrected attachEventListeners)
 
 // js/main.js - Application Entry Point, Event Listeners, Initialization
 import * as State from './state.js';
 import * as UI from './ui.js';
 import * as GameLogic from './gameLogic.js';
-import * as Config from './config.js'; // Ensure Config is imported for save key etc.
+import * as Config from './config.js';
 
 console.log("main.js loading...");
 
@@ -14,31 +14,31 @@ function initializeApp() {
     const loaded = State.loadGameState();
     UI.updateInsightDisplays();
     UI.updateGrimoireCounter();
-    UI.populateGrimoireFilters(); // Populate dropdowns
+    UI.populateGrimoireFilters();
     if (loaded) {
         console.log("Existing session data found.");
         const currentState = State.getState();
         if (currentState.questionnaireCompleted) {
              console.log("Continuing session post-questionnaire...");
-             GameLogic.checkForDailyLogin(); // Handle daily reset logic
-             UI.applyOnboardingPhaseUI(currentState.onboardingPhase); // Set UI visibility
-             GameLogic.calculateTapestryNarrative(true); // Ensure analysis is ready for potential Persona view
+             GameLogic.checkForDailyLogin();
+             UI.applyOnboardingPhaseUI(currentState.onboardingPhase);
+             GameLogic.calculateTapestryNarrative(true);
              UI.updateFocusSlotsDisplay();
-             UI.refreshGrimoireDisplay(); // Prepare Grimoire data if navigated to
-             UI.showScreen('personaScreen'); // Default to Persona screen after load
-             UI.hidePopups(); // Ensure no popups stuck
+             UI.refreshGrimoireDisplay();
+             UI.showScreen('personaScreen');
+             UI.hidePopups();
         } else {
              console.log("Loaded state incomplete (Questionnaire not finished).");
-             if (currentState.currentElementIndex < 0 || currentState.currentElementIndex >= elementNames.length) { State.updateElementIndex(0); } // Reset index if invalid
-             UI.initializeQuestionnaireUI(); // Setup questionnaire UI
+             if (currentState.currentElementIndex < 0 || currentState.currentElementIndex >= elementNames.length) { State.updateElementIndex(0); }
+             UI.initializeQuestionnaireUI();
              UI.showScreen('questionnaireScreen');
         }
         const loadBtn = document.getElementById('loadButton');
-        if (loadBtn) loadBtn.classList.add('hidden'); // Hide load button after successful load
-    } else { // No valid save found
+        if (loadBtn) loadBtn.classList.add('hidden');
+    } else {
         console.log("No valid saved session. Starting fresh.");
-        UI.setupInitialUI(); // Setup welcome screen, ensure load button hidden etc.
-        if (localStorage.getItem(Config.SAVE_KEY)) { UI.showTemporaryMessage("Error loading previous session. Starting fresh.", 4000); localStorage.removeItem(Config.SAVE_KEY); } // Clear potentially corrupted data
+        UI.setupInitialUI();
+        if (localStorage.getItem(Config.SAVE_KEY)) { UI.showTemporaryMessage("Error loading previous session. Starting fresh.", 4000); localStorage.removeItem(Config.SAVE_KEY); }
     }
     console.log("Initialization complete. Attaching event listeners.");
     attachEventListeners();
@@ -49,68 +49,36 @@ function initializeApp() {
 function attachEventListeners() {
     console.log("Attaching event listeners...");
 
-    // --- Element References --- (Keep concise)
+    // --- Element References ---
     const startButton = document.getElementById('startGuidedButton');
     const loadButton = document.getElementById('loadButton');
     const nextBtn = document.getElementById('nextElementButton');
     const prevBtn = document.getElementById('prevElementButton');
     const mainNavBar = document.getElementById('mainNavBar');
-    // settingsBtn handled by delegation below
     const popupOverlay = document.getElementById('popupOverlay');
     const grimoireContent = document.getElementById('grimoireContent');
-    const studyScreenElement = document.getElementById('studyScreen'); // For delegation
-    // REMOVED: const researchOutputArea = document.getElementById('researchOutput'); // No longer needed
-    const repositoryContainer = document.getElementById('repositoryScreen'); // For repo action delegation
+    const studyScreenElement = document.getElementById('studyScreen');
+    const studyResearchDiscoveriesArea = document.getElementById('studyResearchDiscoveries'); // Specific listener target
+    const repositoryContainer = document.getElementById('repositoryScreen');
     const settingsPopupElem = document.getElementById('settingsPopup');
-    const personaScreenDiv = document.getElementById('personaScreen'); // For button delegation
+    const personaScreenDiv = document.getElementById('personaScreen');
     const tapestryDeepDiveModalElem = document.getElementById('tapestryDeepDiveModal');
     const conceptDetailPopupElem = document.getElementById('conceptDetailPopup');
-    // reflectionModalElem handled by delegation below
     const infoPopupElem = document.getElementById('infoPopup');
-    const infoPopupContent = document.getElementById('infoPopupContent'); // Needed for info icon handler
-
 
     // --- Welcome Screen ---
     if (startButton) startButton.addEventListener('click', () => { State.clearGameState(); UI.initializeQuestionnaireUI(); UI.showScreen('questionnaireScreen'); if(loadButton) loadButton.classList.add('hidden'); });
-    // Load button logic handled in initializeApp
 
     // --- Questionnaire Navigation ---
     if (nextBtn) nextBtn.addEventListener('click', GameLogic.goToNextElement);
     if (prevBtn) prevBtn.addEventListener('click', GameLogic.goToPrevElement);
 
-    // --- Main Navigation & Settings (Delegation) ---
-    if (mainNavBar) {
-        mainNavBar.addEventListener('click', (event) => {
-            const button = event.target.closest('.nav-button');
-            if (!button) return;
-            if (button.id === 'settingsButton') {
-                UI.showSettings();
-            } else {
-                const target = button.dataset.target;
-                if (target) { UI.showScreen(target); }
-            }
-        });
-    }
-
-    // --- Popups & Overlay ---
-    // Delegate common close actions to body
-    document.body.addEventListener('click', (event) => {
-        if (event.target.matches('#closePopupButton') ||
-            event.target.matches('#closeReflectionModalButton') ||
-            event.target.matches('#closeSettingsPopupButton') ||
-            event.target.matches('#closeDeepDiveButton') ||
-            event.target.matches('#closeInfoPopupButton') ||
-            event.target.matches('#confirmInfoPopupButton')) {
-            UI.hidePopups();
-        }
-        if (event.target.matches('#closeMilestoneAlertButton')) {
-            UI.hideMilestoneAlert();
-        }
-    });
-    // Overlay click closes all popups
+    // --- Main Navigation & Popups (Delegation) ---
+    if (mainNavBar) { mainNavBar.addEventListener('click', (event) => { const button = event.target.closest('.nav-button'); if (!button) return; if (button.id === 'settingsButton') UI.showSettings(); else { const target = button.dataset.target; if (target) UI.showScreen(target); } }); }
+    document.body.addEventListener('click', (event) => { if (event.target.matches('#closePopupButton') || event.target.matches('#closeReflectionModalButton') || event.target.matches('#closeSettingsPopupButton') || event.target.matches('#closeDeepDiveButton') || event.target.matches('#closeInfoPopupButton') || event.target.matches('#confirmInfoPopupButton')) UI.hidePopups(); if (event.target.matches('#closeMilestoneAlertButton')) UI.hideMilestoneAlert(); });
     if (popupOverlay) popupOverlay.addEventListener('click', UI.hidePopups);
 
-    // --- Study Screen Actions (Delegation for Unified Layout) ---
+    // --- Study Screen Actions (Main Area Delegation) ---
     if (studyScreenElement) {
         studyScreenElement.addEventListener('click', (event) => {
             // 1. Element Research Click
@@ -130,26 +98,34 @@ function attachEventListeners() {
                 GameLogic.triggerGuidedReflection();
                 return;
             }
-            // 4. Research Discovery Results Actions (Add/Sell)
-             const resultsArea = event.target.closest('#studyResearchDiscoveries'); // Use the unified ID
-             if (resultsArea) {
-                 const actionButton = event.target.closest('button.add-button, button.sell-button'); // Look for specific buttons
-                 if (actionButton) {
-                     const conceptIdStr = actionButton.dataset.conceptId;
-                     if (conceptIdStr) {
-                         const conceptId = parseInt(conceptIdStr);
-                         if (!isNaN(conceptId)) {
-                             if (actionButton.classList.contains('add-button')) {
-                                 GameLogic.addConceptToGrimoireById(conceptId, actionButton);
-                             } else if (actionButton.classList.contains('sell-button')) {
-                                 GameLogic.handleSellConcept(event); // Pass event for context
-                             }
-                         }
-                     }
-                 }
-             }
+            // Note: Add/Sell buttons are handled by the separate listener below
         });
     }
+
+    // --- Study Screen Research Discoveries Actions (Specific Delegation) ---
+    // Attach listener specifically to the results container for better targeting
+    if (studyResearchDiscoveriesArea) {
+        studyResearchDiscoveriesArea.addEventListener('click', (event) => {
+             const actionButton = event.target.closest('button.add-button, button.sell-button');
+             if (actionButton) {
+                  console.log("Action button clicked in results area:", actionButton.className); // Debug log
+                  const conceptIdStr = actionButton.dataset.conceptId;
+                  if (conceptIdStr) {
+                      const conceptId = parseInt(conceptIdStr);
+                      if (!isNaN(conceptId)) {
+                          if (actionButton.classList.contains('add-button')) {
+                              console.log("Calling addConceptToGrimoireById for", conceptId); // Debug log
+                              GameLogic.addConceptToGrimoireById(conceptId, actionButton);
+                          } else if (actionButton.classList.contains('sell-button')) {
+                              console.log("Calling handleSellConcept for", conceptId); // Debug log
+                              GameLogic.handleSellConcept(event); // Pass event for context
+                          }
+                      } else { console.error("Invalid conceptId:", conceptIdStr); }
+                  } else { console.error("Button missing conceptId:", actionButton); }
+             }
+        });
+    } else { console.error("#studyResearchDiscoveries element not found for listener attachment."); }
+
 
     // --- Grimoire Actions (Delegation) ---
     const grimoireControls = document.getElementById('grimoireControls');
@@ -183,7 +159,7 @@ function attachEventListeners() {
     if (settingsPopupElem) { settingsPopupElem.addEventListener('click', (event) => { if (event.target.matches('#forceSaveButton')) { State.saveGameState(); UI.showTemporaryMessage("Game Saved!", 1500); } else if (event.target.matches('#resetAppButton')) { if (confirm("Reset ALL progress? This cannot be undone.")) { console.log("Resetting application..."); State.clearGameState(); UI.setupInitialUI(); UI.hidePopups(); UI.showTemporaryMessage("Progress Reset!", 3000); const loadBtn = document.getElementById('loadButton'); if(loadBtn) loadBtn.classList.add('hidden'); } } }); }
 
      // --- Info Icon Handling (Delegated to body) ---
-     document.body.addEventListener('click', (event) => { const infoIcon = event.target.closest('.info-icon'); if (infoIcon) { event.preventDefault(); event.stopPropagation(); const message = infoIcon.getAttribute('title'); if (message && infoPopupElem && popupOverlay && infoPopupContent) { infoPopupContent.textContent = message; infoPopupElem.classList.remove('hidden'); popupOverlay.classList.remove('hidden'); } else if (message) { UI.showTemporaryMessage(message, 4000); } } });
+     document.body.addEventListener('click', (event) => { const infoIcon = event.target.closest('.info-icon'); if (infoIcon) { event.preventDefault(); event.stopPropagation(); const message = infoIcon.getAttribute('title'); const infoPopupContent = document.getElementById('infoPopupContent'); if (message && infoPopupElem && popupOverlay && infoPopupContent) { infoPopupContent.textContent = message; infoPopupElem.classList.remove('hidden'); popupOverlay.classList.remove('hidden'); } else if (message) { UI.showTemporaryMessage(message, 4000); } } });
 
     console.log("All event listeners attached.");
 }
