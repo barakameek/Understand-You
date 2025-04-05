@@ -1349,7 +1349,6 @@ function generateFocusedContemplation() {
     UI.clearContemplationTask(); // Update UI after completion
 }
 
-
 export {
     // Questionnaire
     handleQuestionnaireInputChange, handleCheckboxChange, calculateElementScore,
@@ -1357,16 +1356,16 @@ export {
     // Core Logic & Actions
     gainInsight, spendInsight, gainAttunementForAction,
     addConceptToGrimoireById, addConceptToGrimoireInternal, handleToggleFocusConcept,
-    handleCardFocusToggle,
+    handleCardFocusToggle, // For Grimoire card button
     handleResearchClick, handleFreeResearchClick, // Includes daily free research
     attemptArtEvolution, handleSaveNote, handleSellConcept, sellConcept,
     // Reflection
     checkTriggerReflectionPrompt, triggerReflectionPrompt, handleConfirmReflection,
     triggerGuidedReflection,
     // Library (Integrated)
-    handleUnlockLibraryLevel,
+    handleUnlockLibraryLevel, // Handler for unlock button click
     // Repository
-    handleMeditateScene, handleAttemptExperiment,
+    handleMeditateScene, handleAttemptExperiment, // Handlers for button clicks
     // Persona Calculation Helpers
     calculateFocusScores, calculateTapestryNarrative, calculateFocusThemes,
     // Focus Unlocks
@@ -1384,7 +1383,6 @@ export {
     handleCompleteContemplation,
     // Suggest Scenes
     handleSuggestSceneClick
-};
+}; // <<< This closing brace should be the last part before the final console.log
 
 console.log("gameLogic.js loaded.");
-// --- END OF FILE gameLogic.js ---
