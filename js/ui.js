@@ -422,8 +422,13 @@ export function displayStudyScreenContent() {
                 <div class="element-action ${isDisabled ? 'disabled' : ''}"> ${isTopTwo ? '<span class="highlight-label">Strongest Affinity</span>' : ''} <span class="element-cost">${costText}</span> </div>
             `;
             elementDiv.title = titleText;
-            if (!isDisabled) { elementDiv.classList.add('clickable'); elementDiv.addEventListener('click', clickHandler); }
-            else { elementDiv.classList.add('disabled'); }
+            if (!isDisabled) {
+                elementDiv.classList.add('clickable');
+                // Add click listener directly
+                elementDiv.addEventListener('click', clickHandler); 
+            } else {
+                elementDiv.classList.add('disabled');
+            }
             initialDiscoveryElements.appendChild(elementDiv);
         });
     }
