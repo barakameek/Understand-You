@@ -1,7 +1,3 @@
-// --- START OF FILE ui.js ---
-
-// ... (Imports, DOM Element References, Utility UI Functions, Screen Management, Onboarding UI, Insight Display, Questionnaire UI) ...
-// --- START OF FILE ui.js ---
 
 // js/ui.js - Handles DOM Manipulation and UI Updates
 import * as State from './state.js';
@@ -672,572 +668,7 @@ export function synthesizeAndDisplayThemesPersona() {
          balanceLi.style.paddingLeft = '20px'; // Indent slightly
          personaThemesList.appendChild(balanceLi);
      }
-} // <<< Added missing brace here
-
-export function displayPersonaSummary() {
-    if (!summaryContentDiv) return;
-    summaryContentDiv.innerHTML = '<p>Generating summary...</p>';
-    const scores = State.getScores(); const focused = State.getFocusedConcepts();
-    const narrative = GameLogic.calculateTapestryNarrative();
-    const themes = GameLogic.calculateFocusThemes();
-
-    let html = '<h3>Core Essence</h3><div class="summary-section">';
-    if (elementDetails && elementNameToKey && elementKeyToFullName) {
-        elementNames.forEach(elName => {
-            const key = elementNameToKey[elName]; const score = scores[key];
-            if (typeof score === 'number') { const label = Utils.getScoreLabel(score); const interpretation = elementDetails[elName]?.scoreInterpretations?.[label] || "N/A"; html += `<p><strong>${elementDetails[elName]?.name || elName} (${score.toFixed(1)} - ${label}):</strong> ${interpretation}</p>`; }
-            else { html += `<p><strong>${elementDetails[elName]?.name || elName}:</strong> Score not available.</p>`; }
-        });
-    } else { html += "<p>Error: Element details not loaded.</p>"; }
-    html += '</div><hr><h3>Focused Tapestry</h3><div class="summary-section">';
-
-    if (focused.size > 0) {
-        html += `<p><em>${narrative || "No narrative generated."}</em></p>`;
-        html += '<strong>Focused Concepts:</strong><ul>';
-        const discovered = State.getDiscoveredConcepts();
-        focused.forEach(id => { const name = discovered.get(id)?.concept?.name || `ID ${id}`; html += `<li>${name}</li>`; });
-        html += '</ul>';
-        if (themes.length > 0) { html += '<strong>Dominant Themes:</strong><ul>'; themes.slice(0, 3).forEach(theme => { html += `<li>${theme.name} Focus (${theme.count} concept${theme.count > 1 ? 's' : ''})</li>`; }); html += '</ul>'; }
-        else { html += '<strong>Dominant Themes:</strong><p>No strong themes detected.</p>'; }
-    } else { html += '<p>No concepts are currently focused.</p>'; }
-    html += '</div>';
-    summaryContentDiv.innerHTML = html;
-} // <<< Added missing brace here
-
-
-// --- Study Screen UI ---
-export function displayStudyScreenContent() {
-    console.log("UI: Displaying Study Screen Content");
-    updateInsightDisplays();
-    displayDailyRituals();
-    applyOnboardingPhaseUI(State.getOnboardingPhase());
 }
-
-export function displayResearchButtons() {
-    if (!researchButtonContainer) return;
-    researchButtonContainer.innerHTML = '';
-    const insight = State.getInsight(); const attunement = State.getAttunement();
-
-    if (freeResearchButton) {
-        const available = State.isFreeResearchAvailable();
-        const showFreeResearch = available && State.getOnboardingPhase() >= Config.ONBOARDING_PHASE.STUDY_INSIGHT;
-        freeResearchButton.classList.toggle('hidden', !showFreeResearch);
-        freeResearchButton.disabled = !available;
-        freeResearchButton.textContent = available ? "Perform Daily Meditation (Free Research)" : "Daily Meditation Performed";
-        if (!available && State.getOnboardingPhase() >= Config.ONBOARDING_PHASE.STUDY_INSIGHT) {
-             freeResearchButton.classList.remove('hidden');
-        }
-    }
-
-    elementNames.forEach(elName => {
-        const key = elementNameToKey[elName]; const currentAttunement = attunement[key] || 0;
-        let currentCost = Config.BASE_RESEARCH_COST;
-        if (currentAttunement > 80) currentCost = Math.max(5, Config.BASE_RESEARCH_COST - 5);
-        else if (currentAttunement > 50) currentCost = Math.max(5, Config.BASE_RESEARCH_COST - 3);
-        const canAfford = insight >= currentCost; const fullName = elementDetails[elName]?.name || elName;
-        const button = document.createElement('button'); button.classList.add('button', 'research-button');
-        button.dataset.elementKey = key; button.dataset.cost = currentCost; button.disabled = !canAfford;
-        button.title = `Focus on ${fullName} (Cost: ${currentCost} Insight)`;
-        button.innerHTML = `<span class="research-el-icon" style="color: ${Utils.getElementColor(elName)};"><i class="${Utils.getElementIcon(fullName)}"></i></span><span class="research-el-name">${fullName}</span><span class="research-el-cost">${currentCost} <i class="fas fa-brain insight-icon"></i></span>`;
-        researchButtonContainer.appendChild(button);
-    });
-
-    // Ensure seekGuidanceButton exists before accessing properties
-    const guidanceBtn = document.getElementById('seekGuidanceButton'); // Re-get reference just in case
-    if (guidanceBtn) guidanceBtn.disabled = insight < Config.GUIDED_REFLECTION_COST;
-    if (guidedReflectionCostDisplay) guidedReflectionCostDisplay.textContent = Config.GUIDED_REFLECTION_COST;
-}
-
-
-export function displayDailyRituals() {
-     if (!dailyRitualsDisplay) return; dailyRitualsDisplay.innerHTML = '';
-     const completed = State.getState().completedRituals.daily || {}; const focused = State.getFocusedConcepts();
-     let activeRituals = [...dailyRituals];
-     if (focusRituals) { focusRituals.forEach(ritual => { if (!ritual.requiredFocusIds || ritual.requiredFocusIds.length === 0) return; const reqIds = new Set(ritual.requiredFocusIds); let allFocused = true; for (const id of reqIds) { if (!focused.has(id)) { allFocused = false; break; } } if (allFocused) activeRituals.push({ ...ritual, isFocusRitual: true }); }); }
-     if(State.getOnboardingPhase() < Config.ONBOARDING_PHASE.REFLECTION_RITUALS) { dailyRitualsDisplay.innerHTML = '<li>Unlock rituals by progressing.</li>'; return; }
-     if (activeRituals.length === 0) { dailyRitualsDisplay.innerHTML = '<li>No daily rituals currently active.</li>'; return; }
-     activeRituals.forEach(ritual => {
-         const completedData = completed[ritual.id] || { completed: false, progress: 0 }; const isCompleted = completedData.completed;
-         const li = document.createElement('li'); li.classList.toggle('completed', isCompleted); if(ritual.isFocusRitual) li.classList.add('focus-ritual');
-         let rewardText = '';
-         if (ritual.reward) {
-             if (ritual.reward.type === 'insight') rewardText = `(+${ritual.reward.amount} <i class="fas fa-brain insight-icon"></i>)`;
-             else if (ritual.reward.type === 'attunement') { const elName = ritual.reward.element === 'All' ? 'All' : (elementKeyToFullName[ritual.reward.element] || ritual.reward.element); rewardText = `(+${ritual.reward.amount} ${elName} Attun.)`; }
-             else if (ritual.reward.type === 'token') rewardText = `(+1 ${ritual.reward.tokenType || 'Token'})`;
-         }
-         li.innerHTML = `${ritual.description} <span class="ritual-reward">${rewardText}</span>`;
-         dailyRitualsDisplay.appendChild(li);
-     });
-}
-export function displayResearchStatus(message) { if (researchStatus) researchStatus.textContent = message; }
-export function displayResearchResults(results) {
-    if (!researchOutput) return; const { concepts: foundConcepts, repositoryItems, duplicateInsightGain } = results;
-    if (foundConcepts.length > 0 || repositoryItems.length > 0) { const placeholder = researchOutput.querySelector('p > i'); if(placeholder && placeholder.parentElement.children.length === 1) placeholder.parentElement.innerHTML = ''; }
-    if (duplicateInsightGain > 0) { const dupeMsg = document.createElement('p'); dupeMsg.classList.add('duplicate-message'); dupeMsg.innerHTML = `<i class="fas fa-info-circle"></i> Gained ${duplicateInsightGain.toFixed(0)} Insight from duplicate research echoes.`; researchOutput.prepend(dupeMsg); setTimeout(() => dupeMsg.remove(), 5000); }
-    foundConcepts.forEach(concept => {
-        if (!researchOutput.querySelector(`.research-result-item[data-concept-id="${concept.id}"]`)) {
-            const resultItemDiv = document.createElement('div'); resultItemDiv.classList.add('research-result-item'); resultItemDiv.dataset.conceptId = concept.id;
-            const cardElement = renderCard(concept, 'research-output'); resultItemDiv.appendChild(cardElement);
-            const actionDiv = document.createElement('div'); actionDiv.classList.add('research-actions');
-            const addButton = document.createElement('button'); addButton.textContent = "Add to Grimoire"; addButton.classList.add('button', 'small-button', 'research-action-button', 'add-button'); addButton.dataset.conceptId = concept.id;
-            let discoveryValue = Config.CONCEPT_DISCOVERY_INSIGHT[concept.rarity] || Config.CONCEPT_DISCOVERY_INSIGHT.default; const sellValue = discoveryValue * Config.SELL_INSIGHT_FACTOR;
-            const sellButton = document.createElement('button'); sellButton.textContent = `Sell (${sellValue.toFixed(1)}) `; sellButton.innerHTML += `<i class="fas fa-brain insight-icon"></i>`; sellButton.classList.add('button', 'small-button', 'secondary-button', 'sell-button'); sellButton.dataset.conceptId = concept.id; sellButton.dataset.context = 'research'; sellButton.title = `Sell for ${sellValue.toFixed(1)} Insight.`;
-            actionDiv.appendChild(addButton); actionDiv.appendChild(sellButton);
-            resultItemDiv.appendChild(actionDiv); researchOutput.appendChild(resultItemDiv);
-        }
-    });
-    repositoryItems.forEach(item => {
-         if (researchOutput.querySelector(`[data-repo-id="${item.id}"]`)) return;
-         const itemDiv = document.createElement('div'); itemDiv.classList.add('repository-item-discovery'); itemDiv.dataset.repoId = item.id;
-         let iconClass = 'fa-question-circle'; let typeName = 'Item';
-         if (item.type === 'scene') { iconClass = 'fa-scroll'; typeName = 'Scene Blueprint'; }
-         else if (item.type === 'insight') { iconClass = 'fa-lightbulb'; typeName = 'Insight Fragment'; }
-         itemDiv.innerHTML = `<h4><i class="fas ${iconClass}"></i> ${typeName} Discovered!</h4><p>${item.text || `You've uncovered the '${item.name}'. View it in the Repository.`}</p>`;
-         researchOutput.prepend(itemDiv); setTimeout(() => itemDiv.remove(), 7000);
-    });
-    if (researchOutput.children.length === 0) { researchOutput.innerHTML = '<p><i>Familiar thoughts echo...</i></p>'; }
-}
-export function updateResearchButtonAfterAction(conceptId, action) {
-    const itemDiv = researchOutput?.querySelector(`.research-result-item[data-concept-id="${conceptId}"]`); if (!itemDiv) return;
-    if (action === 'add' || action === 'sell') { itemDiv.remove(); if (researchOutput && researchOutput.children.length === 0) { researchOutput.innerHTML = '<p><i>Research results cleared.</i></p>'; if (action === 'sell') { displayResearchStatus("Ready for new research."); } } }
-}
-
-// --- Grimoire Screen UI ---
-export function updateGrimoireCounter() { if (grimoireCountSpan) grimoireCountSpan.textContent = State.getDiscoveredConcepts().size; }
-export function populateGrimoireFilters() {
-    if (grimoireTypeFilter) { grimoireTypeFilter.innerHTML = '<option value="All">All Types</option>'; cardTypeKeys.forEach(type => { const option = document.createElement('option'); option.value = type; option.textContent = type; grimoireTypeFilter.appendChild(option); }); }
-    if (grimoireElementFilter) { grimoireElementFilter.innerHTML = '<option value="All">All Elements</option>'; elementNames.forEach(fullName => { const name = elementDetails[fullName]?.name || fullName; const option = document.createElement('option'); option.value = fullName; option.textContent = name; grimoireElementFilter.appendChild(option); }); }
-}
-export function displayGrimoire(filterType = "All", filterElement = "All", sortBy = "discovered", filterRarity = "All", searchTerm = "", filterFocus = "All") {
-    if (!grimoireContentDiv) return; grimoireContentDiv.innerHTML = '';
-    const discoveredMap = State.getDiscoveredConcepts(); if (discoveredMap.size === 0) { grimoireContentDiv.innerHTML = '<p>Your Grimoire is empty...</p>'; return; }
-    const userScores = State.getScores();
-    const focusedSet = State.getFocusedConcepts();
-
-    let discoveredArray = Array.from(discoveredMap.values());
-    if (filterElement !== "All" && typeof elementNameToKey === 'undefined') { console.error("UI Error: elementNameToKey map unavailable."); return; }
-
-    const searchTermLower = searchTerm.toLowerCase().trim();
-
-    const conceptsToDisplay = discoveredArray.filter(data => {
-        if (!data?.concept) return false; const concept = data.concept;
-        const typeMatch = (filterType === "All") || (concept.cardType === filterType);
-        const elementKey = (filterElement !== "All" && elementNameToKey) ? elementNameToKey[filterElement] : "All";
-        if (filterElement !== "All" && !elementKey) { console.warn(`UI: Could not find key for filterElement '${filterElement}'.`); }
-        const elementMatch = (elementKey === "All") || (concept.primaryElement === elementKey);
-        const rarityMatch = (filterRarity === "All") || (concept.rarity === filterRarity);
-        const focusMatch = (filterFocus === 'All') ||
-                           (filterFocus === 'Focused' && focusedSet.has(concept.id)) ||
-                           (filterFocus === 'Not Focused' && !focusedSet.has(concept.id));
-        const searchMatch = !searchTermLower ||
-                           (concept.name.toLowerCase().includes(searchTermLower)) ||
-                           (concept.keywords && concept.keywords.some(k => k.toLowerCase().includes(searchTermLower)));
-
-        return typeMatch && elementMatch && rarityMatch && focusMatch && searchMatch;
-    });
-
-    const rarityOrder = { 'common': 1, 'uncommon': 2, 'rare': 3 };
-    conceptsToDisplay.sort((a, b) => {
-        if (!a.concept || !b.concept) return 0;
-        switch (sortBy) {
-            case 'name': return a.concept.name.localeCompare(b.concept.name);
-            case 'type': return (cardTypeKeys.indexOf(a.concept.cardType) - cardTypeKeys.indexOf(b.concept.cardType)) || a.concept.name.localeCompare(b.concept.name);
-            case 'rarity': return (rarityOrder[a.concept.rarity] || 0) - (rarityOrder[b.concept.rarity] || 0) || a.concept.name.localeCompare(b.concept.name);
-            case 'resonance':
-                 const distA = Utils.euclideanDistance(userScores, a.concept.elementScores);
-                 const distB = Utils.euclideanDistance(userScores, b.concept.elementScores);
-                 return distA - distB || a.concept.name.localeCompare(b.concept.name);
-            default: return (a.discoveredTime || 0) - (b.discoveredTime || 0) || a.concept.name.localeCompare(b.concept.name);
-        }
-    });
-
-    if (conceptsToDisplay.length === 0) {
-        grimoireContentDiv.innerHTML = `<p>No discovered concepts match the current filters${searchTermLower ? ' or search term' : ''}.</p>`;
-    }
-    else {
-        conceptsToDisplay.forEach(data => {
-            const cardElement = renderCard(data.concept, 'grimoire');
-            if (cardElement) {
-                cardElement.addEventListener('mouseover', (event) => {
-                    const currentCard = event.currentTarget;
-                    const conceptId = parseInt(currentCard.dataset.conceptId);
-                    const conceptData = State.getDiscoveredConceptData(conceptId)?.concept;
-                    if (!conceptData || !conceptData.relatedIds) return;
-                    currentCard.classList.add('hover-highlight');
-                    const allCards = grimoireContentDiv.querySelectorAll('.concept-card');
-                    allCards.forEach(card => {
-                        const cardId = parseInt(card.dataset.conceptId);
-                        if (conceptData.relatedIds.includes(cardId) && card !== currentCard) {
-                            card.classList.add('related-highlight');
-                        }
-                    });
-                });
-                cardElement.addEventListener('mouseout', (event) => {
-                    const currentCard = event.currentTarget;
-                    currentCard.classList.remove('hover-highlight');
-                    const allCards = grimoireContentDiv.querySelectorAll('.concept-card');
-                    allCards.forEach(card => card.classList.remove('related-highlight'));
-                });
-                grimoireContentDiv.appendChild(cardElement);
-            }
-        });
-    }
-}
-
-export function refreshGrimoireDisplay() {
-     if (grimoireScreen && !grimoireScreen.classList.contains('hidden')) {
-         const typeValue = grimoireTypeFilter?.value || "All";
-         const elementValue = grimoireElementFilter?.value || "All";
-         const sortValue = grimoireSortOrder?.value || "discovered";
-         const rarityValue = grimoireRarityFilter?.value || "All";
-         const searchValue = grimoireSearchInput?.value || "";
-         const focusValue = grimoireFocusFilter?.value || "All";
-         displayGrimoire(typeValue, elementValue, sortValue, rarityValue, searchValue, focusValue);
-     }
-}
-
-// --- Card Rendering (Cleaned) ---
-export function renderCard(concept, context = 'grimoire') {
-    if (!concept || typeof concept.id === 'undefined') {
-        console.warn("renderCard invalid concept:", concept);
-        const errorDiv = document.createElement('div');
-        errorDiv.textContent = "Error rendering card";
-        errorDiv.style.color = 'red'; errorDiv.style.padding = '10px'; errorDiv.style.border = '1px solid red';
-        return errorDiv;
-    }
-
-    const cardDiv = document.createElement('div');
-    cardDiv.classList.add('concept-card');
-    cardDiv.classList.add(`rarity-${concept.rarity || 'common'}`);
-    cardDiv.dataset.conceptId = concept.id;
-    cardDiv.title = `View Details: ${concept.name}`;
-
-    const discoveredData = State.getDiscoveredConceptData(concept.id);
-    const isDiscovered = !!discoveredData;
-    const isFocused = State.getFocusedConcepts().has(concept.id);
-    const artUnlocked = discoveredData?.artUnlocked || false;
-    const phaseAllowsFocus = isDiscovered && State.getOnboardingPhase() >= Config.ONBOARDING_PHASE.PERSONA_GRIMOIRE;
-    const phaseAllowsSell = isDiscovered && context === 'grimoire' && State.getOnboardingPhase() >= Config.ONBOARDING_PHASE.STUDY_INSIGHT;
-
-    const focusStampHTML = isFocused ? '<span class="focus-indicator" title="Focused Concept">★</span>' : '';
-    const cardTypeIcon = Utils.getCardTypeIcon(concept.cardType);
-
-    let affinitiesHTML = '';
-    if (concept.elementScores && elementKeyToFullName) {
-        Object.entries(concept.elementScores).forEach(([key, score]) => {
-            const level = Utils.getAffinityLevel(score);
-            if (level && elementKeyToFullName[key]) {
-                const fullName = elementKeyToFullName[key]; const color = Utils.getElementColor(fullName); const iconClass = Utils.getElementIcon(fullName); const elementNameDetail = elementDetails[fullName]?.name || fullName;
-                affinitiesHTML += `<span class="affinity affinity-${level.toLowerCase()}" style="border-color: ${color}; background-color: ${Utils.hexToRgba(color, 0.1)};" title="${elementNameDetail} Affinity: ${level} (${score.toFixed(1)})"><i class="${iconClass}" style="color: ${color};"></i></span> `;
-            }
-        });
-    }
-
-    let visualIconClass = "fas fa-question card-visual-placeholder"; let visualTitle = "Visual Placeholder";
-    if (artUnlocked) { visualIconClass = "fas fa-star card-visual-placeholder card-art-unlocked"; visualTitle = "Enhanced Art Placeholder"; }
-    else if (concept.visualHandle) { visualIconClass = "fas fa-image card-visual-placeholder"; visualTitle = "Art Placeholder"; }
-    const visualContent = `<i class="${visualIconClass}" title="${visualTitle}"></i>`;
-
-    // Action Buttons
-    let actionButtonsHTML = '<div class="card-actions">';
-    if (phaseAllowsSell) {
-        let discoveryValue = Config.CONCEPT_DISCOVERY_INSIGHT[concept.rarity] || Config.CONCEPT_DISCOVERY_INSIGHT.default;
-        const sellValue = discoveryValue * Config.SELL_INSIGHT_FACTOR;
-        actionButtonsHTML += `<button class="button tiny-button secondary-button sell-button card-sell-button" data-concept-id="${concept.id}" data-context="grimoire" title="Sell (${sellValue.toFixed(1)} Insight)"><i class="fas fa-dollar-sign"></i></button>`;
-    }
-    if (phaseAllowsFocus) {
-        const slotsFull = State.getFocusedConcepts().size >= State.getFocusSlots() && !isFocused;
-        const buttonClass = isFocused ? 'marked' : '';
-        const buttonIcon = isFocused ? 'fa-star' : 'fa-regular fa-star';
-        const buttonTitle = slotsFull ? `Focus Slots Full (${State.getFocusSlots()})` : (isFocused ? 'Remove Focus' : 'Mark as Focus');
-        actionButtonsHTML += `<button class="button tiny-button card-focus-button ${buttonClass}" data-concept-id="${concept.id}" title="${buttonTitle}" ${slotsFull ? 'disabled' : ''}><i class="fas ${buttonIcon}"></i></button>`;
-    }
-    actionButtonsHTML += '</div>';
-
-    // Assemble Card HTML
-    cardDiv.innerHTML = `
-        <div class="card-header">
-            <i class="${cardTypeIcon} card-type-icon" title="${concept.cardType}"></i>
-            <span class="card-name">${concept.name}</span>
-            <span class="card-stamps">${focusStampHTML}</span>
-        </div>
-        <div class="card-visual">
-            ${visualContent}
-        </div>
-        <div class="card-footer">
-            <div class="card-affinities">${affinitiesHTML || '<small style="color:#888; font-style: italic;">Basic Affinity</small>'}</div>
-            <p class="card-brief-desc">${concept.briefDescription || '...'}</p>
-            ${actionButtonsHTML}
-        </div>`;
-
-    // Add main click listener for popup (excluding action button clicks)
-    if (context !== 'no-click') {
-        cardDiv.addEventListener('click', (event) => {
-            if (event.target.closest('.card-actions button')) {
-                console.log("Card action button clicked, preventing popup.");
-                return;
-            }
-             console.log("Card body clicked, showing popup for ID:", concept.id);
-            showConceptDetailPopup(concept.id);
-        });
-    }
-
-    if (context === 'research-output') {
-        cardDiv.title = `Click to view details (Not in Grimoire)`;
-        cardDiv.querySelector('.card-actions')?.remove(); // No actions on research cards
-    }
-
-    return cardDiv;
-}
-
-
-// --- Concept Detail Popup UI ---
-export function showConceptDetailPopup(conceptId) {
-    const conceptData = concepts.find(c => c.id === conceptId); if (!conceptData) { console.error("Concept data missing:", conceptId); return; }
-    const discoveredData = State.getDiscoveredConceptData(conceptId); const inGrimoire = !!discoveredData;
-    const inResearchNotes = !inGrimoire && researchOutput?.querySelector(`.research-result-item[data-concept-id="${conceptId}"]`);
-    const currentPhase = State.getOnboardingPhase();
-    GameLogic.setCurrentPopupConcept(conceptId);
-
-    if (popupConceptName) popupConceptName.textContent = conceptData.name;
-    if (popupConceptType) popupConceptType.textContent = conceptData.cardType;
-    if (popupCardTypeIcon) popupCardTypeIcon.className = `${Utils.getCardTypeIcon(conceptData.cardType)} card-type-icon`;
-    if (popupDetailedDescription) popupDetailedDescription.textContent = conceptData.detailedDescription || "No description.";
-
-    const artUnlocked = discoveredData?.artUnlocked || false;
-    if (popupVisualContainer) {
-        popupVisualContainer.innerHTML = '';
-        let visualIconClass = "fas fa-question card-visual-placeholder"; let visualTitle = "Visual Placeholder";
-        if (artUnlocked) { visualIconClass = "fas fa-star card-visual-placeholder card-art-unlocked"; visualTitle = "Enhanced Art Placeholder"; }
-        else if (conceptData.visualHandle) { visualIconClass = "fas fa-image card-visual-placeholder"; visualTitle = "Art Placeholder"; }
-        const visualContent = `<i class="${visualIconClass}" title="${visualTitle}"></i>`;
-        popupVisualContainer.innerHTML = visualContent;
-    }
-
-    const scores = State.getScores(); const distance = Utils.euclideanDistance(scores, conceptData.elementScores);
-    displayPopupResonance(distance); displayPopupRecipeComparison(conceptData, scores); displayPopupRelatedConcepts(conceptData);
-
-    const showNotes = inGrimoire && currentPhase >= Config.ONBOARDING_PHASE.STUDY_INSIGHT;
-    if (myNotesSection && myNotesTextarea && saveMyNoteButton) {
-        myNotesSection.classList.toggle('hidden', !showNotes);
-        if (showNotes) { myNotesTextarea.value = discoveredData.notes || ""; if(noteSaveStatusSpan) noteSaveStatusSpan.textContent = ""; }
-    }
-    const showEvolution = inGrimoire && currentPhase >= Config.ONBOARDING_PHASE.ADVANCED;
-    if (popupEvolutionSection) {
-        popupEvolutionSection.classList.toggle('hidden', !showEvolution);
-        if (showEvolution) displayEvolutionSection(conceptData, discoveredData);
-    }
-
-    updateGrimoireButtonStatus(conceptId, !!inResearchNotes);
-    updateFocusButtonStatus(conceptId); // Still used for the popup's focus button
-    updatePopupSellButton(conceptId, conceptData, inGrimoire, !!inResearchNotes);
-
-    if (conceptDetailPopup) conceptDetailPopup.classList.remove('hidden'); if (popupOverlay) popupOverlay.classList.remove('hidden');
-}
-export function displayPopupResonance(distance) {
-    if (!popupResonanceSummary) return; let resonanceLabel, resonanceClass, message;
-    if (distance === Infinity || isNaN(distance)) { resonanceLabel = "N/A"; resonanceClass = ""; message = "(Cannot compare)"; }
-    else if (distance < 2.5) { resonanceLabel = "Very High"; resonanceClass = "resonance-high"; message = "Strongly aligns."; }
-    else if (distance < 4.0) { resonanceLabel = "High"; resonanceClass = "resonance-high"; message = "Shares common ground."; }
-    else if (distance < 6.0) { resonanceLabel = "Moderate"; resonanceClass = "resonance-medium"; message = "Some similarities."; }
-    else if (distance <= Config.DISSONANCE_THRESHOLD) { resonanceLabel = "Low"; resonanceClass = "resonance-low"; message = "Notable divergence."; }
-    else { resonanceLabel = "Dissonant"; resonanceClass = "resonance-low"; message = "Significant divergence."; }
-    popupResonanceSummary.innerHTML = `Resonance: <span class="resonance-indicator ${resonanceClass}">${resonanceLabel}</span> <small>(Dist: ${distance.toFixed(1)})</small><br><small>${message}</small> <i class="fas fa-info-circle info-icon" title="How closely this Concept's elemental scores align with your Core Foundation scores. High resonance suggests strong alignment, Dissonant suggests significant divergence."></i>`;
-}
-export function displayPopupRecipeComparison(conceptData, userCompScores) {
-     if (!popupConceptProfile || !popupUserComparisonProfile || !popupComparisonHighlights) return;
-     popupConceptProfile.innerHTML = ''; popupUserComparisonProfile.innerHTML = ''; popupComparisonHighlights.innerHTML = '';
-     let highlightsHTML = '<p><strong>Key Alignments & Differences:</strong></p>'; let hasHighlights = false; const conceptScores = conceptData.elementScores || {};
-     elementNames.forEach(elName => {
-         const key = elementNameToKey[elName]; const fullName = elementKeyToFullName[key]; if (!fullName) return;
-         const conceptScore = conceptScores[key]; const userScore = userCompScores[key];
-         const conceptScoreValid = typeof conceptScore === 'number' && !isNaN(conceptScore); const userScoreValid = typeof userScore === 'number' && !isNaN(userScore);
-         const conceptDisplay = conceptScoreValid ? conceptScore.toFixed(1) : '?'; const userDisplay = userScoreValid ? userScore.toFixed(1) : '?';
-         const conceptLabel = conceptScoreValid ? Utils.getScoreLabel(conceptScore) : 'N/A'; const userLabel = userScoreValid ? Utils.getScoreLabel(userScore) : 'N/A';
-         const conceptBarWidth = conceptScoreValid ? (conceptScore / 10) * 100 : 0; const userBarWidth = userScoreValid ? (userScore / 10) * 100 : 0;
-         const color = Utils.getElementColor(fullName); const elementNameShort = elementDetails[fullName]?.name.substring(0, 11) || elName;
-         popupConceptProfile.innerHTML += `<div><strong>${elementNameShort}:</strong> <span>${conceptDisplay}</span> <div class="score-bar-container" title="${conceptLabel}"><div style="width: ${conceptBarWidth}%; background-color: ${color};"></div></div></div>`;
-         popupUserComparisonProfile.innerHTML += `<div><strong>${elementNameShort}:</strong> <span>${userDisplay}</span> <div class="score-bar-container" title="${userLabel}"><div style="width: ${userBarWidth}%; background-color: ${color};"></div></div></div>`;
-         if (conceptScoreValid && userScoreValid) {
-             const diff = Math.abs(conceptScore - userScore); const elementNameDisplay = elementDetails[fullName]?.name || elName;
-             if (conceptScore >= 7 && userScore >= 7) { highlightsHTML += `<p>• <strong class="match">Strong Alignment</strong> in ${elementNameDisplay} (Both ${conceptLabel}/${userLabel})</p>`; hasHighlights = true; }
-             else if (conceptScore <= 3 && userScore <= 3) { highlightsHTML += `<p>• <strong class="match">Shared Low Emphasis</strong> in ${elementNameDisplay} (Both ${conceptLabel}/${userLabel})</p>`; hasHighlights = true; }
-             else if (diff >= 4) { highlightsHTML += `<p>• <strong class="mismatch">Notable Difference</strong> in ${elementNameDisplay} (Concept: ${conceptLabel}, You: ${userLabel})</p>`; hasHighlights = true; }
-         }
-     });
-     if (!hasHighlights) highlightsHTML += '<p><em>No strong alignments or
-// --- Persona Screen UI ---
-export function displayPersonaScreen() {
-    if (!personaElementDetailsDiv) { console.error("Persona element details div not found!"); return; }
-    console.log("UI: Displaying Persona Screen");
-    personaElementDetailsDiv.innerHTML = '';
-    const scores = State.getScores();
-    const showDeepDiveContainer = State.getOnboardingPhase() >= Config.ONBOARDING_PHASE.PERSONA_GRIMOIRE;
-
-    elementNames.forEach(elementName => {
-        const key = elementNameToKey[elementName];
-        const score = (typeof scores[key] === 'number' && !isNaN(scores[key])) ? scores[key] : 5.0;
-        const scoreLabel = Utils.getScoreLabel(score);
-        const elementData = elementDetails[elementName] || {};
-        const interpretation = elementData.scoreInterpretations?.[scoreLabel] || "N/A";
-        const barWidth = score ? (score / 10) * 100 : 0;
-        const color = Utils.getElementColor(elementName);
-        const iconClass = Utils.getElementIcon(elementName);
-
-        const details = document.createElement('details');
-        details.classList.add('element-detail-entry');
-        details.dataset.elementKey = key;
-        details.style.setProperty('--element-color', color);
-
-        const deepDiveContainer = document.createElement('div');
-        deepDiveContainer.classList.add('element-deep-dive-container');
-        deepDiveContainer.dataset.elementKey = key;
-        deepDiveContainer.classList.toggle('hidden', !showDeepDiveContainer);
-
-        // Build innerHTML string - Corrected comments
-        details.innerHTML = `
-            <summary class="element-detail-header">
-                 <div>
-                    <i class="${iconClass} element-icon-indicator" style="color: ${color};" title="${elementData.name || elementName}"></i>
-                    <strong>${elementData.name || elementName}:</strong>
-                    <span>${score?.toFixed(1) ?? '?'}</span>
-                    <span class="score-label">(${scoreLabel})</span>
-                </div>
-                <div class="score-bar-container">
-                    <div style="width: ${barWidth}%; background-color: ${color};"></div>
-                </div>
-            </summary>
-            <div class="element-description">
-                <p><strong>Core Concept:</strong> ${elementData.coreConcept || ''}</p>
-                <p><strong>Elaboration:</strong> ${elementData.elaboration || ''}</p>
-                <hr>
-                <p><strong>Your Score (${scoreLabel}):</strong> ${interpretation}</p>
-                <p><small><strong>Examples:</strong> ${elementData.examples || ''}</small></p>
-            </div>`;
-
-        const descriptionDiv = details.querySelector('.element-description');
-        if (descriptionDiv) {
-            descriptionDiv.appendChild(deepDiveContainer); // Append container structure
-        }
-
-        personaElementDetailsDiv.appendChild(details);
-
-        if (showDeepDiveContainer) {
-            displayElementDeepDive(key, deepDiveContainer); // Populate the container
-        }
-    });
-
-    displayElementAttunement();
-    updateInsightDisplays();
-    displayFocusedConceptsPersona();
-    generateTapestryNarrative();
-    synthesizeAndDisplayThemesPersona();
-    displayPersonaSummary();
-    applyOnboardingPhaseUI(State.getOnboardingPhase());
-    updateTapestryDeepDiveButton();
-    updateSuggestSceneButtonState();
-}
-
-
-export function displayElementAttunement() {
-    if (!personaElementDetailsDiv || personaElementDetailsDiv.children.length === 0) return;
-    const attunement = State.getAttunement();
-    elementNames.forEach(elName => {
-        const key = elementNameToKey[elName]; const attunementValue = attunement[key] || 0; const percentage = (attunementValue / Config.MAX_ATTUNEMENT) * 100; const color = Utils.getElementColor(elName);
-        const targetDetails = personaElementDetailsDiv.querySelector(`.element-detail-entry[data-element-key="${key}"]`);
-        if (targetDetails) {
-            let descriptionDiv = targetDetails.querySelector('.element-description');
-            if (descriptionDiv) {
-                const deepDiveContainer = descriptionDiv.querySelector('.element-deep-dive-container');
-                descriptionDiv.querySelector('.attunement-display')?.remove();
-                descriptionDiv.querySelector('.attunement-hr')?.remove();
-
-                const hr = document.createElement('hr'); hr.className = 'attunement-hr';
-                const attunementDiv = document.createElement('div'); attunementDiv.classList.add('attunement-display');
-                attunementDiv.innerHTML = `<div class="attunement-item"><span class="attunement-name">Attunement:</span><div class="attunement-bar-container" title="Current Attunement: ${attunementValue.toFixed(1)} / ${Config.MAX_ATTUNEMENT}"><div class="attunement-bar" style="width: ${percentage}%; background-color: ${color};"></div></div><i class="fas fa-info-circle info-icon" title="Attunement reflects your affinity and experience with this Element. It grows through related actions like Research, Reflection, and focusing on relevant Concepts. High Attunement may unlock Experiments or reduce Research costs."></i></div>`;
-
-                if (deepDiveContainer) {
-                     descriptionDiv.insertBefore(hr, deepDiveContainer);
-                     descriptionDiv.insertBefore(attunementDiv, deepDiveContainer);
-                } else {
-                     descriptionDiv.appendChild(hr);
-                     descriptionDiv.appendChild(attunementDiv);
-                }
-            }
-        }
-    });
-}
-export function updateFocusSlotsDisplay() {
-    const focused = State.getFocusedConcepts(); const totalSlots = State.getFocusSlots();
-    if (focusedConceptsHeader) { focusedConceptsHeader.textContent = `Focused Concepts (${focused.size} / ${totalSlots})`; const icon = focusedConceptsHeader.querySelector('.info-icon'); if(icon) icon.title = `The number of Concepts currently marked as Focus out of your total available slots (${totalSlots}). Slots can be increased via Milestones.`; }
-}
-export function displayFocusedConceptsPersona() {
-    if (!focusedConceptsDisplay) return; focusedConceptsDisplay.innerHTML = ''; updateFocusSlotsDisplay();
-    const focused = State.getFocusedConcepts(); const discovered = State.getDiscoveredConcepts();
-    if (focused.size === 0) { focusedConceptsDisplay.innerHTML = `<li class="focus-placeholder">Focus Concepts from your Grimoire</li>`; return; }
-    focused.forEach(conceptId => {
-        const conceptData = discovered.get(conceptId);
-        if (conceptData?.concept) {
-            const concept = conceptData.concept;
-            const item = document.createElement('div'); item.classList.add('focus-concept-item'); item.dataset.conceptId = concept.id; item.title = `View ${concept.name}`;
-
-            let iconClass = Utils.getCardTypeIcon(concept.cardType);
-            let iconColor = '#b8860b';
-            if (concept.primaryElement && elementKeyToFullName && elementKeyToFullName[concept.primaryElement]) {
-                const fullElementName = elementKeyToFullName[concept.primaryElement];
-                iconClass = Utils.getElementIcon(fullElementName);
-                iconColor = Utils.getElementColor(fullElementName);
-            } else { console.warn(`Concept ${concept.name} missing valid primaryElement for focus icon.`); }
-
-            item.innerHTML = `<i class="${iconClass}" style="color: ${iconColor};"></i><span class="name">${concept.name}</span><span class="type">(${concept.cardType})</span>`;
-
-            item.addEventListener('click', () => showConceptDetailPopup(concept.id));
-            focusedConceptsDisplay.appendChild(item);
-        } else { console.warn(`Focused concept ID ${conceptId} not found.`); const item = document.createElement('div'); item.classList.add('focus-concept-item', 'missing'); item.textContent = `Error: ID ${conceptId}`; focusedConceptsDisplay.appendChild(item); }
-    });
-    updateSuggestSceneButtonState();
-}
-
-export function generateTapestryNarrative() {
-     if (!tapestryNarrativeP) return;
-     const narrative = GameLogic.calculateTapestryNarrative();
-     tapestryNarrativeP.innerHTML = narrative || 'Mark concepts as "Focus" to generate narrative...';
-     console.log("UI: Updated Detailed View Tapestry Narrative paragraph.");
-}
-export function synthesizeAndDisplayThemesPersona() {
-     if (!personaThemesList) return; personaThemesList.innerHTML = '';
-     const themes = GameLogic.calculateFocusThemes(); // Get sorted themes {key, name, count}
-
-     if (themes.length === 0) {
-         personaThemesList.innerHTML = `<li>${State.getFocusedConcepts().size > 0 ? 'Focus is currently balanced.' : 'Mark Focused Concepts...'}</li>`;
-         return;
-     }
-
-     // Display only the top theme
-     const topTheme = themes[0];
-     const li = document.createElement('li');
-     // Customize message based on how dominant it is
-     let emphasis = "Strongly";
-     if (themes.length > 1 && topTheme.count <= themes[1].count + 1) { // If close to second theme
-         emphasis = "Primarily";
-     } else if (topTheme.count < 3) { // If only 1 or 2 concepts contribute
-         emphasis = "Leaning towards";
-     }
-     li.textContent = `${emphasis} focused on ${topTheme.name}`;
-     li.style.borderLeft = `3px solid ${Utils.getElementColor(elementKeyToFullName[topTheme.key])}`; // Add color indicator
-     li.style.paddingLeft = '8px';
-     personaThemesList.appendChild(li);
-
-     // Optionally, add a note if balanced despite a top theme
-     if (themes.length > 1 && topTheme.count <= themes[1].count + 1) {
-         const balanceLi = document.createElement('li');
-         balanceLi.innerHTML = `<small>(with other influences present)</small>`;
-         balanceLi.style.fontSize = '0.85em';
-         balanceLi.style.color = '#666';
-         balanceLi.style.paddingLeft = '20px'; // Indent slightly
-         personaThemesList.appendChild(balanceLi);
-     }
-} // <<< Added missing brace here previously
 
 export function displayPersonaSummary() {
     if (!summaryContentDiv) return;
@@ -1281,7 +712,7 @@ export function displayPersonaSummary() {
     } else { html += '<p>No concepts are currently focused.</p>'; }
     html += '</div>';
     summaryContentDiv.innerHTML = html;
-} // <<< Added missing brace here previously
+}
 
 
 // --- Study Screen UI ---
@@ -1917,10 +1348,8 @@ export function displayRepositoryContent() {
      });
      if (experimentsDisplayed === 0) { repositoryExperimentsDiv.innerHTML = '<p>Increase Attunement to unlock Experiments.</p>'; }
 
-     // Display Elemental Insights (CHECK THIS AREA - Around Line 1068)
-   // Inside ui.js -> displayRepositoryContent function
-// Find this 'if' statement:
-if (repoItems.insights.size > 0) {
+     // Display Elemental Insights (REVISED AND SIMPLIFIED)
+     if (repoItems.insights.size > 0) {
          const insightsByElement = {};
          // Initialize structure
          elementNames.forEach(elName => {
@@ -1946,12 +1375,24 @@ if (repoItems.insights.size > 0) {
             if (insightsByElement[key].length > 0) {
                 const fullElementName = elementKeyToFullName[key];
                 const elementNameDisplay = elementDetails[fullElementName]?.name || key;
+
+                // Add heading for the element
+                // Ensure template literal is correctly formed
                 insightsHTML += `<h5>${elementNameDisplay} Insights:</h5>`;
-                insightsHTML += `<ul>`;
+
+                // Start the list for this element
+                insightsHTML += `<ul>`; // Basic HTML tag, no complex characters here
+
+                // Add list items for insights
                 insightsByElement[key].sort((a, b) => a.id.localeCompare(b.id)).forEach(insight => {
-                    insightsHTML += `<li>"${insight.text || '...'}"</li>`;
+                    // Ensure insight.text exists and handle quotes safely
+                    // Using template literals for consistency, basic concatenation would also work
+                    const textContent = insight.text ? `"${insight.text.replace(/"/g, '&quot;')}"` : '"..."'; // Basic quote escaping
+                    insightsHTML += `<li>${textContent}</li>`;
                 });
-                insightsHTML += `</ul>`;
+
+                // Close the list for this element
+                insightsHTML += `</ul>`; // Basic HTML tag
             }
         } // End for...in loop
 
@@ -1962,10 +1403,10 @@ if (repoItems.insights.size > 0) {
         repositoryInsightsDiv.innerHTML = '<p>No Elemental Insights collected.</p>';
     }
 
-   
 
-     displayMilestones(); // Display milestones after repository items
- } 
+    displayMilestones(); // Display milestones after repository items
+ } // <<< End of displayRepositoryContent function
+
 export function renderRepositoryItem(item, type, cost, canAfford, completed = false, unmetReqs = []) {
      const div = document.createElement('div'); div.classList.add('repository-item', `repo-item-${type}`); if (completed) div.classList.add('completed');
      let actionsHTML = '';
