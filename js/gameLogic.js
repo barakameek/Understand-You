@@ -1383,6 +1383,6 @@ export {
     handleCompleteContemplation,
     // Suggest Scenes
     handleSuggestSceneClick
-}; // <<< This closing brace should be the last part before the final console.log
+}; // <<< Closing brace of the export block
 
 console.log("gameLogic.js loaded.");
