@@ -1918,57 +1918,64 @@ export function displayRepositoryContent() {
      if (experimentsDisplayed === 0) { repositoryExperimentsDiv.innerHTML = '<p>Increase Attunement to unlock Experiments.</p>'; }
 
      // Display Elemental Insights (CHECK THIS AREA - Around Line 1068)
-    if (repoItems.insights.size > 0) {
-         const insightsByElement = {};
-         // Initialize structure to hold insights grouped by element
-         elementNames.forEach(elName => {
-            const key = elementNameToKey[elName];
-            if (key) { insightsByElement[key] = []; }
-         });
+   // Inside ui.js -> displayRepositoryContent function
+// Find this 'if' statement:
+if (repoItems.insights.size > 0) {
+    // *** REPLACE EVERYTHING INSIDE THIS IF/ELSE BLOCK with the code below ***
 
-         // Populate the structure
-         repoItems.insights.forEach(insightId => {
-            const insight = elementalInsights.find(i => i.id === insightId);
-            if (insight && insightsByElement[insight.element]) {
-                 insightsByElement[insight.element].push(insight);
-            } else if (insight) {
-                 console.warn(`Insight ${insightId} has unknown element key: ${insight.element}`);
-            } else {
-                 console.warn(`Insight ID ${insightId} not found in elementalInsights data.`);
-            }
-         });
+    const insightsByElement = {};
+    // Initialize structure
+    elementNames.forEach(elName => {
+        const key = elementNameToKey[elName];
+        if (key) { insightsByElement[key] = []; }
+    });
 
-         let insightsHTML = ''; // Use this variable name consistently
-         // Loop through the organized insights
-         for (const key in insightsByElement) {
-             if (insightsByElement[key].length > 0) {
-                 const fullElementName = elementKeyToFullName[key];
-                 const elementNameDisplay = elementDetails[fullElementName]?.name || key;
+    // Populate the structure
+    repoItems.insights.forEach(insightId => {
+        const insight = elementalInsights.find(i => i.id === insightId);
+        if (insight && insightsByElement[insight.element]) {
+             insightsByElement[insight.element].push(insight);
+        } else if (insight) {
+             console.warn(`Insight ${insightId} has unknown element key: ${insight.element}`);
+        } else {
+             console.warn(`Insight ID ${insightId} not found in elementalInsights data.`);
+        }
+     });
 
-                 // Build heading separately for clarity
-                 insightsHTML += `<h5>${elementNameDisplay} Insights:</h5>`;
+    // Build HTML (Simplified but structured)
+    let insightsHTML = ''; // Reset HTML string
+    for (const key in insightsByElement) {
+        if (insightsByElement[key].length > 0) {
+            const fullElementName = elementKeyToFullName[key];
+            const elementNameDisplay = elementDetails[fullElementName]?.name || key;
 
-                 // Start list
-                 insightsHTML += `<ul>`;
+            // Add heading for the element
+            insightsHTML += `<h5>${elementNameDisplay} Insights:</h5>`; // Check this template literal carefully
 
-                 // Sort and add list items
-                 insightsByElement[key].sort((a, b) => a.id.localeCompare(b.id)).forEach(insight => {
-                     // Ensure text is properly handled (escape if needed, but likely fine in li)
-                     // Use template literal for consistency, although simple concatenation is okay here.
-                     insightsHTML += `<li>"${insight.text}"</li>`;
-                 });
+            // Start the list for this element
+            insightsHTML += `<ul>`; // Basic HTML tag
 
-                 // Close list
-                 insightsHTML += `</ul>`;
-             }
-         } // End for...in loop
+            // Add list items for insights
+            insightsByElement[key].sort((a, b) => a.id.localeCompare(b.id)).forEach(insight => {
+                // Use template literal for the list item content
+                insightsHTML += `<li>"${insight.text || '...'}"</li>`; // Ensure insight.text exists
+            });
 
-         // Set innerHTML only once after building the string
-         repositoryInsightsDiv.innerHTML = insightsHTML || '<p>No Elemental Insights collected yet.</p>';
+            // Close the list for this element
+            insightsHTML += `</ul>`; // Basic HTML tag
+        }
+    } // End for...in loop
 
-     } else { // If no insights discovered at all
-         repositoryInsightsDiv.innerHTML = '<p>No Elemental Insights collected.</p>';
-     }
+    // Update the DOM *once* after building the entire HTML
+    repositoryInsightsDiv.innerHTML = insightsHTML || '<p>No Elemental Insights collected yet.</p>';
+    // *** END OF REPLACEMENT CODE ***
+
+} else { // If repoItems.insights.size is 0
+    repositoryInsightsDiv.innerHTML = '<p>No Elemental Insights collected.</p>';
+}
+
+displayMilestones(); // Display milestones after repository items
+// ... rest of the function ...
 export function renderRepositoryItem(item, type, cost, canAfford, completed = false, unmetReqs = []) {
      const div = document.createElement('div'); div.classList.add('repository-item', `repo-item-${type}`); if (completed) div.classList.add('completed');
      let actionsHTML = '';
