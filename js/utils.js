@@ -1,5 +1,3 @@
-// --- START OF FILE utils.js ---
-
 // js/utils.js - Utility Functions
 import { elementDetails, elementKeyToFullName, elementNameToKey } from '../data.js'; // data.js is now in parent directory
 
@@ -155,4 +153,3 @@ export function euclideanDistance(userScoresObj, conceptScoresObj) {
 }
 
 console.log("utils.js loaded.");
-// --- END OF FILE utils.js ---
