@@ -596,7 +596,7 @@ const cardTypeThemes = {
 
 // --- FINAL EXPORT BLOCK ---
 export {
-    onboardingTasks,
+    onboardingTasks, // <<< ADD THIS BACK
     elementDetails,
     concepts,
     questionnaireGuided,
@@ -609,7 +609,7 @@ export {
     focusDrivenUnlocks,
     dailyRituals,
     milestones,
-    // onboardingTasks, // <<< REMOVE onboardingTasks FROM THIS LIST
+    // onboardingTasks, // <<< REMOVE THIS COMMENTED LINE
     elementKeyToFullName,
     elementNameToKey,
     cardTypeKeys,
