@@ -281,7 +281,7 @@ let currentTapestryAnalysis = null; // Stores the detailed breakdown
 }
 
 // Research Actions
- export function handleResearchClick(event) {
+  function handleResearchClick(event) {
     const button = event.currentTarget; // The clicked element (div in discovery, button in standard)
     const elementKey = button.dataset.elementKey;
     const isFreeAttempt = event.isFree; // Flag passed from UI listener for discovery mode
