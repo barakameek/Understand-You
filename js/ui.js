@@ -1921,61 +1921,51 @@ export function displayRepositoryContent() {
    // Inside ui.js -> displayRepositoryContent function
 // Find this 'if' statement:
 if (repoItems.insights.size > 0) {
-    // *** REPLACE EVERYTHING INSIDE THIS IF/ELSE BLOCK with the code below ***
+         const insightsByElement = {};
+         // Initialize structure
+         elementNames.forEach(elName => {
+            const key = elementNameToKey[elName];
+            if (key) { insightsByElement[key] = []; }
+         });
 
-    const insightsByElement = {};
-    // Initialize structure
-    elementNames.forEach(elName => {
-        const key = elementNameToKey[elName];
-        if (key) { insightsByElement[key] = []; }
-    });
+         // Populate the structure
+         repoItems.insights.forEach(insightId => {
+            const insight = elementalInsights.find(i => i.id === insightId);
+            if (insight && insightsByElement[insight.element]) {
+                 insightsByElement[insight.element].push(insight);
+            } else if (insight) {
+                 console.warn(`Insight ${insightId} has unknown element key: ${insight.element}`);
+            } else {
+                 console.warn(`Insight ID ${insightId} not found in elementalInsights data.`);
+            }
+         });
 
-    // Populate the structure
-    repoItems.insights.forEach(insightId => {
-        const insight = elementalInsights.find(i => i.id === insightId);
-        if (insight && insightsByElement[insight.element]) {
-             insightsByElement[insight.element].push(insight);
-        } else if (insight) {
-             console.warn(`Insight ${insightId} has unknown element key: ${insight.element}`);
-        } else {
-             console.warn(`Insight ID ${insightId} not found in elementalInsights data.`);
-        }
-     });
+        // Build HTML (Simplified but structured)
+        let insightsHTML = ''; // Reset HTML string
+        for (const key in insightsByElement) {
+            if (insightsByElement[key].length > 0) {
+                const fullElementName = elementKeyToFullName[key];
+                const elementNameDisplay = elementDetails[fullElementName]?.name || key;
+                insightsHTML += `<h5>${elementNameDisplay} Insights:</h5>`;
+                insightsHTML += `<ul>`;
+                insightsByElement[key].sort((a, b) => a.id.localeCompare(b.id)).forEach(insight => {
+                    insightsHTML += `<li>"${insight.text || '...'}"</li>`;
+                });
+                insightsHTML += `</ul>`;
+            }
+        } // End for...in loop
 
-    // Build HTML (Simplified but structured)
-    let insightsHTML = ''; // Reset HTML string
-    for (const key in insightsByElement) {
-        if (insightsByElement[key].length > 0) {
-            const fullElementName = elementKeyToFullName[key];
-            const elementNameDisplay = elementDetails[fullElementName]?.name || key;
+        // Update the DOM *once* after building the entire HTML
+        repositoryInsightsDiv.innerHTML = insightsHTML || '<p>No Elemental Insights collected yet.</p>';
 
-            // Add heading for the element
-            insightsHTML += `<h5>${elementNameDisplay} Insights:</h5>`; // Check this template literal carefully
+    } else { // If repoItems.insights.size is 0
+        repositoryInsightsDiv.innerHTML = '<p>No Elemental Insights collected.</p>';
+    }
 
-            // Start the list for this element
-            insightsHTML += `<ul>`; // Basic HTML tag
+   
 
-            // Add list items for insights
-            insightsByElement[key].sort((a, b) => a.id.localeCompare(b.id)).forEach(insight => {
-                // Use template literal for the list item content
-                insightsHTML += `<li>"${insight.text || '...'}"</li>`; // Ensure insight.text exists
-            });
-
-            // Close the list for this element
-            insightsHTML += `</ul>`; // Basic HTML tag
-        }
-    } // End for...in loop
-
-    // Update the DOM *once* after building the entire HTML
-    repositoryInsightsDiv.innerHTML = insightsHTML || '<p>No Elemental Insights collected yet.</p>';
-    // *** END OF REPLACEMENT CODE ***
-
-} else { // If repoItems.insights.size is 0
-    repositoryInsightsDiv.innerHTML = '<p>No Elemental Insights collected.</p>';
-}
-
-displayMilestones(); // Display milestones after repository items
-// ... rest of the function ...
+     displayMilestones(); // Display milestones after repository items
+ } 
 export function renderRepositoryItem(item, type, cost, canAfford, completed = false, unmetReqs = []) {
      const div = document.createElement('div'); div.classList.add('repository-item', `repo-item-${type}`); if (completed) div.classList.add('completed');
      let actionsHTML = '';
