@@ -1369,7 +1369,7 @@ function attemptExperimentInternal(experimentId) {
 
 // --- Daily Login ---
 // *** THIS IS THE ONLY DEFINITION OF checkForDailyLogin TO KEEP ***
- function checkForDailyLogin() {
+export function checkForDailyLogin() { // <--- ADD "export" HERE
     const today = new Date().toDateString();
     const last = State.getState().lastLoginDate; // Get last login from state
     if (last !== today) {
