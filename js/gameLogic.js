@@ -1324,41 +1324,5 @@ export function handleCompleteContemplation(task) {
 
 // --- EXPORTS ---
 // (Exporting specific functions allows other modules to use them)
-export {
-    // Initialization & Core State
-    clearPopupState, setCurrentPopupConcept, getCurrentPopupConceptId,
-    // Questionnaire
-    handleQuestionnaireInputChange, handleCheckboxChange, calculateElementScore,
-    goToNextElement, goToPrevElement, finalizeQuestionnaire,
-    // Core Logic & Actions
-    gainInsight, spendInsight, gainAttunementForAction,
-    addConceptToGrimoireById, addConceptToGrimoireInternal, handleToggleFocusConcept,
-    handleCardFocusToggle, // New handler for card button
-    handleResearchClick, handleFreeResearchClick, conductResearch,
-    attemptArtEvolution, handleSaveNote, handleSellConcept, sellConcept,
-    // Reflection
-    checkTriggerReflectionPrompt, triggerReflectionPrompt, handleConfirmReflection,
-    triggerGuidedReflection,
-    // Library (Integrated)
-    handleUnlockLibraryLevel, // Keep handler, logic changed
-    // Repository
-    handleMeditateScene, // Renamed internal call
-    handleAttemptExperiment, // Renamed internal call
-    // Persona Calculation Helpers
-    calculateFocusScores, calculateTapestryNarrative, calculateFocusThemes,
-    // Focus Unlocks
-    checkForFocusUnlocks,
-    // Daily Login
-    checkForDailyLogin,
-    // Milestones & Rituals
-    updateMilestoneProgress, checkAndUpdateRituals,
-    // Screen Logic Wrappers (For UI to call to refresh screen logic)
-    displayPersonaScreenLogic, displayStudyScreenLogic,
-    // Tapestry Deep Dive
-    showTapestryDeepDive, handleDeepDiveNodeClick, handleContemplationNodeClick,
-    handleCompleteContemplation,
-    // Suggest Scenes
-    handleSuggestSceneClick
-};
 
 console.log("gameLogic.js loaded.");
