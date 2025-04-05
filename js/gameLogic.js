@@ -24,7 +24,7 @@ let currentTapestryAnalysis = null; // Stores the detailed breakdown
 // --- Exported Functions ---
 
 // --- Initialization & Core State ---
-export function clearPopupState() {
+ function clearPopupState() {
     currentlyDisplayedConceptId = null;
     currentReflectionContext = null;
     reflectionTargetConceptId = null;
@@ -32,12 +32,12 @@ export function clearPopupState() {
     currentPromptId = null;
     // Don't clear currentTapestryAnalysis here, it's linked to focus set
 }
-export function setCurrentPopupConcept(conceptId) { currentlyDisplayedConceptId = conceptId; }
-export function getCurrentPopupConceptId() { return currentlyDisplayedConceptId; }
+ function setCurrentPopupConcept(conceptId) { currentlyDisplayedConceptId = conceptId; }
+ function getCurrentPopupConceptId() { return currentlyDisplayedConceptId; }
 
 
 // --- Insight & Attunement Management ---
-export function gainInsight(amount, source = "Unknown") {
+ function gainInsight(amount, source = "Unknown") {
     if (typeof amount !== 'number' || isNaN(amount) || amount === 0) return;
     const changed = State.changeInsight(amount);
     if (changed) {
@@ -48,7 +48,7 @@ export function gainInsight(amount, source = "Unknown") {
     }
 }
 
-export function spendInsight(amount, source = "Unknown") {
+ function spendInsight(amount, source = "Unknown") {
     if (typeof amount !== 'number' || isNaN(amount) || amount <= 0) return false;
     if (State.getInsight() >= amount) {
         gainInsight(-amount, source); // Will trigger UI update via gainInsight
@@ -59,7 +59,7 @@ export function spendInsight(amount, source = "Unknown") {
     }
 }
 
-export function gainAttunementForAction(actionType, elementKey = null, amount = 0.5) {
+ function gainAttunementForAction(actionType, elementKey = null, amount = 0.5) {
     let targetKeys = [];
     let baseAmount = amount;
 
@@ -118,7 +118,7 @@ export function gainAttunementForAction(actionType, elementKey = null, amount = 
 
 
 // --- Questionnaire Logic ---
-export function handleQuestionnaireInputChange(event) {
+ function handleQuestionnaireInputChange(event) {
     console.log("Input change detected:", event.target.id, event.target.value);
     const input = event.target;
     const currentState = State.getState();
@@ -143,7 +143,7 @@ export function handleQuestionnaireInputChange(event) {
     // console.log(`Updated UI for ${elementName} with answers:`, currentAnswers); // Reduce console noise
 }
 
-export function handleCheckboxChange(event) {
+ function handleCheckboxChange(event) {
      const checkbox = event.target;
      const name = checkbox.name;
      const maxChoices = parseInt(checkbox.dataset.maxChoices || 2);
@@ -159,7 +159,7 @@ export function handleCheckboxChange(event) {
      handleQuestionnaireInputChange(event);
 }
 
-export function calculateElementScore(elementName, answersForElement) {
+ function calculateElementScore(elementName, answersForElement) {
     const questions = questionnaireGuided[elementName] || [];
     let score = 5.0; // Start at baseline
     questions.forEach(q => {
@@ -185,7 +185,7 @@ export function calculateElementScore(elementName, answersForElement) {
     return Math.max(0, Math.min(10, score)); // Clamp score
 }
 
-export function goToNextElement() {
+ function goToNextElement() {
     const currentState = State.getState();
     const currentAnswers = UI.getQuestionnaireAnswers(); // Get answers from UI first
 
@@ -208,7 +208,7 @@ export function goToNextElement() {
     }
 }
 
-export function goToPrevElement() {
+ function goToPrevElement() {
     const currentState = State.getState();
     if (currentState.currentElementIndex > 0) {
         const currentAnswers = UI.getQuestionnaireAnswers(); // Get current answers
@@ -226,7 +226,7 @@ export function goToPrevElement() {
     }
 }
 
-export function finalizeQuestionnaire() {
+ function finalizeQuestionnaire() {
     console.log("Finalizing questionnaire and calculating scores...");
     const finalScores = {};
     const allAnswers = State.getState().userAnswers; // Get all collected answers
@@ -263,13 +263,13 @@ export function finalizeQuestionnaire() {
 // --- Core Actions (Research, Reflection, Focus, etc.) ---
 
 // Screen Logic Wrappers (Called by UI when switching screens)
-export function displayPersonaScreenLogic() {
+ function displayPersonaScreenLogic() {
     // Ensure calculations are fresh when viewing Persona screen
     calculateTapestryNarrative(true); // Force recalc based on current focus
     UI.displayPersonaScreen(); // Renders the Persona screen content
     // Buttons updated within displayPersonaScreen via applyOnboardingPhaseUI etc.
 }
-export function displayStudyScreenLogic() {
+ function displayStudyScreenLogic() {
     // UI.showScreen already handles switching between Discovery/Standard modes
     // Ensure the content for the *correct* mode is up-to-date
     const currentPhase = State.getOnboardingPhase();
@@ -281,7 +281,7 @@ export function displayStudyScreenLogic() {
 }
 
 // Research Actions
-export function handleResearchClick(event) {
+ function handleResearchClick(event) {
     const button = event.currentTarget; // The clicked element
     const elementKey = button.dataset.elementKey;
     const isFreeAttempt = event.isFree; // Flag passed from UI listener for discovery mode
@@ -319,7 +319,7 @@ export function handleResearchClick(event) {
     checkAndUpdateRituals('conductResearch');
 }
 
-export function handleFreeResearchClick() { // For DAILY free research button
+ function handleFreeResearchClick() { // For DAILY free research button
     if (State.getOnboardingPhase() < Config.ONBOARDING_PHASE.STUDY_INSIGHT) return; // Only available later
     if (!State.isFreeResearchAvailable()) { UI.showTemporaryMessage("Daily meditation already performed.", 3000); return; }
 
@@ -442,7 +442,7 @@ function conductResearch(elementKeyToResearch) {
 
 
 // Grimoire Actions
-export function addConceptToGrimoireById(conceptId, buttonElement = null) {
+ function addConceptToGrimoireById(conceptId, buttonElement = null) {
     if (State.getDiscoveredConcepts().has(conceptId)) {
         UI.showTemporaryMessage("Already in Grimoire.", 2500);
         if (buttonElement) UI.updateResearchButtonAfterAction(conceptId, 'add'); // Update button if from research notes
@@ -528,7 +528,7 @@ function addConceptToGrimoireInternal(conceptId) {
  }
 
 // Handles focus toggle from the POPUP button
-export function handleToggleFocusConcept() {
+ function handleToggleFocusConcept() {
     if (currentlyDisplayedConceptId === null) return;
     const conceptId = currentlyDisplayedConceptId;
     // Ensure concept is actually discovered before allowing toggle from popup
@@ -542,7 +542,7 @@ export function handleToggleFocusConcept() {
 }
 
 // Handles focus toggle from the CARD button in Grimoire
-export function handleCardFocusToggle(conceptId) {
+ function handleCardFocusToggle(conceptId) {
     if (isNaN(conceptId)) return;
     // No need to check discovery here, as it wouldn't be in Grimoire UI otherwise
     const result = State.toggleFocusConcept(conceptId); // Updates state & potentially phase
@@ -585,7 +585,7 @@ function handleFocusToggleResult(result, conceptId) {
 }
 
 // Handles sell clicks from BOTH card buttons and popup buttons
-export function handleSellConcept(event) {
+ function handleSellConcept(event) {
      const button = event.target.closest('button'); if (!button) return;
      const conceptId = parseInt(button.dataset.conceptId);
      const context = button.dataset.context; // 'grimoire', 'research', 'discovery'
@@ -646,7 +646,7 @@ function sellConcept(conceptId, context) { // context: 'grimoire', 'research', '
 }
 
 // --- Reflection Logic ---
-export function checkTriggerReflectionPrompt(triggerAction = 'other') {
+ function checkTriggerReflectionPrompt(triggerAction = 'other') {
     const currentState = State.getState();
     if (currentState.promptCooldownActive) return;
     // Reflection only triggers after phase allows it
@@ -682,7 +682,7 @@ function startReflectionCooldown() {
     }, 1000 * 60 * 3); // 3 minute cooldown
  }
 
-export function triggerReflectionPrompt(context = 'Standard', targetId = null, category = null) {
+ function triggerReflectionPrompt(context = 'Standard', targetId = null, category = null) {
     // Reset temp state for this reflection instance
     currentReflectionContext = context;
     reflectionTargetConceptId = (context === 'Dissonance') ? targetId : null;
@@ -774,7 +774,7 @@ export function triggerReflectionPrompt(context = 'Standard', targetId = null, c
     }
 }
 
-export function handleConfirmReflection(nudgeAllowed) {
+ function handleConfirmReflection(nudgeAllowed) {
     const checkbox = document.getElementById('reflectionCheckbox'); // Get checkbox state directly
     if (!currentPromptId || !checkbox || !checkbox.checked) {
          console.error("Reflection not confirmed or prompt ID missing."); return;
@@ -852,7 +852,7 @@ export function handleConfirmReflection(nudgeAllowed) {
     // Cooldown was started when prompt was initially shown
 }
 
-export function triggerGuidedReflection() {
+ function triggerGuidedReflection() {
      if (State.getOnboardingPhase() < Config.ONBOARDING_PHASE.REFLECTION_RITUALS) {
          UI.showTemporaryMessage("Unlock Reflection first.", 3000); return;
      }
@@ -871,7 +871,7 @@ export function triggerGuidedReflection() {
 }
 
 // --- Other Actions ---
-export function attemptArtEvolution() {
+ function attemptArtEvolution() {
     if (currentlyDisplayedConceptId === null) return;
     const conceptId = currentlyDisplayedConceptId;
     const discovered = State.getDiscoveredConceptData(conceptId);
@@ -897,7 +897,7 @@ export function attemptArtEvolution() {
     }
 }
 
-export function handleSaveNote() {
+ function handleSaveNote() {
     if (currentlyDisplayedConceptId === null) return;
     const notesTA = document.getElementById('myNotesTextarea'); if (!notesTA) return;
     const noteText = notesTA.value.trim();
@@ -910,7 +910,7 @@ export function handleSaveNote() {
     }
 }
 
-export function handleUnlockLibraryLevel(event) {
+ function handleUnlockLibraryLevel(event) {
      const button = event.target.closest('button'); if (!button || button.disabled) return;
      const key = button.dataset.elementKey; const level = parseInt(button.dataset.level);
      if (!key || isNaN(level)) { console.error("Invalid library unlock data"); return; }
@@ -938,7 +938,7 @@ function unlockDeepDiveLevel(elementKey, levelToUnlock) {
     }
 }
 
-export function handleMeditateScene(event) {
+ function handleMeditateScene(event) {
      const button = event.target.closest('button'); if (!button || button.disabled) return;
      const sceneId = button.dataset.sceneId; if (!sceneId) return;
      meditateOnScene(sceneId); // Call internal logic function
@@ -958,7 +958,7 @@ function meditateOnScene(sceneId) {
     }
 }
 
-export function handleAttemptExperiment(event) {
+ function handleAttemptExperiment(event) {
      const button = event.target.closest('button'); if (!button || button.disabled) return;
      const expId = button.dataset.experimentId; if (!expId) return;
      attemptExperiment(expId); // Call internal logic
@@ -1004,7 +1004,7 @@ function attemptExperiment(experimentId) {
 }
 
 // --- Suggest Scenes ---
-export function handleSuggestSceneClick() {
+ function handleSuggestSceneClick() {
      const focused = State.getFocusedConcepts();
      const suggestionOutputDiv = document.getElementById('sceneSuggestionOutput');
      const suggestedSceneContentDiv = document.getElementById('suggestedSceneContent');
@@ -1043,7 +1043,7 @@ export function handleSuggestSceneClick() {
  }
 
 // --- Rituals & Milestones Logic (Helper) ---
-export function checkAndUpdateRituals(action, details = {}) {
+ function checkAndUpdateRituals(action, details = {}) {
     let ritualCompletedThisCheck = false;
     const currentState = State.getState();
     if (currentState.onboardingPhase < Config.ONBOARDING_PHASE.REFLECTION_RITUALS) return; // Check phase
@@ -1075,7 +1075,7 @@ export function checkAndUpdateRituals(action, details = {}) {
     if (ritualCompletedThisCheck) UI.displayDailyRituals(); // Refresh UI if needed
 }
 
-export function updateMilestoneProgress(trackType, currentValue) {
+ function updateMilestoneProgress(trackType, currentValue) {
      let milestoneAchievedThisUpdate = false;
      const achievedSet = State.getState().achievedMilestones;
      if (!(achievedSet instanceof Set)) { console.error("CRITICAL ERROR: gameState.achievedMilestones is not a Set!"); return; }
@@ -1140,7 +1140,7 @@ export function updateMilestoneProgress(trackType, currentValue) {
 }
 
 // --- Daily Login ---
-export function checkForDailyLogin() {
+ function checkForDailyLogin() {
     const today = new Date().toDateString();
     const last = State.getState().lastLoginDate;
     if (last !== today) {
@@ -1159,7 +1159,7 @@ export function checkForDailyLogin() {
 }
 
 // --- Persona Calculation Logic Helpers ---
-export function calculateFocusScores() {
+ function calculateFocusScores() {
      const scores = { A: 0, I: 0, S: 0, P: 0, C: 0, R: 0 };
      const focused = State.getFocusedConcepts();
      const disc = State.getDiscoveredConcepts();
@@ -1180,7 +1180,7 @@ export function calculateFocusScores() {
      return { focusScores: scores, focusCount: count };
 }
 
-export function calculateTapestryNarrative(forceRecalculate = false) {
+ function calculateTapestryNarrative(forceRecalculate = false) {
     const stateHash = State.getCurrentFocusSetHash();
     // Use cached analysis if hash matches and not forced
     if (currentTapestryAnalysis && !forceRecalculate && currentTapestryAnalysis.focusHash === stateHash) {
@@ -1272,7 +1272,7 @@ export function calculateTapestryNarrative(forceRecalculate = false) {
     return analysis.fullNarrativeHTML;
  }
 
-export function calculateFocusThemes() { // Used by UI
+ function calculateFocusThemes() { // Used by UI
      const focused = State.getFocusedConcepts(); const disc = State.getDiscoveredConcepts(); if (focused.size === 0) return [];
      const counts = { A: 0, I: 0, S: 0, P: 0, C: 0, R: 0 }; const thresh = 7.0; // Threshold for counting towards theme
      focused.forEach(id => { const concept = disc.get(id)?.concept; if (concept?.elementScores) { for (const key in concept.elementScores) { if (elementKeyToFullName.hasOwnProperty(key) && concept.elementScores[key] >= thresh) counts[key]++; } } });
@@ -1281,7 +1281,7 @@ export function calculateFocusThemes() { // Used by UI
 }
 
 // --- Focus Unlocks ---
-export function checkForFocusUnlocks(silent = false) {
+ function checkForFocusUnlocks(silent = false) {
      // Only check if phase allows (Repository phase)
      if (State.getOnboardingPhase() < Config.ONBOARDING_PHASE.ADVANCED) return;
 
@@ -1322,7 +1322,7 @@ export function checkForFocusUnlocks(silent = false) {
 }
 
 // --- Tapestry Deep Dive Logic ---
-export function showTapestryDeepDive() {
+ function showTapestryDeepDive() {
     // Check phase
     if (State.getOnboardingPhase() < Config.ONBOARDING_PHASE.PERSONA_GRIMOIRE) { // Requires Phase 1
         UI.showTemporaryMessage("Explore your Persona first.", 3000); return;
@@ -1336,7 +1336,7 @@ export function showTapestryDeepDive() {
     UI.displayTapestryDeepDive(currentTapestryAnalysis);
 }
 
-export function handleDeepDiveNodeClick(nodeId) {
+ function handleDeepDiveNodeClick(nodeId) {
     if (!currentTapestryAnalysis) { console.error("Deep Dive Node Click: Analysis missing."); UI.updateDeepDiveContent("<p>Error: Analysis data unavailable.</p>", nodeId); return; }
     console.log(`Logic: Handling Deep Dive node click: ${nodeId}`);
     let content = `<p><em>Analysis for '${nodeId}'...</em></p>`;
@@ -1351,7 +1351,7 @@ export function handleDeepDiveNodeClick(nodeId) {
     UI.updateDeepDiveContent(content, nodeId);
 }
 
-export function handleContemplationNodeClick() {
+ function handleContemplationNodeClick() {
     const now = Date.now(); const cooldownEnd = State.getContemplationCooldownEnd();
     if (cooldownEnd && now < cooldownEnd) { const remaining = Math.ceil((cooldownEnd - now) / 1000); UI.showTemporaryMessage(`Contemplation available in ${remaining}s.`, 3000); return; }
     if (spendInsight(Config.CONTEMPLATION_COST, "Focused Contemplation")) {
@@ -1405,7 +1405,7 @@ function generateFocusedContemplation() {
     return task;
 }
 
-export function handleCompleteContemplation(task) {
+ function handleCompleteContemplation(task) {
     if (!task || !task.reward || !task.requiresCompletionButton) return; // Only process tasks needing button click
 
     console.log(`Contemplation task completed via button: ${task.type}`);
