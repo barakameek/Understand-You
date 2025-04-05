@@ -44,8 +44,7 @@
              <main id="questionContent"></main>
              <footer>
                  <button id="prevElementButton" class="button back-button" style="visibility: hidden;">Previous</button>
-                 {/* Text updated dynamically */}
-                 <button id="nextElementButton" class="button next-button">Next / View Discoveries</button>
+                 <button id="nextElementButton" class="button next-button">View Initial Discoveries</button>
              </footer>
         </div>
 
@@ -73,9 +72,7 @@
                      <div class="persona-column persona-elements-detailed">
                          <h2>Core Foundation <i class="fas fa-info-circle info-icon" title="Your scores across the 6 core elements, based on the initial questionnaire. Expand each for details, interpretations, current Attunement, and unlockable Insights."></i></h2>
                          <p>Your fundamental attributes and elemental attunement. Expand each element.</p>
-                         <div id="personaElementDetails">
-                             {/* Element details & deep dives injected here by ui.js */}
-                         </div>
+                         <div id="personaElementDetails"></div>
                          <hr>
                          <h2>Resources <i class="fas fa-info-circle info-icon" title="Insight is the primary currency, earned through discovery, reflection, and rituals. Spend it in The Study to research new Concepts or unlock deeper knowledge."></i></h2>
                          <p>Current Insight: <strong id="userInsightDisplayPersona">0.0</strong> <i class="fas fa-brain insight-icon"></i></p>
@@ -85,9 +82,7 @@
                           <p>Curate concepts to shape your active Persona.</p>
                           <div class="tapestry-area" id="tapestryArea">
                                <h4 id="focusedConceptsHeader">Focused Concepts (0 / X) <i class="fas fa-info-circle info-icon" title="The number of Concepts currently marked as Focus out of your total available slots. Slots can be increased via Milestones."></i></h4>
-                               <div id="focusedConceptsDisplay" class="focus-concepts-grid">
-                                   {/* Focused concepts injected here */}
-                               </div>
+                               <div id="focusedConceptsDisplay" class="focus-concepts-grid"></div>
                           </div>
                            <div class="grimoire-insights">
                               <h3>Focus Themes <i class="fas fa-info-circle info-icon" title="Highlights the dominant Elements based on your Focused Concepts."></i></h3>
@@ -100,7 +95,6 @@
                               <div class="tapestry-actions">
                                   <button id="exploreTapestryButton" class="button small-button hidden-by-flow" title="Explore a deeper analysis of your focused tapestry.">Explore Tapestry</button>
                                   <button id="suggestSceneButton" class="button small-button hidden-by-flow" title="Suggest resonant scenes (Cost Insight)">Suggest Scenes (<span id="sceneSuggestCostDisplay">?</span> <i class="fas fa-brain insight-icon"></i>)</button>
-                                  {/* Seek Guidance Moved to Study */}
                               </div>
                               <div id="sceneSuggestionOutput" class="scene-suggestion-output hidden">
                                     <h4>Scene Suggestion:</h4>
@@ -121,10 +115,12 @@
          {/* === Grimoire Screen === */}
          <div id="grimoireScreen" class="screen hidden grimoire-screen">
               <h1>The Grand Grimoire <i class="fas fa-info-circle info-icon" title="Your personal collection of discovered Concept Cards. Filter, sort, view details, mark Concepts for Focus, or sell unwanted Concepts for Insight."></i></h1>
+              {/* Grimoire Guidance Area - Populated by UI */}
+              <div id="grimoireGuidance" class="guidance-message hidden"></div>
               <div id="grimoireControls">
                   <label for="grimoireSortOrder">Sort:</label>
                   <select id="grimoireSortOrder"><option value="discovered">Date Added</option><option value="name">Name</option><option value="type">Type</option><option value="rarity">Rarity</option><option value="resonance">Resonance</option></select>
-                  <span class="filter-controls hidden-by-flow"> {/* Filters hidden initially */}
+                  <span class="filter-controls hidden-by-flow">
                       <label for="grimoireTypeFilter">Type:</label>
                       <select id="grimoireTypeFilter"><option value="All">All Types</option></select>
                       <label for="grimoireElementFilter">Element:</label>
@@ -141,65 +137,54 @@
               <div id="grimoireContent" class="card-grid"></div>
          </div>
 
-        {/* === Study Screen === */}
+        {/* === Study Screen (Unified Layout) === */}
        <div id="studyScreen" class="screen hidden study-screen">
-             {/* This screen now acts as a container for the two modes */}
+             <h1>The Alchemist's Study <i class="fas fa-info-circle info-icon" title="Research Elements based on your affinities to discover new Concepts. Perform Rituals and Seek Guidance for deeper insights."></i></h1>
 
-             {/* Mode 1: Initial Discovery (Visible ONLY during Phase PERSONA_GRIMOIRE) */}
-             <div id="studyScreenDiscoveryMode" class="hidden">
-                 <h1>Initial Discovery <i class="fas fa-info-circle info-icon" title="Use your questionnaire results to discover your first Concepts. Research Elements with higher scores for better resonance."></i></h1>
-                 {/* Guidance text updated dynamically */}
-                 <p id="initialDiscoveryGuidance" class="initial-discovery-guidance">Loading guidance...</p>
-                 {/* Container for the 6 clickable elements */}
-                 <div id="initialDiscoveryElements">
-                     {/* Elements generated by ui.js */}
-                 </div>
-                 <hr class="study-divider">
-                 {/* Area for temporary research results during discovery */}
-                 <h3>Discoveries <i class="fas fa-info-circle info-icon" title="Concepts you uncover appear here. Choose to 'Add to Grimoire' or 'Sell' them."></i></h3>
-                 <div id="initialResearchDiscoveries" class="card-grid">
-                    <p><i>Discoveries will appear here...</i></p>
-                 </div>
+             {/* Guidance Text (updated dynamically) */}
+             <p id="initialDiscoveryGuidance" class="initial-discovery-guidance">Loading guidance...</p>
+
+             {/* Insight Display */}
+             <div class="insight-display-area study-insight-display"> {/* Added class */}
+                 Current Insight: <strong id="userInsightDisplayStudy">0.0</strong> <i class="fas fa-brain insight-icon"></i>
              </div>
 
-             {/* Mode 2: Standard Study (Visible from Phase STUDY_INSIGHT onwards) */}
-             <div id="studyScreenStandardMode" class="hidden">
-                 <h1>The Alchemist's Study <i class="fas fa-info-circle info-icon" title="Conduct research, perform rituals, and deepen your understanding."></i></h1>
-                 <div class="study-control-console">
-                     <div class="insight-display-area">
-                         Current Insight: <strong id="userInsightDisplayStudy">0.0</strong> <i class="fas fa-brain insight-icon"></i>
-                     </div>
-                     <div class="action-buttons-area">
-                         <p>Daily Actions:</p>
-                         <button id="freeResearchButton" class="button free-research-button hidden-by-flow" title="Once per day, perform research on your least attuned element for free.">Perform Daily Meditation</button>
-                         <button id="seekGuidanceButton" class="button small-button guidance-button hidden-by-flow" title="Spend Insight for a randomly selected Guided Reflection prompt.">Seek Guidance (<span id="guidedReflectionCostDisplay">?</span> <i class="fas fa-brain insight-icon"></i>)</button>
-                     </div>
-                     <div class="research-selection-area">
-                         <p>Conduct Research:</p>
-                          <div id="researchButtonContainer" class="research-buttons" title="Spend Insight to research a specific Element, potentially discovering new Concepts or Repository items.">
-                              {/* Research buttons injected here */}
-                          </div>
-                     </div>
-                 </div>
-                 <hr class="study-divider">
-                 <div class="study-workbench-area">
-                     <div class="research-bench">
-                         <h2>Research Notes <i class="fas fa-info-circle info-icon" title="Results from your Research appear here. Add them to your Grimoire or Sell them for Insight."></i></h2>
-                         <div id="researchStatus">Begin research...</div>
-                         <div id="researchOutput" class="research-output-area card-grid">
-                            <p><i>Research results will appear here.</i></p>
-                         </div>
-                     </div>
-                     <div class="rituals-alcove hidden-by-flow">
-                          <h3>Daily Rituals <i class="fas fa-info-circle info-icon" title="Complete these tasks each day for bonus Insight or Attunement. They reset daily. Special Focus Rituals appear here when their required Concepts are focused."></i></h3>
-                          <ul id="dailyRitualsDisplay"><li>Unlock rituals by progressing.</li></ul>
-                     </div>
-                 </div>
+             <hr class="study-divider">
+
+             {/* Research Elements Area */}
+             <h2>Research Elements <i class="fas fa-info-circle info-icon" title="Click an Element to Research it. Higher personal scores suggest greater resonance with potential discoveries. Check cost (Insight or Free Research)."></i></h2>
+             <div id="initialDiscoveryElements" class="initial-discovery-elements">
+                 {/* 6 Element divs generated by ui.js */}
              </div>
+
+              {/* Daily Actions & Guidance Area (Visibility toggled by phase) */}
+              <div class="study-actions-area hidden-by-flow"> {/* Initially hidden */}
+                  <hr class="study-divider">
+                  <h2>Daily Actions & Guidance <i class="fas fa-info-circle info-icon" title="Perform your daily free meditation or seek guided reflection prompts here (costs Insight)."></i></h2>
+                   <div class="action-buttons-area">
+                       <button id="freeResearchButton" class="button free-research-button hidden-by-flow" title="Once per day, perform research on your least attuned element for free.">Perform Daily Meditation</button>
+                       <button id="seekGuidanceButton" class="button small-button guidance-button hidden-by-flow" title="Spend Insight for a randomly selected Guided Reflection prompt.">Seek Guidance (<span id="guidedReflectionCostDisplay">?</span> <i class="fas fa-brain insight-icon"></i>)</button>
+                   </div>
+              </div>
+
+             {/* Research Discoveries Area */}
+             <hr class="study-divider">
+             <h2>Research Discoveries <i class="fas fa-info-circle info-icon" title="Concepts you uncover appear here temporarily. Choose to 'Add to Grimoire' or 'Sell' them for Insight."></i></h2>
+             <div id="studyResearchDiscoveries" class="card-grid"> {/* Renamed ID */}
+                <p><i>Discoveries will appear here...</i></p>
+             </div>
+
+             {/* Rituals Alcove (Visibility toggled by phase) */}
+             <div class="rituals-alcove hidden-by-flow">
+                  <hr class="study-divider">
+                  <h3>Daily Rituals <i class="fas fa-info-circle info-icon" title="Complete these tasks each day for bonus Insight or Attunement. They reset daily. Special Focus Rituals appear here when their required Concepts are focused."></i></h3>
+                  <ul id="dailyRitualsDisplay"><li>Unlock rituals by progressing further.</li></ul>
+             </div>
+
         </div>
 
          {/* === Repository Screen === */}
-         <div id="repositoryScreen" class="screen hidden repository-screen hidden-by-flow"> {/* Initially hidden */}
+         <div id="repositoryScreen" class="screen hidden repository-screen hidden-by-flow">
              <h1>Repository <i class="fas fa-info-circle info-icon" title="A collection of rare discoveries: Scene Blueprints, Alchemical Experiments, Elemental Insights, Focus-Driven unlocks, and Milestones."></i></h1>
              <p>Unlock this area by achieving milestones and conducting research.</p>
              <div class="repository-layout">
@@ -274,10 +259,9 @@
                   </div>
               </div>
               <div class="popup-actions">
-                  {/* Buttons added dynamically based on context/phase */}
                   <button id="addToGrimoireButton" class="button small-button add-grimoire-button" title="Add this Concept to your permanent Grimoire collection.">Add to Grimoire</button>
                   <button id="markAsFocusButton" class="button small-button focus-button hidden" title="Toggle whether this Concept contributes to your Persona Tapestry.">Mark as Focus</button>
-                  {/* Sell button added dynamically */}
+                  {/* Sell button added dynamically by ui.js */}
               </div>
         </div>
         {/* Reflection Modal */}
@@ -329,7 +313,7 @@
                 <div id="deepDiveDetailContent" class="deep-dive-detail-area"></div>
             </div>
         </div>
-         {/* Generic Info Popup (NEW) */}
+         {/* Generic Info Popup */}
          <div id="infoPopup" class="popup hidden info-popup">
              <button id="closeInfoPopupButton" class="close-button">×</button>
              <div class="popup-header"><h3>Information</h3></div>
@@ -349,7 +333,7 @@
 
     </div> {/* End app-container */}
 
-    {/* SCRIPTS (Order is important) */}
+    {/* SCRIPTS */}
     <script src="data.js" type="module"></script>
     <script src="js/config.js" type="module"></script>
     <script src="js/utils.js" type="module"></script>
