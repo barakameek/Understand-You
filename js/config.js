@@ -1,5 +1,3 @@
-// --- START OF FILE config.js ---
-
 // js/config.js - Constants and Configuration (Inner Cosmos Theme)
 
 console.log("config.js loading...");
@@ -50,4 +48,3 @@ export const CONCEPT_DISCOVERY_INSIGHT = {
 };
 
 console.log("config.js loaded.");
-// --- END OF FILE config.js ---
