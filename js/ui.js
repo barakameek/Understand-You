@@ -561,12 +561,18 @@ export function synthesizeAndDisplayThemesPersona() {
 }
 
 // --- ** NEW FUNCTION: Draw Persona Chart ** ---
+// --- START OF ui.js CHANGES ---
+
+// ... other imports and code ...
+
+// --- ** REVISED FUNCTION: Draw Persona Chart ** ---
 let personaChartInstance = null; // Keep track of the chart instance
 
 function drawPersonaChart(scores) {
+    const canvasContainer = document.querySelector('.chart-container'); // Get the container div
     const canvasElement = document.getElementById('personaScoreChartCanvas');
-    if (!canvasElement) {
-        console.error("Persona chart canvas element not found!");
+    if (!canvasElement || !canvasContainer) {
+        console.error("Persona chart canvas element or container not found!");
         return;
     }
     const ctx = canvasElement.getContext('2d');
@@ -575,104 +581,114 @@ function drawPersonaChart(scores) {
         return;
     }
 
-    // Destroy existing chart instance if it exists to prevent duplicates/memory leaks
+    // Destroy existing chart instance if it exists
     if (personaChartInstance) {
         personaChartInstance.destroy();
         personaChartInstance = null;
-        console.log("Destroyed previous chart instance.");
     }
 
     // Prepare data for Chart.js
-    const labels = elementNames.map(name => elementDetails[name]?.name || name); // Use full names for labels
-    const scoreData = elementNames.map(name => scores[elementNameToKey[name]] || 0); // Get scores in correct order
+    const elementKeys = elementNames.map(name => elementNameToKey[name]); // Get keys in order
+    const labels = elementNames.map(name => elementDetails[name]?.name || name); // Full names for labels
+    const scoreData = elementKeys.map(key => scores[key] || 0); // Get scores using ordered keys
+    const pointColors = elementNames.map(name => Utils.getElementColor(name)); // Get colors for each point
+    const primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--primary-color').trim();
+    const textColor = getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim();
+    const accentColor = getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim();
+    const borderColorLight = getComputedStyle(document.documentElement).getPropertyValue('--border-color-light').trim();
 
     const chartData = {
         labels: labels,
         datasets: [{
-            label: 'Core Scores',
+            label: 'Elemental Profile', // Changed label
             data: scoreData,
-            // Thematic Colors (adjust alpha for fill)
-            backgroundColor: Utils.hexToRgba(getComputedStyle(document.documentElement).getPropertyValue('--primary-color').trim(), 0.3), // Use CSS var
-            borderColor: getComputedStyle(document.documentElement).getPropertyValue('--primary-color').trim(), // Use CSS var
-            pointBackgroundColor: getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim(), // Gold points
-            pointBorderColor: Utils.hexToRgba(getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim(), 0.8), // Darker border
-            pointHoverBackgroundColor: '#fff',
-            pointHoverBorderColor: getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim(),
-            borderWidth: 2, // Thicker line
-            pointRadius: 4, // Slightly larger points
-            pointHoverRadius: 6
+            // Use primary color for fill and line, but make fill more transparent
+            backgroundColor: Utils.hexToRgba(primaryColor, 0.35), // More transparency
+            borderColor: primaryColor, // Solid line in primary color
+            borderWidth: 2.5, // Slightly thicker line for definition
+            // Color each point individually
+            pointBackgroundColor: pointColors, // Array of colors for points
+            pointBorderColor: Utils.hexToRgba(textColor, 0.7), // Subtle dark border
+            pointRadius: 5, // Make points slightly larger
+            pointHoverRadius: 7,
+            pointHoverBorderWidth: 2,
+            pointHoverBorderColor: accentColor, // Gold hover border
+            pointHoverBackgroundColor: '#fff' // White fill on hover
         }]
     };
 
-    // Chart Configuration Options
+    // Chart Configuration Options - Themed
     const chartOptions = {
         maintainAspectRatio: false, // Allow resizing based on container
         scales: {
-            r: { // Radial axis configuration
+            r: { // Radial axis configuration (The 'Spokes')
                 min: 0,
                 max: 10, // Scale from 0 to 10
                 ticks: {
                     stepSize: 2, // Steps of 2 (0, 2, 4, 6, 8, 10)
                     display: true, // Show numeric ticks
-                    backdropColor: 'rgba(253, 248, 240, 0.5)', // Subtle backdrop for readability #fdf8f0
-                    color: Utils.hexToRgba(getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim(), 0.7), // Tick text color
+                    // Style the tick labels (0, 2, 4...)
+                    color: Utils.hexToRgba(textColor, 0.8),
+                    font: { family: "'Merriweather', serif", size: 10 },
+                    // Add a subtle backdrop to make ticks more readable over grid/fill
+                    backdropColor: Utils.hexToRgba('#FFF8E7', 0.6), // Light beige backdrop
+                    backdropPadding: 2
+                },
+                angleLines: { // Lines from center to labels
+                    color: Utils.hexToRgba(borderColorLight, 0.6) // Lighter, less obtrusive lines
+                },
+                grid: { // Concentric circles
+                    color: Utils.hexToRgba(borderColorLight, 0.4), // Even lighter grid
+                    borderDash: [2, 4], // Finer dash pattern
+                    lineWidth: 0.8
+                },
+                pointLabels: { // Element Names (Attraction, Interaction, etc.)
+                    color: textColor,
                     font: {
-                         family: "'Merriweather', serif", // Match body font
-                         size: 10
-                    }
-                },
-                angleLines: {
-                    color: Utils.hexToRgba(getComputedStyle(document.documentElement).getPropertyValue('--border-color-light').trim(), 0.5) // Lighter lines to elements
-                },
-                grid: {
-                    color: Utils.hexToRgba(getComputedStyle(document.documentElement).getPropertyValue('--border-color-light').trim(), 0.5), // Grid line color
-                     borderDash: [3, 3] // Dashed grid lines for style
-                },
-                pointLabels: {
-                    color: getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim(), // Element label color
-                    font: {
-                        family: "'Garamond', serif", // Match heading font (or Merriweather)
-                        size: 12,
-                        weight: 'bold'
-                    }
+                        family: "'Cinzel Decorative', cursive", // Use decorative font
+                        size: 13, // Slightly larger
+                        weight: '700' // Bold
+                    },
+                    // backdropColor: Utils.hexToRgba('#FFF8E7', 0.5), // Optional backdrop for labels
+                    // backdropPadding: 3
                 }
             }
         },
         plugins: {
             legend: {
-                display: true, // Show the 'Core Scores' legend
-                position: 'top',
-                labels: {
-                     color: getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim(),
-                     font: {
-                         family: "'Merriweather', serif"
-                    }
-                }
+                 display: false // Hide the default legend - the points are colored
             },
             tooltip: { // Customize tooltips
-                 backgroundColor: Utils.hexToRgba(getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim(), 0.8),
-                 titleFont: { family: "'Merriweather', serif", weight: 'bold' },
-                 bodyFont: { family: "'Merriweather', serif" },
+                 enabled: true,
+                 backgroundColor: Utils.hexToRgba(textColor, 0.9), // Darker tooltip
+                 titleFont: { family: "'Cinzel Decorative', cursive", weight: 'bold', size: 14 },
+                 bodyFont: { family: "'Merriweather', serif", size: 12 },
+                 padding: 10,
+                 cornerRadius: 3,
+                 displayColors: false, // Don't show the little color box
                  callbacks: {
                      label: function(context) {
-                         let label = context.dataset.label || '';
-                         if (label) {
-                             label += ': ';
+                         // Label is already set to Element Name by Chart.js for radar charts
+                         let score = context.parsed.r;
+                         if (score !== null) {
+                             return `Score: ${score.toFixed(1)} (${Utils.getScoreLabel(score)})`;
                          }
-                         if (context.parsed.r !== null) {
-                             label += context.parsed.r.toFixed(1); // Show score with one decimal
-                         }
-                         return label;
+                         return '';
                      }
                  }
             }
         },
-         // Optional: Add custom background drawing if needed (more complex)
-         // E.g., drawing a parchment texture behind the chart
+        // Removes the container border by default, rely on CSS for container styling
+        layout: {
+             padding: 5 // Add a little padding inside the canvas area
+        }
     };
 
     // Create the chart
     try {
+         // Ensure canvas container is visible before drawing
+         if(canvasContainer) canvasContainer.style.display = 'block';
+
          personaChartInstance = new Chart(ctx, {
             type: 'radar',
             data: chartData,
@@ -681,12 +697,13 @@ function drawPersonaChart(scores) {
         console.log("Persona score chart drawn successfully.");
     } catch (error) {
         console.error("Error creating persona score chart:", error);
-        // Optionally display an error message in the chart container
-        canvasElement.parentElement.innerHTML = '<p style="color: red; text-align: center;">Error loading chart.</p>';
+        if(canvasContainer) canvasContainer.innerHTML = '<p style="color: red; text-align: center;">Error loading chart.</p>';
     }
 }
-// --- ** END NEW FUNCTION ** ---
+// --- ** END REVISED FUNCTION ** ---
 
+
+// --- Persona Summary Display (Ensure it calls the chart function) ---
 export function displayPersonaSummary() {
     // Ensure the target divs exist before populating
     if (!summaryContentDiv || !summaryCoreEssenceTextDiv || !summaryTapestryInfoDiv) {
@@ -751,6 +768,11 @@ export function displayPersonaSummary() {
     drawPersonaChart(scores);
 }
 
+// ... rest of ui.js (make sure no syntax errors) ...
+
+console.log("ui.js loaded.");
+
+// --- END OF ui.js CHANGES ---
 
 // --- Study Screen UI (Unified Function) ---
 export function displayStudyScreenContent() {
