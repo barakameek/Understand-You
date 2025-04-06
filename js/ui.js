@@ -811,24 +811,76 @@ function handleFirstGrimoireVisit() { const visited = State.getState().grimoireF
 
 
 // --- Card Rendering (Corrected - No onclick attributes) ---
-export function renderCard(concept, context = 'grimoire') {
-    // <<< START OF THE *SINGLE* CORRECT FUNCTION DEFINITION >>>
-    if (!concept || typeof concept.id === 'undefined') { /* ... error handling ... */ return eDiv; }
-    const cardDiv = document.createElement('div'); /* ... class setup ... */ cardDiv.dataset.conceptId = concept.id; cardDiv.title = `View Details: ${concept.name}`;
-    const discoveredData = State.getDiscoveredConceptData(concept.id); const isDiscovered = !!discoveredData; const isFocused = State.getFocusedConcepts().has(concept.id); const artUnlocked = discoveredData?.artUnlocked || false; const currentPhase = State.getOnboardingPhase();
+
+    // Basic validation
+    if (!concept || typeof concept.id === 'undefined') {
+        console.warn("renderCard called with invalid concept:", concept);
+        const eDiv = document.createElement('div');
+        eDiv.textContent = "Error: Invalid Concept Data";
+        eDiv.style.color = 'red';
+        eDiv.style.padding = '10px';
+        eDiv.style.border = '1px solid red';
+        return eDiv; // Return an error element
+    }
+
+    // Create card element and set base classes/attributes
+    const cardDiv = document.createElement('div');
+    cardDiv.classList.add('concept-card');
+    cardDiv.classList.add(`rarity-${concept.rarity || 'common'}`);
+    cardDiv.dataset.conceptId = concept.id;
+    cardDiv.title = `View Details: ${concept.name}`;
+
+    // Get state needed for rendering variations
+    const discoveredData = State.getDiscoveredConceptData(concept.id);
+    const isDiscovered = !!discoveredData;
+    const isFocused = State.getFocusedConcepts().has(concept.id);
+    const artUnlocked = discoveredData?.artUnlocked || false;
+    const currentPhase = State.getOnboardingPhase();
+
     // Determine button visibility based on context and phase
     const phaseAllowsFocus = currentPhase >= Config.ONBOARDING_PHASE.REFLECTION_RITUALS;
     const showFocusButton = context === 'grimoire' && isDiscovered && phaseAllowsFocus;
     const phaseAllowsSellFromGrimoire = currentPhase >= Config.ONBOARDING_PHASE.STUDY_INSIGHT;
     const showSellButton = context === 'grimoire' && isDiscovered && phaseAllowsSellFromGrimoire;
 
+    // --- Prepare content parts ---
+
+    // Stamps (Focus and Research Note)
     const focusStampHTML = isFocused ? '<span class="focus-indicator" title="Focused Concept">★</span>' : '';
     const noteStampHTML = (!isDiscovered && (context === 'discovery-note' || context === 'research-output')) ? '<span class="note-stamp" title="Research Note"><i class="fa-regular fa-clipboard"></i></span>' : '';
-    const cardTypeIcon = Utils.getCardTypeIcon(concept.cardType);
-    let affinitiesHTML = ''; /* ... affinity logic ... */
-    let visualIconClass = "fas fa-question card-visual-placeholder"; /* ... visual logic ... */ const visualContent = `<i class="${visualIconClass}" title="${visualTitle}"></i>`;
 
-    // Build action buttons string
+    // Icons
+    const cardTypeIcon = Utils.getCardTypeIcon(concept.cardType);
+
+    // Affinities
+    let affinitiesHTML = '';
+    if (concept.elementScores && elementKeyToFullName) {
+        Object.entries(concept.elementScores).forEach(([key, score]) => {
+            const level = Utils.getAffinityLevel(score);
+            if (level && elementKeyToFullName[key]) {
+                const fullName = elementKeyToFullName[key];
+                const color = Utils.getElementColor(fullName);
+                const iconClass = Utils.getElementIcon(fullName);
+                const elNameDet = elementDetails[fullName]?.name || fullName;
+                affinitiesHTML += `<span class="affinity affinity-${level.toLowerCase()}" style="border-color: ${color}; background-color: ${Utils.hexToRgba(color, 0.1)};" title="${elNameDet} Affinity: ${level} (${score.toFixed(1)})"><i class="${iconClass}" style="color: ${color};"></i></span> `;
+            }
+        });
+    }
+
+    // Visuals (Corrected logic)
+    let visualIconClass = "fas fa-question card-visual-placeholder";
+    let visualTitle = "Visual Placeholder"; // Default value
+    if (artUnlocked) {
+        visualIconClass = "fas fa-star card-visual-placeholder card-art-unlocked";
+        visualTitle = "Enhanced Art Placeholder";
+    } else if (concept.visualHandle) {
+        visualIconClass = "fas fa-image card-visual-placeholder";
+        visualTitle = "Art Placeholder";
+    }
+    // Construct visualContent *after* variables are set
+    const visualContent = `<i class="${visualIconClass}" title="${visualTitle}"></i>`;
+
+    // Action Buttons (Grimoire context only, no onclick)
     let actionButtonsHTML = '';
     let hasActions = false;
     if (context === 'grimoire') {
@@ -848,26 +900,34 @@ export function renderCard(concept, context = 'grimoire') {
             hasActions = true;
         }
         actionButtonsHTML += '</div>';
-        if (!hasActions) actionButtonsHTML = '';
-    } // Closing brace for if (context === 'grimoire')
+        if (!hasActions) actionButtonsHTML = ''; // Don't add empty div if no buttons shown
+    }
 
-    // Construct innerHTML using actionButtonsHTML
+    // --- Construct Final innerHTML ---
     cardDiv.innerHTML = `
         <div class="card-header">
-            {...} // Your actual header content here
+            <i class="${cardTypeIcon} card-type-icon" title="${concept.cardType}"></i>
+            <span class="card-name">${concept.name}</span>
+            <span class="card-stamps">${focusStampHTML}${noteStampHTML}</span>
         </div>
         <div class="card-visual">${visualContent}</div>
         <div class="card-footer">
-            {...} // Your actual footer content here
-            ${actionButtonsHTML} {/* Inject button HTML */}
+            <div class="card-affinities">${affinitiesHTML || '<small style="color:#888; font-style: italic;">Basic Affinity</small>'}</div>
+            <p class="card-brief-desc">${concept.briefDescription || '...'}</p>
+            ${actionButtonsHTML}
         </div>`;
 
-    if (context === 'research-output' || context === 'discovery-note') { cardDiv.title = `Click to view details for ${concept.name} (Not yet in Grimoire)`; cardDiv.classList.add('research-note-card'); }
+    // Add specific class for research notes styling
+    if (context === 'research-output' || context === 'discovery-note') {
+        cardDiv.title = `Click to view details for ${concept.name} (Not yet in Grimoire)`;
+        cardDiv.classList.add('research-note-card');
+    }
+
+    // Add main card click listener (handled by delegation in main.js)
+    // No need to add listener here directly
+
     return cardDiv;
-
-} // <<< END OF THE *SINGLE* CORRECT FUNCTION DEFINITION >>>
-
-
+}
 
 // --- Concept Detail Popup UI ---
 export function showConceptDetailPopup(conceptId) { const conceptData = concepts.find(c => c.id === conceptId); if (!conceptData) { console.error("Concept data missing:", conceptId); return; } const discoveredData = State.getDiscoveredConceptData(conceptId); const inGrimoire = !!discoveredData; const currentPhase = State.getOnboardingPhase(); const researchNotesArea = document.getElementById('studyResearchDiscoveries'); const inResearchNotes = !inGrimoire && researchNotesArea?.querySelector(`.research-result-item[data-concept-id="${conceptId}"]`); GameLogic.setCurrentPopupConcept(conceptId); if (popupConceptName) popupConceptName.textContent = conceptData.name; if (popupConceptType) popupConceptType.textContent = conceptData.cardType; if (popupCardTypeIcon) popupCardTypeIcon.className = `${Utils.getCardTypeIcon(conceptData.cardType)} card-type-icon`; if (popupDetailedDescription) popupDetailedDescription.textContent = conceptData.detailedDescription || "No description."; const artUnlocked = discoveredData?.artUnlocked || false; if (popupVisualContainer) { popupVisualContainer.innerHTML = ''; let visualIconClass = "fas fa-question card-visual-placeholder"; let visualTitle = "Visual Placeholder"; if (artUnlocked) { visualIconClass = "fas fa-star card-visual-placeholder card-art-unlocked"; visualTitle = "Enhanced Art Placeholder"; } else if (conceptData.visualHandle) { visualIconClass = "fas fa-image card-visual-placeholder"; visualTitle = "Art Placeholder"; } const visualContent = `<i class="${visualIconClass}" title="${visualTitle}"></i>`; popupVisualContainer.innerHTML = visualContent; } const scores = State.getScores(); const distance = Utils.euclideanDistance(scores, conceptData.elementScores); displayPopupResonance(distance); displayPopupRecipeComparison(conceptData, scores); displayPopupRelatedConcepts(conceptData); const showNotes = inGrimoire && currentPhase >= Config.ONBOARDING_PHASE.STUDY_INSIGHT; if (myNotesSection && myNotesTextarea && saveMyNoteButton) { myNotesSection.classList.toggle('hidden', !showNotes); if (showNotes) { myNotesTextarea.value = discoveredData.notes || ""; if(noteSaveStatusSpan) noteSaveStatusSpan.textContent = ""; } } const showEvolution = inGrimoire && currentPhase >= Config.ONBOARDING_PHASE.ADVANCED && conceptData.canUnlockArt && !artUnlocked; if (popupEvolutionSection) { popupEvolutionSection.classList.toggle('hidden', !showEvolution); if (showEvolution) displayEvolutionSection(conceptData, discoveredData); } updateGrimoireButtonStatus(conceptId, !!inResearchNotes); updateFocusButtonStatus(conceptId); updatePopupSellButton(conceptId, conceptData, inGrimoire, !!inResearchNotes); if (conceptDetailPopup) conceptDetailPopup.classList.remove('hidden'); if (popupOverlay) popupOverlay.classList.remove('hidden'); }
