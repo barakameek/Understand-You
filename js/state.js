@@ -1,6 +1,6 @@
 // js/state.js - Manages Application State and Persistence
 import * as Config from './config.js';
-import { elementNames } from '../data.js'; // Only import needed data
+import { elementNames } from '../data.js'; // <<< ADDED IMPORT
 
 console.log("state.js loading...");
 
@@ -34,7 +34,7 @@ const createInitialGameState = () => {
         onboardingPhase: Config.ONBOARDING_PHASE.START, // Start at the very beginning
     };
     // Explicitly initialize userAnswers sub-objects for each element
-    elementNames.forEach(name => {
+ elementNames.forEach(name => { // <<< This line now works
         initial.userAnswers[name] = {};
     });
     return initial;
