@@ -1787,14 +1787,25 @@ export function displayElementDeepDive(elementKey, targetContainerElement) {
     if (nextLevelData) {
         const cost = nextLevelData.insightCost || 0;
         const canAfford = insight >= cost;
+        const isDisabled = !canAfford || !phaseAllowsUnlocking;
+        // ** FIX: Calculate title string separately **
+        let buttonTitle = '';
+        if (!phaseAllowsUnlocking) {
+            buttonTitle = 'Unlock in later phase';
+        } else if (!canAfford) {
+            buttonTitle = `Requires ${cost} Insight`;
+        } else {
+            buttonTitle = `Unlock for ${cost} Insight`;
+        }
+
         targetContainerElement.innerHTML += `
             <div class="library-unlock">
                 <h5>Next: ${nextLevelData.title} (Level ${nextLevelData.level})</h5>
                 <button class="button small-button unlock-button"
                         data-element-key="${elementKey}"
                         data-level="${nextLevelData.level}"
-                        ${!canAfford || !phaseAllowsUnlocking ? 'disabled' : ''}
-                        title="${!phaseAllowsUnlocking ? 'Unlock in later phase' : !canAfford ? `Requires ${cost} Insight` : `Unlock for ${cost} Insight`}">
+                        ${isDisabled ? 'disabled' : ''}
+                        title="${buttonTitle}"> {/* Use calculated title */}
                     Unlock (${cost} <i class="fas fa-brain insight-icon"></i>)
                 </button>
                 ${!canAfford && phaseAllowsUnlocking ? `<p class='unlock-error'>Insufficient Insight (${insight.toFixed(1)}/${cost})</p>` : ''}
@@ -1808,6 +1819,7 @@ export function displayElementDeepDive(elementKey, targetContainerElement) {
         targetContainerElement.innerHTML += '<p class="all-unlocked-message"><i>All insights unlocked for this element.</i></p>';
     }
 }
+
 
 
 // --- Repository UI ---
