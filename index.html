@@ -17,7 +17,7 @@
     <link rel="icon" href="data:,"> <!-- Prevent favicon error -->
 </head>
 <body>
-    <div class="app-container study-theme"> <!-- Added study-theme class here if needed globally, or remove if applied per screen -->
+    <div class="app-container study-theme">
 
         <!-- Saving Indicator -->
         <div id="saveIndicator" class="save-indicator hidden"><i class="fas fa-save"></i> Saving...</div>
@@ -102,7 +102,7 @@
                               <p id="tapestryNarrative">Mark concepts as "Focus" to generate narrative...</p>
                               <div class="tapestry-actions">
                                   <button id="exploreTapestryButton" class="button small-button hidden-by-flow" title="Explore a deeper analysis of your focused tapestry.">Explore Tapestry</button>
-                                  <!-- ** ADDED Synergy Button ** -->
+                                  <!-- ** Synergy Button Added ** -->
                                   <button id="exploreSynergyButton" class="button small-button hidden-by-flow" disabled title="Focus concepts to explore synergies...">Explore Synergy</button>
                                   <button id="suggestSceneButton" class="button small-button hidden-by-flow" title="Suggest resonant scenes (Cost Insight)">Suggest Scenes (<span id="sceneSuggestCostDisplay">?</span> <i class="fas fa-brain insight-icon"></i>)</button>
                               </div>
@@ -168,7 +168,7 @@
                   </span>
                   <i class="fas fa-info-circle info-icon" title="Use these controls to filter and sort the Concepts displayed in your Grimoire below. More filters unlock as you progress."></i>
               </div>
-              <!-- ** ADDED Shelf Container ** -->
+              <!-- ** Shelf Container Added ** -->
               <div id="grimoireShelvesContainer" class="grimoire-shelves-area hidden-by-flow">
                   <!-- Shelves populated by JS -->
                   <p>Loading shelves...</p>
@@ -314,7 +314,7 @@
                        </details>
                        <!-- End Collapsible Related Concepts -->
 
-                        <!-- ** ADDED Lore Section ** -->
+                        <!-- ** Lore Section Inside Details ** -->
                         <details id="popupLoreSection" class="collapsible-popup-section hidden">
                             <summary>Unlocked Lore <i class="fas fa-info-circle info-icon" title="Deeper insights and flavor text unlocked for Rare concepts by spending Insight."></i></summary>
                             <div id="popupLoreContent" class="collapsible-content">
@@ -427,8 +427,7 @@
     <script src="js/ui.js" type="module"></script>
     <script src="js/gameLogic.js" type="module"></script>
     <script src="js/main.js" type="module"></script>
-    <!-- Chart.js library already loaded in <head> -->
-    <!-- REMOVED THIS LINE: <script src="chart.js"></script> -->
+    <!-- No need for chart.js local script tag here -->
 
 </body>
 </html>
