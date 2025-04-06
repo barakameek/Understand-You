@@ -663,7 +663,7 @@ function drawPersonaChart(scores) {
                  backgroundColor: Utils.hexToRgba(textColor, 0.9), // Darker tooltip
                  titleFont: { family: "'Cinzel Decorative', cursive", weight: 'bold', size: 14 },
                  bodyFont: { family: "'Merriweather', serif", size: 12 },
-                 padding: 10,
+                 padding: 15,
                  cornerRadius: 3,
                  displayColors: false, // Don't show the little color box
                  callbacks: {
@@ -680,7 +680,7 @@ function drawPersonaChart(scores) {
         },
         // Removes the container border by default, rely on CSS for container styling
         layout: {
-             padding: 5 // Add a little padding inside the canvas area
+             padding: 15 // Add a little padding inside the canvas area
         }
     };
 
