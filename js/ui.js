@@ -1739,7 +1739,6 @@ export function displayElementDeepDive(elementKey, targetContainerElement) {
     // Ensure target container exists
     if (!targetContainerElement) {
         console.warn(`UI: Target container not provided or found for displayElementDeepDive (${elementKey})`);
-        // Attempt to find it again if missing initially
         targetContainerElement = personaElementDetailsDiv?.querySelector(`.element-deep-dive-container[data-element-key="${elementKey}"]`);
         if (!targetContainerElement) {
             console.error(`UI: Still could not find target container for element ${elementKey}`);
@@ -1753,7 +1752,6 @@ export function displayElementDeepDive(elementKey, targetContainerElement) {
     const elementName = elementKeyToFullName[elementKey] || elementKey;
     const currentPhase = State.getOnboardingPhase();
     const insight = State.getInsight();
-    // Unlocking only possible in advanced phase
     const phaseAllowsUnlocking = currentPhase >= Config.ONBOARDING_PHASE.ADVANCED;
 
     // Clear previous content and set title
@@ -1777,7 +1775,6 @@ export function displayElementDeepDive(elementKey, targetContainerElement) {
     if (!displayedContent && currentLevel === 0) {
         targetContainerElement.innerHTML += '<p><i>Unlock the first level to begin exploring.</i></p>';
     } else if (!displayedContent && currentLevel > 0) {
-        // This case shouldn't happen if state is correct, but good to have fallback
         targetContainerElement.innerHTML += '<p><i>Error displaying unlocked content. Check console.</i></p>';
     }
 
@@ -1788,31 +1785,36 @@ export function displayElementDeepDive(elementKey, targetContainerElement) {
         const cost = nextLevelData.insightCost || 0;
         const canAfford = insight >= cost;
         const isDisabled = !canAfford || !phaseAllowsUnlocking;
-        // ** FIX: Calculate title string separately **
         let buttonTitle = '';
+        let errorMsgHTML = ''; // Store error messages separately
+
         if (!phaseAllowsUnlocking) {
             buttonTitle = 'Unlock in later phase';
+            errorMsgHTML = `<p class='unlock-error'>Unlock in later phase</p>`;
         } else if (!canAfford) {
             buttonTitle = `Requires ${cost} Insight`;
+            errorMsgHTML = `<p class='unlock-error'>Insufficient Insight (${insight.toFixed(1)}/${cost})</p>`;
         } else {
             buttonTitle = `Unlock for ${cost} Insight`;
         }
 
+        // ** FIX: Construct the button HTML string more carefully **
+        const buttonHTML = `
+            <button class="button small-button unlock-button"
+                    data-element-key="${elementKey}"
+                    data-level="${nextLevelData.level}"
+                    ${isDisabled ? 'disabled' : ''}
+                    title="${buttonTitle}">
+                Unlock (${cost} <i class="fas fa-brain insight-icon"></i>)
+            </button>`;
+
         targetContainerElement.innerHTML += `
             <div class="library-unlock">
                 <h5>Next: ${nextLevelData.title} (Level ${nextLevelData.level})</h5>
-                <button class="button small-button unlock-button"
-                        data-element-key="${elementKey}"
-                        data-level="${nextLevelData.level}"
-                        ${isDisabled ? 'disabled' : ''}
-                        title="${buttonTitle}"> {/* Use calculated title */}
-                    Unlock (${cost} <i class="fas fa-brain insight-icon"></i>)
-                </button>
-                ${!canAfford && phaseAllowsUnlocking ? `<p class='unlock-error'>Insufficient Insight (${insight.toFixed(1)}/${cost})</p>` : ''}
-                ${!phaseAllowsUnlocking ? `<p class='unlock-error'>Unlock in later phase</p>` : ''}
+                ${buttonHTML} {/* Insert button HTML */}
+                ${errorMsgHTML} {/* Insert error message HTML */}
             </div>`;
     } else if (displayedContent) {
-        // Only show "all unlocked" if some content was actually displayed
         // Remove the last HR if it exists before the 'all unlocked' message
         const lastHr = targetContainerElement.querySelector('hr.popup-hr:last-of-type');
         if (lastHr) lastHr.remove();
