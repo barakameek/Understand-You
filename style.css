@@ -620,5 +620,77 @@ hr { border: none; border-top: 1px dashed var(--border-color-light); margin: 18p
 .element-deep-dive-container .unlock-button { font-size: 0.8em; padding: 4px 10px; margin-right: 5px; }
 .element-deep-dive-container .unlock-error { color: var(--danger-color); font-size: 0.8em; margin-top: 4px; display: inline-block; margin-left: 5px; }
 .element-deep-dive-container .all-unlocked-message { font-style: italic; color: #6a5a4a; font-size: 0.9em; margin-top: 10px; }
+/* --- START OF style.css ADDITIONS --- */
 
+/* --- Popup Collapsible Sections --- */
+.collapsible-popup-section {
+    margin: 15px 0;
+    border: 1px solid var(--border-color-light);
+    border-radius: 5px;
+    background: rgba(255,255,255,0.3); /* Slightly transparent background */
+    overflow: hidden; /* Contain content */
+}
+
+.collapsible-popup-section summary {
+    display: block; /* Make summary behave like a block */
+    padding: 8px 12px;
+    background-color: #eee9dd; /* Match other details summaries */
+    font-weight: bold;
+    color: #7a5230;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    list-style-position: inside; /* Keep arrow inside */
+    border-radius: 4px; /* Round corners when closed */
+    position: relative; /* For potential future icon positioning */
+}
+
+.collapsible-popup-section summary:hover {
+    background-color: #e8e4d8;
+}
+
+.collapsible-popup-section[open] summary {
+    border-bottom: 1px solid var(--border-color-light);
+    border-radius: 4px 4px 0 0; /* Only round top corners when open */
+}
+
+.collapsible-popup-section .collapsible-content {
+    padding: 10px 15px;
+    background-color: #fffefa; /* Slightly different background for content */
+}
+
+/* Ensure nested details/summaries look okay */
+.collapsible-popup-section .element-details {
+    border: none;
+    background: none;
+    margin-top: 10px;
+}
+.collapsible-popup-section .element-details summary {
+    background-color: transparent;
+    padding: 4px 0;
+    font-size: 0.95em;
+    color: var(--link-color);
+}
+.collapsible-popup-section .element-details summary:hover {
+    background-color: transparent;
+    text-decoration: underline;
+}
+
+/* Style for the related concepts list inside details */
+.collapsible-popup-section .related-concepts {
+    margin-top: 0; /* Remove default margin if needed */
+}
+.collapsible-popup-section .related-concepts-list-dropdown {
+     padding: 8px 0 0 0; /* Adjust padding */
+}
+
+/* Adjust spacing */
+.popup-details > hr {
+    margin: 12px 0; /* Reduce margin around main hrs */
+}
+.collapsible-content > hr {
+     margin: 8px 0; /* Reduce margin for inner hrs */
+}
+
+
+/* --- END OF style.css ADDITIONS --- */
 /* --- END OF FILE style.css --- */
