@@ -1,3 +1,5 @@
+// --- START OF FULL ui.js --- (Combined Corrections & Chart Feature)
+
 // js/ui.js - Handles DOM Manipulation and UI Updates
 import * as State from './state.js';
 import * as Config from './config.js';
@@ -38,6 +40,10 @@ const focusedConceptsHeader = document.getElementById('focusedConceptsHeader');
 const tapestryNarrativeP = document.getElementById('tapestryNarrative');
 const personaThemesList = document.getElementById('personaThemesList');
 const summaryContentDiv = document.getElementById('summaryContent');
+// Persona Summary Specific Divs
+const summaryCoreEssenceTextDiv = document.getElementById('summaryCoreEssenceText');
+const summaryTapestryInfoDiv = document.getElementById('summaryTapestryInfo');
+
 // Study Screen (Unified Structure Refs)
 const studyScreen = document.getElementById('studyScreen');
 const initialDiscoveryGuidance = document.getElementById('initialDiscoveryGuidance'); // Guidance text area
@@ -554,14 +560,197 @@ export function synthesizeAndDisplayThemesPersona() {
      if (themes.length > 1 && topTheme.count <= themes[1].count + 1) { const balanceLi = document.createElement('li'); balanceLi.innerHTML = `<small>(with other influences present)</small>`; balanceLi.style.fontSize = '0.85em'; balanceLi.style.color = '#666'; balanceLi.style.paddingLeft = '20px'; balanceLi.style.borderLeft = 'none'; personaThemesList.appendChild(balanceLi); }
 }
 
-export function displayPersonaSummary() {
-    if (!summaryContentDiv) return; summaryContentDiv.innerHTML = '<p>Generating summary...</p>';
-    const scores = State.getScores(); const focused = State.getFocusedConcepts();
-    // Regenerate narrative & themes here specifically for the summary view
-    const narrativeHTML = GameLogic.calculateTapestryNarrative();
-    const themes = GameLogic.calculateFocusThemes();
-    let html = '<h3>Core Essence</h3><div class="summary-section">'; if (elementDetails && elementNameToKey && elementKeyToFullName) { elementNames.forEach(elName => { const key = elementNameToKey[elName]; const score = scores[key]; if (typeof score === 'number') { const label = Utils.getScoreLabel(score); const interpretation = elementDetails[elName]?.scoreInterpretations?.[label] || "N/A"; html += `<p><strong>${elementDetails[elName]?.name || elName} (${score.toFixed(1)} - ${label}):</strong> ${interpretation}</p>`; } else { html += `<p><strong>${elementDetails[elName]?.name || elName}:</strong> Score not available.</p>`; } }); } else { html += "<p>Error: Element details not loaded.</p>"; } html += '</div><hr><h3>Focused Tapestry</h3><div class="summary-section">'; if (focused.size > 0) { html += `<p><em>${narrativeHTML || "No narrative generated."}</em></p>`; html += '<strong>Focused Concepts:</strong><ul>'; const discovered = State.getDiscoveredConcepts(); focused.forEach(id => { const name = discovered.get(id)?.concept?.name || `ID ${id}`; html += `<li>${name}</li>`; }); html += '</ul>'; if (themes.length > 0) { html += '<strong>Dominant Themes:</strong><ul>'; themes.slice(0, 3).forEach(theme => { html += `<li>${theme.name} Focus (${theme.count} concept${theme.count > 1 ? 's' : ''})</li>`; }); html += '</ul>'; } else { html += '<strong>Dominant Themes:</strong><p>No strong themes detected.</p>'; } } else { html += '<p>No concepts are currently focused.</p>'; } html += '</div>'; summaryContentDiv.innerHTML = html;
+// --- ** NEW FUNCTION: Draw Persona Chart ** ---
+let personaChartInstance = null; // Keep track of the chart instance
+
+function drawPersonaChart(scores) {
+    const canvasElement = document.getElementById('personaScoreChartCanvas');
+    if (!canvasElement) {
+        console.error("Persona chart canvas element not found!");
+        return;
+    }
+    const ctx = canvasElement.getContext('2d');
+    if (!ctx) {
+        console.error("Failed to get canvas context for persona chart!");
+        return;
+    }
+
+    // Destroy existing chart instance if it exists to prevent duplicates/memory leaks
+    if (personaChartInstance) {
+        personaChartInstance.destroy();
+        personaChartInstance = null;
+        console.log("Destroyed previous chart instance.");
+    }
+
+    // Prepare data for Chart.js
+    const labels = elementNames.map(name => elementDetails[name]?.name || name); // Use full names for labels
+    const scoreData = elementNames.map(name => scores[elementNameToKey[name]] || 0); // Get scores in correct order
+
+    const chartData = {
+        labels: labels,
+        datasets: [{
+            label: 'Core Scores',
+            data: scoreData,
+            // Thematic Colors (adjust alpha for fill)
+            backgroundColor: Utils.hexToRgba(getComputedStyle(document.documentElement).getPropertyValue('--primary-color').trim(), 0.3), // Use CSS var
+            borderColor: getComputedStyle(document.documentElement).getPropertyValue('--primary-color').trim(), // Use CSS var
+            pointBackgroundColor: getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim(), // Gold points
+            pointBorderColor: Utils.hexToRgba(getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim(), 0.8), // Darker border
+            pointHoverBackgroundColor: '#fff',
+            pointHoverBorderColor: getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim(),
+            borderWidth: 2, // Thicker line
+            pointRadius: 4, // Slightly larger points
+            pointHoverRadius: 6
+        }]
+    };
+
+    // Chart Configuration Options
+    const chartOptions = {
+        maintainAspectRatio: false, // Allow resizing based on container
+        scales: {
+            r: { // Radial axis configuration
+                min: 0,
+                max: 10, // Scale from 0 to 10
+                ticks: {
+                    stepSize: 2, // Steps of 2 (0, 2, 4, 6, 8, 10)
+                    display: true, // Show numeric ticks
+                    backdropColor: 'rgba(253, 248, 240, 0.5)', // Subtle backdrop for readability #fdf8f0
+                    color: Utils.hexToRgba(getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim(), 0.7), // Tick text color
+                    font: {
+                         family: "'Merriweather', serif", // Match body font
+                         size: 10
+                    }
+                },
+                angleLines: {
+                    color: Utils.hexToRgba(getComputedStyle(document.documentElement).getPropertyValue('--border-color-light').trim(), 0.5) // Lighter lines to elements
+                },
+                grid: {
+                    color: Utils.hexToRgba(getComputedStyle(document.documentElement).getPropertyValue('--border-color-light').trim(), 0.5), // Grid line color
+                     borderDash: [3, 3] // Dashed grid lines for style
+                },
+                pointLabels: {
+                    color: getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim(), // Element label color
+                    font: {
+                        family: "'Garamond', serif", // Match heading font (or Merriweather)
+                        size: 12,
+                        weight: 'bold'
+                    }
+                }
+            }
+        },
+        plugins: {
+            legend: {
+                display: true, // Show the 'Core Scores' legend
+                position: 'top',
+                labels: {
+                     color: getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim(),
+                     font: {
+                         family: "'Merriweather', serif"
+                    }
+                }
+            },
+            tooltip: { // Customize tooltips
+                 backgroundColor: Utils.hexToRgba(getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim(), 0.8),
+                 titleFont: { family: "'Merriweather', serif", weight: 'bold' },
+                 bodyFont: { family: "'Merriweather', serif" },
+                 callbacks: {
+                     label: function(context) {
+                         let label = context.dataset.label || '';
+                         if (label) {
+                             label += ': ';
+                         }
+                         if (context.parsed.r !== null) {
+                             label += context.parsed.r.toFixed(1); // Show score with one decimal
+                         }
+                         return label;
+                     }
+                 }
+            }
+        },
+         // Optional: Add custom background drawing if needed (more complex)
+         // E.g., drawing a parchment texture behind the chart
+    };
+
+    // Create the chart
+    try {
+         personaChartInstance = new Chart(ctx, {
+            type: 'radar',
+            data: chartData,
+            options: chartOptions
+        });
+        console.log("Persona score chart drawn successfully.");
+    } catch (error) {
+        console.error("Error creating persona score chart:", error);
+        // Optionally display an error message in the chart container
+        canvasElement.parentElement.innerHTML = '<p style="color: red; text-align: center;">Error loading chart.</p>';
+    }
 }
+// --- ** END NEW FUNCTION ** ---
+
+export function displayPersonaSummary() {
+    // Ensure the target divs exist before populating
+    if (!summaryContentDiv || !summaryCoreEssenceTextDiv || !summaryTapestryInfoDiv) {
+        console.error("Summary view content divs not found!");
+        if(summaryContentDiv) summaryContentDiv.innerHTML = '<p>Error loading summary content elements.</p>';
+        return;
+    }
+
+    summaryCoreEssenceTextDiv.innerHTML = ''; // Clear previous text content
+    summaryTapestryInfoDiv.innerHTML = ''; // Clear previous tapestry content
+
+    const scores = State.getScores();
+    const focused = State.getFocusedConcepts();
+    const narrativeHTML = GameLogic.calculateTapestryNarrative(); // Get narrative
+    const themes = GameLogic.calculateFocusThemes(); // Get themes
+
+    // Build Core Essence Text
+    let coreEssenceHTML = '';
+    if (elementDetails && elementNameToKey && elementKeyToFullName) {
+        elementNames.forEach(elName => {
+            const key = elementNameToKey[elName];
+            const score = scores[key];
+            if (typeof score === 'number') {
+                const label = Utils.getScoreLabel(score);
+                const interpretation = elementDetails[elName]?.scoreInterpretations?.[label] || "N/A";
+                coreEssenceHTML += `<p><strong>${elementDetails[elName]?.name || elName} (${score.toFixed(1)} - ${label}):</strong> ${interpretation}</p>`;
+            } else {
+                coreEssenceHTML += `<p><strong>${elementDetails[elName]?.name || elName}:</strong> Score not available.</p>`;
+            }
+        });
+    } else {
+        coreEssenceHTML += "<p>Error: Element details not loaded.</p>";
+    }
+    summaryCoreEssenceTextDiv.innerHTML = coreEssenceHTML;
+
+    // Build Tapestry Info Text
+    let tapestryHTML = '';
+    if (focused.size > 0) {
+        tapestryHTML += `<p><em>${narrativeHTML || "No narrative generated."}</em></p>`;
+        tapestryHTML += '<strong>Focused Concepts:</strong><ul>';
+        const discovered = State.getDiscoveredConcepts();
+        focused.forEach(id => {
+            const name = discovered.get(id)?.concept?.name || `ID ${id}`;
+            tapestryHTML += `<li>${name}</li>`;
+        });
+        tapestryHTML += '</ul>';
+        if (themes.length > 0) {
+            tapestryHTML += '<strong>Dominant Themes:</strong><ul>';
+            themes.slice(0, 3).forEach(theme => {
+                tapestryHTML += `<li>${theme.name} Focus (${theme.count} concept${theme.count > 1 ? 's' : ''})</li>`;
+            });
+            tapestryHTML += '</ul>';
+        } else {
+            tapestryHTML += '<strong>Dominant Themes:</strong><p>No strong themes detected.</p>';
+        }
+    } else {
+        tapestryHTML += '<p>No concepts are currently focused.</p>';
+    }
+    summaryTapestryInfoDiv.innerHTML = tapestryHTML;
+
+    // ** Call the function to draw the chart **
+    drawPersonaChart(scores);
+}
+
 
 // --- Study Screen UI (Unified Function) ---
 export function displayStudyScreenContent() {
@@ -636,7 +825,7 @@ export function displayStudyScreenContent() {
             // Add click listener only if not disabled
             if (!isDisabled) {
                  elementDiv.classList.add('clickable');
-                 // Define click handler within the loop scope
+                 // Use an anonymous function to pass the correct `isFree` flag
                  clickHandler = () => GameLogic.handleResearchClick({
                      currentTarget: elementDiv,
                      isFree: isFreeClick // Pass whether this click uses free research
@@ -915,6 +1104,7 @@ export function renderCard(concept, context = 'grimoire') {
     }
 
     // --- Construct Final innerHTML ---
+    // This uses the fully constructed variable strings from above
     cardDiv.innerHTML = `
         <div class="card-header">
             <i class="${cardTypeIcon} card-type-icon" title="${concept.cardType}"></i>
@@ -1095,7 +1285,8 @@ export function displayPopupRelatedConcepts(conceptData) {
     const detailsElement = document.getElementById('popupRelatedDetails');
     if (!detailsElement) { console.warn("Popup related concepts details element #popupRelatedDetails not found!"); return; }
 
-    const listContainer = detailsElement.querySelector('.related-concepts-list-dropdown'); // Target the inner list div
+    // Use the more specific selector defined at the top
+    const listContainer = popupRelatedConceptsList;
     if (!listContainer) { console.error("Inner list container (.related-concepts-list-dropdown) not found in #popupRelatedDetails!"); detailsElement.style.display = 'none'; return; }
 
     listContainer.innerHTML = ''; // Clear previous list items
@@ -1182,7 +1373,7 @@ export function updateFocusButtonStatus(conceptId) {
     const isDiscovered = State.getDiscoveredConcepts().has(conceptId);
     const isFocused = State.getFocusedConcepts().has(conceptId);
     const slotsFull = State.getFocusedConcepts().size >= State.getFocusSlots() && !isFocused;
-    //const currentPhase = State.getOnboardingPhase(); // Phase check removed for popup button visibility
+    // const currentPhase = State.getOnboardingPhase(); // Phase check removed for popup visibility
 
     // Show the POPUP button simply if the concept is discovered (in Grimoire).
     const showButton = isDiscovered;
@@ -1198,6 +1389,7 @@ export function updateFocusButtonStatus(conceptId) {
     }
 }
 
+
 export function updatePopupSellButton(conceptId, conceptData, inGrimoire, inResearchNotes) {
     const popupActions = conceptDetailPopup?.querySelector('.popup-actions');
     if (!popupActions || !conceptData) return;
@@ -1205,7 +1397,7 @@ export function updatePopupSellButton(conceptId, conceptData, inGrimoire, inRese
 
     let context = 'none';
     if (inGrimoire) context = 'grimoire';
-    else if (inResearchNotes) context = 'discovery';
+    else if (inResearchNotes) context = 'discovery'; // Use 'discovery' for notes context
 
     const phaseAllowsSell = State.getOnboardingPhase() >= Config.ONBOARDING_PHASE.STUDY_INSIGHT;
 
@@ -1221,6 +1413,7 @@ export function updatePopupSellButton(conceptId, conceptData, inGrimoire, inRese
         sellButton.dataset.conceptId = conceptId;
         sellButton.dataset.context = context; // Mark context for gameLogic
         sellButton.title = `Sell from ${sourceLocation} for ${sellValue.toFixed(1)} Insight.`;
+        // Event listener is handled by delegation in main.js
 
         // Add the button to the actions area
         // Insert after Focus button if it's visible, otherwise after Add button if it's visible, else append
@@ -1297,6 +1490,7 @@ export function displayElementDeepDive(elementKey, targetContainerElement) {
     const elementName = elementKeyToFullName[elementKey] || elementKey;
     const currentPhase = State.getOnboardingPhase();
     const insight = State.getInsight();
+    // Unlocking only possible in advanced phase
     const phaseAllowsUnlocking = currentPhase >= Config.ONBOARDING_PHASE.ADVANCED;
 
     // Clear previous content and set title
