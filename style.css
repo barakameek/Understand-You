@@ -691,25 +691,24 @@ hr { border: none; border-top: 1px dashed var(--border-color-light); margin: 18p
      margin: 8px 0; /* Reduce margin for inner hrs */
 }
 .chart-container {
-    /* Styles already added inline in HTML for basic positioning */
-    /* You can add more specific styles here if needed */
-    /* e.g., margin-bottom: 20px; */
-    box-sizing: border-box; /* Include padding/border in size */
+  border: none; /* Explicitly remove border */
+    box-sizing: border-box;
 }
 
 /* Ensure canvas is responsive within its container */
 #personaScoreChartCanvas {
-    display: block; /* Remove extra space below canvas */
+ display: block;
     max-width: 100%;
-    height: auto; /* Maintain aspect ratio if container width changes */
+    height: auto;
 }
 
 /* Adjust container size on smaller screens if needed */
 @media (max-width: 480px) {
     .chart-container {
-        height: 250px; /* Adjust height */
-        max-width: 300px; /* Adjust max-width */
-        padding: 5px;
+        /* Adjust smaller screen size if the larger default is too big */
+        height: 280px;
+        max-width: 95%; /* Allow it to fill more width */
+        padding: 10px;
     }
      /* Reduce font size in chart options directly in JS for better control */
 }
