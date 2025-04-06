@@ -15,12 +15,12 @@
     <link rel="icon" href="data:,"> <!-- Prevent favicon error -->
 </head>
 <body>
-    <div class="app-container study-theme">
+    <div class="app-container study-theme"> <!-- Added study-theme class here if needed globally, or remove if applied per screen -->
 
-        
+        <!-- Saving Indicator -->
         <div id="saveIndicator" class="save-indicator hidden"><i class="fas fa-save"></i> Saving...</div>
 
-        
+        <!-- Welcome Screen -->
         <div id="welcomeScreen" class="screen current">
              <h1>Welcome to the Persona Alchemy Lab! <i class="fas fa-info-circle info-icon" title="This is the entry point to the application. Start a new 'Experiment' (questionnaire) or load your previous session."></i></h1>
              <p>Discover Concept Cards that resonate with your essence and curate your unique Persona Tapestry.</p>
@@ -28,7 +28,7 @@
              <button id="loadButton" class="button secondary-button hidden">Load Previous Session</button>
         </div>
 
-        
+        <!-- Questionnaire Screen -->
         <div id="questionnaireScreen" class="screen hidden">
              <header>
                  <div id="elementProgressHeader"></div>
@@ -48,7 +48,7 @@
              </footer>
         </div>
 
-        
+        <!-- Main Navigation Bar -->
         <nav id="mainNavBar" class="main-nav hidden">
              <button class="nav-button active" data-target="personaScreen">Persona</button>
              <button class="nav-button" data-target="grimoireScreen">Grimoire (<span id="grimoireCount">0</span>)</button>
@@ -57,7 +57,7 @@
              <button id="settingsButton" class="nav-button settings-button" title="Settings & Save/Load Options"><i class="fas fa-cog"></i></button>
         </nav>
 
-        
+        <!-- Persona Screen -->
         <div id="personaScreen" class="screen hidden persona-screen">
              <div class="persona-header">
                  <h1>My Persona Tapestry <i class="fas fa-info-circle info-icon" title="This screen summarizes your calculated persona based on the questionnaire and provides tools to refine it by focusing on specific Concepts."></i></h1>
@@ -66,7 +66,7 @@
                      <button id="showSummaryViewBtn" class="button small-button view-toggle-btn">Summary View</button>
                  </div>
              </div>
-             
+
              <div id="personaDetailedView" class="persona-view current">
                  <div class="persona-overview">
                      <div class="persona-column persona-elements-detailed">
@@ -105,17 +105,17 @@
                      </div>
                  </div>
              </div>
-            
+
              <div id="personaSummaryView" class="persona-view hidden">
                   <h2>Persona Summary <i class="fas fa-info-circle info-icon" title="A concise text overview combining your Core Foundation scores, Tapestry Narrative, and Focus Themes."></i></h2>
                   <div id="summaryContent"></div>
              </div>
         </div>
 
-         
+         <!-- Grimoire Screen -->
          <div id="grimoireScreen" class="screen hidden grimoire-screen">
               <h1>The Grand Grimoire <i class="fas fa-info-circle info-icon" title="Your personal collection of discovered Concept Cards. Filter, sort, view details, mark Concepts for Focus, or sell unwanted Concepts for Insight."></i></h1>
-              
+
               <div id="grimoireGuidance" class="guidance-message hidden"></div>
               <div id="grimoireControls">
                   <label for="grimoireSortOrder">Sort:</label>
@@ -137,28 +137,28 @@
               <div id="grimoireContent" class="card-grid"></div>
          </div>
 
-       
+       <!-- Study Screen -->
        <div id="studyScreen" class="screen hidden study-screen">
              <h1>The Alchemist's Study <i class="fas fa-info-circle info-icon" title="Research Elements based on your affinities to discover new Concepts. Perform Rituals and Seek Guidance for deeper insights."></i></h1>
 
-             
+             <!-- Guidance Text Area -->
              <p id="initialDiscoveryGuidance" class="initial-discovery-guidance">Loading guidance...</p>
 
-            
-             <div class="insight-display-area study-insight-display"> 
+             <!-- Insight Display -->
+             <div class="insight-display-area study-insight-display">
                  Current Insight: <strong id="userInsightDisplayStudy">0.0</strong> <i class="fas fa-brain insight-icon"></i>
              </div>
 
              <hr class="study-divider">
 
-         
+             <!-- Element Research Buttons/Grid -->
              <h2>Research Elements <i class="fas fa-info-circle info-icon" title="Click an Element to Research it. Higher personal scores suggest greater resonance with potential discoveries. Check cost (Insight or Free Research)."></i></h2>
              <div id="initialDiscoveryElements" class="initial-discovery-elements">
-                 
+                 <!-- Element buttons/cards will be dynamically added here by UI.js -->
              </div>
 
-              
-              <div class="study-actions-area hidden-by-flow"> 
+              <!-- Daily Actions / Guidance Area -->
+              <div class="study-actions-area hidden-by-flow">
                   <hr class="study-divider">
                   <h2>Daily Actions & Guidance <i class="fas fa-info-circle info-icon" title="Perform your daily free meditation or seek guided reflection prompts here (costs Insight)."></i></h2>
                    <div class="action-buttons-area">
@@ -167,14 +167,14 @@
                    </div>
               </div>
 
-             
+             <!-- Research Discoveries Area -->
              <hr class="study-divider">
              <h2>Research Discoveries <i class="fas fa-info-circle info-icon" title="Concepts you uncover appear here temporarily. Choose to 'Add to Grimoire' or 'Sell' them for Insight."></i></h2>
-             <div id="studyResearchDiscoveries" class="card-grid"> 
+             <div id="studyResearchDiscoveries" class="card-grid">
                 <p><i>Discoveries will appear here...</i></p>
              </div>
 
-             
+             <!-- Rituals Alcove -->
              <div class="rituals-alcove hidden-by-flow">
                   <hr class="study-divider">
                   <h3>Daily Rituals <i class="fas fa-info-circle info-icon" title="Complete these tasks each day for bonus Insight or Attunement. They reset daily. Special Focus Rituals appear here when their required Concepts are focused."></i></h3>
@@ -183,7 +183,7 @@
 
         </div>
 
-         
+         <!-- Repository Screen -->
          <div id="repositoryScreen" class="screen hidden repository-screen hidden-by-flow">
              <h1>Repository <i class="fas fa-info-circle info-icon" title="A collection of rare discoveries: Scene Blueprints, Alchemical Experiments, Elemental Insights, Focus-Driven unlocks, and Milestones."></i></h1>
              <p>Unlock this area by achieving milestones and conducting research.</p>
@@ -215,7 +215,7 @@
              </div>
          </div>
 
-      
+      <!-- Popups and Modals -->
         <div id="conceptDetailPopup" class="popup hidden card-popup">
               <button id="closePopupButton" class="close-button">×</button>
               <div class="popup-header">
@@ -229,19 +229,40 @@
                       <p id="popupDetailedDescription" class="detailed-description"></p>
                        <hr class="popup-hr">
                       <div class="resonance-summary" id="popupResonanceSummary"></div>
-                      <div class="recipe-view">
-                          <h4>Resonance Analysis <i class="fas fa-info-circle info-icon" title="A deeper look at the alignment between this Concept's elemental 'recipe' and your own, highlighting key similarities and differences."></i></h4>
-                          <div id="popupComparisonHighlights"></div>
-                          <details class="element-details">
-                              <summary>View Full Recipe Comparison</summary>
-                              <div class="profile-comparison">
-                                  <div class="profile-column"><h5>Concept</h5><div id="popupConceptProfile"></div></div>
-                                  <div class="profile-column"><h5>You</h5><div id="popupUserComparisonProfile"></div></div>
-                              </div>
-                          </details>
-                      </div>
+
+                      <!-- Collapsible Resonance Analysis Section -->
+                      <details id="popupRecipeDetails" class="collapsible-popup-section">
+                            <summary>Resonance Analysis <i class="fas fa-info-circle info-icon" title="Expand for a detailed breakdown of elemental alignment between this Concept and your profile."></i></summary>
+                            <div class="collapsible-content">
+                                 <hr class="popup-hr">
+                                 <div id="popupComparisonHighlights"></div>
+                                 <details class="element-details">
+                                     <summary>View Full Recipe Comparison</summary>
+                                     <div class="profile-comparison">
+                                         <div class="profile-column"><h5>Concept</h5><div id="popupConceptProfile"></div></div>
+                                         <div class="profile-column"><h5>You</h5><div id="popupUserComparisonProfile"></div></div>
+                                     </div>
+                                 </details>
+                            </div>
+                        </details>
+                        <!-- End Collapsible Resonance -->
+
                        <hr class="popup-hr">
-                       <div id="popupRelatedConcepts" class="related-concepts"></div>
+
+                       <!-- Collapsible Related Concepts Section -->
+                       <details id="popupRelatedDetails" class="collapsible-popup-section">
+                            <summary>Synergies / Related <i class="fas fa-info-circle info-icon" title="Concepts with thematic/functional relationships. Focusing synergistic concepts may unlock content."></i></summary>
+                            <div class="collapsible-content">
+                                 <hr class="popup-hr">
+                                 <div id="popupRelatedConcepts" class="related-concepts">
+                                     <div class="related-concepts-list-dropdown">
+                                         <!-- List items will be added by JS here -->
+                                     </div>
+                                 </div>
+                            </div>
+                       </details>
+                       <!-- End Collapsible Related Concepts -->
+
                        <div id="myNotesSection" class="my-notes-section hidden">
                             <hr class="popup-hr">
                            <h4>My Notes <i class="fas fa-info-circle info-icon" title="Your personal space to jot down thoughts, reflections, or interpretations related to this Concept. Saved automatically."></i></h4>
@@ -260,10 +281,10 @@
               <div class="popup-actions">
                   <button id="addToGrimoireButton" class="button small-button add-grimoire-button" title="Add this Concept to your permanent Grimoire collection.">Add to Grimoire</button>
                   <button id="markAsFocusButton" class="button small-button focus-button hidden" title="Toggle whether this Concept contributes to your Persona Tapestry.">Mark as Focus</button>
-                 
+                  <!-- Sell button added dynamically by JS if applicable -->
               </div>
         </div>
-       
+
          <div id="reflectionModal" class="popup hidden reflection-modal">
              <button id="closeReflectionModalButton" class="close-button">×</button>
              <h3 id="reflectionModalTitle">Moment for Reflection <i class="fas fa-info-circle info-icon" title="Pause and consider the presented prompt. Check the box once you've genuinely reflected. Confirming grants Insight and potentially Attunement."></i></h3>
@@ -278,7 +299,7 @@
              </div>
              <button id="confirmReflectionButton" class="button small-button" disabled>Confirm Reflection (+<span id="reflectionRewardAmount">?</span> <i class="fas fa-brain insight-icon"></i>)</button>
          </div>
-        
+
          <div id="settingsPopup" class="popup hidden settings-popup">
              <button id="closeSettingsPopupButton" class="close-button">×</button>
              <h3>Settings <i class="fas fa-info-circle info-icon" title="Manage your session data. 'Force Save' manually triggers saving. 'Reset All Progress' completely wipes your saved data (use with caution!)."></i></h3>
@@ -289,7 +310,7 @@
                   <p class="reset-warning"><strong>Warning:</strong> Resetting will erase all scores, discovered concepts, insight, and progress permanently.</p>
              </div>
          </div>
-        
+
         <div id="tapestryDeepDiveModal" class="popup hidden deep-dive-modal">
             <button id="closeDeepDiveButton" class="close-button">×</button>
             <div class="popup-header">
@@ -312,7 +333,7 @@
                 <div id="deepDiveDetailContent" class="deep-dive-detail-area"></div>
             </div>
         </div>
-       
+
          <div id="infoPopup" class="popup hidden info-popup">
              <button id="closeInfoPopupButton" class="close-button">×</button>
              <div class="popup-header"><h3>Information</h3></div>
@@ -320,7 +341,7 @@
              <div class="popup-actions"><button id="confirmInfoPopupButton" class="button small-button">OK</button></div>
          </div>
 
-     
+         <!-- Alerts & Toasts -->
          <div id="milestoneAlert" class="milestone-alert hidden">
              <span id="milestoneAlertText">Milestone Reached!</span>
              <button id="closeMilestoneAlertButton">×</button>
@@ -330,10 +351,11 @@
          </div>
          <div id="popupOverlay" class="overlay hidden"></div>
 
-    </div> 
+    </div> <!-- End App Container -->
 
- 
+    <!-- Load Data First -->
     <script src="data.js" type="module"></script>
+    <!-- Then Load Modules -->
     <script src="js/config.js" type="module"></script>
     <script src="js/utils.js" type="module"></script>
     <script src="js/state.js" type="module"></script>
