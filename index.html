@@ -10,6 +10,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Merriweather:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Chart.js Library -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- Stylesheet -->
     <link rel="stylesheet" href="style.css">
     <link rel="icon" href="data:,"> <!-- Prevent favicon error -->
@@ -72,7 +74,9 @@
                      <div class="persona-column persona-elements-detailed">
                          <h2>Core Foundation <i class="fas fa-info-circle info-icon" title="Your scores across the 6 core elements, based on the initial questionnaire. Expand each for details, interpretations, current Attunement, and unlockable Insights."></i></h2>
                          <p>Your fundamental attributes and elemental attunement. Expand each element.</p>
-                         <div id="personaElementDetails"></div>
+                         <div id="personaElementDetails">
+                             <!-- Element details populated by JS -->
+                         </div>
                          <hr>
                          <h2>Resources <i class="fas fa-info-circle info-icon" title="Insight is the primary currency, earned through discovery, reflection, and rituals. Spend it in The Study to research new Concepts or unlock deeper knowledge."></i></h2>
                          <p>Current Insight: <strong id="userInsightDisplayPersona">0.0</strong> <i class="fas fa-brain insight-icon"></i></p>
@@ -82,12 +86,16 @@
                           <p>Curate concepts to shape your active Persona.</p>
                           <div class="tapestry-area" id="tapestryArea">
                                <h4 id="focusedConceptsHeader">Focused Concepts (0 / X) <i class="fas fa-info-circle info-icon" title="The number of Concepts currently marked as Focus out of your total available slots. Slots can be increased via Milestones."></i></h4>
-                               <div id="focusedConceptsDisplay" class="focus-concepts-grid"></div>
+                               <div id="focusedConceptsDisplay" class="focus-concepts-grid">
+                                   <!-- Focused concepts populated by JS -->
+                               </div>
                           </div>
                            <div class="grimoire-insights">
                               <h3>Focus Themes <i class="fas fa-info-circle info-icon" title="Highlights the dominant Elements based on your Focused Concepts."></i></h3>
                               <p>Dominant elemental themes emerging from your focus.</p>
-                              <ul id="personaThemesList"></ul>
+                              <ul id="personaThemesList">
+                                  <!-- Themes populated by JS -->
+                              </ul>
                           </div>
                           <div class="tapestry-narrative-section">
                               <h3>Tapestry Narrative <i class="fas fa-info-circle info-icon" title="A dynamically generated interpretation based on your Focused Concepts, highlighting dominant elements and potential synergies between them."></i></h3>
@@ -99,7 +107,9 @@
                               <div id="sceneSuggestionOutput" class="scene-suggestion-output hidden">
                                     <h4>Scene Suggestion:</h4>
                                     <p>Based on your current focus, this scene may resonate:</p>
-                                    <div id="suggestedSceneContent"></div>
+                                    <div id="suggestedSceneContent">
+                                        <!-- Suggested scene populated by JS -->
+                                    </div>
                                </div>
                           </div>
                      </div>
@@ -107,8 +117,27 @@
              </div>
 
              <div id="personaSummaryView" class="persona-view hidden">
-                  <h2>Persona Summary <i class="fas fa-info-circle info-icon" title="A concise text overview combining your Core Foundation scores, Tapestry Narrative, and Focus Themes."></i></h2>
-                  <div id="summaryContent"></div>
+                  <h2>Persona Summary <i class="fas fa-info-circle info-icon" title="A concise text overview combining your Core Foundation scores, Tapestry Narrative, and Focus Themes, plus a visual profile chart."></i></h2>
+                  <div id="summaryContent">
+                        <h3>Core Essence</h3>
+                        <div class="summary-section" id="summaryCoreEssenceText">
+                            <p>Loading essence details...</p>
+                        </div>
+                        <hr class="popup-hr">
+
+                        <!-- Chart Container -->
+                        <h3>Elemental Profile</h3>
+                        <div class="chart-container" style="position: relative; height:300px; width: 100%; max-width: 400px; margin: 15px auto; padding: 10px; background-color: rgba(255, 248, 231, 0.3); border-radius: 8px; border: 1px dashed var(--border-color-light);">
+                            <canvas id="personaScoreChartCanvas"></canvas>
+                        </div>
+                        <!-- End Chart Container -->
+
+                        <hr class="popup-hr">
+                        <h3>Focused Tapestry</h3>
+                        <div class="summary-section" id="summaryTapestryInfo">
+                             <p>Loading tapestry details...</p>
+                        </div>
+                  </div>
              </div>
         </div>
 
@@ -116,7 +145,9 @@
          <div id="grimoireScreen" class="screen hidden grimoire-screen">
               <h1>The Grand Grimoire <i class="fas fa-info-circle info-icon" title="Your personal collection of discovered Concept Cards. Filter, sort, view details, mark Concepts for Focus, or sell unwanted Concepts for Insight."></i></h1>
 
-              <div id="grimoireGuidance" class="guidance-message hidden"></div>
+              <div id="grimoireGuidance" class="guidance-message hidden">
+                  <!-- Guidance message populated by JS -->
+              </div>
               <div id="grimoireControls">
                   <label for="grimoireSortOrder">Sort:</label>
                   <select id="grimoireSortOrder"><option value="discovered">Date Added</option><option value="name">Name</option><option value="type">Type</option><option value="rarity">Rarity</option><option value="resonance">Resonance</option></select>
@@ -134,7 +165,9 @@
                   </span>
                   <i class="fas fa-info-circle info-icon" title="Use these controls to filter and sort the Concepts displayed in your Grimoire below. More filters unlock as you progress."></i>
               </div>
-              <div id="grimoireContent" class="card-grid"></div>
+              <div id="grimoireContent" class="card-grid">
+                  <!-- Grimoire cards populated by JS -->
+              </div>
          </div>
 
        <!-- Study Screen -->
@@ -190,27 +223,37 @@
              <div class="repository-layout">
                  <section id="repositoryFocusUnlocks" class="repository-section">
                      <h2><i class="fas fa-link"></i> Focus-Driven Discoveries <i class="fas fa-info-circle info-icon" title="Special items unlocked automatically by having specific combinations of Concepts marked as 'Focus'."></i></h2>
-                     <div class="repo-list focus-unlocks-list"></div>
+                     <div class="repo-list focus-unlocks-list">
+                         <!-- Focus unlocks populated by JS -->
+                     </div>
                  </section>
                  <hr>
                  <section id="repositoryScenes" class="repository-section">
                      <h2><i class="fas fa-scroll"></i> Scene Blueprints <i class="fas fa-info-circle info-icon" title="Scenarios discovered via 'Suggest Scenes' or other means. Meditate on them (costs Insight) for unique Reflection prompts."></i></h2>
-                     <div class="repo-list"></div>
+                     <div class="repo-list">
+                         <!-- Scenes populated by JS -->
+                     </div>
                  </section>
                  <hr>
                  <section id="repositoryExperiments" class="repository-section">
                      <h2><i class="fas fa-flask"></i> Alchemical Experiments <i class="fas fa-info-circle info-icon" title="Challenging procedures unlocked by high Attunement. Attempting them costs Insight and may require specific Focused Concepts."></i></h2>
-                     <div class="repo-list"></div>
+                     <div class="repo-list">
+                         <!-- Experiments populated by JS -->
+                     </div>
                  </section>
                  <hr>
                  <section id="repositoryInsights" class="repository-section">
                      <h2><i class="fas fa-lightbulb"></i> Elemental Insights <i class="fas fa-info-circle info-icon" title="Short, evocative text fragments related to specific Elements, occasionally discovered during Research."></i></h2>
-                     <div class="repo-list"></div>
+                     <div class="repo-list">
+                         <!-- Insights populated by JS -->
+                     </div>
                  </section>
                  <hr>
                  <section id="milestonesSection" class="repository-section">
                       <h2><i class="fas fa-award"></i> Milestones Achieved <i class="fas fa-info-circle info-icon" title="Significant accomplishments tracked throughout your journey, often granting rewards."></i></h2>
-                      <ul id="milestonesDisplay"></ul>
+                      <ul id="milestonesDisplay">
+                          <!-- Milestones populated by JS -->
+                      </ul>
                  </section>
              </div>
          </div>
@@ -219,28 +262,30 @@
         <div id="conceptDetailPopup" class="popup hidden card-popup">
               <button id="closePopupButton" class="close-button">×</button>
               <div class="popup-header">
-                  <span id="popupCardTypeIcon" class="card-type-icon"></span>
+                  <span id="popupCardTypeIcon" class="card-type-icon">?</span>
                   <h3 id="popupConceptName">Concept Name</h3>
                   <p id="popupConceptType">Card Type</p>
               </div>
               <div class="popup-content">
-                  <div id="popupVisualContainer" class="popup-visual"></div>
+                  <div id="popupVisualContainer" class="popup-visual">
+                      <!-- Visual populated by JS -->
+                  </div>
                   <div class="popup-details">
-                      <p id="popupDetailedDescription" class="detailed-description"></p>
+                      <p id="popupDetailedDescription" class="detailed-description">Loading description...</p>
                        <hr class="popup-hr">
-                      <div class="resonance-summary" id="popupResonanceSummary"></div>
+                      <div class="resonance-summary" id="popupResonanceSummary">Loading resonance...</div>
 
                       <!-- Collapsible Resonance Analysis Section -->
                       <details id="popupRecipeDetails" class="collapsible-popup-section">
                             <summary>Resonance Analysis <i class="fas fa-info-circle info-icon" title="Expand for a detailed breakdown of elemental alignment between this Concept and your profile."></i></summary>
                             <div class="collapsible-content">
                                  <hr class="popup-hr">
-                                 <div id="popupComparisonHighlights"></div>
+                                 <div id="popupComparisonHighlights">Loading highlights...</div>
                                  <details class="element-details">
                                      <summary>View Full Recipe Comparison</summary>
                                      <div class="profile-comparison">
-                                         <div class="profile-column"><h5>Concept</h5><div id="popupConceptProfile"></div></div>
-                                         <div class="profile-column"><h5>You</h5><div id="popupUserComparisonProfile"></div></div>
+                                         <div class="profile-column"><h5>Concept</h5><div id="popupConceptProfile">Loading...</div></div>
+                                         <div class="profile-column"><h5>You</h5><div id="popupUserComparisonProfile">Loading...</div></div>
                                      </div>
                                  </details>
                             </div>
@@ -257,6 +302,7 @@
                                  <div id="popupRelatedConcepts" class="related-concepts">
                                      <div class="related-concepts-list-dropdown">
                                          <!-- List items will be added by JS here -->
+                                         <p><i>Loading related...</i></p>
                                      </div>
                                  </div>
                             </div>
@@ -315,12 +361,14 @@
             <button id="closeDeepDiveButton" class="close-button">×</button>
             <div class="popup-header">
                 <h3 id="deepDiveTitle">Tapestry Deep Dive <i class="fas fa-info-circle info-icon" title="Explore the combined meaning of your focused concepts. Click nodes below to reveal analysis or generate contemplation tasks (may cost Insight)."></i></h3>
-                <div id="deepDiveFocusIcons"></div>
+                <div id="deepDiveFocusIcons">
+                    <!-- Focus icons populated by JS -->
+                </div>
             </div>
             <div class="deep-dive-content">
                 <div class="deep-dive-main-narrative">
                     <h4>Synthesized Narrative</h4>
-                    <p id="deepDiveNarrative"></p>
+                    <p id="deepDiveNarrative">Loading narrative...</p>
                 </div>
                 <hr class="popup-hr">
                 <div id="deepDiveAnalysisNodes" class="deep-dive-nodes-container">
@@ -330,7 +378,9 @@
                     <button class="button small-button deep-dive-node" data-node-id="synergy">Synergies & Tensions</button>
                     <button id="contemplationNode" class="button small-button deep-dive-node contemplation-node" data-node-id="contemplation">Contemplate</button>
                 </div>
-                <div id="deepDiveDetailContent" class="deep-dive-detail-area"></div>
+                <div id="deepDiveDetailContent" class="deep-dive-detail-area">
+                    <p>Select an analysis node above...</p>
+                </div>
             </div>
         </div>
 
