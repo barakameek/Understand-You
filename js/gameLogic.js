@@ -841,6 +841,34 @@ function unlockLoreInternal(conceptId, level, source = "Unknown") {
 
 // --- End NEW Category & Lore Logic ---
 
+// --- ** NEW: Synergy/Tension Logic ** ---
+export function checkSynergyTensionStatus() {
+     // Always ensure analysis is up-to-date or recalculated if focus changed
+     calculateTapestryNarrative(true);
+
+     let status = 'none';
+     if (currentTapestryAnalysis) {
+         if (currentTapestryAnalysis.synergies.length > 0) status = 'synergy';
+         if (currentTapestryAnalysis.tensions.length > 0) status = (status === 'synergy') ? 'both' : 'tension';
+     }
+
+     // Call UI function to update button appearance
+     UI.updateExploreSynergyButtonStatus(status);
+     return status;
+}
+
+export function handleExploreSynergyClick() {
+     // Ensure analysis is available
+     if (!currentTapestryAnalysis) {
+         console.warn("Synergy/Tension analysis not available.");
+         UI.showTemporaryMessage("Focus concepts to analyze synergy.", 3000);
+         return;
+     }
+     // Use the dedicated UI function to display *only* synergy/tension info
+     UI.displaySynergyTensionInfo(currentTapestryAnalysis);
+}
+// --- ** END Synergy/Tension Logic ** ---
+
 
 // --- Rituals & Milestones Logic (Helper) ---
 export function checkAndUpdateRituals(action, details = {}) {
@@ -852,12 +880,28 @@ export function checkAndUpdateRituals(action, details = {}) {
     currentRitualPool.forEach(ritual => {
         const completedData = completedToday[ritual.id] || { completed: false, progress: 0 }; if (completedData.completed) return;
         const actionMatch = ritual.track.action === action;
+        // Check for context match (e.g., for specific reflections)
         const contextMatches = ritual.track.contextMatch ? details.contextMatch === ritual.track.contextMatch : false;
+         // Check for category match (e.g., for categorization rituals)
+         const categoryMatches = ritual.track.categoryId ? details.categoryId === ritual.track.categoryId : false;
+         // Check for rarity match
+         const rarityMatches = ritual.track.rarity ? details.rarity === ritual.track.rarity : false; // Requires passing rarity in details for some actions
 
-        if (actionMatch || contextMatches) {
-            const progress = State.completeRitualProgress(ritual.id, 'daily');
-            const requiredCount = ritual.track.count || 1;
-            if (progress >= requiredCount) { console.log(`Ritual Completed: ${ritual.description}`); State.markRitualComplete(ritual.id, 'daily'); ritualCompletedThisCheck = true; if (ritual.reward) { if (ritual.reward.type === 'insight') gainInsight(ritual.reward.amount || 0, `Ritual: ${ritual.description}`); else if (ritual.reward.type === 'attunement') gainAttunementForAction('ritual', ritual.reward.element || 'All', ritual.reward.amount || 0); else if (ritual.reward.type === 'token') console.log(`TODO: Grant ${ritual.reward.tokenType || 'Research'} token`); } }
+        if (actionMatch || contextMatches || categoryMatches || rarityMatches) {
+             // Special case: check if the action requires a specific concept type for the ritual
+             let conceptTypeMatch = true; // Assume true unless check fails
+             if (ritual.track.conceptType && details.conceptId) {
+                 const conceptData = State.getDiscoveredConceptData(details.conceptId)?.concept;
+                 if (!conceptData || conceptData.cardType !== ritual.track.conceptType) {
+                     conceptTypeMatch = false;
+                 }
+             }
+
+             if (conceptTypeMatch) {
+                const progress = State.completeRitualProgress(ritual.id, 'daily');
+                const requiredCount = ritual.track.count || 1;
+                if (progress >= requiredCount) { console.log(`Ritual Completed: ${ritual.description}`); State.markRitualComplete(ritual.id, 'daily'); ritualCompletedThisCheck = true; if (ritual.reward) { if (ritual.reward.type === 'insight') gainInsight(ritual.reward.amount || 0, `Ritual: ${ritual.description}`); else if (ritual.reward.type === 'attunement') gainAttunementForAction('ritual', ritual.reward.element || 'All', ritual.reward.amount || 0); else if (ritual.reward.type === 'token') console.log(`TODO: Grant ${ritual.reward.tokenType || 'Research'} token`); } }
+             }
         }
     });
     if (ritualCompletedThisCheck) UI.displayDailyRituals();
@@ -881,6 +925,13 @@ export function updateMilestoneProgress(trackType, currentValue) {
                  else if (trackType === 'repositoryInsightsCount') checkValue = insCount;
                  else if (trackType === 'focusSlotsTotal') checkValue = slots;
                  else if (trackType === 'repositoryContents' && m.track.condition === "allTypesPresent") { const i = State.getRepositoryItems(); achieved = i.scenes.size > 0 && i.experiments.size > 0 && i.insights.size > 0; }
+                  // ** NEW: Add unlockLore check **
+                  else if (trackType === 'unlockLore' && m.track.condition === 'anyLevel' && typeof currentValue === 'number') { achieved = currentValue >= threshold; }
+                  else if (trackType === 'unlockLore' && m.track.condition === 'specificLevel' && typeof currentValue === 'number' ) { // Could add specific level checks if needed
+                      // Example: achieve only if a specific level (e.g., 3) is reached
+                      // achieved = (currentValue === threshold)
+                  }
+
                  if (!achieved && checkValue !== null && typeof checkValue === 'number' && checkValue >= threshold) achieved = true;
              }
              if (achieved) {
@@ -929,12 +980,12 @@ export function calculateTapestryNarrative(forceRecalculate = false) {
     const currentHash = State.getCurrentFocusSetHash();
     const stateHash = State.getState().currentFocusSetHash; // Recalculate hash from state
     if (currentTapestryAnalysis && !forceRecalculate && currentHash === stateHash) {
-        console.log("Using cached tapestry analysis.");
+        // console.log("Using cached tapestry analysis."); // Reduce log noise
         return currentTapestryAnalysis.fullNarrativeHTML; // Return cached HTML
     }
     console.log("Recalculating tapestry narrative...");
     const focused = State.getFocusedConcepts(); const focusCount = focused.size;
-    if (focusCount === 0) { currentTapestryAnalysis = null; return 'Mark concepts as "Focus" from the Grimoire to weave your narrative.'; }
+    if (focusCount === 0) { currentTapestryAnalysis = { synergies: [], tensions: [] }; /* Cache empty state */ return 'Mark concepts as "Focus" from the Grimoire to weave your narrative.'; }
     const disc = State.getDiscoveredConcepts(); const { focusScores } = calculateFocusScores(); // Use helper
     const analysis = { dominantElements: [], elementThemes: [], dominantCardTypes: [], cardTypeThemes: [], synergies: [], tensions: [], essenceTitle: "Balanced", balanceComment: "", fullNarrativeRaw: "", fullNarrativeHTML: "" };
     // Calculate Dominant Elements & Themes
@@ -975,8 +1026,11 @@ export function calculateTapestryNarrative(forceRecalculate = false) {
     let narrative = `Current Essence: **${analysis.essenceTitle}**. `;
     if (analysis.dominantElements.length > 0) { narrative += `Your tapestry currently resonates with ${analysis.elementThemes.join(' ')} `; } else { narrative += "Your focus presents a unique and subtle balance. "; }
     if (analysis.dominantCardTypes.length > 0) { narrative += `The lean towards ${analysis.cardTypeThemes.join(' ')} shapes the expression. `; }
+    // ** NOTE: Removed synergy/tension display from main narrative **
+    // analysis.synergies.forEach(syn => { narrative += syn.text + " "; });
+    // analysis.tensions.forEach(ten => { narrative += ten.text + " "; });
     if (analysis.balanceComment) narrative += analysis.balanceComment + " ";
-    analysis.synergies.forEach(syn => { narrative += syn.text + " "; }); analysis.tensions.forEach(ten => { narrative += ten.text + " "; });
+
     analysis.fullNarrativeRaw = narrative.trim(); analysis.fullNarrativeHTML = analysis.fullNarrativeRaw.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
     // Cache the result
     currentTapestryAnalysis = analysis;
@@ -1088,10 +1142,6 @@ export function handleCompleteContemplation(task) {
     UI.showTemporaryMessage("Contemplation complete!", 2500);
     UI.clearContemplationTask(); // Update UI to show completion/clear task
 }
-
-
-
-   
 
 console.log("gameLogic.js loaded.");
 
