@@ -1,4 +1,3 @@
-
 // --- START OF FULL ui.js --- (Combined Corrections & Chart Feature)
 
 // js/ui.js - Handles DOM Manipulation and UI Updates
@@ -542,7 +541,7 @@ export function displayPersonaScreen() {
         details.innerHTML = `<summary class="element-detail-header"><div><i class="${iconClass} element-icon-indicator" style="color: ${color};" title="${elementData.name || elementName}"></i> <strong>${elementData.name || elementName}:</strong> <span>${score?.toFixed(1) ?? '?'}</span> <span class="score-label">(${scoreLabel})</span></div><div class="score-bar-container"><div style="width: ${barWidth}%; background-color: ${color};"></div></div></summary>`;
         details.appendChild(descriptionDiv); // Append description div containing deep dive
         personaElementDetailsDiv.appendChild(details);
-        if (showDeepDiveContainer) displayElementDeepDive(key, targetContainerElement); // Populate if visible - Error here, needs targetElement
+        if (showDeepDiveContainer) displayElementDeepDive(key, deepDiveContainer); // Populate if visible
     });
     displayElementAttunement(); updateInsightDisplays(); displayFocusedConceptsPersona(); generateTapestryNarrative(); synthesizeAndDisplayThemesPersona(); displayPersonaSummary(); applyOnboardingPhaseUI(currentPhase); updateTapestryDeepDiveButton(); updateSuggestSceneButtonState();
     GameLogic.checkSynergyTensionStatus(); // Check and update synergy button
@@ -630,18 +629,16 @@ function drawPersonaChart(scores) {
         datasets: [{
             label: 'Elemental Profile', // Changed label
             data: scoreData,
-            // Use primary color for fill and line, but make fill more transparent
-            backgroundColor: Utils.hexToRgba(primaryColor, 0.35), // More transparency
-            borderColor: primaryColor, // Solid line in primary color
-            borderWidth: 2.5, // Slightly thicker line for definition
-            // Color each point individually
-            pointBackgroundColor: pointColors, // Array of colors for points
-            pointBorderColor: Utils.hexToRgba(textColor, 0.7), // Subtle dark border
-            pointRadius: 5, // Make points slightly larger
+            backgroundColor: Utils.hexToRgba(primaryColor, 0.35),
+            borderColor: primaryColor,
+            borderWidth: 2.5,
+            pointBackgroundColor: pointColors,
+            pointBorderColor: Utils.hexToRgba(textColor, 0.7),
+            pointRadius: 5,
             pointHoverRadius: 7,
             pointHoverBorderWidth: 2,
-            pointHoverBorderColor: accentColor, // Gold hover border
-            pointHoverBackgroundColor: '#fff' // White fill on hover
+            pointHoverBorderColor: accentColor,
+            pointHoverBackgroundColor: '#fff'
         }]
     };
 
@@ -649,79 +646,27 @@ function drawPersonaChart(scores) {
     const chartOptions = {
         maintainAspectRatio: false,
         scales: {
-            r: { // Radial axis configuration (The 'Spokes')
+            r: {
                 min: 0,
-                max: 10, // Scale from 0 to 10
-                ticks: {
-                    stepSize: 2, // Steps of 2 (0, 2, 4, 6, 8, 10)
-                    display: true, // Show numeric ticks
-                    // Style the tick labels (0, 2, 4...)
-                    color: Utils.hexToRgba(textColor, 0.8),
-                    font: { family: "'Merriweather', serif", size: 10 },
-                    // Add a subtle backdrop to make ticks more readable over grid/fill
-                    backdropColor: Utils.hexToRgba('#FFF8E7', 0.6), // Light beige backdrop
-                    backdropPadding: 2
-                },
-                angleLines: { // Lines from center to labels
-                    color: Utils.hexToRgba(borderColorLight, 0.6) // Lighter, less obtrusive lines
-                },
-                grid: { // Concentric circles
-                    color: Utils.hexToRgba(borderColorLight, 0.4), // Even lighter grid
-                    borderDash: [2, 4], // Finer dash pattern
-                    lineWidth: 0.8
-                },
-                pointLabels: { // Element Names (Attraction, Interaction, etc.)
-                    color: textColor,
-                    font: {
-                        family: "'Cinzel Decorative', cursive", // Use decorative font
-                        size: 12, // Size adjusted based on testing
-                        weight: '700' // Bold
-                    },
-                    padding: 20 // Increased padding
-                }
+                max: 10,
+                ticks: { stepSize: 2, display: true, color: Utils.hexToRgba(textColor, 0.8), font: { family: "'Merriweather', serif", size: 10 }, backdropColor: Utils.hexToRgba('#FFF8E7', 0.6), backdropPadding: 2 },
+                angleLines: { color: Utils.hexToRgba(borderColorLight, 0.6) },
+                grid: { color: Utils.hexToRgba(borderColorLight, 0.4), borderDash: [2, 4], lineWidth: 0.8 },
+                pointLabels: { color: textColor, font: { family: "'Cinzel Decorative', cursive", size: 12, weight: '700' }, padding: 20 }
             }
         },
         plugins: {
-            legend: {
-                 display: false // Hide the default legend - the points are colored
-            },
-            tooltip: { // Customize tooltips
-                 enabled: true,
-                 backgroundColor: Utils.hexToRgba(textColor, 0.9), // Darker tooltip
-                 titleFont: { family: "'Cinzel Decorative', cursive", weight: 'bold', size: 14 },
-                 bodyFont: { family: "'Merriweather', serif", size: 12 },
-                 padding: 10,
-                 cornerRadius: 3,
-                 displayColors: false, // Don't show the little color box
-                 callbacks: {
-                     label: function(context) {
-                         // Label is already set to Element Name by Chart.js for radar charts
-                         let score = context.parsed.r;
-                         if (score !== null) {
-                             return `Score: ${score.toFixed(1)} (${Utils.getScoreLabel(score)})`;
-                         }
-                         return '';
-                     }
-                 }
-            }
+            legend: { display: false },
+            tooltip: { enabled: true, backgroundColor: Utils.hexToRgba(textColor, 0.9), titleFont: { family: "'Cinzel Decorative', cursive", weight: 'bold', size: 14 }, bodyFont: { family: "'Merriweather', serif", size: 12 }, padding: 10, cornerRadius: 3, displayColors: false, callbacks: { label: function(context) { let score = context.parsed.r; return score !== null ? `Score: ${score.toFixed(1)} (${Utils.getScoreLabel(score)})` : ''; } } }
         },
-        // Removes the container border by default, rely on CSS for container styling
-        layout: {
-             padding: 25 // More padding inside canvas
-        }
+        layout: { padding: 25 }
     };
 
     // Create the chart
     try {
-         // Ensure canvas container is visible before drawing
          if(canvasContainer) canvasContainer.style.display = 'block';
-
-         personaChartInstance = new Chart(ctx, {
-            type: 'radar',
-            data: chartData,
-            options: chartOptions
-        });
-        console.log("Persona score chart drawn successfully.");
+         personaChartInstance = new Chart(ctx, { type: 'radar', data: chartData, options: chartOptions });
+         console.log("Persona score chart drawn successfully.");
     } catch (error) {
         console.error("Error creating persona score chart:", error);
         if(canvasContainer) canvasContainer.innerHTML = '<p style="color: red; text-align: center;">Error loading chart.</p>';
@@ -729,66 +674,13 @@ function drawPersonaChart(scores) {
 }
 
 export function displayPersonaSummary() {
-    // Ensure the target divs exist before populating
-    if (!summaryContentDiv || !summaryCoreEssenceTextDiv || !summaryTapestryInfoDiv) {
-        console.error("Summary view content divs not found!");
-        if(summaryContentDiv) summaryContentDiv.innerHTML = '<p>Error loading summary content elements.</p>';
-        return;
-    }
-
-    summaryCoreEssenceTextDiv.innerHTML = ''; // Clear previous text content
-    summaryTapestryInfoDiv.innerHTML = ''; // Clear previous tapestry content
-
-    const scores = State.getScores();
-    const focused = State.getFocusedConcepts();
-    const narrativeHTML = GameLogic.calculateTapestryNarrative(); // Get narrative
-    const themes = GameLogic.calculateFocusThemes(); // Get themes
-
-    // Build Core Essence Text
-    let coreEssenceHTML = '';
-    if (elementDetails && elementNameToKey && elementKeyToFullName) {
-        elementNames.forEach(elName => {
-            const key = elementNameToKey[elName];
-            const score = scores[key];
-            if (typeof score === 'number') {
-                const label = Utils.getScoreLabel(score);
-                const interpretation = elementDetails[elName]?.scoreInterpretations?.[label] || "N/A";
-                coreEssenceHTML += `<p><strong>${elementDetails[elName]?.name || elName} (${score.toFixed(1)} - ${label}):</strong> ${interpretation}</p>`;
-            } else {
-                coreEssenceHTML += `<p><strong>${elementDetails[elName]?.name || elName}:</strong> Score not available.</p>`;
-            }
-        });
-    } else {
-        coreEssenceHTML += "<p>Error: Element details not loaded.</p>";
-    }
+    if (!summaryContentDiv || !summaryCoreEssenceTextDiv || !summaryTapestryInfoDiv) { console.error("Summary view content divs not found!"); if(summaryContentDiv) summaryContentDiv.innerHTML = '<p>Error loading summary content elements.</p>'; return; }
+    summaryCoreEssenceTextDiv.innerHTML = ''; summaryTapestryInfoDiv.innerHTML = '';
+    const scores = State.getScores(); const focused = State.getFocusedConcepts(); const narrativeHTML = GameLogic.calculateTapestryNarrative(); const themes = GameLogic.calculateFocusThemes();
+    let coreEssenceHTML = ''; if (elementDetails && elementNameToKey && elementKeyToFullName) { elementNames.forEach(elName => { const key = elementNameToKey[elName]; const score = scores[key]; if (typeof score === 'number') { const label = Utils.getScoreLabel(score); const interpretation = elementDetails[elName]?.scoreInterpretations?.[label] || "N/A"; coreEssenceHTML += `<p><strong>${elementDetails[elName]?.name || elName} (${score.toFixed(1)} - ${label}):</strong> ${interpretation}</p>`; } else { coreEssenceHTML += `<p><strong>${elementDetails[elName]?.name || elName}:</strong> Score not available.</p>`; } }); } else { coreEssenceHTML += "<p>Error: Element details not loaded.</p>"; }
     summaryCoreEssenceTextDiv.innerHTML = coreEssenceHTML;
-
-    // Build Tapestry Info Text
-    let tapestryHTML = '';
-    if (focused.size > 0) {
-        tapestryHTML += `<p><em>${narrativeHTML || "No narrative generated."}</em></p>`;
-        tapestryHTML += '<strong>Focused Concepts:</strong><ul>';
-        const discovered = State.getDiscoveredConcepts();
-        focused.forEach(id => {
-            const name = discovered.get(id)?.concept?.name || `ID ${id}`;
-            tapestryHTML += `<li>${name}</li>`;
-        });
-        tapestryHTML += '</ul>';
-        if (themes.length > 0) {
-            tapestryHTML += '<strong>Dominant Themes:</strong><ul>';
-            themes.slice(0, 3).forEach(theme => {
-                tapestryHTML += `<li>${theme.name} Focus (${theme.count} concept${theme.count > 1 ? 's' : ''})</li>`;
-            });
-            tapestryHTML += '</ul>';
-        } else {
-            tapestryHTML += '<strong>Dominant Themes:</strong><p>No strong themes detected.</p>';
-        }
-    } else {
-        tapestryHTML += '<p>No concepts are currently focused.</p>';
-    }
+    let tapestryHTML = ''; if (focused.size > 0) { tapestryHTML += `<p><em>${narrativeHTML || "No narrative generated."}</em></p>`; tapestryHTML += '<strong>Focused Concepts:</strong><ul>'; const discovered = State.getDiscoveredConcepts(); focused.forEach(id => { const name = discovered.get(id)?.concept?.name || `ID ${id}`; tapestryHTML += `<li>${name}</li>`; }); tapestryHTML += '</ul>'; if (themes.length > 0) { tapestryHTML += '<strong>Dominant Themes:</strong><ul>'; themes.slice(0, 3).forEach(theme => { tapestryHTML += `<li>${theme.name} Focus (${theme.count} concept${theme.count > 1 ? 's' : ''})</li>`; }); tapestryHTML += '</ul>'; } else { tapestryHTML += '<strong>Dominant Themes:</strong><p>No strong themes detected.</p>'; } } else { tapestryHTML += '<p>No concepts are currently focused.</p>'; }
     summaryTapestryInfoDiv.innerHTML = tapestryHTML;
-
-    // ** Call the function to draw the chart **
     drawPersonaChart(scores);
 }
 
@@ -969,8 +861,6 @@ export function displayResearchResults(results) {
         dupeMsg.classList.add('duplicate-message');
         dupeMsg.innerHTML = `<i class="fas fa-info-circle"></i> Gained ${duplicateInsightGain.toFixed(0)} Insight from duplicate echoes.`;
         container.prepend(dupeMsg);
-        // Optional: Auto-remove after a delay
-        // setTimeout(() => dupeMsg.remove(), 5000);
     }
 
     // Display Repository Items First (Prepended)
@@ -984,8 +874,6 @@ export function displayResearchResults(results) {
         else if (item.type === 'insight') { iconClass = 'fa-lightbulb'; typeName = 'Insight Fragment'; }
         itemDiv.innerHTML = `<h4><i class="fas ${iconClass}"></i> ${typeName} Discovered!</h4><p>${item.text || `You've uncovered the '${item.name}'. View it in the Repository.`}</p>`;
         container.prepend(itemDiv); // Prepend repo items
-        // Optional: Auto-remove after a delay
-        // setTimeout(() => itemDiv.remove(), 7000);
     });
 
     // Display Concept Cards (Appended)
@@ -1019,7 +907,7 @@ export function displayResearchResults(results) {
     const hasContent = container.querySelector('.research-result-item, .repository-item-discovery');
     if (!hasContent) {
         container.querySelector('.duplicate-message')?.remove(); // Remove dupe message if it's the only thing
-        container.innerHTML = '<p><i>Discoveries will appear here...</i></p>';
+        container.innerHTML = '<p><i>Discoveries will appear here...</i></p>'; // Restore placeholder
     }
 }
 
@@ -1176,9 +1064,6 @@ function updateShelfCounts() {
 }
 
 // ** Filter by shelf click handler - MOVED TO main.js event listener section **
-// function handleShelfClick(categoryId) { ... }
-
-// ** Drag and Drop Handlers REMOVED - Logic moved to main.js/gameLogic.js **
 
 export function refreshGrimoireDisplay(overrideFilters = {}) {
     if (grimoireScreen && !grimoireScreen.classList.contains('hidden')) {
@@ -1390,7 +1275,7 @@ export function showConceptDetailPopup(conceptId) {
     // --- ** Populate Lore Section ** ---
     if (popupLoreSection && popupLoreContent) {
         const phaseAllowsLore = State.getOnboardingPhase() >= Config.ONBOARDING_PHASE.ADVANCED;
-        popupLoreSection.classList.toggle('hidden', !phaseAllowsLore || !inGrimoire); // Show only if discovered and phase is ADVANCED
+        popupLoreSection.classList.toggle('hidden', !phaseAllowsLore || !inGrimoire || !conceptData.lore || conceptData.lore.length === 0); // Also hide if no lore defined
         popupLoreContent.innerHTML = ''; // Clear previous lore
 
         if (phaseAllowsLore && inGrimoire && conceptData.lore && conceptData.lore.length > 0) {
@@ -1427,12 +1312,13 @@ export function showConceptDetailPopup(conceptId) {
                 }
             });
         } else if (phaseAllowsLore && inGrimoire) {
-            popupLoreContent.innerHTML = '<p><i>No further lore recorded for this concept.</i></p>';
+            // This case should only happen if a Rare card mistakenly has no lore array
+             popupLoreContent.innerHTML = '<p><i>No lore recorded for this concept.</i></p>';
         }
 
         // If new lore was available when opening, mark it as seen now
          if (inGrimoire && discoveredData && discoveredData.newLoreAvailable) {
-             State.markLoreAsSeen(conceptId); // Call state function (ADDED TO state.js)
+             State.markLoreAsSeen(conceptId); // Call state function
              // Try to remove indicator from Grimoire card if it's visible
              const cardElemIndicator = document.querySelector(`#grimoireContent .concept-card[data-concept-id="${conceptId}"] .lore-indicator`);
              cardElemIndicator?.remove();
@@ -1786,7 +1672,7 @@ export function displayElementDeepDive(elementKey, targetContainerElement) {
         const canAfford = insight >= cost;
         const isDisabled = !canAfford || !phaseAllowsUnlocking;
         let buttonTitle = '';
-        let errorMsgHTML = ''; // Store error messages separately
+        let errorMsgHTML = '';
 
         if (!phaseAllowsUnlocking) {
             buttonTitle = 'Unlock in later phase';
@@ -1798,30 +1684,28 @@ export function displayElementDeepDive(elementKey, targetContainerElement) {
             buttonTitle = `Unlock for ${cost} Insight`;
         }
 
-        // ** FIX: Construct the button HTML string more carefully **
+        // ** Revised Button HTML Construction **
         const buttonHTML = `
             <button class="button small-button unlock-button"
                     data-element-key="${elementKey}"
                     data-level="${nextLevelData.level}"
                     ${isDisabled ? 'disabled' : ''}
-                    title="${buttonTitle}">
+                    title="${buttonTitle.replace(/"/g, '&quot;')}"> {/* Escape quotes in title */}
                 Unlock (${cost} <i class="fas fa-brain insight-icon"></i>)
             </button>`;
 
         targetContainerElement.innerHTML += `
             <div class="library-unlock">
                 <h5>Next: ${nextLevelData.title} (Level ${nextLevelData.level})</h5>
-                ${buttonHTML} {/* Insert button HTML */}
-                ${errorMsgHTML} {/* Insert error message HTML */}
+                ${buttonHTML}
+                ${errorMsgHTML}
             </div>`;
     } else if (displayedContent) {
-        // Remove the last HR if it exists before the 'all unlocked' message
         const lastHr = targetContainerElement.querySelector('hr.popup-hr:last-of-type');
         if (lastHr) lastHr.remove();
         targetContainerElement.innerHTML += '<p class="all-unlocked-message"><i>All insights unlocked for this element.</i></p>';
     }
 }
-
 
 
 // --- Repository UI ---
@@ -1943,30 +1827,6 @@ export function renderRepositoryItem(item, type, cost, canDoAction, completed = 
         if (completed) { buttonTitle = "Experiment Completed"; buttonDisabled = true; } // Ensure disabled if completed
         else if (!canDoAction && unmetReqs.includes("Insight")) { buttonTitle = `Requires ${cost} Insight`; buttonDisabled = true; } // Check unmetReqs first
         else if (!canDoAction && unmetReqs.length > 0) { buttonTitle = `Requires Focus: ${unmetReqs.join(', ')}`; buttonDisabled = true; }
-        // else if (!canDoAction) { buttonTitle = `Requires ${cost} Insight`; buttonDisabled = true;} // Removed redundant check, handled by unmetReqs
-        else { buttonTitle = `Attempt ${item.name}`; buttonDisabled = false;} // Enable if no unmetReqs and affordable
-
-        actionsHTML = `<button class="button small-button" data-experiment-id="${item.id}" ${buttonDisabled ? 'disabled' : ''} title="${buttonTitle}">${buttonText}</button>`;
-        if (completed) actionsHTML += ` <span class="completed-text">(Completed)</span>`;
-        else if (!canDoAction && unmetReqs.includes("Insight")) actionsHTML += ` <small class="req-missing">(Insufficient Insight)</small>`;
-        else if (!canDoAction && unmetReqs.length > 0) actionsHTML += ` <small class="req-missing">(Requires Focus: ${unmetReqs.join(', ')})</small>`;
-    }
-    div.innerHTML = `<h4>${item.name} ${type === 'experiment' ? `(Req: ${item.requiredAttunement} ${elementKeyToFullName export function renderRepositoryItem(item, type, cost, canDoAction, completed = false, unmetReqs = []) {
-    const div = document.createElement('div');
-    div.classList.add('repository-item', `repo-item-${type}`);
-    if (completed) div.classList.add('completed');
-    let actionsHTML = ''; let buttonDisabled = !canDoAction; let buttonTitle = ''; let buttonText = '';
-
-    if (type === 'scene') {
-        buttonText = `Meditate (${cost} <i class="fas fa-brain insight-icon"></i>)`;
-        if (!canDoAction) buttonTitle = `Requires ${cost} Insight`; else buttonTitle = `Meditate on ${item.name}`;
-        actionsHTML = `<button class="button small-button" data-scene-id="${item.id}" ${buttonDisabled ? 'disabled' : ''} title="${buttonTitle}">${buttonText}</button>`;
-    } else if (type === 'experiment') {
-        buttonText = `Attempt (${cost} <i class="fas fa-brain insight-icon"></i>)`;
-        if (completed) { buttonTitle = "Experiment Completed"; buttonDisabled = true; } // Ensure disabled if completed
-        else if (!canDoAction && unmetReqs.includes("Insight")) { buttonTitle = `Requires ${cost} Insight`; buttonDisabled = true; } // Check unmetReqs first
-        else if (!canDoAction && unmetReqs.length > 0) { buttonTitle = `Requires Focus: ${unmetReqs.join(', ')}`; buttonDisabled = true; }
-        // else if (!canDoAction) { buttonTitle = `Requires ${cost} Insight`; buttonDisabled = true;} // Removed redundant check, handled by unmetReqs
         else { buttonTitle = `Attempt ${item.name}`; buttonDisabled = false;} // Enable if no unmetReqs and affordable
 
         actionsHTML = `<button class="button small-button" data-experiment-id="${item.id}" ${buttonDisabled ? 'disabled' : ''} title="${buttonTitle}">${buttonText}</button>`;
@@ -2066,8 +1926,8 @@ export function displaySynergyTensionInfo(analysisData) {
      // Populate Details Area with Synergy/Tension Content
      let content = '';
      if (analysisData.synergies.length > 0) {
-         content += `<h4>Synergies:</h4><ul>${analysisData.synergies.map(s => `<li>${s.text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')}</li>`).join('')}</ul><hr>`;
-     } else { content += `<p><em>No direct synergies detected between focused concepts.</em></p><hr>`; }
+         content += `<h4>Synergies:</h4><ul>${analysisData.synergies.map(s => `<li>${s.text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')}</li>`).join('')}</ul><hr class="popup-hr">`;
+     } else { content += `<p><em>No direct synergies detected between focused concepts.</em></p><hr class="popup-hr">`; }
      if (analysisData.tensions.length > 0) {
          content += `<h4>Tensions:</h4><ul>${analysisData.tensions.map(t => `<li>${t.text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')}</li>`).join('')}</ul>`;
      } else { content += `<p><em>No significant elemental tensions detected within the focus.</em></p>`; }
@@ -2093,6 +1953,8 @@ export function updateExploreSynergyButtonStatus(status) {
     exploreSynergyButton.classList.toggle('hidden-by-flow', !isPhaseReady);
     exploreSynergyButton.disabled = !isPhaseReady || !hasFocus;
 
+    exploreSynergyButton.classList.remove('highlight-synergy', 'highlight-tension'); // Reset highlights
+
     if (!isPhaseReady) {
         exploreSynergyButton.title = "Unlock later...";
         exploreSynergyButton.textContent = "Explore Synergy";
@@ -2102,13 +1964,18 @@ export function updateExploreSynergyButtonStatus(status) {
     } else {
         exploreSynergyButton.title = "Explore synergies and tensions between focused concepts";
         exploreSynergyButton.textContent = "Explore Synergy";
-        exploreSynergyButton.classList.remove('highlight-synergy', 'highlight-tension'); // Remove highlights
         if (status === 'synergy') {
             exploreSynergyButton.classList.add('highlight-synergy');
             exploreSynergyButton.title += " (Synergy detected!)";
+            exploreSynergyButton.textContent = "Explore Synergy ✨";
         } else if (status === 'tension') {
             exploreSynergyButton.classList.add('highlight-tension');
             exploreSynergyButton.title += " (Tension detected!)";
+             exploreSynergyButton.textContent = "Explore Synergy ⚡";
+        } else if (status === 'both') {
+             exploreSynergyButton.classList.add('highlight-synergy', 'highlight-tension'); // Maybe style differently?
+             exploreSynergyButton.title += " (Synergy & Tension detected!)";
+             exploreSynergyButton.textContent = "Explore Synergy 💥";
         }
     }
 }
