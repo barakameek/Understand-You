@@ -1,13 +1,12 @@
-// --- START OF FULL state.js --- (Adding Categories & Lore Tracking)
-
 // js/state.js - Manages Application State and Persistence
 import * as Config from './config.js';
-import { elementNames } from '../data.js'; // Only import needed data
+import { elementNames, concepts } from '../data.js'; // ** IMPORT concepts HERE **
 
 console.log("state.js loading...");
 
 // Default game state structure
 const createInitialGameState = () => {
+    // ... (rest of the function is unchanged) ...
     const initial = {
         userScores: { A: 5, I: 5, S: 5, P: 5, C: 5, R: 5 },
         userAnswers: {},
@@ -65,7 +64,18 @@ function _triggerSave() {
              const stateToSave = {
                  ...gameState,
                  // Convert complex types
-                 discoveredConcepts: Array.from(gameState.discoveredConcepts.entries()).map(([id, data]) => [id, {...data}]), // Ensure deep copy
+                 discoveredConcepts: Array.from(gameState.discoveredConcepts.entries()).map(([id, data]) => {
+                     // Save only necessary data, exclude full concept object to avoid circular refs/large saves
+                     return [id, {
+                         // concept: data.concept.id, // Only save the ID, maybe? Or just rely on rehydration? For now, exclude concept object
+                         discoveredTime: data.discoveredTime,
+                         artUnlocked: data.artUnlocked,
+                         notes: data.notes,
+                         unlockedLoreLevel: data.unlockedLoreLevel,
+                         userCategory: data.userCategory,
+                         newLoreAvailable: data.newLoreAvailable
+                     }];
+                 }),
                  focusedConcepts: Array.from(gameState.focusedConcepts),
                  achievedMilestones: Array.from(gameState.achievedMilestones),
                  seenPrompts: Array.from(gameState.seenPrompts),
@@ -101,25 +111,28 @@ export function loadGameState() {
 
             // Restore Maps and Sets
             if (Array.isArray(loadedState.discoveredConcepts)) {
-                // **MODIFIED:** Rehydrate map, ensuring defaults for new properties (lore, category)
-                gameState.discoveredConcepts = new Map(loadedState.discoveredConcepts.map(([id, data]) => {
+                // **MODIFIED:** Rehydrate map, using imported 'concepts'
+                gameState.discoveredConcepts = new Map(loadedState.discoveredConcepts.map(([id, savedData]) => {
+                    const conceptDataFromSource = concepts.find(c => c.id === id); // Find concept in data.js
+                    if (!conceptDataFromSource) {
+                        console.warn(`Could not find concept data for loaded ID: ${id}. Skipping.`);
+                        return null; // Skip this entry if concept data is missing
+                    }
                     // Ensure defaults for potentially missing fields from older saves
                     const defaults = {
-                        unlockedLoreLevel: data.unlockedLoreLevel || 0, // Default to 0 if missing
-                        userCategory: data.userCategory || 'uncategorized', // Default to 'uncategorized' if missing
-                        newLoreAvailable: data.newLoreAvailable || false // Default to false if missing
+                        unlockedLoreLevel: savedData.unlockedLoreLevel || 0,
+                        userCategory: savedData.userCategory || 'uncategorized',
+                        newLoreAvailable: savedData.newLoreAvailable || false
                     };
-                    // Important: Make sure the concept data itself is included correctly
-                    const conceptDataFromSource = concepts.find(c => c.id === id); // Find concept in data.js
                     return [id, {
-                        concept: conceptDataFromSource, // Ensure concept data is linked
-                        discoveredTime: data.discoveredTime,
-                        artUnlocked: data.artUnlocked || false,
-                        notes: data.notes || "",
-                        ...defaults // Apply defaults/loaded values for new fields
+                        concept: conceptDataFromSource, // Link the actual concept data
+                        discoveredTime: savedData.discoveredTime,
+                        artUnlocked: savedData.artUnlocked || false,
+                        notes: savedData.notes || "",
+                        ...defaults
                         }
                     ];
-                }));
+                }).filter(entry => entry !== null)); // Filter out null entries where concept wasn't found
             }
             if (Array.isArray(loadedState.focusedConcepts)) gameState.focusedConcepts = new Set(loadedState.focusedConcepts);
             if (Array.isArray(loadedState.achievedMilestones)) gameState.achievedMilestones = new Set(loadedState.achievedMilestones);
@@ -266,15 +279,15 @@ export function updateAttunement(elementKey, amount) {
 export function addDiscoveredConcept(conceptId, conceptData) {
     if (!(gameState.discoveredConcepts instanceof Map)) { console.error("CRITICAL ERROR: gameState.discoveredConcepts is not a Map!"); gameState.discoveredConcepts = new Map(); }
     if (!gameState.discoveredConcepts.has(conceptId)) {
-        // ** MODIFIED: Initialize new properties **
+        // ** Initialize new properties on add **
         gameState.discoveredConcepts.set(conceptId, {
             concept: conceptData,
             discoveredTime: Date.now(),
             artUnlocked: false,
             notes: "",
-            unlockedLoreLevel: 0, // Start at level 0
-            userCategory: 'uncategorized', // Default category
-            newLoreAvailable: false // No new lore initially
+            unlockedLoreLevel: 0,
+            userCategory: 'uncategorized',
+            newLoreAvailable: false
         });
         // Phase advancement triggers save
         if (gameState.onboardingPhase < Config.ONBOARDING_PHASE.STUDY_INSIGHT && gameState.discoveredConcepts.size >= 1) {
@@ -395,7 +408,7 @@ export function addAchievedMilestone(milestoneId) {
         else if (milestoneId === 'ms03' && gameState.onboardingPhase < Config.ONBOARDING_PHASE.REFLECTION_RITUALS) phaseAdvanced = advanceOnboardingPhase(Config.ONBOARDING_PHASE.REFLECTION_RITUALS);
         else if (milestoneId === 'ms05' && gameState.onboardingPhase < Config.ONBOARDING_PHASE.STUDY_INSIGHT) phaseAdvanced = advanceOnboardingPhase(Config.ONBOARDING_PHASE.STUDY_INSIGHT);
         else if (milestoneId === 'ms07' && gameState.onboardingPhase < Config.ONBOARDING_PHASE.REFLECTION_RITUALS) phaseAdvanced = advanceOnboardingPhase(Config.ONBOARDING_PHASE.REFLECTION_RITUALS);
-        else if (['ms60', 'ms70', 'ms71', 'ms11'].includes(milestoneId) && gameState.onboardingPhase < Config.ONBOARDING_PHASE.ADVANCED) phaseAdvanced = advanceOnboardingPhase(Config.ONBOARDING_PHASE.ADVANCED);
+        else if (['ms60', 'ms70', 'ms71', 'ms11', 'ms90'].includes(milestoneId) && gameState.onboardingPhase < Config.ONBOARDING_PHASE.ADVANCED) phaseAdvanced = advanceOnboardingPhase(Config.ONBOARDING_PHASE.ADVANCED); // Added ms90 (lore)
         // -------------------------------------------------------
         if (!phaseAdvanced) saveGameState(); // Save milestone achievement if phase didn't change
         return true;
