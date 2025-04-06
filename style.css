@@ -222,7 +222,11 @@ hr { border: none; border-top: 1px dashed var(--border-color-light); margin: 18p
 #summaryContent h3 { font-size: 1.2em; margin-bottom: 12px; }
 #summaryContent p { margin-bottom: 8px; font-size: 0.95em; }
 #summaryContent ul { list-style: disc; padding-left: 20px; margin-bottom: 12px; font-size: 0.95em;}
-
+#personaSummaryView #summaryContent {
+    max-width: 700px; /* Or whatever allows the 550px chart + padding */
+    margin-left: auto;
+    margin-right: auto;
+}
 /* --- Study Screen (Unified Layout Styles) --- */
 .study-screen { background: linear-gradient(to bottom, #e8d8c0, #f5f0e1); background-size: cover; border: 1px solid var(--border-color-dark); }
 .study-screen h1 { color: #5a3a22; text-shadow: 1px 1px 1px rgba(255,255,255,0.1); }
