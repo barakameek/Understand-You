@@ -827,8 +827,47 @@ export function renderCard(concept, context = 'grimoire') {
     let affinitiesHTML = ''; if (concept.elementScores && elementKeyToFullName) { Object.entries(concept.elementScores).forEach(([key, score]) => { const level = Utils.getAffinityLevel(score); if (level && elementKeyToFullName[key]) { const fullName = elementKeyToFullName[key]; const color = Utils.getElementColor(fullName); const iconClass = Utils.getElementIcon(fullName); const elNameDet = elementDetails[fullName]?.name || fullName; affinitiesHTML += `<span class="affinity affinity-${level.toLowerCase()}" style="border-color: ${color}; background-color: ${Utils.hexToRgba(color, 0.1)};" title="${elNameDet} Affinity: ${level} (${score.toFixed(1)})"><i class="${iconClass}" style="color: ${color};"></i></span> `; } }); }
     let visualIconClass = "fas fa-question card-visual-placeholder"; let visualTitle = "Visual Placeholder"; if (artUnlocked) { visualIconClass = "fas fa-star card-visual-placeholder card-art-unlocked"; visualTitle = "Enhanced Art Placeholder"; } else if (concept.visualHandle) { visualIconClass = "fas fa-image card-visual-placeholder"; visualTitle = "Art Placeholder"; } const visualContent = `<i class="${visualIconClass}" title="${visualTitle}"></i>`;
     // Build action buttons string - REMOVED onclick attributes
-    let actionButtonsHTML = ''; let hasActions = false; if (context === 'grimoire') { actionButtonsHTML = '<div class="card-actions">'; if (showSellButton) { let discoveryValue = Config.CONCEPT_DISCOVERY_INSIGHT[concept.rarity] || Config.CONCEPT_DISCOVERY_INSIGHT.default; const sellValue = discoveryValue * Config.SELL_INSIGHT_FACTOR; actionButtonsHTML += `<button class="button tiny-button secondary-button sell-button card-sell-button" data-concept-id="${concept.id}" data-context="grimoire" title="Sell (${sellValue.toFixed(1)} Insight)"><i class="fas fa-dollar-sign"></i></button>`; hasActions = true; } if (showFocusButton) { const slotsFull = State.getFocusedConcepts().size >= State.getFocusSlots() && !isFocused; const buttonClass = isFocused ? 'marked' : ''; const buttonIcon = isFocused ? 'fa-star' : 'fa-regular fa-star'; const buttonTitle = slotsFull ? `Focus Slots Full (${State.getFocusSlots()})` : (isFocused ? 'Remove Focus' : 'Mark as Focus'); actionButtonsHTML += `<button class="button tiny-button card-focus-button ${buttonClass}" data-concept-id="${concept.id}" title="${buttonTitle}" ${slotsFull ? 'disabled' : ''}><i class="fas ${buttonIcon}"></i></button>`; hasActions = true; } actionButtonsHTML += '</div>'; if (!hasActions) actionButtonsHTML = ''; }
-    cardDiv.innerHTML = `<div class="card-header"><i class="${cardTypeIcon} card-type-icon" title="${concept.cardType}"></i><span class="card-name">${concept.name}</span><span class="card-stamps">${focusStampHTML}${noteStampHTML}</span></div><div class="card-visual">${visualContent}</div><div class="card-footer"><div class="card-affinities">${affinitiesHTML || '<small style="color:#888; font-style: italic;">Basic Affinity</small>'}</div><p class="card-brief-desc">${concept.briefDescription || '...'}</p>${actionButtonsHTML}</div>`;
+  export function renderCard(concept, context = 'grimoire') {
+    // ... (setup code: cardDiv, isDiscovered, isFocused, etc.) ...
+
+    // Build action buttons string - REMOVE onclick attributes
+    let actionButtonsHTML = '';
+    let hasActions = false;
+    if (context === 'grimoire') {
+        actionButtonsHTML = '<div class="card-actions">';
+        if (showSellButton) { // Assuming showSellButton is calculated correctly based on phase
+            let discoveryValue = Config.CONCEPT_DISCOVERY_INSIGHT[concept.rarity] || Config.CONCEPT_DISCOVERY_INSIGHT.default;
+            const sellValue = discoveryValue * Config.SELL_INSIGHT_FACTOR;
+            // REMOVED onclick="..."
+            actionButtonsHTML += `<button class="button tiny-button secondary-button sell-button card-sell-button" data-concept-id="${concept.id}" data-context="grimoire" title="Sell (${sellValue.toFixed(1)} Insight)"><i class="fas fa-dollar-sign"></i></button>`;
+            hasActions = true;
+        }
+        if (showFocusButton) { // Assuming showFocusButton is calculated correctly based on phase
+            const slotsFull = State.getFocusedConcepts().size >= State.getFocusSlots() && !isFocused;
+            const buttonClass = isFocused ? 'marked' : '';
+            const buttonIcon = isFocused ? 'fa-star' : 'fa-regular fa-star';
+            const buttonTitle = slotsFull ? `Focus Slots Full (${State.getFocusSlots()})` : (isFocused ? 'Remove Focus' : 'Mark as Focus');
+            // REMOVED onclick="..."
+            actionButtonsHTML += `<button class="button tiny-button card-focus-button ${buttonClass}" data-concept-id="${concept.id}" title="${buttonTitle}" ${slotsFull ? 'disabled' : ''}><i class="fas ${buttonIcon}"></i></button>`;
+            hasActions = true;
+        }
+        actionButtonsHTML += '</div>';
+        if (!hasActions) actionButtonsHTML = '';
+    }
+
+    // Construct innerHTML using actionButtonsHTML
+    cardDiv.innerHTML = `
+        <div class="card-header">
+            <i class="${cardTypeIcon} card-type-icon" title="${concept.cardType}"></i>
+            <span class="card-name">${concept.name}</span>
+            <span class="card-stamps">${focusStampHTML}${noteStampHTML}</span>
+        </div>
+        <div class="card-visual">${visualContent}</div>
+        <div class="card-footer">
+            <div class="card-affinities">${affinitiesHTML || '<small style="color:#888; font-style: italic;">Basic Affinity</small>'}</div>
+            <p class="card-brief-desc">${concept.briefDescription || '...'}</p>
+            ${actionButtonsHTML} {/* Inject button HTML */}
+        </div>`;
     // Main click listener for opening popup (handled by delegation in main.js now)
     if (context === 'research-output' || context === 'discovery-note') { cardDiv.title = `Click to view details for ${concept.name} (Not yet in Grimoire)`; cardDiv.classList.add('research-note-card'); }
     return cardDiv;
