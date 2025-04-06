@@ -809,9 +809,7 @@ export function refreshGrimoireDisplay() { if (grimoireScreen && !grimoireScreen
 function handleFirstGrimoireVisit() { const visited = State.getState().grimoireFirstVisitDone; const hasConcepts = State.getDiscoveredConcepts().size > 0; const phaseReady = State.getOnboardingPhase() >= Config.ONBOARDING_PHASE.PERSONA_GRIMOIRE; if (!visited && hasConcepts && phaseReady && grimoireGuidance) { grimoireGuidance.innerHTML = `Welcome to your Grimoire! Click the <i class="fa-regular fa-star"></i> on a card to 'Focus' it, adding it to your Persona Tapestry.`; grimoireGuidance.classList.remove('hidden'); State.markGrimoireVisited(); // Mark as visited in state
  setTimeout(() => { if (grimoireGuidance) grimoireGuidance.classList.add('hidden'); }, 8000); } else if (grimoireGuidance) { grimoireGuidance.classList.add('hidden'); } }
 
-
-// --- Card Rendering (Corrected - No onclick attributes) ---
-
+export function renderCard(concept, context = 'grimoire') {
     // Basic validation
     if (!concept || typeof concept.id === 'undefined') {
         console.warn("renderCard called with invalid concept:", concept);
@@ -880,6 +878,7 @@ function handleFirstGrimoireVisit() { const visited = State.getState().grimoireF
     // Construct visualContent *after* variables are set
     const visualContent = `<i class="${visualIconClass}" title="${visualTitle}"></i>`;
 
+
     // Action Buttons (Grimoire context only, no onclick)
     let actionButtonsHTML = '';
     let hasActions = false;
@@ -904,6 +903,7 @@ function handleFirstGrimoireVisit() { const visited = State.getState().grimoireF
     }
 
     // --- Construct Final innerHTML ---
+    // This uses the fully constructed variable strings from above
     cardDiv.innerHTML = `
         <div class="card-header">
             <i class="${cardTypeIcon} card-type-icon" title="${concept.cardType}"></i>
@@ -923,11 +923,11 @@ function handleFirstGrimoireVisit() { const visited = State.getState().grimoireF
         cardDiv.classList.add('research-note-card');
     }
 
-    // Add main card click listener (handled by delegation in main.js)
-    // No need to add listener here directly
+    // Main card click listener is handled by delegation in main.js
 
-    return cardDiv;
-}
+    return cardDiv; // Ensure this return is the LAST line inside the function's braces
+
+} 
 
 // --- Concept Detail Popup UI ---
 export function showConceptDetailPopup(conceptId) { const conceptData = concepts.find(c => c.id === conceptId); if (!conceptData) { console.error("Concept data missing:", conceptId); return; } const discoveredData = State.getDiscoveredConceptData(conceptId); const inGrimoire = !!discoveredData; const currentPhase = State.getOnboardingPhase(); const researchNotesArea = document.getElementById('studyResearchDiscoveries'); const inResearchNotes = !inGrimoire && researchNotesArea?.querySelector(`.research-result-item[data-concept-id="${conceptId}"]`); GameLogic.setCurrentPopupConcept(conceptId); if (popupConceptName) popupConceptName.textContent = conceptData.name; if (popupConceptType) popupConceptType.textContent = conceptData.cardType; if (popupCardTypeIcon) popupCardTypeIcon.className = `${Utils.getCardTypeIcon(conceptData.cardType)} card-type-icon`; if (popupDetailedDescription) popupDetailedDescription.textContent = conceptData.detailedDescription || "No description."; const artUnlocked = discoveredData?.artUnlocked || false; if (popupVisualContainer) { popupVisualContainer.innerHTML = ''; let visualIconClass = "fas fa-question card-visual-placeholder"; let visualTitle = "Visual Placeholder"; if (artUnlocked) { visualIconClass = "fas fa-star card-visual-placeholder card-art-unlocked"; visualTitle = "Enhanced Art Placeholder"; } else if (conceptData.visualHandle) { visualIconClass = "fas fa-image card-visual-placeholder"; visualTitle = "Art Placeholder"; } const visualContent = `<i class="${visualIconClass}" title="${visualTitle}"></i>`; popupVisualContainer.innerHTML = visualContent; } const scores = State.getScores(); const distance = Utils.euclideanDistance(scores, conceptData.elementScores); displayPopupResonance(distance); displayPopupRecipeComparison(conceptData, scores); displayPopupRelatedConcepts(conceptData); const showNotes = inGrimoire && currentPhase >= Config.ONBOARDING_PHASE.STUDY_INSIGHT; if (myNotesSection && myNotesTextarea && saveMyNoteButton) { myNotesSection.classList.toggle('hidden', !showNotes); if (showNotes) { myNotesTextarea.value = discoveredData.notes || ""; if(noteSaveStatusSpan) noteSaveStatusSpan.textContent = ""; } } const showEvolution = inGrimoire && currentPhase >= Config.ONBOARDING_PHASE.ADVANCED && conceptData.canUnlockArt && !artUnlocked; if (popupEvolutionSection) { popupEvolutionSection.classList.toggle('hidden', !showEvolution); if (showEvolution) displayEvolutionSection(conceptData, discoveredData); } updateGrimoireButtonStatus(conceptId, !!inResearchNotes); updateFocusButtonStatus(conceptId); updatePopupSellButton(conceptId, conceptData, inGrimoire, !!inResearchNotes); if (conceptDetailPopup) conceptDetailPopup.classList.remove('hidden'); if (popupOverlay) popupOverlay.classList.remove('hidden'); }
