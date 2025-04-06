@@ -608,12 +608,44 @@ const milestones = [
 ];
 
 
-// --- Tapestry Narrative Themes --- (Keep as is)
-const elementInteractionThemes = { /* ... */ };
-const cardTypeThemes = { /* ... */ };
+// --- Data for Tapestry Narrative Generation (Structure kept, used by logic) ---
+const elementInteractionThemes = {
+    "AI": "a dynamic blend of specific Attraction triggers and a focus on Interaction roles, suggesting interest in how desire plays out in social dynamics.",
+    "AS": "a focus where specific Attraction cues are strongly linked to Sensory experiences, emphasizing the physical manifestation of desire.",
+    "AP": "an exploration linking Attraction triggers to deeper Psychological needs, perhaps seeking specific dynamics to fulfill emotional goals.",
+    "AC": "a combination where Attraction is filtered through a Cognitive lens, suggesting interest in the 'idea' of a person/dynamic or enjoying intellectual sparks.",
+    "AR": "a pairing where specific Attractions are considered within defined Relationship structures, exploring how desires fit into commitments or fluid connections.",
+    "IS": "a strong emphasis on the physical feeling and flow of Interaction, where Sensory input heavily defines the quality of the power exchange or role-play.",
+    "IP": "a focus on the Psychological underpinnings of Interaction styles, exploring the 'why' behind dominance, submission, or collaboration.",
+    "IC": "an Interaction style heavily influenced by Cognitive elements like scenarios, rules, or psychological analysis within the dynamic.",
+    "IR": "an interest in how different Interaction styles manifest within various Relationship structures, from dyads to groups.",
+    "SP": "a deep connection between Sensory experience and Psychological fulfillment, perhaps using sensation for catharsis, grounding, or exploring vulnerability.",
+    "SC": "where Sensory experiences are framed or enhanced by Cognitive elements like fantasy, anticipation, or specific mental states.",
+    "SR": "exploring how different Sensory preferences play out across various Relationship contexts or numbers of partners.",
+    "PC": "a highly introspective focus, blending Psychological drives with Cognitive exploration through fantasy, analysis, or meaning-making.",
+    "PR": "where Psychological needs are explored or met through specific Relationship configurations or dynamics.",
+    "CR": "a focus on the mental frameworks and structures of Relationships, perhaps enjoying negotiation, defining roles intellectually, or exploring theoretical models.",
+    // Add more complex 3-element themes if desired
+    "AIS": "a highly embodied experience focused on the interplay of desire, physical sensation, and interactive roles."
+};
+
+const cardTypeThemes = {
+    "Orientation": "defining the 'who' or 'what' sparks desire is central to this focus.",
+    "Identity/Role": "exploring 'who you are' within intimacy or specific power dynamics seems key.",
+    "Practice/Kink": "the 'how' and 'what' of sexual expression, the specific actions and sensations, are prominent.",
+    "Psychological/Goal": "understanding the 'why' – the underlying emotional needs and motivations – drives this focus.",
+    "Relationship Style": "the 'structure' and context of connection, how relationships are formed and navigated, is a major theme."
+};
 
 // --- Onboarding Tasks --- (Keep rewritten descriptions/hints)
- const onboardingTasks = [ /* ... */ ];
+ const onboardingTasks = [
+    { id: 'task01', phaseRequired: 1, description: "Peek at Your Grimoire", reward: { type: 'insight', amount: 1 }, track: { action: 'showScreen', value: 'grimoireScreen' }, hint: "Check out the 'Grimoire' tab up top! It's where your discovered Concepts live." },
+    { id: 'task02', phaseRequired: 1, description: "Focus on a Feeling", reward: { type: 'insight', amount: 2 }, track: { action: 'markFocus', count: 1 }, hint: "Click a Concept card (Grimoire/Research), hit 'Mark as Focus'. Or just tap the ☆ star on the card in the Grimoire!" },
+    { id: 'task03', phaseRequired: 2, description: "Do Some Research!", reward: { type: 'insight', amount: 2 }, track: { action: 'conductResearch', count: 1 }, hint: "Head to the 'Study' tab and click an Element button to see what you find (uses Insight or Free Research)." },
+    { id: 'task04', phaseRequired: 2, description: "Keep What You Find", reward: { type: 'insight', amount: 1 }, track: { action: 'addToGrimoireFromResearch', count: 1 }, hint: "After Researching, hit 'Add to Grimoire' on a cool Concept card in the 'Research Discoveries' area below." },
+    { id: 'task05', phaseRequired: 3, description: "Ponder a Prompt", reward: { type: 'insight', amount: 3 }, track: { action: 'completeReflection', count: 1 }, hint: "Sometimes Reflections pop up automatically. Or, visit the Study and 'Seek Guidance'!" },
+    { id: 'task06', phaseRequired: 4, description: "Explore the Repository", reward: { type: 'insight', amount: 1 }, track: { action: 'showScreen', value: 'repositoryScreen' }, hint: "Check the 'Repository' tab for cool unlocked stuff like Scenes, Experiments, and Insights!" }
+];
 
 
 // --- FINAL EXPORT BLOCK ---
