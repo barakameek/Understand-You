@@ -690,6 +690,29 @@ hr { border: none; border-top: 1px dashed var(--border-color-light); margin: 18p
 .collapsible-content > hr {
      margin: 8px 0; /* Reduce margin for inner hrs */
 }
+.chart-container {
+    /* Styles already added inline in HTML for basic positioning */
+    /* You can add more specific styles here if needed */
+    /* e.g., margin-bottom: 20px; */
+    box-sizing: border-box; /* Include padding/border in size */
+}
+
+/* Ensure canvas is responsive within its container */
+#personaScoreChartCanvas {
+    display: block; /* Remove extra space below canvas */
+    max-width: 100%;
+    height: auto; /* Maintain aspect ratio if container width changes */
+}
+
+/* Adjust container size on smaller screens if needed */
+@media (max-width: 480px) {
+    .chart-container {
+        height: 250px; /* Adjust height */
+        max-width: 300px; /* Adjust max-width */
+        padding: 5px;
+    }
+     /* Reduce font size in chart options directly in JS for better control */
+}
 
 
 /* --- END OF style.css ADDITIONS --- */
