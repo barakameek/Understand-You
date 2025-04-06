@@ -29,7 +29,7 @@ function initializeApp() {
              GameLogic.checkForDailyLogin(); // Check daily login *after* loading
              UI.applyOnboardingPhaseUI(currentState.onboardingPhase); // Apply UI restrictions based on phase
              GameLogic.calculateTapestryNarrative(true); // Calculate initial narrative
-             GameLogic.checkSynergyTensionStatus(); // ** NEW: Set initial synergy button state **
+             GameLogic.checkSynergyTensionStatus(); // ** Set initial synergy button state **
              UI.updateFocusSlotsDisplay();
              // Refresh Grimoire with potentially loaded category filter
              const activeShelf = document.querySelector('.grimoire-shelf.active-shelf'); // Check if UI already rendered a filter
@@ -39,7 +39,6 @@ function initializeApp() {
              UI.hidePopups(); // Ensure no popups are open on load
         } else {
              console.log("Loaded state incomplete (Questionnaire not finished). Restarting questionnaire.");
-             // If questionnaire wasn't finished, reset index and show questionnaire
              State.updateElementIndex(0); // Ensure index is 0
              UI.initializeQuestionnaireUI(); // Setup questionnaire UI
              UI.showScreen('questionnaireScreen'); // Show questionnaire
@@ -118,21 +117,12 @@ function attachEventListeners() {
         studyResearchDiscoveriesArea.addEventListener('click', (event) => {
              const actionButton = event.target.closest('button.add-button, button.sell-button');
              if (actionButton) {
-                  event.stopPropagation(); // Prevent card click
+                  event.stopPropagation();
                   const conceptIdStr = actionButton.dataset.conceptId;
-                  if (conceptIdStr) {
-                      const conceptId = parseInt(conceptIdStr);
-                      if (!isNaN(conceptId)) {
-                          if (actionButton.classList.contains('add-button')) { GameLogic.addConceptToGrimoireById(conceptId, actionButton); }
-                          else if (actionButton.classList.contains('sell-button')) { GameLogic.handleSellConcept(event); }
-                      } else { console.error("Invalid conceptId:", conceptIdStr); }
-                  } else { console.error("Button missing conceptId:", actionButton); }
+                  if (conceptIdStr) { const conceptId = parseInt(conceptIdStr); if (!isNaN(conceptId)) { if (actionButton.classList.contains('add-button')) { GameLogic.addConceptToGrimoireById(conceptId, actionButton); } else if (actionButton.classList.contains('sell-button')) { GameLogic.handleSellConcept(event); } } else { console.error("Invalid conceptId:", conceptIdStr); } } else { console.error("Button missing conceptId:", actionButton); }
              } else { // Handle Card Click
                 const card = event.target.closest('.concept-card');
-                if (card) {
-                    const conceptIdStr = card.dataset.conceptId;
-                    if (conceptIdStr) { const conceptId = parseInt(conceptIdStr); if (!isNaN(conceptId)) { UI.showConceptDetailPopup(conceptId); } }
-                }
+                if (card) { const conceptIdStr = card.dataset.conceptId; if (conceptIdStr) { const conceptId = parseInt(conceptIdStr); if (!isNaN(conceptId)) { UI.showConceptDetailPopup(conceptId); } } }
              }
         });
     } else { console.error("#studyResearchDiscoveries element not found for listener attachment."); }
@@ -160,22 +150,27 @@ function attachEventListeners() {
              const card = event.target.closest('.concept-card');
              if (card) { const conceptId = parseInt(card.dataset.conceptId); if (!isNaN(conceptId)) { UI.showConceptDetailPopup(conceptId); } }
          });
-         // Drag Start on Card
+         // ** UPDATED: Drag Start Listener for Cards **
          grimoireContent.addEventListener('dragstart', (event) => {
              const card = event.target.closest('.concept-card');
-             if (card && card.draggable) {
+             // Only allow dragging if phase allows categorization
+             if (card && card.draggable && State.getOnboardingPhase() >= Config.ONBOARDING_PHASE.STUDY_INSIGHT) {
                  event.dataTransfer.setData('text/plain', card.dataset.conceptId);
                  event.dataTransfer.effectAllowed = 'move';
                  card.classList.add('dragging');
-                 draggedCardId = parseInt(card.dataset.conceptId);
+                 draggedCardId = parseInt(card.dataset.conceptId); // Store ID being dragged
                  console.log(`Dragging card: ${draggedCardId}`);
-             } else { event.preventDefault(); }
+             } else {
+                 event.preventDefault(); // Prevent dragging if not allowed
+             }
          });
-         // Drag End on Card
+         // ** Drag End Listener for Cards **
          grimoireContent.addEventListener('dragend', (event) => {
              const card = event.target.closest('.concept-card');
-             if (card) { card.classList.remove('dragging'); }
-             draggedCardId = null;
+             if (card) {
+                 card.classList.remove('dragging');
+             }
+             draggedCardId = null; // Clear stored ID
              document.querySelectorAll('.grimoire-shelf.drag-over').forEach(shelf => shelf.classList.remove('drag-over'));
          });
     }
@@ -189,28 +184,30 @@ function attachEventListeners() {
                  if (categoryId) {
                     grimoireShelvesContainer.querySelectorAll('.grimoire-shelf').forEach(s => s.classList.remove('active-shelf'));
                     shelf.classList.add('active-shelf');
-                    UI.refreshGrimoireDisplay({ filterCategory: categoryId });
+                    UI.refreshGrimoireDisplay({ filterCategory: categoryId }); // Trigger refresh with category
                  }
             }
         });
         // Drag Over Shelf
         grimoireShelvesContainer.addEventListener('dragover', (event) => {
-             event.preventDefault();
-             const shelf = event.target.closest('.grimoire-shelf:not(.show-all-shelf)');
+             event.preventDefault(); // Allow drop
+             const shelf = event.target.closest('.grimoire-shelf:not(.show-all-shelf)'); // Exclude 'Show All'
              document.querySelectorAll('.grimoire-shelf.drag-over').forEach(s => s.classList.remove('drag-over')); // Clear previous
-             if (shelf) {
+             if (shelf && draggedCardId !== null) { // Only highlight if dragging a card
                  event.dataTransfer.dropEffect = 'move';
                  shelf.classList.add('drag-over');
              } else {
-                 event.dataTransfer.dropEffect = 'none';
+                 event.dataTransfer.dropEffect = 'none'; // Indicate cannot drop here
              }
         });
         // Drag Leave Shelf
         grimoireShelvesContainer.addEventListener('dragleave', (event) => {
              const shelf = event.target.closest('.grimoire-shelf');
+             // Check if the relatedTarget (where the mouse moved to) is still within the shelf
              if (shelf && !shelf.contains(event.relatedTarget)) {
                  shelf.classList.remove('drag-over');
              }
+             // If leaving the container entirely, remove all drag-over
              if (!grimoireShelvesContainer.contains(event.relatedTarget)) {
                  document.querySelectorAll('.grimoire-shelf.drag-over').forEach(s => s.classList.remove('drag-over'));
              }
@@ -218,15 +215,17 @@ function attachEventListeners() {
         // Drop on Shelf
         grimoireShelvesContainer.addEventListener('drop', (event) => {
             event.preventDefault();
-            const shelf = event.target.closest('.grimoire-shelf:not(.show-all-shelf)');
+            const shelf = event.target.closest('.grimoire-shelf:not(.show-all-shelf)'); // Ensure drop on valid shelf
             document.querySelectorAll('.grimoire-shelf.drag-over').forEach(s => s.classList.remove('drag-over')); // Clear hover effect
             if (shelf && draggedCardId !== null) {
                 const categoryId = shelf.dataset.categoryId;
                 if (categoryId) {
+                     console.log(`Attempting drop: Card ${draggedCardId} onto Shelf ${categoryId}`);
                      GameLogic.handleCategorizeCard(draggedCardId, categoryId); // Call logic handler
                 }
             }
-            draggedCardId = null; // Always clear dragged ID after drop attempt
+            // Always clear dragged ID after drop attempt, successful or not
+            draggedCardId = null;
         });
     }
 
@@ -234,13 +233,14 @@ function attachEventListeners() {
     if (personaScreenDiv) {
          const detailedViewBtn = document.getElementById('showDetailedViewBtn'); const summaryViewBtn = document.getElementById('showSummaryViewBtn'); const personaDetailedDiv = document.getElementById('personaDetailedView'); const personaSummaryDiv = document.getElementById('personaSummaryView');
          if (detailedViewBtn && summaryViewBtn && personaDetailedDiv && personaSummaryDiv) { detailedViewBtn.addEventListener('click', () => { personaDetailedDiv.classList.add('current'); personaDetailedDiv.classList.remove('hidden'); personaSummaryDiv.classList.add('hidden'); personaSummaryDiv.classList.remove('current'); detailedViewBtn.classList.add('active'); summaryViewBtn.classList.remove('active'); }); summaryViewBtn.addEventListener('click', () => { personaSummaryDiv.classList.add('current'); personaSummaryDiv.classList.remove('hidden'); personaDetailedDiv.classList.add('hidden'); personaDetailedDiv.classList.remove('current'); summaryViewBtn.classList.add('active'); detailedViewBtn.classList.remove('active'); UI.displayPersonaSummary(); }); }
+         // Listener for unlocking deep dive levels (delegated)
          const personaElementDetails = document.getElementById('personaElementDetails');
          if (personaElementDetails) { personaElementDetails.addEventListener('click', (event) => { if (event.target.matches('.unlock-button')) GameLogic.handleUnlockLibraryLevel(event); }); }
          // Listener for Explore/Suggest/Synergy buttons
          personaScreenDiv.addEventListener('click', (event) => {
              if (event.target.matches('#exploreTapestryButton')) GameLogic.showTapestryDeepDive();
              else if (event.target.matches('#suggestSceneButton')) GameLogic.handleSuggestSceneClick();
-             // ** ADDED Synergy/Tension Button Listener **
+             // ** UPDATED Synergy/Tension Button Listener **
              else if (event.target.matches('#exploreSynergyButton')) GameLogic.handleExploreSynergyClick();
          });
     }
@@ -259,13 +259,13 @@ function attachEventListeners() {
             else if (button.classList.contains('popup-sell-button')) { GameLogic.handleSellConcept(event); }
             else if (button.id === 'evolveArtButton') { GameLogic.attemptArtEvolution(); }
             else if (button.id === 'saveMyNoteButton') { GameLogic.handleSaveNote(); }
-            // ** NEW: Lore Unlock Button Listener **
+            // ** UPDATED: Lore Unlock Button Listener **
             else if (button.classList.contains('unlock-lore-button')) {
                 const levelToUnlock = parseInt(button.dataset.loreLevel);
                 const cost = parseFloat(button.dataset.cost);
                 if (!isNaN(levelToUnlock) && !isNaN(cost)) {
                     GameLogic.handleUnlockLore(conceptId, levelToUnlock, cost);
-                }
+                } else { console.error("Invalid lore level or cost data on button."); }
             }
         });
     }
@@ -285,8 +285,26 @@ function attachEventListeners() {
     if (settingsPopupElem) { settingsPopupElem.addEventListener('click', (event) => { if (event.target.matches('#forceSaveButton')) { State.saveGameState(); UI.showTemporaryMessage("Game Saved!", 1500); } else if (event.target.matches('#resetAppButton')) { if (confirm("Reset ALL progress? This cannot be undone.")) { console.log("Resetting application..."); State.clearGameState(); UI.setupInitialUI(); UI.hidePopups(); UI.showTemporaryMessage("Progress Reset!", 3000); const loadBtn = document.getElementById('loadButton'); if(loadBtn) loadBtn.classList.add('hidden'); } } }); }
 
      // --- Info Icon Handling (Delegated to body) ---
-     document.body.addEventListener('click', (event) => { const infoIcon = event.target.closest('.info-icon'); if (infoIcon) { event.preventDefault(); event.stopPropagation(); const message = infoIcon.getAttribute('title'); const infoPopupContentElem = document.getElementById('infoPopupContent'); const infoPopup = document.getElementById('infoPopup'); const overlay = document.getElementById('popupOverlay'); // Need overlay ref
- if (message && infoPopup && overlay && infoPopupContentElem) { infoPopupContentElem.textContent = message; infoPopup.classList.remove('hidden'); overlay.classList.remove('hidden'); } else if (message) { UI.showTemporaryMessage(message, 4000); } } }); // Modified to use generic info popup
+     document.body.addEventListener('click', (event) => {
+         const infoIcon = event.target.closest('.info-icon');
+         if (infoIcon) {
+             event.preventDefault();
+             event.stopPropagation();
+             const message = infoIcon.getAttribute('title');
+             const infoPopupContentElem = document.getElementById('infoPopupContent');
+             const infoPopup = document.getElementById('infoPopup');
+             const overlay = document.getElementById('popupOverlay');
+             // Use the dedicated info popup
+             if (message && infoPopup && overlay && infoPopupContentElem) {
+                 infoPopupContentElem.textContent = message;
+                 infoPopup.classList.remove('hidden');
+                 overlay.classList.remove('hidden');
+             } else if (message) {
+                 // Fallback to toast if popup elements aren't found
+                 UI.showTemporaryMessage(message, 4000);
+             }
+         }
+     });
 
     console.log("All event listeners attached.");
 }
