@@ -1684,13 +1684,13 @@ export function displayElementDeepDive(elementKey, targetContainerElement) {
             buttonTitle = `Unlock for ${cost} Insight`;
         }
 
-        // ** Revised Button HTML Construction **
+        // Corrected Button HTML Construction
         const buttonHTML = `
             <button class="button small-button unlock-button"
                     data-element-key="${elementKey}"
                     data-level="${nextLevelData.level}"
                     ${isDisabled ? 'disabled' : ''}
-                    title="${buttonTitle.replace(/"/g, '&quot;')}"> {/* Escape quotes in title */}
+                    title="${buttonTitle.replace(/"/g, '&quot;')}">
                 Unlock (${cost} <i class="fas fa-brain insight-icon"></i>)
             </button>`;
 
@@ -2005,5 +2005,3 @@ export function setupInitialUI() {
 }
 
 console.log("ui.js loaded.");
-
-// --- END OF FULL ui.js ---
