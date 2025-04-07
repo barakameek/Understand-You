@@ -942,59 +942,55 @@ export function displayGrimoire(filterParams = {}) {
         filterRarity = "All",
         searchTerm = "",
         filterFocus = "All",
-        filterCategory = "All" // ** NEW Category filter **
+        filterCategory = "All"
     } = filterParams;
 
-    // ** NEW: Add Shelves UI **
+    // Add Shelves UI
     if (grimoireShelvesContainer) {
-        grimoireShelvesContainer.innerHTML = ''; // Clear previous shelves
-        if (State.getOnboardingPhase() >= Config.ONBOARDING_PHASE.STUDY_INSIGHT) { // Show shelves from phase 2
+        grimoireShelvesContainer.innerHTML = '';
+        if (State.getOnboardingPhase() >= Config.ONBOARDING_PHASE.STUDY_INSIGHT) {
             grimoireShelves.forEach(shelf => {
                 const shelfDiv = document.createElement('div');
                 shelfDiv.classList.add('grimoire-shelf');
                 shelfDiv.dataset.categoryId = shelf.id;
-                // Highlight active shelf filter
                 if (filterCategory === shelf.id) {
                     shelfDiv.classList.add('active-shelf');
                 }
+                // ** FIX: Removed comment from shelf-count span **
                 shelfDiv.innerHTML = `
                     <h4>${shelf.name} <i class="fas fa-info-circle info-icon" title="${shelf.description || ''}"></i></h4>
-                    <span class="shelf-count">(0)</span> {/* Count updated later */}
+                    <span class="shelf-count">(0)</span>
                 `;
-                // Event listeners added via delegation in main.js
                 grimoireShelvesContainer.appendChild(shelfDiv);
             });
-            // Add "Show All" option
             const showAllDiv = document.createElement('div');
             showAllDiv.classList.add('grimoire-shelf', 'show-all-shelf');
              if (filterCategory === 'All') {
                  showAllDiv.classList.add('active-shelf');
              }
             showAllDiv.innerHTML = `<h4>Show All Cards</h4>`;
-            showAllDiv.dataset.categoryId = 'All'; // Ensure it has the 'All' ID
+            showAllDiv.dataset.categoryId = 'All';
             grimoireShelvesContainer.appendChild(showAllDiv);
         }
     } else { console.error("Grimoire shelves container not found."); }
 
-    // Ensure the main card area exists (use correct ID)
-    const targetCardContainer = grimoireContentDiv; // Use the existing grid div
+    const targetCardContainer = grimoireContentDiv;
     if (!targetCardContainer) { console.error("#grimoireContent element not found for cards."); return; }
-    targetCardContainer.innerHTML = ''; // Clear previous cards
+    targetCardContainer.innerHTML = '';
 
     const discoveredMap = State.getDiscoveredConcepts();
-    if (discoveredMap.size === 0) { targetCardContainer.innerHTML = '<p>Your Grimoire is empty... Discover Concepts in the Study!</p>'; updateShelfCounts(); return; } // Update counts even if empty
+    if (discoveredMap.size === 0) { targetCardContainer.innerHTML = '<p>Your Grimoire is empty... Discover Concepts in the Study!</p>'; updateShelfCounts(); return; }
 
     const userScores = State.getScores();
     const focusedSet = State.getFocusedConcepts();
     let discoveredArray = Array.from(discoveredMap.values());
 
-    // --- Apply Filters ---
+    // Apply Filters (logic unchanged)
     const searchTermLower = searchTerm.toLowerCase().trim();
     const conceptsToDisplay = discoveredArray.filter(data => {
         if (!data?.concept) return false;
         const concept = data.concept;
-        const userCategory = data.userCategory || 'uncategorized'; // Get category from state data
-
+        const userCategory = data.userCategory || 'uncategorized';
         const typeMatch = (filterType === "All") || (concept.cardType === filterType);
         let elementMatch = (filterElement === "All");
         if (!elementMatch && elementNameToKey && filterElement !== "All") {
@@ -1004,15 +1000,13 @@ export function displayGrimoire(filterParams = {}) {
         const rarityMatch = (filterRarity === "All") || (concept.rarity === filterRarity);
         const focusMatch = (filterFocus === 'All') || (filterFocus === 'Focused' && focusedSet.has(concept.id)) || (filterFocus === 'Not Focused' && !focusedSet.has(concept.id));
         const searchMatch = !searchTermLower || (concept.name.toLowerCase().includes(searchTermLower)) || (concept.keywords && concept.keywords.some(k => k.toLowerCase().includes(searchTermLower)));
-        // ** NEW: Category Filter **
         const categoryMatch = (filterCategory === 'All') || (userCategory === filterCategory);
-
         return typeMatch && elementMatch && rarityMatch && focusMatch && searchMatch && categoryMatch;
     });
 
-    // --- Apply Sorting ---
+    // Apply Sorting (logic unchanged)
     const rarityOrder = { 'common': 1, 'uncommon': 2, 'rare': 3 };
-    conceptsToDisplay.sort((a, b) => { /* ... Keep existing sorting logic ... */
+    conceptsToDisplay.sort((a, b) => {
         if (!a.concept || !b.concept) return 0;
         const conceptA = a.concept; const conceptB = b.concept;
         switch (sortBy) {
@@ -1024,43 +1018,24 @@ export function displayGrimoire(filterParams = {}) {
          }
     });
 
-    // --- Render Cards ---
+    // Render Cards
     if (conceptsToDisplay.length === 0) {
         targetCardContainer.innerHTML = `<p>No discovered concepts match the current filters${searchTerm ? ' or search term' : ''}.</p>`;
     } else {
         conceptsToDisplay.forEach(data => {
-            const cardElement = renderCard(data.concept, 'grimoire'); // Render card
+            const cardElement = renderCard(data.concept, 'grimoire');
             if (cardElement) {
-                 // Add draggable attribute and category info if phase allows categorization
                  if (State.getOnboardingPhase() >= Config.ONBOARDING_PHASE.STUDY_INSIGHT) {
                       cardElement.draggable = true;
-                      cardElement.dataset.conceptId = data.concept.id; // Ensure ID is on card for drag data
-                      // Drag listeners added via delegation in main.js
-                 } else {
-                     cardElement.draggable = false; // Ensure not draggable before phase
-                 }
-                 // Add category class for potential styling
+                      cardElement.dataset.conceptId = data.concept.id;
+                 } else { cardElement.draggable = false; }
                  cardElement.classList.add(`category-${data.userCategory || 'uncategorized'}`);
                  targetCardContainer.appendChild(cardElement);
             }
         });
     }
 
-    // ** NEW: Update Shelf Counts **
     updateShelfCounts();
-}
-
-// ** Helper to update counts on shelves **
-function updateShelfCounts() {
-    if (!grimoireShelvesContainer) return;
-    const conceptData = Array.from(State.getDiscoveredConcepts().values());
-    grimoireShelves.forEach(shelf => {
-        const shelfElem = grimoireShelvesContainer.querySelector(`.grimoire-shelf[data-category-id="${shelf.id}"] .shelf-count`);
-        if (shelfElem) {
-            const count = conceptData.filter(data => (data.userCategory || 'uncategorized') === shelf.id).length;
-            shelfElem.textContent = `(${count})`;
-        }
-    });
 }
 
 // ** Filter by shelf click handler - MOVED TO main.js event listener section **
@@ -1123,7 +1098,6 @@ export function renderCard(concept, context = 'grimoire') {
     const isFocused = State.getFocusedConcepts().has(concept.id);
     const artUnlocked = discoveredData?.artUnlocked || false;
     const currentPhase = State.getOnboardingPhase();
-    // ** Check for new lore **
     const hasNewLore = discoveredData?.newLoreAvailable || false;
 
     // Determine button visibility based on context and phase
@@ -1136,8 +1110,7 @@ export function renderCard(concept, context = 'grimoire') {
     // Stamps
     const focusStampHTML = isFocused ? '<span class="focus-indicator" title="Focused Concept">★</span>' : '';
     const noteStampHTML = (!isDiscovered && (context === 'discovery-note' || context === 'research-output')) ? '<span class="note-stamp" title="Research Note"><i class="fa-regular fa-clipboard"></i></span>' : '';
-    // ** NEW: Lore Indicator Stamp **
-    const loreStampHTML = (isDiscovered && hasNewLore && currentPhase >= Config.ONBOARDING_PHASE.ADVANCED) ? '<span class="lore-indicator" title="New Lore Unlocked!"><i class="fas fa-scroll"></i></span>' : ''; // Updated icon
+    const loreStampHTML = (isDiscovered && hasNewLore && currentPhase >= Config.ONBOARDING_PHASE.ADVANCED) ? '<span class="lore-indicator" title="New Lore Unlocked!"><i class="fas fa-scroll"></i></span>' : '';
 
     // Icons
     const cardTypeIcon = Utils.getCardTypeIcon(concept.cardType);
@@ -1194,11 +1167,12 @@ export function renderCard(concept, context = 'grimoire') {
     }
 
     // --- Construct Final innerHTML ---
+    // ** FIX: Removed comment from card-stamps span **
     cardDiv.innerHTML = `
         <div class="card-header">
             <i class="${cardTypeIcon} card-type-icon" title="${concept.cardType}"></i>
             <span class="card-name">${concept.name}</span>
-            <span class="card-stamps">${focusStampHTML}${noteStampHTML}${loreStampHTML}</span> {/* Added Lore Stamp */}
+            <span class="card-stamps">${focusStampHTML}${noteStampHTML}${loreStampHTML}</span>
         </div>
         <div class="card-visual">${visualContent}</div>
         <div class="card-footer">
@@ -1220,6 +1194,7 @@ export function renderCard(concept, context = 'grimoire') {
 
     return cardDiv;
 }
+
 
 
 // --- Concept Detail Popup UI ---
