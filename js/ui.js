@@ -1023,6 +1023,21 @@ export function renderCard(concept, context = 'grimoire') {
     if (isDiscovered) { cardDiv.classList.add(`category-${discoveredData.userCategory || 'uncategorized'}`); }
     return cardDiv;
 }
+  // ** Final DOM Check within renderCard **
+    setTimeout(() => { // Use setTimeout to check *after* browser likely rendered
+        const renderedCard = document.querySelector(`.concept-card[data-concept-id="${concept.id}"]`);
+        if (renderedCard) {
+            const actionsContainer = renderedCard.querySelector('.card-actions');
+            const focusButton = renderedCard.querySelector('.card-focus-button');
+            console.log(`DOM Check Card ${concept.id}: Actions container exists? ${!!actionsContainer}. Focus button exists? ${!!focusButton}`);
+            if(actionsContainer && getComputedStyle(actionsContainer).opacity === '0' && context === 'grimoire') {
+                console.warn(`   -> Card ${concept.id} actions container has opacity 0. Hover needed?`);
+            }
+        } else {
+            console.warn(`DOM Check Card ${concept.id}: Card element itself not found after timeout.`);
+        }
+    }, 100); // Small delay
+
 
 
 // --- Concept Detail Popup UI ---
