@@ -448,8 +448,19 @@ hr { border: none; border-top: 1px dashed var(--border-color-light); margin: 18p
 .grimoire-shelf.drag-over {
     border-style: solid;
     border-color: var(--success-color);
-    background-color: rgba(40, 167, 69, 0.1);
-    transform: scale(1.05);
+    /* Change background for more contrast */
+    background-color: #e0ffe0; /* Light green background */
+    /* Add an inset shadow for depth */
+    box-shadow: inset 0 0 10px rgba(40, 167, 69, 0.5);
+    transform: scale(1.03); /* Slightly larger */
+}
+.concept-card.dragging {
+    opacity: 0.6; /* Slightly less transparent */
+    transform: scale(0.95) rotate(3deg); /* Scale down and slightly rotate */
+    border: 2px dashed var(--accent-color); /* Gold dashed border */
+    cursor: grabbing;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2); /* Add a stronger shadow */
+    z-index: 1000; /* Ensure it's above other elements */
 }
 .show-all-shelf {
     border-color: #aaa;
