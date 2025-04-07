@@ -1223,6 +1223,8 @@ export function renderCard(concept, context = 'grimoire') {
 
 
 // --- Concept Detail Popup UI ---
+// In js/ui.js
+
 export function showConceptDetailPopup(conceptId) {
     const conceptData = concepts.find(c => c.id === conceptId);
     if (!conceptData) { console.error("Concept data missing:", conceptId); return; }
@@ -1251,11 +1253,7 @@ export function showConceptDetailPopup(conceptId) {
              content = document.createElement('img');
              content.src = `placeholder_art/${conceptData.visualHandleUnlocked}.png`; // Placeholder path
              content.alt = `${conceptData.name} Art`; content.classList.add('card-art-image');
-             content.onerror = function() { // Basic image error handling
-                 this.style.display='none'; const icon = document.createElement('i');
-                 icon.className = `fas fa-image card-visual-placeholder`; icon.title = "Art Placeholder (Load Failed)";
-                 popupVisualContainer.appendChild(icon);
-             };
+             content.onerror = function() { this.style.display='none'; const icon = document.createElement('i'); icon.className = `fas fa-image card-visual-placeholder`; icon.title = "Art Placeholder (Load Failed)"; popupVisualContainer.appendChild(icon); };
          } else {
              content = document.createElement('i');
              content.className = `fas fa-${artUnlocked ? 'star card-art-unlocked' : 'question'} card-visual-placeholder`;
@@ -1272,19 +1270,32 @@ export function showConceptDetailPopup(conceptId) {
     if(popupRecipeDetailsSection) displayPopupRecipeComparison(conceptData, scores);
     if(popupRelatedDetailsSection) displayPopupRelatedConcepts(conceptData);
 
-    // --- ** Populate Lore Section ** ---
+    // --- ** Populate Lore Section (WITH DEBUGGING) ** ---
     if (popupLoreSection && popupLoreContent) {
-        const phaseAllowsLore = State.getOnboardingPhase() >= Config.ONBOARDING_PHASE.ADVANCED;
-        popupLoreSection.classList.toggle('hidden', !phaseAllowsLore || !inGrimoire || !conceptData.lore || conceptData.lore.length === 0); // Also hide if no lore defined
+        const phaseAllowsLore = currentPhase >= Config.ONBOARDING_PHASE.ADVANCED;
+        const hasLoreDefined = conceptData.lore && conceptData.lore.length > 0;
+
+        // Log initial conditions
+        console.log(`--- Lore Section Check (Card ID: ${conceptId}, Name: ${conceptData.name}) ---`);
+        console.log(`Phase Allows Lore? ${phaseAllowsLore} (Current: ${currentPhase}, Required: ${Config.ONBOARDING_PHASE.ADVANCED})`);
+        console.log(`Is in Grimoire? ${inGrimoire}`);
+        console.log(`Has Lore Defined in data.js? ${hasLoreDefined}`);
+
+        popupLoreSection.classList.toggle('hidden', !phaseAllowsLore || !inGrimoire || !hasLoreDefined);
         popupLoreContent.innerHTML = ''; // Clear previous lore
 
-        if (phaseAllowsLore && inGrimoire && conceptData.lore && conceptData.lore.length > 0) {
+        if (phaseAllowsLore && inGrimoire && hasLoreDefined) {
             const unlockedLevel = State.getUnlockedLoreLevel(conceptId);
+            console.log(`Currently Unlocked Lore Level: ${unlockedLevel}`);
+
             conceptData.lore.forEach(loreEntry => {
                 const loreDiv = document.createElement('div');
                 loreDiv.classList.add('lore-entry');
+                console.log(`Processing Lore Level ${loreEntry.level}...`);
+
                 if (loreEntry.level <= unlockedLevel) {
                     // Display unlocked lore
+                    console.log(`   Level ${loreEntry.level} is UNLOCKED.`);
                     loreDiv.innerHTML = `
                         <h5 class="lore-level-title">Level ${loreEntry.level} Insight:</h5>
                         <p class="lore-text">${loreEntry.text}</p>
@@ -1292,7 +1303,9 @@ export function showConceptDetailPopup(conceptId) {
                 } else {
                     // Display locked lore with unlock button
                     const cost = Config.LORE_UNLOCK_COSTS[`level${loreEntry.level}`] || 999; // Get cost from config
-                    const canAfford = State.getInsight() >= cost;
+                    const currentInsight = State.getInsight();
+                    const canAfford = currentInsight >= cost;
+                    console.log(`   Level ${loreEntry.level} is LOCKED. Cost: ${cost}, Have: ${currentInsight.toFixed(1)}, Can Afford: ${canAfford}`);
                     loreDiv.innerHTML = `
                         <h5 class="lore-level-title">Level ${loreEntry.level} Insight: [Locked]</h5>
                         <button class="button tiny-button unlock-lore-button"
@@ -1311,19 +1324,18 @@ export function showConceptDetailPopup(conceptId) {
                      popupLoreContent.appendChild(document.createElement('hr'));
                 }
             });
-        } else if (phaseAllowsLore && inGrimoire) {
-            // This case should only happen if a Rare card mistakenly has no lore array
-             popupLoreContent.innerHTML = '<p><i>No lore recorded for this concept.</i></p>';
+        } else if (phaseAllowsLore && inGrimoire && !hasLoreDefined) {
+            popupLoreContent.innerHTML = '<p><i>No lore recorded for this concept.</i></p>';
         }
+        console.log(`--- End Lore Section Check ---`);
 
-        // If new lore was available when opening, mark it as seen now
+        // Mark lore as seen if necessary
          if (inGrimoire && discoveredData && discoveredData.newLoreAvailable) {
-             State.markLoreAsSeen(conceptId); // Call state function
-             // Try to remove indicator from Grimoire card if it's visible
+             State.markLoreAsSeen(conceptId);
              const cardElemIndicator = document.querySelector(`#grimoireContent .concept-card[data-concept-id="${conceptId}"] .lore-indicator`);
              cardElemIndicator?.remove();
+             console.log(`Marked lore as seen for Card ID: ${conceptId}`);
          }
-         // Ensure the details section itself is collapsed initially if it has content
          popupLoreSection.open = false;
 
     } else { console.error("Lore section elements missing in popup!"); }
