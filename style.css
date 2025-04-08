@@ -1,4 +1,4 @@
-/* --- START OF style.css (hidden-by-flow Removed) --- */
+/* --- START OF style.css (Phase Logic Removed, Card Layout Fixed) --- */
 
 :root {
     --primary-color: #8b4513; /* Saddle Brown */
@@ -29,9 +29,6 @@
     --category-uncategorized-bg: transparent;
     --category-uncategorized-border: var(--border-color-light);
 }
-/* Removed Debug Styles for Card Actions/Lore */
-/* .concept-card .card-actions { ... } */
-/* #popupLoreContent .unlock-lore-button { ... } */
 
 body {
   font-family: 'Merriweather', serif;
@@ -60,8 +57,7 @@ body {
 /* --- Screen Management --- */
 .screen { padding: 20px 15px; box-sizing: border-box; min-height: calc(100vh - 20px - 45px); }
 .hidden { display: none !important; }
-/* .hidden-by-flow REMOVED */
-
+/* Removed .hidden-by-flow rule */
 .current { display: block; }
 
 /* --- Headings and Text --- */
@@ -211,7 +207,6 @@ hr { border: none; border-top: 1px dashed var(--border-color-light); margin: 18p
 .tapestry-narrative-section { margin-top: 18px; padding-top: 12px; border-top: 1px dashed #c8b89a; }
 .tapestry-narrative-section h3 { font-size: 1.15em; text-align: left; border: none; margin-bottom: 4px; font-family: 'Garamond', serif; }
 #tapestryNarrative { font-style: italic; color: var(--link-color); background-color: rgba(255, 250, 240, 0.7); padding: 8px; border-radius: 4px; border: 1px solid #eee9dd; font-size: 0.95em; }
-/* Removed .hidden-by-flow */
 .grimoire-insights { margin-top: 18px; padding-top: 12px; border-top: 1px dashed #c8b89a; }
 .grimoire-insights h3 { font-size: 1.15em; text-align: left; border-bottom: none; padding-bottom: 3px; font-family: 'Garamond', serif; margin-bottom: 4px; }
 .grimoire-insights p { font-size: 0.85em; color: #666; margin-bottom: 6px; }
@@ -266,7 +261,7 @@ hr { border: none; border-top: 1px dashed var(--border-color-light); margin: 18p
 .free-research-button { width: auto; margin-bottom: 0; background-color: #66cdaa; border-color: #3cb371; font-size: 0.95em; }
 .free-research-button:hover:not(:disabled) { background-color: #98fb98; }
 .free-research-button:disabled { background-color: #aaa; border-color: #888; color: #eee; cursor: default; text-shadow: none; }
-/* Removed .hidden-by-flow for free/guidance buttons */
+/* Removed .hidden-by-flow for buttons */
 .guidance-button:hover:not(:disabled) { background-color: #add8e6; }
 .guidance-button:disabled { background-color: #aaa; border-color: #888; opacity: 0.7; }
 
@@ -293,7 +288,7 @@ hr { border: none; border-top: 1px dashed var(--border-color-light); margin: 18p
 #dailyRitualsDisplay .ritual-reward { font-size: 0.9em; color: var(--link-color); margin-left: 6px; font-style: italic; }
 
 /* --- Card Grid Layout --- */
-.card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px; padding: 10px; }
+.card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; padding: 10px; }
 
 /* --- Grimoire Screen --- */
 .grimoire-screen { background-color: var(--secondary-color); }
@@ -304,7 +299,7 @@ hr { border: none; border-top: 1px dashed var(--border-color-light); margin: 18p
 #grimoireControls label { margin: 0 4px 0 8px; font-weight: bold; color: var(--link-color); font-family: 'Merriweather', serif; font-size: 0.9em; }
 #grimoireControls select, #grimoireControls input[type="text"] { padding: 5px 6px; border-radius: 5px; border: 1px solid var(--border-color-dark); background-color: #fff8e7; font-family: 'Merriweather', serif; font-size: 0.9em; }
 #grimoireControls input[type="text"] { width: 100px; }
-/* Removed .hidden-by-flow */
+/* Removed .hidden-by-flow for filter controls */
 #grimoireContent { background-color: #fff8e7; padding: 15px; border-radius: 8px; border: 1px solid var(--border-color-dark); margin-top: 8px; max-height: calc(100vh - 230px); overflow-y: auto; }
 
 /* --- Grimoire Shelves Styling --- */
@@ -362,8 +357,8 @@ hr { border: none; border-top: 1px dashed var(--border-color-light); margin: 18p
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
-    flex-grow: 1;
-    overflow: hidden;
+    flex-grow: 1; /* Allow footer to take remaining space */
+    overflow: hidden; /* Clip text if needed */
 }
 .card-affinities {
     margin-bottom: 4px;
@@ -392,24 +387,26 @@ hr { border: none; border-top: 1px dashed var(--border-color-light); margin: 18p
     text-overflow: ellipsis;
     max-height: calc(1.3em * 2);
     margin-bottom: 5px;
-    flex-grow: 1; /* Allow description to grow */
-    min-height: calc(1.3em * 1); /* Ensure some space */
+    flex-grow: 1;
+    min-height: calc(1.3em * 1);
 }
 .card-actions {
-    margin-top: auto; /* Push to bottom if desc doesn't fill space */
+    margin-top: auto;
     padding-top: 5px;
     display: flex;
     justify-content: center;
     gap: 8px;
-    position: absolute; /* Position relative to footer */
-    bottom: 8px;       /* Place near bottom edge */
+    position: absolute;
+    bottom: 8px;
     left: 0;
     right: 0;
     opacity: 0;
     transition: opacity 0.2s ease-in-out;
     pointer-events: none;
     /* Optional background for debugging layout: */
-    /* background: rgba(255, 0, 0, 0.1); */
+    /* background: rgba(255, 255, 255, 0.7); */
+    /* border-top: 1px solid var(--border-color-light); */
+    /* border-radius: 0 0 8px 8px; */
 }
 .concept-card:hover .card-actions { opacity: 1; pointer-events: auto; }
 .card-actions button { pointer-events: auto; }
@@ -522,11 +519,11 @@ hr { border: none; border-top: 1px dashed var(--border-color-light); margin: 18p
 .card-popup .add-grimoire-button { background-color: var(--success-color); border-color: #1e5a3a; }
 .card-popup .add-grimoire-button:hover:not(:disabled) { background-color: #3cb371; }
 .card-popup .add-grimoire-button.added { background-color: #aaa; border-color: #888; cursor: default; }
-.card-popup .add-grimoire-button.hidden { display: none; } /* Keep hidden logic for add button */
+.card-popup .add-grimoire-button.hidden { display: none; }
 .card-popup .focus-button { background-color: var(--warning-color); border-color: #b8860b; color: var(--text-color); text-shadow: none; }
 .card-popup .focus-button:hover:not(:disabled) { background-color: #e0a800; }
 .card-popup .focus-button.marked { background-color: #ffaa00; border-color: #cc8400; }
-.card-popup .focus-button.hidden { display: none; } /* Keep hidden logic for focus button */
+.card-popup .focus-button.hidden { display: none; }
 .card-popup .popup-sell-button { background-color: var(--danger-color); border-color: #a52a2a; color: white; text-shadow: none; }
 .card-popup .popup-sell-button:hover:not(:disabled) { background-color: #c82333; }
 
@@ -635,7 +632,7 @@ hr { border: none; border-top: 1px dashed var(--border-color-light); margin: 18p
     .concept-card { height: 265px; padding: 8px; }
     .card-header .card-name { font-size: 0.95em; }
     .card-visual .card-visual-placeholder { font-size: 2.5em; }
-    .card-footer { min-height: auto; flex-grow: 1; padding-bottom: 38px; /* Ensure space for buttons */}
+    .card-footer { min-height: auto; flex-grow: 1; padding-bottom: 38px; }
     .card-affinities .affinity { font-size: 0.8em; width: 18px; height: 18px; line-height: 16px; }
     .card-affinities .affinity i { font-size: 0.85em; }
     .card-brief-desc { font-size: 0.8em; -webkit-line-clamp: 2; max-height: calc(1.3em * 2); }
