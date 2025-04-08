@@ -103,7 +103,7 @@ const saveMyNoteButton = document.getElementById('saveMyNoteButton');
 const noteSaveStatusSpan = document.getElementById('noteSaveStatus');
 const closePopupButton = document.getElementById('closePopupButton');
 const addToGrimoireButton = document.getElementById('addToGrimoireButton');
-const markAsFocusButton = document.getElementById('markAsFocusButton');
+
 const popupEvolutionSection = document.getElementById('popupEvolutionSection');
 const evolveArtButton = document.getElementById('evolveArtButton');
 const evolveCostSpan = document.getElementById('evolveCost');
@@ -535,7 +535,7 @@ export function showConceptDetailPopup(conceptId) {
 // ... (rest of ui.js remains the same, including updateFocusButtonStatus with logging) ...
 
 // Replace the existing updateFocusButtonStatus function with this one:
-
+export function updateFocusButtonStatus(conceptId) {
     const markAsFocusButton = document.getElementById('markAsFocusButton');
     if (!markAsFocusButton) {
         // console.warn("UI: Mark as Focus button element not found."); // Keep commented unless needed
@@ -603,7 +603,9 @@ export function updateFocusButtonStatus(conceptId) {
 // --- Sell Button Status (Removed phase check) ---
 export function updatePopupSellButton(conceptId, conceptData, inGrimoire, inResearchNotes) {
     const popupActions = conceptDetailPopup?.querySelector('.popup-actions'); if (!popupActions || !conceptData) return;
-    popupActions.querySelector('.popup-sell-button')?.remove();
+ 
+  
+    
     let context = 'none'; if (inGrimoire) context = 'grimoire'; else if (inResearchNotes) context = 'discovery';
     // const phaseAllowsSell = State.getOnboardingPhase() >= Config.ONBOARDING_PHASE.STUDY_INSIGHT; // REMOVED
     if (context !== 'none' /* && phaseAllowsSell REMOVED */) {
