@@ -42,7 +42,7 @@ export const CONCEPT_DISCOVERY_INSIGHT = {
     default: 2.0
 };
 
-// --- ONBOARDING PHASE REMOVED ---
+// --- ONBOARDING PHASE CONSTANT REMOVED ---
 
 console.log("config.js loaded.");
 // --- END OF config.js ---
