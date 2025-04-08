@@ -351,6 +351,7 @@ export function refreshGrimoireDisplay(overrideFilters = {}) { if (grimoireScree
 function handleFirstGrimoireVisit() { if (!State.getState().grimoireFirstVisitDone) { if (grimoireGuidance) { grimoireGuidance.innerHTML = `<i class="fas fa-info-circle"></i> Welcome to your Grimoire! Drag & Drop Concept cards onto the shelves above to categorize them. Click cards for details.`; grimoireGuidance.classList.remove('hidden'); } State.markGrimoireVisited(); } else { if (grimoireGuidance) grimoireGuidance.classList.add('hidden'); } }
 
 // --- Card Rendering (Shows Primary Element & Rarity) ---
+// Replace the entire renderCard function in js/ui.js with this
 export function renderCard(concept, context = 'grimoire') {
     if (!concept || typeof concept.id === 'undefined') { console.warn("renderCard called with invalid concept:", concept); const eDiv = document.createElement('div'); eDiv.textContent = "Error: Invalid Concept Data"; eDiv.style.color = 'red'; eDiv.style.padding = '10px'; eDiv.style.border = '1px solid red'; return eDiv; }
     const cardDiv = document.createElement('div'); cardDiv.classList.add('concept-card'); cardDiv.classList.add(`rarity-${concept.rarity || 'common'}`); cardDiv.dataset.conceptId = concept.id; cardDiv.title = `View Details: ${concept.name}`;
@@ -379,8 +380,9 @@ export function renderCard(concept, context = 'grimoire') {
         const primaryColor = Utils.getElementColor(primaryFullName);
         const primaryIcon = Utils.getElementIcon(primaryFullName);
         const primaryName = elementDetails[primaryFullName]?.name || primaryFullName;
+        // CORRECTED LINE (Comment Removed):
         primaryElementHTML = `<span class="primary-element-display" style="color: ${primaryColor};" title="Primary Element: ${primaryName}">
-                                 <i class="${primaryIcon}"></i> ${primaryName.split(':')[0]} {/* Short Name */}
+                                 <i class="${primaryIcon}"></i> ${primaryName.split(':')[0]}
                               </span>`;
     }
     // --- End Primary Element Display ---
