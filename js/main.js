@@ -1,4 +1,4 @@
-// --- START OF main.js (Phase Call Removed) ---
+// --- START OF main.js (Phase Checks Removed, Corrected Full File) ---
 
 // js/main.js - Application Entry Point, Event Listeners, Initialization
 import * as State from './state.js';
@@ -146,14 +146,14 @@ function attachEventListeners() {
         });
         // Card itself (for popup)
          grimoireContent.addEventListener('click', (event) => {
-             if (event.target.closest('button')) return;
+             if (event.target.closest('button')) return; // Ignore clicks on buttons
              const card = event.target.closest('.concept-card');
              if (card) { const conceptId = parseInt(card.dataset.conceptId); if (!isNaN(conceptId)) { UI.showConceptDetailPopup(conceptId); } }
          });
          // ** Drag Start Listener for Cards **
          grimoireContent.addEventListener('dragstart', (event) => {
              const card = event.target.closest('.concept-card');
-             // Only allow dragging if card exists and is draggable (always true post-Q now)
+             // Only allow dragging if card exists and is draggable
              if (card && card.draggable) {
                  event.dataTransfer.setData('text/plain', card.dataset.conceptId);
                  event.dataTransfer.effectAllowed = 'move';
