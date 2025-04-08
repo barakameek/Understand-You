@@ -824,17 +824,30 @@ export function handleUnlockLore(conceptId, level, cost) {
 }
 
 function unlockLoreInternal(conceptId, level, source = "Unknown") {
-     if (State.unlockLoreLevel(conceptId, level)) { // Handles state save & phase check
+     if (State.unlockLoreLevel(conceptId, level)) { // unlockLoreLevel handles state save & phase check
             const conceptName = State.getDiscoveredConceptData(conceptId)?.concept?.name || `ID ${conceptId}`;
             console.log(`Successfully unlocked lore level ${level} for ${conceptName} via ${source}`);
-            if (currentlyDisplayedConceptId === conceptId) { UI.showConceptDetailPopup(conceptId); } // Refresh popup if open
-            UI.refreshGrimoireDisplay(); // Refresh grimoire for indicator
-            updateMilestoneProgress('unlockLore', level);
+
+            // *** ADD UI REFRESH HERE ***
+            if (getCurrentPopupConceptId() === conceptId) { // Check if the relevant popup is still open
+                UI.showConceptDetailPopup(conceptId); // Refresh popup content
+            } else {
+                // Optional: If popup isn't open, maybe refresh Grimoire card if visible
+                 UI.refreshGrimoireDisplay(); // Refresh grimoire view to remove indicator if present
+            }
+            // *************************
+
+            updateMilestoneProgress('unlockLore', level); // Track milestone
             return true; // Indicate success
         } else {
             console.error(`Failed to update lore level in state for ${conceptId}`);
-            if (source !== "Insight Purchase") { UI.showTemporaryMessage("Error unlocking lore.", 3000); }
-            // Don't refund here, spendInsight already happened if source was purchase
+            if (source === "Insight Purchase") { // Check if the unlock attempt was from spending insight
+                 // Don't refund here, spendInsight already happened and returned true
+                 UI.showTemporaryMessage("Error updating lore state.", 3000);
+            } else {
+                 // If the unlock was from another source (e.g., category unlock)
+                 UI.showTemporaryMessage("Error unlocking lore.", 3000);
+            }
             return false; // Indicate failure
         }
 }
