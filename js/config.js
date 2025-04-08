@@ -8,7 +8,7 @@ console.log("config.js loading...");
 export const SAVE_KEY = 'innerCosmosSaveData_v1'; // Keep version consistent
 export const MAX_ATTUNEMENT = 100; // Max attunement level per element
 export const INITIAL_INSIGHT = 15; // Starting Insight
-export const INITIAL_FOCUS_SLOTS = 3; // Starting focus slots
+export const INITIAL_FOCUS_SLOTS = 6; // Starting focus slots
 export const MAX_FOCUS_SLOTS = 9; // Maximum focus slots achievable
 export const INITIAL_FREE_RESEARCH_COUNT = 3; // Number of free researches after questionnaire
 
