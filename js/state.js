@@ -1,5 +1,3 @@
-// --- START OF state.js (Phase Removed) ---
-
 // js/state.js - Manages Application State and Persistence
 import * as Config from './config.js';
 import { elementNames, concepts } from '../data.js';
@@ -11,7 +9,7 @@ const createInitialGameState = () => {
     const initial = {
         userScores: { A: 5, I: 5, S: 5, P: 5, C: 5, R: 5 },
         userAnswers: {},
-        discoveredConcepts: new Map(), // conceptId -> { concept: {}, discoveredTime: num, artUnlocked: bool, notes: str, unlockedLoreLevel: num, userCategory: str, newLoreAvailable: bool }
+        discoveredConcepts: new Map(),
         focusedConcepts: new Set(),
         focusSlotsTotal: Config.INITIAL_FOCUS_SLOTS,
         userInsight: Config.INITIAL_INSIGHT,
@@ -25,15 +23,14 @@ const createInitialGameState = () => {
         grimoireFirstVisitDone: false,
         seenPrompts: new Set(),
         currentElementIndex: -1,
-        questionnaireCompleted: false, // This flag remains important
+        questionnaireCompleted: false,
         cardsAddedSinceLastPrompt: 0,
         promptCooldownActive: false,
         discoveredRepositoryItems: { scenes: new Set(), experiments: new Set(), insights: new Set() },
         pendingRarePrompts: [],
         unlockedFocusItems: new Set(),
-        currentFocusSetHash: '',
+        currentFocusSetHash: '', // Initialize hash
         contemplationCooldownEnd: null,
-        // onboardingPhase: REMOVED
     };
     elementNames.forEach(name => {
         initial.userAnswers[name] = {};
@@ -45,6 +42,7 @@ let gameState = createInitialGameState();
 
 // --- Internal Helper ---
 function _calculateFocusSetHash() {
+    // This remains internal
     if (!gameState.focusedConcepts || gameState.focusedConcepts.size === 0) { return ''; }
     const sortedIds = Array.from(gameState.focusedConcepts).sort((a, b) => a - b);
     return sortedIds.join(',');
@@ -60,29 +58,15 @@ function _triggerSave() {
      if (saveTimeout) clearTimeout(saveTimeout);
      saveTimeout = setTimeout(() => {
          try {
-             // Serialize Sets and Maps for JSON storage
              const stateToSave = {
                  ...gameState,
-                 // onboardingPhase: REMOVED - No need to save it
-                 discoveredConcepts: Array.from(gameState.discoveredConcepts.entries()).map(([id, data]) => {
-                     return [id, {
-                         discoveredTime: data.discoveredTime,
-                         artUnlocked: data.artUnlocked,
-                         notes: data.notes,
-                         unlockedLoreLevel: data.unlockedLoreLevel,
-                         userCategory: data.userCategory,
-                         newLoreAvailable: data.newLoreAvailable // Make sure to save this
-                     }];
-                 }),
+                 discoveredConcepts: Array.from(gameState.discoveredConcepts.entries()).map(([id, data]) => [id, { discoveredTime: data.discoveredTime, artUnlocked: data.artUnlocked, notes: data.notes, unlockedLoreLevel: data.unlockedLoreLevel, userCategory: data.userCategory, newLoreAvailable: data.newLoreAvailable }]),
                  focusedConcepts: Array.from(gameState.focusedConcepts),
                  achievedMilestones: Array.from(gameState.achievedMilestones),
                  seenPrompts: Array.from(gameState.seenPrompts),
-                 discoveredRepositoryItems: {
-                     scenes: Array.from(gameState.discoveredRepositoryItems.scenes),
-                     experiments: Array.from(gameState.discoveredRepositoryItems.experiments),
-                     insights: Array.from(gameState.discoveredRepositoryItems.insights),
-                 },
+                 discoveredRepositoryItems: { scenes: Array.from(gameState.discoveredRepositoryItems.scenes), experiments: Array.from(gameState.discoveredRepositoryItems.experiments), insights: Array.from(gameState.discoveredRepositoryItems.insights), },
                  unlockedFocusItems: Array.from(gameState.unlockedFocusItems)
+                 // currentFocusSetHash will be saved automatically as part of gameState spread
              };
              localStorage.setItem(Config.SAVE_KEY, JSON.stringify(stateToSave));
              console.log("Game state saved.");
@@ -100,9 +84,10 @@ export function loadGameState() {
         try {
             const loadedState = JSON.parse(savedData);
             console.log("Saved data found.");
-            gameState = createInitialGameState(); // Start fresh, merge below
+            gameState = createInitialGameState();
 
             // --- Merge loaded state ---
+            // ... (keep existing merge logic for scores, answers, etc.) ...
             if (typeof loadedState.userScores === 'object' && loadedState.userScores !== null) gameState.userScores = { ...gameState.userScores, ...loadedState.userScores };
             if (typeof loadedState.userAnswers === 'object' && loadedState.userAnswers !== null) gameState.userAnswers = loadedState.userAnswers;
             elementNames.forEach(name => { if (!gameState.userAnswers[name]) gameState.userAnswers[name] = {}; });
@@ -152,8 +137,7 @@ export function loadGameState() {
                  if (Array.isArray(loadedState.discoveredRepositoryItems.insights)) gameState.discoveredRepositoryItems.insights = new Set(loadedState.discoveredRepositoryItems.insights);
              }
 
-             // onboardingPhase: REMOVED - No need to load it
-
+             // Calculate and store hash after loading focus set
              gameState.currentFocusSetHash = _calculateFocusSetHash();
 
              console.log("Game state loaded successfully.");
@@ -171,13 +155,10 @@ export function loadGameState() {
     }
 }
 
-export function clearGameState() {
-    localStorage.removeItem(Config.SAVE_KEY);
-    gameState = createInitialGameState();
-    console.log("Game state cleared and reset.");
-}
+// ... (clearGameState remains the same) ...
+export function clearGameState() { localStorage.removeItem(Config.SAVE_KEY); gameState = createInitialGameState(); console.log("Game state cleared and reset."); }
 
-// --- Getters (Removed getOnboardingPhase) ---
+// --- Getters (Removed getCurrentFocusSetHash) ---
 export function getState() { return gameState; }
 export function getScores() { return gameState.userScores; }
 export function getAttunement() { return gameState.elementAttunement; }
@@ -188,9 +169,8 @@ export function getFocusedConcepts() { return gameState.focusedConcepts; }
 export function getFocusSlots() { return gameState.focusSlotsTotal; }
 export function getRepositoryItems() { return gameState.discoveredRepositoryItems; }
 export function getUnlockedFocusItems() { return gameState.unlockedFocusItems; }
-export function getCurrentFocusSetHash() { return gameState.currentFocusSetHash; }
+// export function getCurrentFocusSetHash() { return gameState.currentFocusSetHash; } // REMOVED - get via getState()
 export function getContemplationCooldownEnd() { return gameState.contemplationCooldownEnd; }
-// export function getOnboardingPhase() { return gameState.onboardingPhase; } // REMOVED
 export function isFreeResearchAvailable() { return gameState.freeResearchAvailableToday; }
 export function getInitialFreeResearchRemaining() { return gameState.initialFreeResearchRemaining; }
 export function getSeenPrompts() { return gameState.seenPrompts; }
@@ -198,67 +178,31 @@ export function getCardCategory(conceptId) { const data = gameState.discoveredCo
 export function getUnlockedLoreLevel(conceptId) { const data = gameState.discoveredConcepts.get(conceptId); return data?.unlockedLoreLevel || 0; }
 export function isNewLoreAvailable(conceptId) { const data = gameState.discoveredConcepts.get(conceptId); return data?.newLoreAvailable || false; }
 
-// --- Setters / Updaters (Removed phase logic) ---
+// --- Setters / Updaters ---
+// ... (Keep updateScores, saveAllAnswers, updateAnswers, updateElementIndex, setQuestionnaireComplete) ...
 export function updateScores(newScores) { gameState.userScores = { ...newScores }; saveGameState(); return true; }
 export function saveAllAnswers(allAnswers) { gameState.userAnswers = JSON.parse(JSON.stringify(allAnswers)); saveGameState(); }
-export function updateAnswers(elementName, answersForElement) { if (!gameState.userAnswers) gameState.userAnswers = {}; if (!gameState.userAnswers[elementName]) gameState.userAnswers[elementName] = {}; gameState.userAnswers[elementName] = { ...answersForElement }; /* No save here, save on next/prev */ }
+export function updateAnswers(elementName, answersForElement) { if (!gameState.userAnswers) gameState.userAnswers = {}; if (!gameState.userAnswers[elementName]) gameState.userAnswers[elementName] = {}; gameState.userAnswers[elementName] = { ...answersForElement }; /* No save here */ }
 export function updateElementIndex(index) { gameState.currentElementIndex = index; /* No save here */ }
+export function setQuestionnaireComplete() { gameState.currentElementIndex = elementNames.length; if (!gameState.questionnaireCompleted) { gameState.questionnaireCompleted = true; saveGameState(); } return true; }
 
-export function setQuestionnaireComplete() {
-    gameState.currentElementIndex = elementNames.length;
-    if (!gameState.questionnaireCompleted) {
-        gameState.questionnaireCompleted = true;
-        saveGameState(); // Save completion status
-    }
-    return true;
-}
-
-// advanceOnboardingPhase REMOVED
-
-export function changeInsight(amount) {
-    const previousInsight = gameState.userInsight;
-    gameState.userInsight = Math.max(0, previousInsight + amount);
-    if (gameState.userInsight !== previousInsight) { saveGameState(); return true; }
-    return false;
-}
-export function useInitialFreeResearch() {
-    if (gameState.initialFreeResearchRemaining > 0) {
-        gameState.initialFreeResearchRemaining--;
-        saveGameState();
-        return true;
-    }
-    return false;
-}
+// ... (Keep changeInsight, useInitialFreeResearch, setFreeResearchUsed, updateAttunement, addDiscoveredConcept) ...
+export function changeInsight(amount) { const previousInsight = gameState.userInsight; gameState.userInsight = Math.max(0, previousInsight + amount); if (gameState.userInsight !== previousInsight) { saveGameState(); return true; } return false; }
+export function useInitialFreeResearch() { if (gameState.initialFreeResearchRemaining > 0) { gameState.initialFreeResearchRemaining--; saveGameState(); return true; } return false; }
 export function setFreeResearchUsed() { gameState.freeResearchAvailableToday = false; saveGameState(); }
-
-export function updateAttunement(elementKey, amount) {
-    if (gameState.elementAttunement.hasOwnProperty(elementKey)) {
-        const current = gameState.elementAttunement[elementKey];
-        const newValue = Math.min(Config.MAX_ATTUNEMENT, Math.max(0, current + amount));
-        if (newValue !== current) { gameState.elementAttunement[elementKey] = newValue; saveGameState(); return true; }
-    }
-    return false;
-}
-
-export function addDiscoveredConcept(conceptId, conceptData) {
-    if (!(gameState.discoveredConcepts instanceof Map)) { console.error("CRITICAL ERROR: gameState.discoveredConcepts is not a Map!"); gameState.discoveredConcepts = new Map(); }
-    if (!gameState.discoveredConcepts.has(conceptId)) {
-        gameState.discoveredConcepts.set(conceptId, {
-            concept: conceptData, discoveredTime: Date.now(), artUnlocked: false,
-            notes: "", unlockedLoreLevel: 0, userCategory: 'uncategorized', newLoreAvailable: false
-        });
-        saveGameState(); // Save immediately
-        return true;
-    }
-    return false;
-}
+export function updateAttunement(elementKey, amount) { if (gameState.elementAttunement.hasOwnProperty(elementKey)) { const current = gameState.elementAttunement[elementKey]; const newValue = Math.min(Config.MAX_ATTUNEMENT, Math.max(0, current + amount)); if (newValue !== current) { gameState.elementAttunement[elementKey] = newValue; saveGameState(); return true; } } return false; }
+export function addDiscoveredConcept(conceptId, conceptData) { if (!(gameState.discoveredConcepts instanceof Map)) { console.error("CRITICAL ERROR: gameState.discoveredConcepts is not a Map!"); gameState.discoveredConcepts = new Map(); } if (!gameState.discoveredConcepts.has(conceptId)) { gameState.discoveredConcepts.set(conceptId, { concept: conceptData, discoveredTime: Date.now(), artUnlocked: false, notes: "", unlockedLoreLevel: 0, userCategory: 'uncategorized', newLoreAvailable: false }); saveGameState(); return true; } return false; }
 
 
 export function removeDiscoveredConcept(conceptId) {
     if (!(gameState.discoveredConcepts instanceof Map)) { console.error("CRITICAL ERROR: gameState.discoveredConcepts is not a Map!"); return false; }
     if (gameState.discoveredConcepts.has(conceptId)) {
         gameState.discoveredConcepts.delete(conceptId);
-        if (gameState.focusedConcepts.has(conceptId)) { gameState.focusedConcepts.delete(conceptId); gameState.currentFocusSetHash = _calculateFocusSetHash(); }
+        if (gameState.focusedConcepts.has(conceptId)) {
+             gameState.focusedConcepts.delete(conceptId);
+             // ** Update hash when focus changes **
+             gameState.currentFocusSetHash = _calculateFocusSetHash();
+        }
         saveGameState();
         return true;
     }
@@ -269,175 +213,43 @@ export function toggleFocusConcept(conceptId) {
      if (!(gameState.discoveredConcepts instanceof Map)) { console.error("CRITICAL ERROR: gameState.discoveredConcepts is not a Map!"); return 'not_discovered'; }
     if (!gameState.discoveredConcepts.has(conceptId)) return 'not_discovered';
     let result;
-    if (gameState.focusedConcepts.has(conceptId)) { gameState.focusedConcepts.delete(conceptId); result = 'removed'; }
+    if (gameState.focusedConcepts.has(conceptId)) {
+        gameState.focusedConcepts.delete(conceptId);
+        result = 'removed';
+    }
     else {
         if (gameState.focusedConcepts.size >= gameState.focusSlotsTotal) { return 'slots_full'; }
-        gameState.focusedConcepts.add(conceptId); result = 'added';
+        gameState.focusedConcepts.add(conceptId);
+        result = 'added';
     }
-    gameState.currentFocusSetHash = _calculateFocusSetHash(); // Update hash
+    // ** Update hash when focus changes **
+    gameState.currentFocusSetHash = _calculateFocusSetHash();
     saveGameState(); // Save focus change
     return result;
 }
 
-export function increaseFocusSlots(amount = 1) {
-    const newSlots = Math.min(Config.MAX_FOCUS_SLOTS, gameState.focusSlotsTotal + amount);
-    if (newSlots > gameState.focusSlotsTotal) { gameState.focusSlotsTotal = newSlots; saveGameState(); return true; }
-    return false;
-}
-
-export function updateNotes(conceptId, notes) {
-     if (!(gameState.discoveredConcepts instanceof Map)) { console.error("CRITICAL ERROR: gameState.discoveredConcepts is not a Map!"); return false; }
-    const data = gameState.discoveredConcepts.get(conceptId);
-    if (data) { data.notes = notes; gameState.discoveredConcepts.set(conceptId, data); saveGameState(); return true; }
-    return false;
-}
-
-export function unlockArt(conceptId) {
-     if (!(gameState.discoveredConcepts instanceof Map)) { console.error("CRITICAL ERROR: gameState.discoveredConcepts is not a Map!"); return false; }
-    const data = gameState.discoveredConcepts.get(conceptId);
-    if (data && !data.artUnlocked) {
-        data.artUnlocked = true; gameState.discoveredConcepts.set(conceptId, data);
-        saveGameState(); // Save immediately
-        return true;
-    }
-    return false;
-}
-
-export function unlockLibraryLevel(elementKey, level) {
-    if (gameState.unlockedDeepDiveLevels.hasOwnProperty(elementKey)) {
-        const currentLevel = gameState.unlockedDeepDiveLevels[elementKey];
-        if (level === currentLevel + 1) {
-            gameState.unlockedDeepDiveLevels[elementKey] = level;
-            saveGameState(); // Save immediately
-            return true;
-        }
-    }
-    return false;
-}
-
-export function resetDailyRituals() {
-    gameState.completedRituals.daily = {};
-    gameState.freeResearchAvailableToday = true;
-    gameState.lastLoginDate = new Date().toDateString();
-    saveGameState();
-}
-export function completeRitualProgress(ritualId, period = 'daily') {
-    if (!gameState.completedRituals[period]) gameState.completedRituals[period] = {};
-    if (!gameState.completedRituals[period][ritualId]) gameState.completedRituals[period][ritualId] = { completed: false, progress: 0 };
-    if (!gameState.completedRituals[period][ritualId].completed) {
-        gameState.completedRituals[period][ritualId].progress += 1;
-        saveGameState(); // Save progress update
-        return gameState.completedRituals[period][ritualId].progress;
-    }
-    return gameState.completedRituals[period][ritualId].progress;
-}
-export function markRitualComplete(ritualId, period = 'daily') {
-    if (!gameState.completedRituals[period]?.[ritualId]) {
-        if (!gameState.completedRituals[period]) gameState.completedRituals[period] = {};
-        gameState.completedRituals[period][ritualId] = { completed: false, progress: 0 };
-    }
-    if (gameState.completedRituals[period]?.[ritualId]) {
-         gameState.completedRituals[period][ritualId].completed = true;
-         saveGameState();
-    }
-}
-
-export function addAchievedMilestone(milestoneId) {
-    if (!(gameState.achievedMilestones instanceof Set)) { console.error("CRITICAL ERROR: gameState.achievedMilestones is not a Set!"); gameState.achievedMilestones = new Set();}
-    if (!gameState.achievedMilestones.has(milestoneId)) {
-        gameState.achievedMilestones.add(milestoneId);
-        // --- Phase Advancement Removed ---
-        saveGameState(); // Save milestone achievement
-        return true;
-    }
-    return false;
-}
-
-export function addSeenPrompt(promptId) {
-     if (!(gameState.seenPrompts instanceof Set)) { console.error("CRITICAL ERROR: gameState.seenPrompts is not a Set!"); gameState.seenPrompts = new Set();}
-    gameState.seenPrompts.add(promptId); saveGameState();
-}
+// ... (Keep increaseFocusSlots, updateNotes, unlockArt, unlockLibraryLevel, resetDailyRituals, completeRitualProgress, markRitualComplete, addAchievedMilestone, addSeenPrompt, incrementReflectionTrigger, resetReflectionTrigger, setPromptCooldownActive, clearReflectionCooldown, addRepositoryItem, addPendingRarePrompt, getNextRarePrompt, addUnlockedFocusItem, setContemplationCooldown, markGrimoireVisited, setCardCategory, unlockLoreLevel, markLoreAsSeen) ...
+export function increaseFocusSlots(amount = 1) { const newSlots = Math.min(Config.MAX_FOCUS_SLOTS, gameState.focusSlotsTotal + amount); if (newSlots > gameState.focusSlotsTotal) { gameState.focusSlotsTotal = newSlots; saveGameState(); return true; } return false; }
+export function updateNotes(conceptId, notes) { if (!(gameState.discoveredConcepts instanceof Map)) { console.error("CRITICAL ERROR: gameState.discoveredConcepts is not a Map!"); return false; } const data = gameState.discoveredConcepts.get(conceptId); if (data) { data.notes = notes; gameState.discoveredConcepts.set(conceptId, data); saveGameState(); return true; } return false; }
+export function unlockArt(conceptId) { if (!(gameState.discoveredConcepts instanceof Map)) { console.error("CRITICAL ERROR: gameState.discoveredConcepts is not a Map!"); return false; } const data = gameState.discoveredConcepts.get(conceptId); if (data && !data.artUnlocked) { data.artUnlocked = true; gameState.discoveredConcepts.set(conceptId, data); saveGameState(); return true; } return false; }
+export function unlockLibraryLevel(elementKey, level) { if (gameState.unlockedDeepDiveLevels.hasOwnProperty(elementKey)) { const currentLevel = gameState.unlockedDeepDiveLevels[elementKey]; if (level === currentLevel + 1) { gameState.unlockedDeepDiveLevels[elementKey] = level; saveGameState(); return true; } } return false; }
+export function resetDailyRituals() { gameState.completedRituals.daily = {}; gameState.freeResearchAvailableToday = true; gameState.lastLoginDate = new Date().toDateString(); saveGameState(); }
+export function completeRitualProgress(ritualId, period = 'daily') { if (!gameState.completedRituals[period]) gameState.completedRituals[period] = {}; if (!gameState.completedRituals[period][ritualId]) gameState.completedRituals[period][ritualId] = { completed: false, progress: 0 }; if (!gameState.completedRituals[period][ritualId].completed) { gameState.completedRituals[period][ritualId].progress += 1; saveGameState(); return gameState.completedRituals[period][ritualId].progress; } return gameState.completedRituals[period][ritualId].progress; }
+export function markRitualComplete(ritualId, period = 'daily') { if (!gameState.completedRituals[period]?.[ritualId]) { if (!gameState.completedRituals[period]) gameState.completedRituals[period] = {}; gameState.completedRituals[period][ritualId] = { completed: false, progress: 0 }; } if (gameState.completedRituals[period]?.[ritualId]) { gameState.completedRituals[period][ritualId].completed = true; saveGameState(); } }
+export function addAchievedMilestone(milestoneId) { if (!(gameState.achievedMilestones instanceof Set)) { console.error("CRITICAL ERROR: gameState.achievedMilestones is not a Set!"); gameState.achievedMilestones = new Set();} if (!gameState.achievedMilestones.has(milestoneId)) { gameState.achievedMilestones.add(milestoneId); saveGameState(); return true; } return false; }
+export function addSeenPrompt(promptId) { if (!(gameState.seenPrompts instanceof Set)) { console.error("CRITICAL ERROR: gameState.seenPrompts is not a Set!"); gameState.seenPrompts = new Set();} gameState.seenPrompts.add(promptId); saveGameState(); }
 export function incrementReflectionTrigger() { gameState.cardsAddedSinceLastPrompt++; }
 export function resetReflectionTrigger(startCooldown = false) { gameState.cardsAddedSinceLastPrompt = 0; if (startCooldown) setPromptCooldownActive(true); }
 export function setPromptCooldownActive(isActive) { gameState.promptCooldownActive = isActive; saveGameState(); }
 export function clearReflectionCooldown() { gameState.promptCooldownActive = false; saveGameState(); }
-
-export function addRepositoryItem(itemType, itemId) {
-    if (!gameState.discoveredRepositoryItems || typeof gameState.discoveredRepositoryItems !== 'object') { console.error(`CRITICAL ERROR: gameState.discoveredRepositoryItems is not an object!`); gameState.discoveredRepositoryItems = { scenes: new Set(), experiments: new Set(), insights: new Set() };}
-    if (!gameState.discoveredRepositoryItems[itemType] || !(gameState.discoveredRepositoryItems[itemType] instanceof Set)) { console.error(`CRITICAL ERROR: gameState.discoveredRepositoryItems.${itemType} is not a Set!`); gameState.discoveredRepositoryItems[itemType] = new Set();}
-    if (gameState.discoveredRepositoryItems[itemType] && !gameState.discoveredRepositoryItems[itemType].has(itemId)) {
-        gameState.discoveredRepositoryItems[itemType].add(itemId);
-        saveGameState(); // Save immediately
-        return true;
-    }
-    return false;
-}
-
-export function addPendingRarePrompt(promptId) {
-    if (!Array.isArray(gameState.pendingRarePrompts)) {console.error("CRITICAL ERROR: gameState.pendingRarePrompts is not an Array!"); gameState.pendingRarePrompts = [];}
-    if (!gameState.pendingRarePrompts.includes(promptId)) { gameState.pendingRarePrompts.push(promptId); saveGameState(); return true; }
-    return false;
-}
-export function getNextRarePrompt() {
-    if (!Array.isArray(gameState.pendingRarePrompts)) {console.error("CRITICAL ERROR: gameState.pendingRarePrompts is not an Array!"); gameState.pendingRarePrompts = []; return null;}
-    if (gameState.pendingRarePrompts.length > 0) { const promptId = gameState.pendingRarePrompts.shift(); saveGameState(); return promptId; }
-    return null;
-}
-
-export function addUnlockedFocusItem(unlockId) {
-    if (!(gameState.unlockedFocusItems instanceof Set)) { console.error("CRITICAL ERROR: gameState.unlockedFocusItems is not a Set!"); gameState.unlockedFocusItems = new Set();}
-    if (!gameState.unlockedFocusItems.has(unlockId)) {
-        gameState.unlockedFocusItems.add(unlockId);
-        saveGameState(); // Save immediately
-        return true;
-    }
-    return false;
-}
-
+export function addRepositoryItem(itemType, itemId) { if (!gameState.discoveredRepositoryItems || typeof gameState.discoveredRepositoryItems !== 'object') { console.error(`CRITICAL ERROR: gameState.discoveredRepositoryItems is not an object!`); gameState.discoveredRepositoryItems = { scenes: new Set(), experiments: new Set(), insights: new Set() };} if (!gameState.discoveredRepositoryItems[itemType] || !(gameState.discoveredRepositoryItems[itemType] instanceof Set)) { console.error(`CRITICAL ERROR: gameState.discoveredRepositoryItems.${itemType} is not a Set!`); gameState.discoveredRepositoryItems[itemType] = new Set();} if (gameState.discoveredRepositoryItems[itemType] && !gameState.discoveredRepositoryItems[itemType].has(itemId)) { gameState.discoveredRepositoryItems[itemType].add(itemId); saveGameState(); return true; } return false; }
+export function addPendingRarePrompt(promptId) { if (!Array.isArray(gameState.pendingRarePrompts)) {console.error("CRITICAL ERROR: gameState.pendingRarePrompts is not an Array!"); gameState.pendingRarePrompts = [];} if (!gameState.pendingRarePrompts.includes(promptId)) { gameState.pendingRarePrompts.push(promptId); saveGameState(); return true; } return false; }
+export function getNextRarePrompt() { if (!Array.isArray(gameState.pendingRarePrompts)) {console.error("CRITICAL ERROR: gameState.pendingRarePrompts is not an Array!"); gameState.pendingRarePrompts = []; return null;} if (gameState.pendingRarePrompts.length > 0) { const promptId = gameState.pendingRarePrompts.shift(); saveGameState(); return promptId; } return null; }
+export function addUnlockedFocusItem(unlockId) { if (!(gameState.unlockedFocusItems instanceof Set)) { console.error("CRITICAL ERROR: gameState.unlockedFocusItems is not a Set!"); gameState.unlockedFocusItems = new Set();} if (!gameState.unlockedFocusItems.has(unlockId)) { gameState.unlockedFocusItems.add(unlockId); saveGameState(); return true; } return false; }
 export function setContemplationCooldown(endTime) { gameState.contemplationCooldownEnd = endTime; saveGameState(); }
 export function markGrimoireVisited() { if (!gameState.grimoireFirstVisitDone) { gameState.grimoireFirstVisitDone = true; saveGameState(); console.log("Marked Grimoire as visited for the first time."); } }
-
-export function setCardCategory(conceptId, categoryId) {
-    if (!(gameState.discoveredConcepts instanceof Map)) { console.error("Cannot set category: discoveredConcepts is not a Map!"); return false; }
-    const data = gameState.discoveredConcepts.get(conceptId);
-    if (data) {
-        if (data.userCategory !== categoryId) {
-            data.userCategory = categoryId || 'uncategorized';
-            gameState.discoveredConcepts.set(conceptId, data);
-            saveGameState();
-            return true;
-        }
-    } else { console.warn(`Cannot set category for unknown conceptId: ${conceptId}`); }
-    return false;
-}
-
-export function unlockLoreLevel(conceptId, level) {
-     if (!(gameState.discoveredConcepts instanceof Map)) { console.error("Cannot unlock lore: discoveredConcepts is not a Map!"); return false; }
-    const data = gameState.discoveredConcepts.get(conceptId);
-    if (data) {
-        const currentLevel = data.unlockedLoreLevel || 0;
-        if (level > currentLevel) {
-            data.unlockedLoreLevel = level;
-            data.newLoreAvailable = true;
-            gameState.discoveredConcepts.set(conceptId, data);
-            saveGameState(); // Save immediately
-            return true;
-        }
-    } else { console.warn(`Cannot unlock lore for unknown conceptId: ${conceptId}`); }
-    return false;
-}
-
-export function markLoreAsSeen(conceptId) {
-    if (!(gameState.discoveredConcepts instanceof Map)) { return false; }
-    const data = gameState.discoveredConcepts.get(conceptId);
-    if (data && data.newLoreAvailable) {
-        data.newLoreAvailable = false;
-        gameState.discoveredConcepts.set(conceptId, data);
-        saveGameState(); // Save the change
-        return true;
-    }
-    return false;
-}
+export function setCardCategory(conceptId, categoryId) { if (!(gameState.discoveredConcepts instanceof Map)) { console.error("Cannot set category: discoveredConcepts is not a Map!"); return false; } const data = gameState.discoveredConcepts.get(conceptId); if (data) { if (data.userCategory !== categoryId) { data.userCategory = categoryId || 'uncategorized'; gameState.discoveredConcepts.set(conceptId, data); saveGameState(); return true; } } else { console.warn(`Cannot set category for unknown conceptId: ${conceptId}`); } return false; }
+export function unlockLoreLevel(conceptId, level) { if (!(gameState.discoveredConcepts instanceof Map)) { console.error("Cannot unlock lore: discoveredConcepts is not a Map!"); return false; } const data = gameState.discoveredConcepts.get(conceptId); if (data) { const currentLevel = data.unlockedLoreLevel || 0; if (level > currentLevel) { data.unlockedLoreLevel = level; data.newLoreAvailable = true; gameState.discoveredConcepts.set(conceptId, data); saveGameState(); return true; } } else { console.warn(`Cannot unlock lore for unknown conceptId: ${conceptId}`); } return false; }
+export function markLoreAsSeen(conceptId) { if (!(gameState.discoveredConcepts instanceof Map)) { return false; } const data = gameState.discoveredConcepts.get(conceptId); if (data && data.newLoreAvailable) { data.newLoreAvailable = false; gameState.discoveredConcepts.set(conceptId, data); saveGameState(); return true; } return false; }
 
 console.log("state.js loaded.");
-// --- END OF state.js ---
