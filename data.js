@@ -484,12 +484,126 @@ const reflectionPrompts = {
 
 // --- Element Deep Dive Content (Rewritten Titles & Tone) ---
 const elementDeepDive = {
-    "A": [ { level: 1, title: "Level 1: Spark Basics 101", insightCost: 10, content: "<p>Let's look at the usual suspects for attraction – common patterns like gender vibes, health cues (our caveman brains!), and the idea that attraction isn't always simple (hello, Ace/Demi spectrums!).</p><ul><li>Orientation vs. Attraction: What's the Diff?</li><li>Your Built-In Radar: Looks, Sounds, Smells</li><li>Intro to Asexuality & Demisexuality: Different Wirings</li></ul>" }, { level: 2, title: "Level 2: Spicy Sparks & Niche Needs", insightCost: 25, content: "<p>Going beyond the basics! We'll peek at attraction to smarts (Sapiosexuality), power vibes, specific personalities, and unpack 'fetishes'/'paraphilias' as simply *very specific* turn-ons (no shame!).</p><ul><li>Brains = Beauty? Sapiosexuality Explored</li><li>Power Dynamics as a Turn-On</li><li>Understanding Fetishes: Why Specific Things?</li><li>How Our Past Shapes Our Present Spark</li></ul>" }, { level: 3, title: "Level 3: The Attraction -> Arousal Pipeline", insightCost: 50, content: "<p>Why does 'hot' sometimes lead to actual heat, and sometimes not? We examine the link between seeing/feeling attraction and actually getting physically aroused, plus how desire can be spontaneous or responsive.</p><ul><li>Ready to Go vs. Needs a Nudge: Desire Styles</li><li>Arousal Boosters: Mood, Context, Hormones</li><li>Arousal Killers: Stress, Disconnect, Bad Vibes</li><li>Is Your Attraction Fixed or Fluid?</li></ul>" } ],
-    "I": [ { level: 1, title: "Level 1: Dance Floor Roles & Vibes", insightCost: 10, content: "<p>Who leads, who follows? Introducing common interaction roles (Top/Bottom, Dom/Sub, Switch), the idea of energy flow, and whether you prefer teamwork or a clear leader.</p><ul><li>Top/Bottom/Vers vs. Dom/Sub/Switch: Know Your Lingo!</li><li>Energy Flow: Giving, Receiving, or Trading Back & Forth</li><li>Hierarchy vs. Equality: What's Your Preferred Dance Floor?</li></ul>" }, { level: 2, title: "Level 2: Flavors of Power & Play", insightCost: 25, content: "<p>Exploring different ways power shows up! Psychological control, loving service, getting primal, nurturing vibes (Caregiver/Little), and performing for (or watching!) others.</p><ul><li>Head Games vs. Physical Control</li><li>The Joy of Service & Devotion</li><li>Unleash Your Inner Animal: Primal Play</li><li>Nurturing & Being Nurtured: CGL Dynamics</li><li>Spotlight On: Exhibitionism & Voyeurism</li></ul>" }, { level: 3, title: "Level 3: Talk the Talk, Walk the Walk", insightCost: 50, content: "<p>Communication is KEY! How to talk about what you want, set boundaries, use safewords effectively, and give/receive feedback (including that crucial aftercare!).</p><ul><li>Before the Fun: Negotiation Skills</li><li>Safewords: Your Get-Out-Of-Jail-Free Card</li><li>Reading the Room: Subtle vs. Direct Communication</li><li>Feedback & Aftercare: The Crucial Cool-Down</li></ul>" } ],
-    "S": [ { level: 1, title: "Level 1: Your Body's Language", insightCost: 10, content: "<p>Mapping the basics of touch! From light caresses to firm pressure, exploring different sensitive zones, and how simple sensations feel on *your* unique skin.</p><ul><li>Your Personal Pleasure Map: Erogenous Zones</li><li>The Basics: Light Touch, Pressure, Vibration</li><li>Feeling Hot (or Cold!): Temperature 101</li><li>Texture Time: Smooth, Rough, and Everything Between</li></ul>" }, { level: 2, title: "Level 2: Turning Up the Volume", insightCost: 25, content: "<p>Ready for more intensity? Exploring impact (spanks!), non-impact 'ouch' (pinches, bites, wax!), feeling restricted, and why pain and pleasure can be such interesting dance partners.</p><ul><li>Impact Zone: Sting, Thud, Rhythm</li><li>Beyond the Spank: Sharp, Burning, Aching Feels</li><li>The Ouch/Aah Paradox: Why Pain Can Be Pleasure</li><li>Welcome to BDSM Sensation Fun</li></ul>" }, { level: 3, title: "Level 3: Beyond Touch - A Full Sensory Feast!", insightCost: 50, content: "<p>It's not just about touch! How do sights, sounds (music, voice!), smells, and tastes play into your arousal? Plus, diving into sensory deprivation and overload games.</p><ul><li>Eye Candy: The Power of Sight & Aesthetics</li><li>Sound On: Voice Tones, Music, Sexy Noises</li><li>Nose Knows: Scents and Chemistry</li><li>Taste & Oral Fixations: More Than Just Food</li><li>Sensory Games: Taking Away vs. Piling It On</li></ul>" } ],
-    "P": [ { level: 1, title: "Level 1: What Makes You Tick?", insightCost: 10, content: "<p>Digging into the 'why'! What core needs often drive your desire? Connection? Validation? Stress relief? Power? Fun? Let's name those hidden motivators.</p><ul><li>The Need for Connection & Intimacy</li><li>Feeling Seen: Validation & Self-Esteem</li><li>Letting Off Steam: Stress Relief & Coping</li><li>Who's In Charge? Power & Control Needs</li><li>Just Wanna Have Fun: Play & Recreation</li></ul>" }, { level: 2, title: "Level 2: Vulnerability, Trust & Letting Go", insightCost: 25, content: "<p>Exploring the deeper states sex can unlock. How vulnerability builds trust, how intensity can lead to emotional release (catharsis), and finding those 'out of body' or 'in the zone' moments.</p><ul><li>Getting Real: Vulnerability Builds Trust</li><li>Ahhh, Release! Catharsis Through Intensity</li><li>Flow States & 'Subspace': Getting Out of Your Head</li><li>Creating Your Safe Space: Psychological Safety</li></ul>" }, { level: 3, title: "Level 3: Dancing with Your Shadow", insightCost: 50, content: "<p>How does sex connect with the hidden parts of you – unexpressed desires, fears, old wounds? Exploring how play can *potentially* help integrate these (carefully!), or just repeat old patterns if we're not aware.</p><ul><li>Meeting Your Inner Gremlins: Shadow Desires & Fears</li><li>Conscious Choices vs. Running on Autopilot</li><li>Healing Potential (Handle With Care!)</li><li>Know Thyself: Therapy & Self-Awareness</li></ul>" } ],
-    "C": [ { level: 1, title: "Level 1: Welcome to Your Brain's Playground", insightCost: 10, content: "<p>Exploring the power of your imagination! Common fantasy themes, why fantasy isn't reality (phew!), and how even simple daydreams can boost real-life arousal.</p><ul><li>Your Inner Movie Director: The Role of Fantasy</li><li>Classic Hits: Common Fantasy Tropes</li><li>Fantasy vs. Reality: Keeping It Straight!</li><li>Using Your Brain to Boost Your Bod</li></ul>" }, { level: 2, title: "Level 2: Setting the Scene & Playing Parts", insightCost: 25, content: "<p>Let's play pretend! Diving into specific scenarios, adopting roles, using costumes or props, and figuring out if you prefer a tight script or making it up as you go.</p><ul><li>Who Are You Today? Common Role-Play Characters</li><li>Dress-Up Time: Costumes, Props & Atmosphere</li><li>Scripted vs. Improv: What's Your Style?</li><li>Adding Layers: Psychological Depth in Roles</li></ul>" }, { level: 3, title: "Level 3: Mind Games & Meaning", insightCost: 50, content: "<p>For the thinkers! Finding turn-on in witty banter, deep psychological dynamics (mind games!), symbolic actions, or even seeking transcendent mental states through focus.</p><ul><li>Sexy Brains: Intellectual Foreplay & Sapiosexuality</li><li>Psychological Chess: Playing with Minds</li><li>More Than Meets the Eye: Symbolism & Ritual</li><li>Beyond the Physical: Seeking Mental Transcendence</li></ul>" } ],
-    "R": [ { level: 1, title: "Level 1: Relationship Blueprints 101", insightCost: 10, content: "<p>Mapping the basics! Flying solo, classic monogamy (one partner at a time), and the big umbrella of consensual non-monogamy (CNM) where ethical multi-partnering lives.</p><ul><li>Party of One: Solo Exploration</li><li>Team Us: Monogamy Basics</li><li>Opening Doors: Intro to Consensual Non-Monogamy</li><li>Counting Connections: Dyads, Triads, & More</li></ul>" }, { level: 2, title: "Level 2: Intimacy, Commitment & Freedom", insightCost: 25, content: "<p>How close do you want to be, and with how many? Exploring different levels of emotional connection and commitment, from deep poly bonds to fun, no-strings-attached encounters.</p><ul><li>Commitment Beyond 'The One'</li><li>Heart vs. Heat: Emotional vs. Sexual Connection</li><li>Keeping It Casual: FWB & Hookup Culture</li><li>Flying Solo: The Appeal of Anonymity</li></ul>" }, { level: 3, title: "Level 3: Navigating the Network", insightCost: 50, content: "<p>Diving into CNM flavors! Open relationships vs. polyamory, having 'primaries' vs. everyone being equal (Relationship Anarchy!), rules vs. agreements, and handling tricky feelings like jealousy (and its cool cousin, compersion!).</p><ul><li>Open vs. Polyamory: What's the Vibe?</li><li>Hierarchy How-To: Primaries, Secondaries, or No Ranks!</li><li>Your Rules, Your Way: Relationship Anarchy Ideas</li><li>Talk It Out: Rules, Agreements & Boundaries</li><li>Feeling All the Feels: Jealousy & Compersion</li></ul>" } ]
+    "A": [
+        {
+            level: 1,
+            title: "Level 1: What Ignites the Spark?",
+            insightCost: 10,
+            content: "<p>Attraction is the compass pointing towards desire. Often, it starts with the familiar: physical appearance, gender presentation, maybe a certain energy. But sometimes, it's less defined, or absent altogether (as on the Asexuality spectrum). What patterns do you notice in your *initial* pull towards others or even concepts? Is it consistent, or does it shift?</p>"
+        },
+        {
+            level: 2,
+            title: "Level 2: Beyond the Surface",
+            insightCost: 25,
+            content: "<p>Let's dig deeper. Is it a sharp mind (Sapiosexuality) that truly captivates you? Or perhaps a specific dynamic of power or vulnerability? Sometimes, attraction isn't about a *person* at all, but a specific object, material, or situation (a fetish). Consider: What 'unconventional' triggers might secretly (or not so secretly) flip your switch? How does needing an emotional connection *first* (Demisexuality) change the nature of the spark?</p>"
+        },
+        {
+            level: 3,
+            title: "Level 3: From Spark to Flame",
+            insightCost: 50,
+            content: "<p>Attraction doesn't always equal arousal. What bridges that gap for you? Is your desire often ready and waiting (spontaneous), or does it need coaxing (responsive)? Think about context: does a safe, trusting environment make the flame brighter? Does stress or disconnect dampen it? How fixed is your compass – could its true north change over time or with different partners?</p>"
+        }
+    ],
+    "I": [
+        {
+            level: 1,
+            title: "Level 1: The Dance of Connection",
+            insightCost: 10,
+            content: "<p>Interaction is about the energy exchange. Do you naturally step forward to lead the dance (Dominant/Top leaning)? Or find joy in following your partner's rhythm (Submissive/Bottom leaning)? Perhaps you flow between roles (Switch)? Reflect on your most satisfying interactions: what was the balance of giving and receiving energy?</p>"
+        },
+        {
+            level: 2,
+            title: "Level 2: Styles of Engagement",
+            insightCost: 25,
+            content: "<p>Beyond leading/following, what's the *flavor* of your interaction? Is it about meticulous control or profound service? Maybe it's raw and instinctive (Primal Play), or tender and nurturing (Caregiver)? Do you shine in the spotlight (Exhibitionism) or prefer observing from the shadows (Voyeurism)? Where does your unique style find its most fulfilling expression?</p>"
+        },
+        {
+            level: 3,
+            title: "Level 3: The Language of Play",
+            insightCost: 50,
+            content: "<p>How do you communicate desires and boundaries within the dance? Is it through clear verbal negotiation and commands? Or more through subtle cues and intuitive responses? How crucial are safety tools like safewords? Consider the importance of 'aftercare' – the reconnection and grounding after the intensity fades. How do you ensure everyone feels safe and valued throughout the entire interaction?</p>"
+        }
+    ],
+    "S": [
+        {
+            level: 1,
+            title: "Level 1: The Body's Alphabet",
+            insightCost: 10,
+            content: "<p>Your skin speaks a language. What dialects does it prefer? Gentle whispers (caresses, warmth)? Firm pronouncements (pressure, massage)? Does temperature play a role (cool sheets, hot breath)? What textures feel like poetry (silk, rough cotton)? Consider the simple, fundamental sensations that bring you comfort or initial sparks of pleasure.</p>"
+        },
+        {
+            level: 2,
+            title: "Level 2: Amplifying Sensation",
+            insightCost: 25,
+            content: "<p>Sometimes, a whisper isn't enough. Where does intensity enter your sensory world? Does the sharp focus of a pinch, the rhythmic punctuation of impact, or the sting of wax hold appeal? What about the feeling of being bound, the world reduced to the pressure of rope or cuffs? How does your body negotiate the fascinating edge where pleasure meets pain?</p>"
+        },
+        {
+            level: 3,
+            title: "Level 3: A Symphony for the Senses",
+            insightCost: 50,
+            content: "<p>Beyond touch, how do other senses weave into your experience? Does a particular scent transport you? Can certain sounds (music, a voice, a gasp) heighten everything? What role does the visual play – aesthetics, light, darkness? Explore how engaging (or depriving) multiple senses can create complex, sometimes overwhelming, and deeply personal states of arousal or focus.</p>"
+        }
+    ],
+    "P": [
+        {
+            level: 1,
+            title: "Level 1: The Why Behind the Wow",
+            insightCost: 10,
+            content: "<p>Sex is rarely just physical. What deeper currents pull you in? Is it the profound merging of souls in intimacy? The thrill of wielding power, or the liberation of surrendering it? Perhaps it's the need to feel utterly desired, or simply a way to escape the noise of the world? Identify the core psychological 'itches' that intimacy helps you scratch.</p>"
+        },
+        {
+            level: 2,
+            title: "Level 2: Emotional Landscapes",
+            insightCost: 25,
+            content: "<p>Vulnerability can be scary, but it's often the key to trust and deeper connection. How comfortable are you with being truly 'seen' during intimate moments? Can intensity bring release (catharsis)? Have you experienced 'flow states' or 'subspace' where the thinking mind quiets down? What makes you feel psychologically *safe* enough to explore these states?</p>"
+        },
+        {
+            level: 3,
+            title: "Level 3: Inner Alchemy",
+            insightCost: 50,
+            content: "<p>Our intimate lives often reflect our inner world, including hidden desires or unresolved patterns. Can consciously engaging in specific dynamics or fantasies help you understand or integrate these 'shadow' parts? Or do you sometimes find yourself repeating patterns unconsciously? Consider the potential for intentional play to be a tool for self-discovery (used wisely, perhaps alongside other support like therapy).</p>"
+        }
+    ],
+    "C": [
+        {
+            level: 1,
+            title: "Level 1: The Theater of the Mind",
+            insightCost: 10,
+            content: "<p>How active is your inner world during intimacy? Are elaborate fantasies playing out, or are you fully absorbed in the present moment? Explore the power of imagination: how can simply thinking about something, or hearing it described, spark arousal? What are the recurring themes or images that populate your mental theater?</p>"
+        },
+        {
+            level: 2,
+            title: "Level 2: Scripts and Scenarios",
+            insightCost: 25,
+            content: "<p>Do you enjoy stepping into a role? What kind of scenarios appeal – forbidden encounters, power dynamics, specific character archetypes? How much detail do you prefer? Is the 'story' more important than the physical act itself sometimes? Reflect on the difference between a loosely guided improv scene and a meticulously planned one.</p>"
+        },
+        {
+            level: 3,
+            title: "Level 3: The Intellectual Spark",
+            insightCost: 50,
+            content: "<p>For some, the mind is the primary erogenous zone. Does witty banter or intellectual sparring turn you on (Sapiosexuality)? Do you get satisfaction from understanding the psychological motivations within a dynamic? Can symbolic actions or rituals elevate an experience beyond the physical? Explore how thought, meaning, and mental games fuel your fire.</p>"
+        }
+    ],
+    "R": [
+        {
+            level: 1,
+            title: "Level 1: Mapping Your Connections",
+            insightCost: 10,
+            content: "<p>How do you structure your intimate world? Does the deep focus of a monogamous partnership feel most fulfilling? Or does the freedom of solo exploration resonate more? Perhaps the idea of multiple connections (Consensual Non-Monogamy) calls to you? Consider the basic blueprint of how many people feel 'right' in your intimate sphere.</p>"
+        },
+        {
+            level: 2,
+            title: "Level 2: Defining the Bonds",
+            insightCost: 25,
+            content: "<p>What depth of connection do you seek? Is deep emotional intimacy a prerequisite for physical intimacy? Or are you comfortable with connections based primarily on fun, shared interests, or physical chemistry (like Friends With Benefits or casual encounters)? How does commitment factor in? Can you have different levels of commitment with different people?</p>"
+        },
+        {
+            level: 3,
+            title: "Level 3: Navigating the Constellation",
+            insightCost: 50,
+            content: "<p>If exploring multiple connections, how do you navigate? Do you prefer clear rules and hierarchy (like some Open Relationships or Polyamory models)? Or does the idea of letting each relationship define itself without comparison appeal more (Relationship Anarchy)? How do you handle complex emotions like jealousy or compersion (finding joy in a partner's other connections)? What communication skills are essential?</p>"
+        }
+    ]
 };
 
 // --- Focus Rituals Data (Keep rewritten descriptions) ---
