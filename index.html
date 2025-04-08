@@ -419,6 +419,7 @@
     </div> <!-- End App Container -->
 
     <!-- Load Data First -->
+    <!-- Ensure data.js uses `export const ...` for variables -->
     <script src="data.js" type="module"></script>
     <!-- Then Load Modules -->
     <script src="js/config.js" type="module"></script>
@@ -427,7 +428,7 @@
     <script src="js/ui.js" type="module"></script>
     <script src="js/gameLogic.js" type="module"></script>
     <script src="js/main.js" type="module"></script>
-    <!-- No need for chart.js local script tag here -->
+    <!-- No need for script.js anymore -->
 
 </body>
 </html>
