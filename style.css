@@ -314,19 +314,98 @@ hr { border: none; border-top: 1px dashed var(--border-color-light); margin: 18p
 
 .research-note-card { border-color: #aaa; background: linear-gradient(145deg, #f5f5f5, #e8e8e8); opacity: 0.95; }
 /* --- Card Header Modifications --- */
-.card-header { display: flex; justify-content: space-between; align-items: flex-start; padding: 4px 6px 2px 6px; margin-bottom: 4px; min-height: 38px; position: relative; }
-.card-header .card-type-icon-area { flex-shrink: 0; margin-right: 5px; padding-top: 2px; }
-.card-header .card-type-icon { font-size: 1.1em; color: #7a5230; }
-.card-header .card-name { font-weight: bold; font-size: 0.95em; color: var(--primary-color); flex-grow: 1; text-align: left; font-family: 'Garamond', serif; line-height: 1.2; margin-right: 5px; word-break: break-word; padding-top: 1px; }
-.card-header .card-header-right { display: flex; flex-direction: column; align-items: flex-end; flex-shrink: 0; }
-.card-header .card-rarity { font-size: 0.65em; font-weight: bold; padding: 1px 4px; border-radius: 3px; text-transform: uppercase; line-height: 1; border: 1px solid; margin-bottom: 3px; white-space: nowrap; }
+/* File: style.css */
+
+/* ... existing styles ... */
+
+/* --- Card Header Modifications --- */
+.card-header {
+    display: grid; /* Change to grid */
+    grid-template-columns: auto 1fr auto; /* Icon | Name | Right Side */
+    grid-template-rows: auto auto; /* Row 1: Icons/Rarity, Row 2: Name */
+    align-items: center; /* Center items vertically in their grid cells */
+    padding: 4px 6px 2px 6px;
+    margin-bottom: 4px;
+    min-height: 38px;
+    position: relative;
+    grid-template-areas: /* Define grid layout */
+        "icon stamps rarity"
+        "name name name"; /* Name spans all columns in second row */
+}
+
+.card-header .card-type-icon-area {
+    grid-area: icon; /* Assign to grid area */
+    flex-shrink: 0;
+    padding-top: 0; /* Reset alignment padding */
+    margin-right: 5px;
+}
+.card-header .card-type-icon {
+     font-size: 1.1em;
+     color: #7a5230;
+}
+
+.card-header .card-name {
+    grid-area: name; /* Assign to grid area */
+    font-weight: bold;
+    font-size: 0.95em;
+    color: var(--primary-color);
+    text-align: center; /* Center the title */
+    font-family: 'Garamond', serif;
+    line-height: 1.2;
+    word-break: break-word;
+    padding-top: 2px; /* Add padding above title */
+    margin-right: 0; /* Remove right margin */
+    /* Remove flex properties */
+    /* flex-grow: 1; */
+    /* overflow: hidden; */ /* Allow wrapping instead */
+    /* white-space: nowrap; */
+    /* text-overflow: ellipsis; */
+}
+
+.card-header .card-header-right {
+    grid-area: rarity; /* Assign right content (rarity/stamps) */
+    display: flex;
+    flex-direction: column; /* Stack rarity and stamps vertically */
+    align-items: flex-end; /* Align items to the right */
+    flex-shrink: 0;
+    justify-self: end; /* Align the container itself to the end */
+}
+
+.card-header .card-rarity {
+    font-size: 0.65em;
+    font-weight: bold;
+    padding: 1px 4px;
+    border-radius: 3px;
+    text-transform: uppercase;
+    line-height: 1;
+    border: 1px solid;
+    margin-bottom: 3px;
+    white-space: nowrap;
+}
+/* Rarity Color Adjustments remain the same */
 .card-header .rarity-indicator-common { color: #495057; border-color: #ced4da; background-color: #f8f9fa;}
 .card-header .rarity-indicator-uncommon { color: #0f5132; border-color: #badbcc; background-color: #d1e7dd;}
 .card-header .rarity-indicator-rare { color: #4d1a7f; border-color: #d1b4f8; background-color: #e5d9f8;}
-.card-header .card-stamps { font-size: 0.8em; white-space: nowrap; display: flex; align-items: center; gap: 4px; }
+
+
+.card-header .card-stamps {
+    /* Stamps are now part of card-header-right, adjust alignment if needed */
+    font-size: 0.8em;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    justify-content: flex-end; /* Align stamps to the right */
+    grid-area: stamps; /* Assign to grid area */
+    justify-self: end; /* Align to right within its cell */
+    padding-top: 1px; /* Align vertically with rarity */
+}
+/* Stamp styles remain the same */
 .card-header .focus-indicator { color: var(--accent-color); text-shadow: 1px 1px 0px #b8860b; font-size: 1em; }
 .card-header .note-stamp { color: #777; font-size: 0.8em; opacity: 0.8; }
 .card-header .lore-indicator { color: var(--accent-color); text-shadow: 0 0 3px rgba(139, 69, 19, 0.7); font-size: 1.1em; animation: pulseGlowLore 2s infinite alternate; }
+
+/* ... (Rest of styles remain the same) ... */
 @keyframes pulseGlowLore { from { opacity: 0.7; transform: scale(1); } to { opacity: 1; transform: scale(1.1); } }
 
 .card-visual { flex-grow: 1; display: flex; align-items: center; justify-content: center; background-color: #ede8d8; margin: 6px 0; border-radius: 4px; min-height: 90px; overflow: hidden; border: 1px solid var(--border-color-light); }
