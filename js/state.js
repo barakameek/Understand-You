@@ -1,3 +1,5 @@
+// --- START OF FULL state.js --- (Corrected Load Logic)
+
 // js/state.js - Manages Application State and Persistence
 import * as Config from './config.js';
 import { elementNames, concepts } from '../data.js'; // ** IMPORT concepts HERE **
@@ -67,13 +69,13 @@ function _triggerSave() {
                  discoveredConcepts: Array.from(gameState.discoveredConcepts.entries()).map(([id, data]) => {
                      // Save only necessary data, exclude full concept object to avoid circular refs/large saves
                      return [id, {
-                         // concept: data.concept.id, // Only save the ID, maybe? Or just rely on rehydration? For now, exclude concept object
+                         // concept ID is the key, no need to save it explicitly inside the value
                          discoveredTime: data.discoveredTime,
                          artUnlocked: data.artUnlocked,
                          notes: data.notes,
                          unlockedLoreLevel: data.unlockedLoreLevel,
                          userCategory: data.userCategory,
-                         newLoreAvailable: data.newLoreAvailable
+                         newLoreAvailable: data.newLoreAvailable // Make sure to save this
                      }];
                  }),
                  focusedConcepts: Array.from(gameState.focusedConcepts),
@@ -110,25 +112,27 @@ export function loadGameState() {
             elementNames.forEach(name => { if (!gameState.userAnswers[name]) gameState.userAnswers[name] = {}; });
 
             // Restore Maps and Sets
-       if (Array.isArray(loadedState.discoveredConcepts)) {
-    gameState.discoveredConcepts = new Map(loadedState.discoveredConcepts.map(([id, savedData]) => {
-        const conceptDataFromSource = concepts.find(c => c.id === id); // Find concept in imported data
-        if (!conceptDataFromSource) {
-            console.warn(`Load Error: Concept data for ID ${id} not found in current data.js. Skipping.`);
-            return null; // Skip this entry if the concept doesn't exist anymore
-        }
-        // Rehydrate with full concept and saved data
-        return [id, {
-            concept: conceptDataFromSource, // Link the actual concept object
-            discoveredTime: savedData.discoveredTime,
-            artUnlocked: savedData.artUnlocked || false,
-            notes: savedData.notes || "",
-            unlockedLoreLevel: savedData.unlockedLoreLevel || 0,
-            userCategory: savedData.userCategory || 'uncategorized',
-            newLoreAvailable: savedData.newLoreAvailable || false // Restore this flag
-        }];
-    }).filter(entry => entry !== null)); // Filter out entries skipped due to missing concepts
-}
+            if (Array.isArray(loadedState.discoveredConcepts)) {
+                 // ** MODIFIED: Correctly rehydrate map using imported 'concepts' **
+                 gameState.discoveredConcepts = new Map(loadedState.discoveredConcepts.map(([id, savedData]) => {
+                     const conceptDataFromSource = concepts.find(c => c.id === id); // Find concept in data.js
+                     if (!conceptDataFromSource) {
+                         console.warn(`Load Error: Concept data for ID ${id} not found in current data.js. Skipping.`);
+                         return null; // Skip this entry if concept data is missing
+                     }
+                     // Rehydrate with full concept and saved data, ensuring defaults
+                     return [id, {
+                         concept: conceptDataFromSource, // Link the actual concept object
+                         discoveredTime: savedData.discoveredTime,
+                         artUnlocked: savedData.artUnlocked || false,
+                         notes: savedData.notes || "",
+                         unlockedLoreLevel: savedData.unlockedLoreLevel || 0, // Default if missing
+                         userCategory: savedData.userCategory || 'uncategorized', // Default if missing
+                         newLoreAvailable: savedData.newLoreAvailable || false // Default if missing
+                         }
+                     ];
+                 }).filter(entry => entry !== null)); // Filter out null entries where concept wasn't found
+            }
             if (Array.isArray(loadedState.focusedConcepts)) gameState.focusedConcepts = new Set(loadedState.focusedConcepts);
             if (Array.isArray(loadedState.achievedMilestones)) gameState.achievedMilestones = new Set(loadedState.achievedMilestones);
             if (Array.isArray(loadedState.seenPrompts)) gameState.seenPrompts = new Set(loadedState.seenPrompts);
