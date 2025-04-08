@@ -1033,13 +1033,22 @@ export function renderCard(concept, context = 'grimoire') {
 
 // --- Concept Detail Popup UI ---
 export function showConceptDetailPopup(conceptId) {
+    console.log(`--- Opening Popup for Concept ID: ${conceptId} ---`); // Log start
+
     const conceptData = concepts.find(c => c.id === conceptId);
     if (!conceptData) { console.error("Concept data missing:", conceptId); return; }
+
     const discoveredData = State.getDiscoveredConceptData(conceptId);
     const inGrimoire = !!discoveredData;
     const currentPhase = State.getOnboardingPhase();
     const researchNotesArea = document.getElementById('studyResearchDiscoveries');
     const inResearchNotes = !inGrimoire && researchNotesArea?.querySelector(`.research-result-item[data-concept-id="${conceptId}"]`);
+
+    // *** Log State Check ***
+    console.log(`   - In Grimoire (Discovered): ${inGrimoire}`);
+    console.log(`   - Current Phase: ${currentPhase} (Need >= ${Config.ONBOARDING_PHASE.REFLECTION_RITUALS} for Focus, >= ${Config.ONBOARDING_PHASE.ADVANCED} for Lore/Evo)`);
+    console.log(`   - Is in Research Notes: ${!!inResearchNotes}`);
+    // ***********************
 
     GameLogic.setCurrentPopupConcept(conceptId); // Track which concept is open
 
@@ -1060,7 +1069,14 @@ export function showConceptDetailPopup(conceptId) {
              content = document.createElement('img');
              content.src = `placeholder_art/${conceptData.visualHandleUnlocked}.png`; // Placeholder path
              content.alt = `${conceptData.name} Art`; content.classList.add('card-art-image');
-             content.onerror = function() { this.style.display='none'; const icon = document.createElement('i'); icon.className = `fas fa-image card-visual-placeholder`; icon.title = "Art Placeholder (Load Failed)"; if(popupVisualContainer) popupVisualContainer.appendChild(icon); };
+             content.onerror = function() {
+                this.style.display='none';
+                const icon = document.createElement('i');
+                icon.className = `fas fa-image card-visual-placeholder`;
+                icon.title = "Art Placeholder (Load Failed)";
+                // Check popupVisualContainer exists before appending (safer)
+                if (popupVisualContainer) popupVisualContainer.appendChild(icon);
+             };
          } else {
              content = document.createElement('i');
              content.className = `fas fa-${artUnlocked ? 'star card-art-unlocked' : 'question'} card-visual-placeholder`;
@@ -1077,47 +1093,62 @@ export function showConceptDetailPopup(conceptId) {
     if(popupRecipeDetailsSection) displayPopupRecipeComparison(conceptData, scores);
     if(popupRelatedDetailsSection) displayPopupRelatedConcepts(conceptData);
 
-    // --- Populate Lore Section ---
+    // --- Populate Lore Section (WITH DEBUGGING) ---
     if (popupLoreSection && popupLoreContent) {
         const phaseAllowsLore = currentPhase >= Config.ONBOARDING_PHASE.ADVANCED;
         const hasLoreDefined = conceptData.lore && conceptData.lore.length > 0;
+
+        // *** Log Lore Visibility Conditions ***
+        console.log(`   - Lore Check: Phase Allows=${phaseAllowsLore}, In Grimoire=${inGrimoire}, Has Lore Defined=${hasLoreDefined}`);
+        // *************************************
 
         popupLoreSection.classList.toggle('hidden', !phaseAllowsLore || !inGrimoire || !hasLoreDefined);
         popupLoreContent.innerHTML = ''; // Clear previous lore
 
         if (phaseAllowsLore && inGrimoire && hasLoreDefined) {
             const unlockedLevel = State.getUnlockedLoreLevel(conceptId);
+            // *** Log Unlocked Lore Level ***
+            console.log(`   - Currently Unlocked Lore Level for ${conceptId}: ${unlockedLevel}`);
+            // ******************************
+
             conceptData.lore.forEach((loreEntry, index) => {
-                const loreDiv = document.createElement('div'); loreDiv.classList.add('lore-entry');
+                const loreDiv = document.createElement('div');
+                loreDiv.classList.add('lore-entry');
+                // *** Log Loop Iteration ***
+                console.log(`      -> Processing Lore Level ${loreEntry.level}`);
+                // *************************
                 if (loreEntry.level <= unlockedLevel) {
+                    // Display unlocked lore
+                    console.log(`         -> UNLOCKED. Adding text: "${loreEntry.text.substring(0, 20)}..."`);
                     loreDiv.innerHTML = `<h5 class="lore-level-title">Level ${loreEntry.level} Insight:</h5><p class="lore-text">${loreEntry.text}</p>`;
                 } else {
+                    // Display locked lore
+                    console.log(`         -> LOCKED.`);
                     loreDiv.innerHTML = `<h5 class="lore-level-title">Level ${loreEntry.level} Insight: [Locked]</h5>`;
                     const cost = Config.LORE_UNLOCK_COSTS[`level${loreEntry.level}`] || 999;
                     const currentInsight = State.getInsight(); const canAfford = currentInsight >= cost;
+                    console.log(`         -> Cost: ${cost}, Have: ${currentInsight.toFixed(1)}, Can Afford: ${canAfford}`);
+
                     const unlockButton = document.createElement('button');
                     unlockButton.className = 'button tiny-button unlock-lore-button';
                     unlockButton.dataset.conceptId = conceptId; unlockButton.dataset.loreLevel = loreEntry.level; unlockButton.dataset.cost = cost;
                     unlockButton.title = canAfford ? `Unlock for ${cost} Insight` : `Requires ${cost} Insight`; unlockButton.disabled = !canAfford;
                     unlockButton.innerHTML = `Unlock (${cost} <i class="fas fa-brain insight-icon"></i>)`;
                     loreDiv.appendChild(unlockButton);
+                    console.log(`         -> Added unlock button.`);
                 }
                 popupLoreContent.appendChild(loreDiv);
                 if (index < conceptData.lore.length - 1) popupLoreContent.appendChild(document.createElement('hr'));
             });
             popupLoreSection.open = false; // Start collapsed
         } else if (phaseAllowsLore && inGrimoire && !hasLoreDefined) {
+            console.log(`   - No lore defined for ${conceptData.name} in data.js.`);
             popupLoreContent.innerHTML = '<p><i>No lore recorded for this concept.</i></p>';
+        } else {
+             console.log(`   - Lore section not populated due to phase/discovery/definition checks.`);
         }
-
-        // Mark lore as seen if necessary
-         if (inGrimoire && discoveredData && discoveredData.newLoreAvailable) {
-             State.markLoreAsSeen(conceptId);
-             const cardElemIndicator = document.querySelector(`#grimoireContent .concept-card[data-concept-id="${conceptId}"] .lore-indicator`);
-             cardElemIndicator?.remove();
-             console.log(`Marked lore as seen for Card ID: ${conceptId}`);
-         }
     } else { console.error("Lore section elements missing in popup!"); }
+
 
     // --- Populate Notes Section (Conditional) ---
     const showNotes = inGrimoire && currentPhase >= Config.ONBOARDING_PHASE.STUDY_INSIGHT;
@@ -1307,8 +1338,11 @@ export function updateGrimoireButtonStatus(conceptId, inResearchNotes = false) {
 }
 
 export function updateFocusButtonStatus(conceptId) {
-   const markAsFocusButton = document.getElementById('markAsFocusButton');
-    if (!markAsFocusButton) return; // Ensure the button element exists
+    const markAsFocusButton = document.getElementById('markAsFocusButton');
+    if (!markAsFocusButton) {
+        // console.warn("UI: Mark as Focus button element not found."); // Keep commented unless needed
+        return;
+    }
 
     const isDiscovered = State.getDiscoveredConcepts().has(conceptId);
     const isFocused = State.getFocusedConcepts().has(conceptId);
@@ -1316,9 +1350,11 @@ export function updateFocusButtonStatus(conceptId) {
     const currentPhase = State.getOnboardingPhase();
     const requiredPhase = Config.ONBOARDING_PHASE.REFLECTION_RITUALS; // Phase 3
 
-    // Show the POPUP button if discovered AND phase allows focusing
-    // const showButton = isDiscovered && currentPhase >= Config.ONBOARDING_PHASE.REFLECTION_RITUALS; // <<< REMOVE THIS LINE
-    const showButton = isDiscovered && (currentPhase >= requiredPhase); // <<< KEEP THIS LINE (Uses the variable)
+    const showButton = isDiscovered && (currentPhase >= requiredPhase);
+
+    // *** Add Log Here ***
+    console.log(`      -> updateFocusButtonStatus Check: isDiscovered=${isDiscovered}, currentPhase=${currentPhase}, requiredPhase=${requiredPhase}, showButton=${showButton}`);
+    // *******************
 
     markAsFocusButton.classList.toggle('hidden', !showButton);
 
