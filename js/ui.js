@@ -352,6 +352,7 @@ function handleFirstGrimoireVisit() { if (!State.getState().grimoireFirstVisitDo
 
 // --- Card Rendering (Shows Primary Element & Rarity) ---
 // Replace the entire renderCard function in js/ui.js with this
+// Replace the entire renderCard function in js/ui.js with this
 export function renderCard(concept, context = 'grimoire') {
     if (!concept || typeof concept.id === 'undefined') { console.warn("renderCard called with invalid concept:", concept); const eDiv = document.createElement('div'); eDiv.textContent = "Error: Invalid Concept Data"; eDiv.style.color = 'red'; eDiv.style.padding = '10px'; eDiv.style.border = '1px solid red'; return eDiv; }
     const cardDiv = document.createElement('div'); cardDiv.classList.add('concept-card'); cardDiv.classList.add(`rarity-${concept.rarity || 'common'}`); cardDiv.dataset.conceptId = concept.id; cardDiv.title = `View Details: ${concept.name}`;
@@ -370,7 +371,6 @@ export function renderCard(concept, context = 'grimoire') {
     let rarityText = concept.rarity ? concept.rarity.charAt(0).toUpperCase() + concept.rarity.slice(1) : 'Common';
     let rarityClass = `rarity-indicator-${concept.rarity || 'common'}`;
     const rarityIndicatorHTML = `<span class="card-rarity ${rarityClass}" title="Rarity: ${rarityText}">${rarityText}</span>`;
-    // --- End Rarity Indicator ---
 
     // --- Primary Element Display ---
     let primaryElementHTML = '<small style="color:#888; font-style: italic;">Basic Affinity</small>'; // Default
@@ -380,12 +380,10 @@ export function renderCard(concept, context = 'grimoire') {
         const primaryColor = Utils.getElementColor(primaryFullName);
         const primaryIcon = Utils.getElementIcon(primaryFullName);
         const primaryName = elementDetails[primaryFullName]?.name || primaryFullName;
-        // CORRECTED LINE (Comment Removed):
         primaryElementHTML = `<span class="primary-element-display" style="color: ${primaryColor};" title="Primary Element: ${primaryName}">
                                  <i class="${primaryIcon}"></i> ${primaryName.split(':')[0]}
-                              </span>`;
+                              </span>`; // Comment removed previously
     }
-    // --- End Primary Element Display ---
 
     let visualIconClass = "fas fa-question card-visual-placeholder"; let visualTitle = "Visual Placeholder"; if (artUnlocked) { visualIconClass = "fas fa-star card-visual-placeholder card-art-unlocked"; visualTitle = "Enhanced Art Placeholder"; } else if (concept.visualHandle) { visualIconClass = "fas fa-image card-visual-placeholder"; visualTitle = "Art Placeholder"; } const visualContent = `<i class="${visualIconClass}" title="${visualTitle}"></i>`;
 
@@ -403,7 +401,7 @@ export function renderCard(concept, context = 'grimoire') {
         </div>
         <div class="card-visual">${visualContent}</div>
         <div class="card-footer">
-            <div class="card-affinities">${primaryElementHTML}</div> {/* Now shows primary element */}
+            <div class="card-affinities">${primaryElementHTML}</div> {/* REMOVED Comment Here */}
             <p class="card-brief-desc">${concept.briefDescription || '...'}</p>
             ${actionButtonsHTML}
         </div>`;
