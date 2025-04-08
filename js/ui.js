@@ -535,7 +535,7 @@ export function showConceptDetailPopup(conceptId) {
 // ... (rest of ui.js remains the same, including updateFocusButtonStatus with logging) ...
 
 // Replace the existing updateFocusButtonStatus function with this one:
-export function updateFocusButtonStatus(conceptId) {
+
     const markAsFocusButton = document.getElementById('markAsFocusButton');
     if (!markAsFocusButton) {
         // console.warn("UI: Mark as Focus button element not found."); // Keep commented unless needed
@@ -545,9 +545,11 @@ export function updateFocusButtonStatus(conceptId) {
     const isDiscovered = State.getDiscoveredConcepts().has(conceptId);
     const isFocused = State.getFocusedConcepts().has(conceptId);
     const slotsFull = State.getFocusedConcepts().size >= State.getFocusSlots() && !isFocused;
+    // const currentPhase = State.getOnboardingPhase(); // REMOVED Phase check
+    // const requiredPhase = Config.ONBOARDING_PHASE.REFLECTION_RITUALS; // REMOVED Phase check
 
-    // Focus button is now always potentially visible if discovered (no phase check)
-    const showButton = isDiscovered;
+    // Show the POPUP button if discovered
+    const showButton = isDiscovered; // REMOVED phase check
 
     // *** Add Log Here ***
     console.log(`      -> updateFocusButtonStatus Check: isDiscovered=${isDiscovered}, showButton=${showButton}`);
