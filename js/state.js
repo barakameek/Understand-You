@@ -71,7 +71,7 @@ function _triggerSave() {
                          notes: data.notes,
                          unlockedLoreLevel: data.unlockedLoreLevel,
                          userCategory: data.userCategory,
-                         newLoreAvailable: data.newLoreAvailable
+                         newLoreAvailable: data.newLoreAvailable // Make sure to save this
                      }];
                  }),
                  focusedConcepts: Array.from(gameState.focusedConcepts),
@@ -103,7 +103,6 @@ export function loadGameState() {
             gameState = createInitialGameState(); // Start fresh, merge below
 
             // --- Merge loaded state ---
-            // (Keep existing merge logic for scores, answers, concepts, focus, insight, attunement, etc.)
             if (typeof loadedState.userScores === 'object' && loadedState.userScores !== null) gameState.userScores = { ...gameState.userScores, ...loadedState.userScores };
             if (typeof loadedState.userAnswers === 'object' && loadedState.userAnswers !== null) gameState.userAnswers = loadedState.userAnswers;
             elementNames.forEach(name => { if (!gameState.userAnswers[name]) gameState.userAnswers[name] = {}; });
@@ -157,7 +156,7 @@ export function loadGameState() {
 
              gameState.currentFocusSetHash = _calculateFocusSetHash();
 
-             console.log("Game state loaded successfully."); // Removed phase log
+             console.log("Game state loaded successfully.");
             return true;
         } catch (error) {
             console.error("Error loading or parsing game state:", error);
