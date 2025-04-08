@@ -1307,15 +1307,18 @@ export function updateGrimoireButtonStatus(conceptId, inResearchNotes = false) {
 }
 
 export function updateFocusButtonStatus(conceptId) {
+   const markAsFocusButton = document.getElementById('markAsFocusButton');
     if (!markAsFocusButton) return; // Ensure the button element exists
 
     const isDiscovered = State.getDiscoveredConcepts().has(conceptId);
     const isFocused = State.getFocusedConcepts().has(conceptId);
     const slotsFull = State.getFocusedConcepts().size >= State.getFocusSlots() && !isFocused;
     const currentPhase = State.getOnboardingPhase();
+    const requiredPhase = Config.ONBOARDING_PHASE.REFLECTION_RITUALS; // Phase 3
 
     // Show the POPUP button if discovered AND phase allows focusing
-    const showButton = isDiscovered && currentPhase >= Config.ONBOARDING_PHASE.REFLECTION_RITUALS;
+    // const showButton = isDiscovered && currentPhase >= Config.ONBOARDING_PHASE.REFLECTION_RITUALS; // <<< REMOVE THIS LINE
+    const showButton = isDiscovered && (currentPhase >= requiredPhase); // <<< KEEP THIS LINE (Uses the variable)
 
     markAsFocusButton.classList.toggle('hidden', !showButton);
 
@@ -1327,7 +1330,6 @@ export function updateFocusButtonStatus(conceptId) {
         markAsFocusButton.title = markAsFocusButton.disabled && !isFocused ? `Focus slots full (${State.getFocusSlots()})` : (isFocused ? "Remove from Focused Concepts" : "Add to Focused Concepts");
     }
 }
-
 
 export function updatePopupSellButton(conceptId, conceptData, inGrimoire, inResearchNotes) {
     const popupActions = conceptDetailPopup?.querySelector('.popup-actions');
