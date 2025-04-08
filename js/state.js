@@ -110,30 +110,25 @@ export function loadGameState() {
             elementNames.forEach(name => { if (!gameState.userAnswers[name]) gameState.userAnswers[name] = {}; });
 
             // Restore Maps and Sets
-            if (Array.isArray(loadedState.discoveredConcepts)) {
-                // **MODIFIED:** Rehydrate map, using imported 'concepts'
-                gameState.discoveredConcepts = new Map(loadedState.discoveredConcepts.map(([id, savedData]) => {
-                    const conceptDataFromSource = concepts.find(c => c.id === id); // Find concept in data.js
-                    if (!conceptDataFromSource) {
-                        console.warn(`Could not find concept data for loaded ID: ${id}. Skipping.`);
-                        return null; // Skip this entry if concept data is missing
-                    }
-                    // Ensure defaults for potentially missing fields from older saves
-                    const defaults = {
-                        unlockedLoreLevel: savedData.unlockedLoreLevel || 0,
-                        userCategory: savedData.userCategory || 'uncategorized',
-                        newLoreAvailable: savedData.newLoreAvailable || false
-                    };
-                    return [id, {
-                        concept: conceptDataFromSource, // Link the actual concept data
-                        discoveredTime: savedData.discoveredTime,
-                        artUnlocked: savedData.artUnlocked || false,
-                        notes: savedData.notes || "",
-                        ...defaults
-                        }
-                    ];
-                }).filter(entry => entry !== null)); // Filter out null entries where concept wasn't found
-            }
+       if (Array.isArray(loadedState.discoveredConcepts)) {
+    gameState.discoveredConcepts = new Map(loadedState.discoveredConcepts.map(([id, savedData]) => {
+        const conceptDataFromSource = concepts.find(c => c.id === id); // Find concept in imported data
+        if (!conceptDataFromSource) {
+            console.warn(`Load Error: Concept data for ID ${id} not found in current data.js. Skipping.`);
+            return null; // Skip this entry if the concept doesn't exist anymore
+        }
+        // Rehydrate with full concept and saved data
+        return [id, {
+            concept: conceptDataFromSource, // Link the actual concept object
+            discoveredTime: savedData.discoveredTime,
+            artUnlocked: savedData.artUnlocked || false,
+            notes: savedData.notes || "",
+            unlockedLoreLevel: savedData.unlockedLoreLevel || 0,
+            userCategory: savedData.userCategory || 'uncategorized',
+            newLoreAvailable: savedData.newLoreAvailable || false // Restore this flag
+        }];
+    }).filter(entry => entry !== null)); // Filter out entries skipped due to missing concepts
+}
             if (Array.isArray(loadedState.focusedConcepts)) gameState.focusedConcepts = new Set(loadedState.focusedConcepts);
             if (Array.isArray(loadedState.achievedMilestones)) gameState.achievedMilestones = new Set(loadedState.achievedMilestones);
             if (Array.isArray(loadedState.seenPrompts)) gameState.seenPrompts = new Set(loadedState.seenPrompts);
