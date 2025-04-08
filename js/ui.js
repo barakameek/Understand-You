@@ -401,7 +401,7 @@ export function renderCard(concept, context = 'grimoire') {
         </div>
         <div class="card-visual">${visualContent}</div>
         <div class="card-footer">
-            <div class="card-affinities">${primaryElementHTML}</div> {/* REMOVED Comment Here */}
+            <div class="card-affinities">${primaryElementHTML}</div> 
             <p class="card-brief-desc">${concept.briefDescription || '...'}</p>
             ${actionButtonsHTML}
         </div>`;
