@@ -439,8 +439,34 @@ export function showConceptDetailPopup(conceptId) {
     if (popupDetailedDescription) popupDetailedDescription.textContent = conceptData.detailedDescription || "No description.";
 
     // --- Populate Visual ---
-    const artUnlocked = discoveredData?.artUnlocked || false; const currentVisualHandle = artUnlocked ? (conceptData.visualHandleUnlocked || conceptData.visualHandle) : conceptData.visualHandle; if (popupVisualContainer) { popupVisualContainer.innerHTML = ''; const useArt = artUnlocked && conceptData.visualHandleUnlocked; let content; if (useArt) { content = document.createElement('img'); content.src = `placeholder_art/${conceptData.visualHandleUnlocked}.png`; content.alt = `${conceptData.name} Art`; content.classList.add('card-art-image'); content.onerror = function() { this.style.display='none'; const icon = document.createElement('i'); icon.className = `fas fa-image card-visual-placeholder`; icon.title = "Art Placeholder (Load Failed)"; if (popupVisualContainer) popupVisualContainer.appendChild(icon); }; } else { content = document.createElement('i'); content.className = `fas fa-${artUnlocked ? 'star card-art-unlocked' : 'question'} card-visual-placeholder`; content.title = currentVisualHandle || "Visual Placeholder"; if (artUnlocked) content.classList.add('card-art-unlocked'); } popupVisualContainer.appendChild(content); }
+     const artUnlocked = discoveredData?.artUnlocked || false;
+    // This line gets the base handle (e.g., "rare_impact_heavy")
+    // OR the unlocked handle (e.g., "rare_impact_heavy_art") if art IS unlocked
+    const currentVisualHandle = artUnlocked ? (conceptData.visualHandleUnlocked || conceptData.visualHandle) : conceptData.visualHandle;
 
+    if (popupVisualContainer) {
+         popupVisualContainer.innerHTML = '';
+         // This checks if art is unlocked AND if an unlocked handle exists
+         const useArt = artUnlocked && conceptData.visualHandleUnlocked;
+         let content;
+         if (useArt) {
+             // If using unlocked art, it uses the visualHandleUnlocked property
+             content = document.createElement('img');
+             // Constructs the path using the handle: placeholder_art/handle_name.png
+             content.src = `placeholder_art/${conceptData.visualHandleUnlocked}.png`;
+             content.alt = `${conceptData.name} Art`; content.classList.add('card-art-image');
+             content.onerror = function() { /* ... error handling ... */ };
+         } else {
+             // If not using unlocked art (either not unlocked or no specific unlocked handle defined),
+             // it falls back to showing an icon using the base visualHandle for the title.
+             content = document.createElement('i');
+             content.className = `fas fa-${artUnlocked ? 'star card-art-unlocked' : 'question'} card-visual-placeholder`;
+             // Uses the base handle here if art isn't unlocked, or the unlocked handle if it exists but the image failed to load
+             content.title = currentVisualHandle || "Visual Placeholder";
+             if (artUnlocked) content.classList.add('card-art-unlocked');
+         }
+         popupVisualContainer.appendChild(content);
+    }
     // --- Populate Analysis Sections ---
     const scores = State.getScores(); const distance = Utils.euclideanDistance(scores, conceptData.elementScores); displayPopupResonance(distance);
     if(popupRecipeDetailsSection) displayPopupRecipeComparison(conceptData, scores);
