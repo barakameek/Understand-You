@@ -60,7 +60,14 @@ function _triggerSave() {
          try {
              const stateToSave = {
                  ...gameState,
-                 discoveredConcepts: Array.from(gameState.discoveredConcepts.entries()).map(([id, data]) => [id, { discoveredTime: data.discoveredTime, artUnlocked: data.artUnlocked, notes: data.notes, unlockedLoreLevel: data.unlockedLoreLevel, userCategory: data.userCategory, newLoreAvailable: data.newLoreAvailable }]),
+                discoveredConcepts: Array.from(gameState.discoveredConcepts.entries()).map(([id, data]) => [id, {
+    discoveredTime: data.discoveredTime,
+    // artUnlocked: data.artUnlocked, // <-- REMOVE THIS LINE
+    notes: data.notes,
+    unlockedLoreLevel: data.unlockedLoreLevel,
+    userCategory: data.userCategory,
+    newLoreAvailable: data.newLoreAvailable
+}]),
                  focusedConcepts: Array.from(gameState.focusedConcepts),
                  achievedMilestones: Array.from(gameState.achievedMilestones),
                  seenPrompts: Array.from(gameState.seenPrompts),
@@ -96,16 +103,15 @@ export function loadGameState() {
                  gameState.discoveredConcepts = new Map(loadedState.discoveredConcepts.map(([id, savedData]) => {
                      const conceptDataFromSource = concepts.find(c => c.id === id);
                      if (!conceptDataFromSource) { console.warn(`Load Error: Concept data for ID ${id} not found. Skipping.`); return null; }
-                     return [id, {
-                         concept: conceptDataFromSource,
-                         discoveredTime: savedData.discoveredTime,
-                         artUnlocked: savedData.artUnlocked || false,
-                         notes: savedData.notes || "",
-                         unlockedLoreLevel: savedData.unlockedLoreLevel || 0,
-                         userCategory: savedData.userCategory || 'uncategorized',
-                         newLoreAvailable: savedData.newLoreAvailable || false
-                         }
-                     ];
+                    return [id, {
+    concept: conceptDataFromSource,
+    discoveredTime: savedData.discoveredTime,
+    // artUnlocked: savedData.artUnlocked || false, // <-- REMOVE THIS LINE
+    notes: savedData.notes || "",
+    unlockedLoreLevel: savedData.unlockedLoreLevel || 0,
+    userCategory: savedData.userCategory || 'uncategorized',
+    newLoreAvailable: savedData.newLoreAvailable || false
+}];
                  }).filter(entry => entry !== null));
              }
             if (Array.isArray(loadedState.focusedConcepts)) gameState.focusedConcepts = new Set(loadedState.focusedConcepts);
@@ -191,9 +197,23 @@ export function changeInsight(amount) { const previousInsight = gameState.userIn
 export function useInitialFreeResearch() { if (gameState.initialFreeResearchRemaining > 0) { gameState.initialFreeResearchRemaining--; saveGameState(); return true; } return false; }
 export function setFreeResearchUsed() { gameState.freeResearchAvailableToday = false; saveGameState(); }
 export function updateAttunement(elementKey, amount) { if (gameState.elementAttunement.hasOwnProperty(elementKey)) { const current = gameState.elementAttunement[elementKey]; const newValue = Math.min(Config.MAX_ATTUNEMENT, Math.max(0, current + amount)); if (newValue !== current) { gameState.elementAttunement[elementKey] = newValue; saveGameState(); return true; } } return false; }
-export function addDiscoveredConcept(conceptId, conceptData) { if (!(gameState.discoveredConcepts instanceof Map)) { console.error("CRITICAL ERROR: gameState.discoveredConcepts is not a Map!"); gameState.discoveredConcepts = new Map(); } if (!gameState.discoveredConcepts.has(conceptId)) { gameState.discoveredConcepts.set(conceptId, { concept: conceptData, discoveredTime: Date.now(), artUnlocked: false, notes: "", unlockedLoreLevel: 0, userCategory: 'uncategorized', newLoreAvailable: false }); saveGameState(); return true; } return false; }
-
-
+export function addDiscoveredConcept(conceptId, conceptData) {
+    // ... (check if already exists) ...
+    if (!gameState.discoveredConcepts.has(conceptId)) {
+        gameState.discoveredConcepts.set(conceptId, {
+            concept: conceptData,
+            discoveredTime: Date.now(),
+            // artUnlocked: false, // <-- REMOVE THIS LINE
+            notes: "",
+            unlockedLoreLevel: 0,
+            userCategory: 'uncategorized',
+            newLoreAvailable: false
+        });
+        saveGameState();
+        return true;
+    }
+    return false;
+}
 export function removeDiscoveredConcept(conceptId) {
     if (!(gameState.discoveredConcepts instanceof Map)) { console.error("CRITICAL ERROR: gameState.discoveredConcepts is not a Map!"); return false; }
     if (gameState.discoveredConcepts.has(conceptId)) {
