@@ -412,13 +412,21 @@ export function renderCard(concept, context = 'grimoire') {
 }
 
 // --- Concept Detail Popup UI (Modified Header) ---
+// Replace the existing showConceptDetailPopup function in js/ui.js
 export function showConceptDetailPopup(conceptId) {
     console.log(`--- Opening Popup for Concept ID: ${conceptId} ---`);
-    const conceptData = concepts.find(c => c.id === conceptId); if (!conceptData) { console.error("Concept data missing:", conceptId); return; }
-    const discoveredData = State.getDiscoveredConceptData(conceptId); const inGrimoire = !!discoveredData;
-    const researchNotesArea = document.getElementById('studyResearchDiscoveries'); const inResearchNotes = !inGrimoire && researchNotesArea?.querySelector(`.research-result-item[data-concept-id="${conceptId}"]`);
+
+    const conceptData = concepts.find(c => c.id === conceptId);
+    if (!conceptData) { console.error("Concept data missing:", conceptId); return; }
+
+    const discoveredData = State.getDiscoveredConceptData(conceptId);
+    const inGrimoire = !!discoveredData;
+    const researchNotesArea = document.getElementById('studyResearchDiscoveries');
+    const inResearchNotes = !inGrimoire && researchNotesArea?.querySelector(`.research-result-item[data-concept-id="${conceptId}"]`);
+
     console.log(`   - In Grimoire (Discovered): ${inGrimoire}`);
     console.log(`   - Is in Research Notes: ${!!inResearchNotes}`);
+
     GameLogic.setCurrentPopupConcept(conceptId);
 
     // --- Populate Basic Info (Modified Header) ---
@@ -438,37 +446,40 @@ export function showConceptDetailPopup(conceptId) {
     if (popupCardTypeIcon) popupCardTypeIcon.className = `${Utils.getCardTypeIcon(conceptData.cardType)} card-type-icon`;
     if (popupDetailedDescription) popupDetailedDescription.textContent = conceptData.detailedDescription || "No description.";
 
-    // --- Populate Visual ---
-     const artUnlocked = discoveredData?.artUnlocked || false;
-    // This line gets the base handle (e.g., "rare_impact_heavy")
-    // OR the unlocked handle (e.g., "rare_impact_heavy_art") if art IS unlocked
+    // --- Populate Visual (USING .jpg) ---
+    const artUnlocked = discoveredData?.artUnlocked || false;
     const currentVisualHandle = artUnlocked ? (conceptData.visualHandleUnlocked || conceptData.visualHandle) : conceptData.visualHandle;
 
     if (popupVisualContainer) {
          popupVisualContainer.innerHTML = '';
-         // This checks if art is unlocked AND if an unlocked handle exists
          const useArt = artUnlocked && conceptData.visualHandleUnlocked;
          let content;
          if (useArt) {
-             // If using unlocked art, it uses the visualHandleUnlocked property
              content = document.createElement('img');
-             // Constructs the path using the handle: placeholder_art/handle_name.png
-             content.src = `placeholder_art/${conceptData.visualHandleUnlocked}.png`;
+             // *** UPDATED LINE ***
+             content.src = `placeholder_art/${conceptData.visualHandleUnlocked}.jpg`; // Using .jpg
+             // ********************
              content.alt = `${conceptData.name} Art`; content.classList.add('card-art-image');
-             content.onerror = function() { /* ... error handling ... */ };
+             content.onerror = function() {
+                this.style.display='none';
+                const icon = document.createElement('i');
+                icon.className = `fas fa-image card-visual-placeholder`;
+                icon.title = "Art Placeholder (Load Failed)";
+                if (popupVisualContainer) popupVisualContainer.appendChild(icon);
+             };
          } else {
-             // If not using unlocked art (either not unlocked or no specific unlocked handle defined),
-             // it falls back to showing an icon using the base visualHandle for the title.
              content = document.createElement('i');
              content.className = `fas fa-${artUnlocked ? 'star card-art-unlocked' : 'question'} card-visual-placeholder`;
-             // Uses the base handle here if art isn't unlocked, or the unlocked handle if it exists but the image failed to load
              content.title = currentVisualHandle || "Visual Placeholder";
              if (artUnlocked) content.classList.add('card-art-unlocked');
          }
          popupVisualContainer.appendChild(content);
     }
+
     // --- Populate Analysis Sections ---
-    const scores = State.getScores(); const distance = Utils.euclideanDistance(scores, conceptData.elementScores); displayPopupResonance(distance);
+    const scores = State.getScores();
+    const distance = Utils.euclideanDistance(scores, conceptData.elementScores);
+    displayPopupResonance(distance);
     if(popupRecipeDetailsSection) displayPopupRecipeComparison(conceptData, scores);
     if(popupRelatedDetailsSection) displayPopupRelatedConcepts(conceptData);
 
@@ -511,14 +522,14 @@ export function showConceptDetailPopup(conceptId) {
     } else { console.error("Lore elements missing!"); }
 
     // --- Populate Notes Section ---
-    const showNotes = inGrimoire; // Always show if in grimoire
+    const showNotes = inGrimoire;
     if (myNotesSection && myNotesTextarea && saveMyNoteButton) {
          myNotesSection.classList.toggle('hidden', !showNotes);
          if (showNotes && discoveredData) { myNotesTextarea.value = discoveredData.notes || ""; if(noteSaveStatusSpan) noteSaveStatusSpan.textContent = ""; }
     }
 
     // --- Populate Evolution Section ---
-    const showEvolution = inGrimoire && conceptData.canUnlockArt && !discoveredData?.artUnlocked; // Always show if applicable and in grimoire
+    const showEvolution = inGrimoire && conceptData.canUnlockArt && !discoveredData?.artUnlocked;
     if (popupEvolutionSection) {
         popupEvolutionSection.classList.toggle('hidden', !showEvolution);
         if (showEvolution) displayEvolutionSection(conceptData, discoveredData);
