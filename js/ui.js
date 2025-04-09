@@ -353,41 +353,43 @@ function handleFirstGrimoireVisit() { if (!State.getState().grimoireFirstVisitDo
 // --- Card Rendering (Shows Primary Element & Rarity) ---
 // Replace the entire renderCard function in js/ui.js with this
 // Replace the entire renderCard function in js/ui.js with this
+// Replace the entire renderCard function in js/ui.js with this:
 export function renderCard(concept, context = 'grimoire') {
-    if (!concept || typeof concept.id === 'undefined') { console.warn("renderCard called with invalid concept:", concept); const eDiv = document.createElement('div'); eDiv.textContent = "Error: Invalid Concept Data"; eDiv.style.color = 'red'; eDiv.style.padding = '10px'; eDiv.style.border = '1px solid red'; return eDiv; }
-    const cardDiv = document.createElement('div'); cardDiv.classList.add('concept-card'); cardDiv.classList.add(`rarity-${concept.rarity || 'common'}`); cardDiv.dataset.conceptId = concept.id; cardDiv.title = `View Details: ${concept.name}`;
-    const discoveredData = State.getDiscoveredConceptData(concept.id); const isDiscovered = !!discoveredData; const isFocused = State.getFocusedConcepts().has(concept.id); const artUnlocked = discoveredData?.artUnlocked || false;
+    // --- Basic Validation ---
+    if (!concept || typeof concept.id === 'undefined') {
+        console.warn("renderCard called with invalid concept:", concept);
+        const eDiv = document.createElement('div');
+        eDiv.textContent = "Error: Invalid Concept Data";
+        // ... (add error styling if desired) ...
+        return eDiv;
+    }
+
+    // --- Create Card Element ---
+    const cardDiv = document.createElement('div');
+    cardDiv.classList.add('concept-card');
+    cardDiv.classList.add(`rarity-${concept.rarity || 'common'}`);
+    cardDiv.dataset.conceptId = concept.id;
+    cardDiv.title = `View Details: ${concept.name}`;
+
+    // --- Get State Data ---
+    const discoveredData = State.getDiscoveredConceptData(concept.id);
+    const isDiscovered = !!discoveredData;
+    const isFocused = State.getFocusedConcepts().has(concept.id);
     const hasNewLore = discoveredData?.newLoreAvailable || false;
 
-let visualContentHTML = '';
-
-// Check if the concept has a visual handle defined in data.js
-if (concept.visualHandle) {
-    const imageExtension = typeof Config !== 'undefined' ? Config.UNLOCKED_ART_EXTENSION : UNLOCKED_ART_EXTENSION; // Keep using extension logic
-    visualContentHTML = `
-        <img src="placeholder_art/${concept.visualHandle}${imageExtension}" alt="${concept.name} Art" class="card-art-image"
-             onerror="this.style.display='none'; this.parentElement.querySelector('.card-visual-placeholder')?.style.display='block';">
-        <i class="fas fa-image card-visual-placeholder" style="display: none;" title="Art Placeholder (Load Failed)"></i>`;
-} else {
-    // Fallback to icon if no visualHandle is defined
-    visualContentHTML = `<i class="fas fa-question card-visual-placeholder" title="Visual Placeholder"></i>`;
-}
-    const showFocusButtonOnCard = context === 'grimoire' && isDiscovered;
-    const showSellButtonOnCard = context === 'grimoire' && isDiscovered;
-
+    // --- Generate Stamps ---
     const focusStampHTML = isFocused ? '<span class="focus-indicator" title="Focused Concept">★</span>' : '';
     const noteStampHTML = (!isDiscovered && (context === 'discovery-note' || context === 'research-output')) ? '<span class="note-stamp" title="Research Note"><i class="fa-regular fa-clipboard"></i></span>' : '';
     const loreStampHTML = (isDiscovered && hasNewLore) ? '<span class="lore-indicator" title="New Lore Unlocked!"><i class="fas fa-scroll"></i></span>' : '';
 
+    // --- Generate Header Elements ---
     const cardTypeIcon = Utils.getCardTypeIcon(concept.cardType);
-
-    // --- Rarity Indicator ---
     let rarityText = concept.rarity ? concept.rarity.charAt(0).toUpperCase() + concept.rarity.slice(1) : 'Common';
     let rarityClass = `rarity-indicator-${concept.rarity || 'common'}`;
     const rarityIndicatorHTML = `<span class="card-rarity ${rarityClass}" title="Rarity: ${rarityText}">${rarityText}</span>`;
 
-    // --- Primary Element Display ---
-    let primaryElementHTML = '<small style="color:#888; font-style: italic;">Basic Affinity</small>'; // Default
+    // --- Generate Primary Element Display ---
+    let primaryElementHTML = '<small style="color:#888; font-style: italic;">Basic Affinity</small>';
     if (concept.primaryElement && elementKeyToFullName && elementKeyToFullName[concept.primaryElement]) {
         const primaryKey = concept.primaryElement;
         const primaryFullName = elementKeyToFullName[primaryKey];
@@ -396,15 +398,51 @@ if (concept.visualHandle) {
         const primaryName = elementDetails[primaryFullName]?.name || primaryFullName;
         primaryElementHTML = `<span class="primary-element-display" style="color: ${primaryColor};" title="Primary Element: ${primaryName}">
                                  <i class="${primaryIcon}"></i> ${primaryName.split(':')[0]}
-                              </span>`; // Comment removed previously
+                              </span>`;
     }
 
-    let visualIconClass = "fas fa-question card-visual-placeholder"; let visualTitle = "Visual Placeholder"; if (artUnlocked) { visualIconClass = "fas fa-star card-visual-placeholder card-art-unlocked"; visualTitle = "Enhanced Art Placeholder"; } else if (concept.visualHandle) { visualIconClass = "fas fa-image card-visual-placeholder"; visualTitle = "Art Placeholder"; } const visualContent = `<i class="${visualIconClass}" title="${visualTitle}"></i>`;
+    // --- *** Generate Visual Content (IMAGE or ICON) *** ---
+    let visualContentHTML = '';
+    if (concept.visualHandle) {
+        // Use local extension const (ensure it's defined at the top of ui.js)
+        const imageExtension = UNLOCKED_ART_EXTENSION;
+        visualContentHTML = `
+            <img src="placeholder_art/${concept.visualHandle}${imageExtension}" alt="${concept.name} Art" class="card-art-image"
+                 onerror="this.style.display='none'; this.parentElement.querySelector('.card-visual-placeholder')?.style.display='block';">
+            <i class="fas fa-image card-visual-placeholder" style="display: none;" title="Art Placeholder (Load Failed)"></i>`;
+    } else {
+        visualContentHTML = `<i class="fas fa-question card-visual-placeholder" title="Visual Placeholder"></i>`;
+    }
+    // --- *** END Visual Content Generation *** ---
 
-    let actionButtonsHTML = ''; let hasActions = false; if (context === 'grimoire') { actionButtonsHTML = '<div class="card-actions">'; if (showSellButtonOnCard) { let discoveryValue = Config.CONCEPT_DISCOVERY_INSIGHT[concept.rarity] || Config.CONCEPT_DISCOVERY_INSIGHT.default; const sellValue = discoveryValue * Config.SELL_INSIGHT_FACTOR; actionButtonsHTML += `<button class="button tiny-button secondary-button sell-button card-sell-button" data-concept-id="${concept.id}" data-context="grimoire" title="Sell (${sellValue.toFixed(1)} Insight)"><i class="fas fa-dollar-sign"></i></button>`; hasActions = true; } if (showFocusButtonOnCard) { const slotsFull = State.getFocusedConcepts().size >= State.getFocusSlots() && !isFocused; const buttonClass = isFocused ? 'marked' : ''; const buttonIcon = isFocused ? 'fa-star' : 'fa-regular fa-star'; const buttonTitle = slotsFull ? `Focus Slots Full (${State.getFocusSlots()})` : (isFocused ? 'Remove Focus' : 'Mark as Focus'); actionButtonsHTML += `<button class="button tiny-button card-focus-button ${buttonClass}" data-concept-id="${concept.id}" title="${buttonTitle}" ${slotsFull ? 'disabled' : ''}><i class="fas ${buttonIcon}"></i></button>`; hasActions = true; } actionButtonsHTML += '</div>'; if (!hasActions) actionButtonsHTML = ''; }
+    // --- Generate Action Buttons (Grimoire Context Only) ---
+    let actionButtonsHTML = '';
+    const showFocusButtonOnCard = context === 'grimoire' && isDiscovered;
+    const showSellButtonOnCard = context === 'grimoire' && isDiscovered;
+    let hasActions = false;
 
-    // Build the card HTML
-     cardDiv.innerHTML = `
+    if (context === 'grimoire') {
+        actionButtonsHTML = '<div class="card-actions">';
+        if (showSellButtonOnCard) {
+            let discoveryValue = Config.CONCEPT_DISCOVERY_INSIGHT[concept.rarity] || Config.CONCEPT_DISCOVERY_INSIGHT.default;
+            const sellValue = discoveryValue * Config.SELL_INSIGHT_FACTOR;
+            actionButtonsHTML += `<button class="button tiny-button secondary-button sell-button card-sell-button" data-concept-id="${concept.id}" data-context="grimoire" title="Sell (${sellValue.toFixed(1)} Insight)"><i class="fas fa-dollar-sign"></i></button>`;
+            hasActions = true;
+        }
+        if (showFocusButtonOnCard) {
+            const slotsFull = State.getFocusedConcepts().size >= State.getFocusSlots() && !isFocused;
+            const buttonClass = isFocused ? 'marked' : '';
+            const buttonIcon = isFocused ? 'fa-star' : 'fa-regular fa-star';
+            const buttonTitle = slotsFull ? `Focus Slots Full (${State.getFocusSlots()})` : (isFocused ? 'Remove Focus' : 'Mark as Focus');
+            actionButtonsHTML += `<button class="button tiny-button card-focus-button ${buttonClass}" data-concept-id="${concept.id}" title="${buttonTitle}" ${slotsFull ? 'disabled' : ''}><i class="fas ${buttonIcon}"></i></button>`;
+            hasActions = true;
+        }
+        actionButtonsHTML += '</div>';
+        if (!hasActions) actionButtonsHTML = '';
+    }
+
+    // --- Assemble Final Card HTML ---
+    cardDiv.innerHTML = `
         <div class="card-header">
             <span class="card-type-icon-area"><i class="${cardTypeIcon}" title="${concept.cardType}"></i></span>
             <span class="card-name">${concept.name}</span>
@@ -413,15 +451,22 @@ if (concept.visualHandle) {
                  <span class="card-stamps">${focusStampHTML}${noteStampHTML}${loreStampHTML}</span>
             </span>
         </div>
-        <div class="card-visual">${visualContent}</div>
+        <div class="card-visual">${visualContentHTML}</div> {/* <-- USE visualContentHTML */}
         <div class="card-footer">
-            <div class="card-affinities">${primaryElementHTML}</div> 
+            <div class="card-affinities">${primaryElementHTML}</div>
             <p class="card-brief-desc">${concept.briefDescription || '...'}</p>
             ${actionButtonsHTML}
         </div>`;
 
-    if (context === 'research-output' || context === 'discovery-note') { cardDiv.title = `Click to view details for ${concept.name} (Not yet in Grimoire)`; cardDiv.classList.add('research-note-card'); }
-    if (isDiscovered) { cardDiv.classList.add(`category-${discoveredData.userCategory || 'uncategorized'}`); }
+    // --- Add Contextual Info/Classes ---
+    if (context === 'research-output' || context === 'discovery-note') {
+        cardDiv.title = `Click to view details for ${concept.name} (Not yet in Grimoire)`;
+        cardDiv.classList.add('research-note-card');
+    }
+    if (isDiscovered) {
+        cardDiv.classList.add(`category-${discoveredData.userCategory || 'uncategorized'}`);
+    }
+
     return cardDiv;
 }
 
