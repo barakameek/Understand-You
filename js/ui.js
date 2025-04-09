@@ -451,7 +451,7 @@ export function renderCard(concept, context = 'grimoire') {
                  <span class="card-stamps">${focusStampHTML}${noteStampHTML}${loreStampHTML}</span>
             </span>
         </div>
-        <div class="card-visual">${visualContentHTML}</div> {/* <-- USE visualContentHTML */}
+        <div class="card-visual">${visualContentHTML}</div> 
         <div class="card-footer">
             <div class="card-affinities">${primaryElementHTML}</div>
             <p class="card-brief-desc">${concept.briefDescription || '...'}</p>
