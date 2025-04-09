@@ -1,4 +1,4 @@
-// --- START OF main.js (Phase Call Removed, Corrected Full File) ---
+// --- START OF FULL main.js (Phase Logic Removed, Corrected Full File) ---
 
 // js/main.js - Application Entry Point, Event Listeners, Initialization
 import * as State from './state.js';
@@ -46,7 +46,7 @@ function initializeApp() {
         if (loadBtn) loadBtn.classList.add('hidden'); // Hide load button after successful load
     } else {
         console.log("No valid saved session. Starting fresh.");
-        UI.setupInitialUI();
+        UI.setupInitialUI(); // Setup for a fresh start (Welcome screen)
         if (localStorage.getItem(Config.SAVE_KEY)) { // Check if there was invalid data
              UI.showTemporaryMessage("Error loading previous session. Starting fresh.", 4000);
              localStorage.removeItem(Config.SAVE_KEY);
@@ -153,7 +153,7 @@ function attachEventListeners() {
          // ** Drag Start Listener for Cards **
          grimoireContent.addEventListener('dragstart', (event) => {
              const card = event.target.closest('.concept-card');
-             // Only allow dragging if card exists and is draggable (always true post-Q now)
+             // Only allow dragging if card exists and is draggable
              if (card && card.draggable) {
                  event.dataTransfer.setData('text/plain', card.dataset.conceptId);
                  event.dataTransfer.effectAllowed = 'move';
