@@ -41,7 +41,7 @@ export const CONCEPT_DISCOVERY_INSIGHT = {
     rare: 8.0,
     default: 2.0
 };
-
+import * as Config from './config.js';
 // --- ONBOARDING PHASE CONSTANT REMOVED ---
 
 console.log("config.js loaded.");
