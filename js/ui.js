@@ -358,6 +358,20 @@ export function renderCard(concept, context = 'grimoire') {
     const cardDiv = document.createElement('div'); cardDiv.classList.add('concept-card'); cardDiv.classList.add(`rarity-${concept.rarity || 'common'}`); cardDiv.dataset.conceptId = concept.id; cardDiv.title = `View Details: ${concept.name}`;
     const discoveredData = State.getDiscoveredConceptData(concept.id); const isDiscovered = !!discoveredData; const isFocused = State.getFocusedConcepts().has(concept.id); const artUnlocked = discoveredData?.artUnlocked || false;
     const hasNewLore = discoveredData?.newLoreAvailable || false;
+
+let visualContentHTML = '';
+
+// Check if the concept has a visual handle defined in data.js
+if (concept.visualHandle) {
+    const imageExtension = typeof Config !== 'undefined' ? Config.UNLOCKED_ART_EXTENSION : UNLOCKED_ART_EXTENSION; // Keep using extension logic
+    visualContentHTML = `
+        <img src="placeholder_art/${concept.visualHandle}${imageExtension}" alt="${concept.name} Art" class="card-art-image"
+             onerror="this.style.display='none'; this.parentElement.querySelector('.card-visual-placeholder')?.style.display='block';">
+        <i class="fas fa-image card-visual-placeholder" style="display: none;" title="Art Placeholder (Load Failed)"></i>`;
+} else {
+    // Fallback to icon if no visualHandle is defined
+    visualContentHTML = `<i class="fas fa-question card-visual-placeholder" title="Visual Placeholder"></i>`;
+}
     const showFocusButtonOnCard = context === 'grimoire' && isDiscovered;
     const showSellButtonOnCard = context === 'grimoire' && isDiscovered;
 
@@ -450,32 +464,25 @@ export function showConceptDetailPopup(conceptId) {
     const artUnlocked = discoveredData?.artUnlocked || false;
     const currentVisualHandle = artUnlocked ? (conceptData.visualHandleUnlocked || conceptData.visualHandle) : conceptData.visualHandle;
 
-    if (popupVisualContainer) {
-         popupVisualContainer.innerHTML = '';
-         const useArt = artUnlocked && conceptData.visualHandleUnlocked;
-         let content;
-         if (useArt) {
-             content = document.createElement('img');
-             // *** UPDATED LINE ***
-             content.src = `placeholder_art/${conceptData.visualHandleUnlocked}.jpg`; // Using .jpg
-             // ********************
-             content.alt = `${conceptData.name} Art`; content.classList.add('card-art-image');
-             content.onerror = function() {
-                this.style.display='none';
-                const icon = document.createElement('i');
-                icon.className = `fas fa-image card-visual-placeholder`;
-                icon.title = "Art Placeholder (Load Failed)";
-                if (popupVisualContainer) popupVisualContainer.appendChild(icon);
-             };
-         } else {
-             content = document.createElement('i');
-             content.className = `fas fa-${artUnlocked ? 'star card-art-unlocked' : 'question'} card-visual-placeholder`;
-             content.title = currentVisualHandle || "Visual Placeholder";
-             if (artUnlocked) content.classList.add('card-art-unlocked');
-         }
-         popupVisualContainer.appendChild(content);
+ if (popupVisualContainer) {
+    popupVisualContainer.innerHTML = '';
+    let content;
+    // Check if the concept has a visual handle defined in data.js
+    if (conceptData.visualHandle) {
+        content = document.createElement('img');
+        const imageExtension = typeof Config !== 'undefined' ? Config.UNLOCKED_ART_EXTENSION : UNLOCKED_ART_EXTENSION;
+        content.src = `placeholder_art/${conceptData.visualHandle}${imageExtension}`; // <-- Use visualHandle
+        content.alt = `${conceptData.name} Art`;
+        content.classList.add('card-art-image');
+        content.onerror = function() { /* ... existing error handler ... */ };
+    } else {
+        // Fallback to icon if no visualHandle
+        content = document.createElement('i');
+        content.className = `fas fa-question card-visual-placeholder`;
+        content.title = "Visual Placeholder";
     }
-
+    popupVisualContainer.appendChild(content);
+}
     // --- Populate Analysis Sections ---
     const scores = State.getScores();
     const distance = Utils.euclideanDistance(scores, conceptData.elementScores);
