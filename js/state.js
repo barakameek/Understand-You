@@ -1,3 +1,4 @@
+
 // js/state.js - Manages Application State and Persistence
 import * as Config from './config.js';
 import { elementNames, concepts } from '../data.js';
