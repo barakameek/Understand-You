@@ -594,7 +594,7 @@ lore: [
 },
 // ID 87: Light Bondage (Cuffs/Silk)
 {
-id: 87, name: "Light Bondage (Cuffs/Silk)", cardType: "Practice/Kink", visualHandle: "uncommon_bond_light.jpg", primaryElement: "S", elementScores: { A: 5, I: 5, S: 6, P: 6, C: 4, R: 5 }, briefDescription: "Simple, playful tying.", detailedDescription: "Using easy restraints like handcuffs (maybe fuzzy ones!), silk scarves...", relatedIds: [16, 17, 5, 93], rarity: 'uncommon', keywords: ['Bondage', 'Restriction', 'Playful', 'Sensation', 'Power', 'Cuffs', 'Ties'],
+id: 87, name: "Light Bondage (Cuffs/Silk)", cardType: "Practice/Kink", visualHandle: "uncommon_bond_light_art.jpg", primaryElement: "S", elementScores: { A: 5, I: 5, S: 6, P: 6, C: 4, R: 5 }, briefDescription: "Simple, playful tying.", detailedDescription: "Using easy restraints like handcuffs (maybe fuzzy ones!), silk scarves...", relatedIds: [16, 17, 5, 93], rarity: 'uncommon', keywords: ['Bondage', 'Restriction', 'Playful', 'Sensation', 'Power', 'Cuffs', 'Ties'],
 lore: [
 { level: 1, insightCost: 3, text: "Symbolic Surrender: Even light restraint signals a shift in power and allows for focused sensation.", unlocked: false },
 { level: 2, insightCost: 7, text: "Aesthetic Element: Often chosen for visual appeal as much as physical sensation.", unlocked: false }
