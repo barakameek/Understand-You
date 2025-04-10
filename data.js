@@ -149,7 +149,7 @@ const concepts = [ // Ensure commas after lore arrays
     // --- Uncommon Concepts ---
 
 {
-id: 4, name: "Dominance (Psychological)", cardType: "Identity/Role", visualHandle: "uncommon_dom_art.jpg", primaryElement: "I", elementScores: { A: 6, I: 9, S: 5, P: 8, C: 7, R: 6 }, briefDescription: "Leading with your mind.", detailedDescription: "Being the boss, but mentally! This involves taking charge of the vibe, maybe giving instructions, setting rules, making decisions for your partner, or guiding their whole experience. It's about that feeling of control.", relatedIds: [5, 6, 11, 30, 38, 81, 89, 90, 100, 104, 109, 123], rarity: 'uncommon', keywords: ['Control', 'Power', 'Leading', 'Psychological', 'Rules', 'Structure', 'Dominance'],
+id: 4, name: "Dominance (Psychological)", cardType: "Identity/Role", visualHandle: "uncommon_dom_art", primaryElement: "I", elementScores: { A: 6, I: 9, S: 5, P: 8, C: 7, R: 6 }, briefDescription: "Leading with your mind.", detailedDescription: "Being the boss, but mentally! This involves taking charge of the vibe, maybe giving instructions, setting rules, making decisions for your partner, or guiding their whole experience. It's about that feeling of control.", relatedIds: [5, 6, 11, 30, 38, 81, 89, 90, 100, 104, 109, 123], rarity: 'uncommon', keywords: ['Control', 'Power', 'Leading', 'Psychological', 'Rules', 'Structure', 'Dominance'],
 lore: [
 { level: 1, insightCost: 3, text: "Fragment: The mind, a willing instrument... to play upon or be played.", unlocked: false },
 { level: 2, insightCost: 7, text: "Alchemist's Query: Is true control about unbreakable will, or about understanding the strings of desire?", unlocked: false }
@@ -157,7 +157,7 @@ lore: [
 },
 // Example for ID 5: Submission (Psychological) - Already provided, included for completeness
 {
-id: 5, name: "Submission (Psychological)", cardType: "Identity/Role", visualHandle: "uncommon_sub_art.jpg", primaryElement: "I", elementScores: { A: 6, I: 1, S: 5, P: 8, C: 5, R: 6 }, briefDescription: "Happily letting go (mentally).", detailedDescription: "Finding joy or fulfillment in handing over the reins, mentally speaking. This can look like following directions, serving, trusting someone else's decisions, or just enjoying the feeling of letting go of control.", relatedIds: [4, 6, 17, 10, 12, 37, 39, 58, 61, 63, 87, 91, 98, 99, 109, 119, 123], rarity: 'uncommon', keywords: ['Surrender', 'Power', 'Following', 'Psychological', 'Obedience', 'Trust', 'Vulnerability', 'Submission'],
+id: 5, name: "Submission (Psychological)", cardType: "Identity/Role", visualHandle: "uncommon_sub_art", primaryElement: "I", elementScores: { A: 6, I: 1, S: 5, P: 8, C: 5, R: 6 }, briefDescription: "Happily letting go (mentally).", detailedDescription: "Finding joy or fulfillment in handing over the reins, mentally speaking. This can look like following directions, serving, trusting someone else's decisions, or just enjoying the feeling of letting go of control.", relatedIds: [4, 6, 17, 10, 12, 37, 39, 58, 61, 63, 87, 91, 98, 99, 109, 119, 123], rarity: 'uncommon', keywords: ['Surrender', 'Power', 'Following', 'Psychological', 'Obedience', 'Trust', 'Vulnerability', 'Submission'],
 lore: [
 { level: 1, insightCost: 3, text: "Reflection: In yielding, sometimes a different kind of strength is found.", unlocked: false },
 { level: 2, insightCost: 7, text: "Observation: Trust is the currency here. It must be earned before it can be spent on surrender.", unlocked: false }
@@ -165,7 +165,7 @@ lore: [
 },
 // Example for ID 6: Switching - Already provided, included for completeness
 {
-id: 6, name: "Switching", cardType: "Identity/Role", visualHandle: "uncommon_switch.jpg", primaryElement: "I", elementScores: { A: 6, I: 5, S: 6, P: 7, C: 6, R: 6 }, briefDescription: "Playing both sides of the fence.", detailedDescription: "Why choose? Switches love flipping between leading (Dominant) and following (submissive) roles or energies, enjoying the fun and flexibility of both perspectives.", relatedIds: [4, 5], rarity: 'uncommon', keywords: ['Fluidity', 'Power', 'Interaction', 'Versatility', 'Role', 'Switch'],
+id: 6, name: "Switching", cardType: "Identity/Role", visualHandle: "uncommon_switch", primaryElement: "I", elementScores: { A: 6, I: 5, S: 6, P: 7, C: 6, R: 6 }, briefDescription: "Playing both sides of the fence.", detailedDescription: "Why choose? Switches love flipping between leading (Dominant) and following (submissive) roles or energies, enjoying the fun and flexibility of both perspectives.", relatedIds: [4, 5], rarity: 'uncommon', keywords: ['Fluidity', 'Power', 'Interaction', 'Versatility', 'Role', 'Switch'],
 lore: [
 { level: 1, insightCost: 3, text: "Maxim: 'Know both sides of the coin to understand its true value.'", unlocked: false },
 { level: 2, insightCost: 7, text: "Dynamic Note: The shift itself can be a source of energy, a playful disruption of expectation.", unlocked: false }
@@ -173,7 +173,7 @@ lore: [
 },
 // Example for ID 7: Impact Play (Light) - Already provided, included for completeness
 {
-id: 7, name: "Impact Play (Light)", cardType: "Practice/Kink", visualHandle: "uncommon_impact_light_art.jpg", primaryElement: "S", elementScores: { A: 5, I: 6, S: 6, P: 5, C: 4, R: 5 }, briefDescription: "Playful taps and swats.", detailedDescription: "Think spanking, light slapping... More about fun sensation than serious pain.", relatedIds: [8, 9, 4, 5, 40, 57, 93, 96], rarity: 'uncommon', keywords: ['Impact', 'Sensation', 'Physical', 'Playful', 'Rhythm', 'Spanking'],
+id: 7, name: "Impact Play (Light)", cardType: "Practice/Kink", visualHandle: "uncommon_impact_light_art", primaryElement: "S", elementScores: { A: 5, I: 6, S: 6, P: 5, C: 4, R: 5 }, briefDescription: "Playful taps and swats.", detailedDescription: "Think spanking, light slapping... More about fun sensation than serious pain.", relatedIds: [8, 9, 4, 5, 40, 57, 93, 96], rarity: 'uncommon', keywords: ['Impact', 'Sensation', 'Physical', 'Playful', 'Rhythm', 'Spanking'],
 lore: [
 { level: 1, insightCost: 3, text: "Sensory Note: Sometimes a sharp sting is just the wake-up call the skin needs.", unlocked: false },
 { level: 2, insightCost: 7, text: "Rhythm Focus: Beyond sensation, the cadence of light impact can be hypnotic or grounding.", unlocked: false }
@@ -181,7 +181,7 @@ lore: [
 },
 // ID 10: Service Submission
 {
-id: 10, name: "Service Submission", cardType: "Psychological/Goal", visualHandle: "uncommon_service.jpg", primaryElement: "I", elementScores: { A: 5, I: 2, S: 4, P: 7, C: 4, R: 6 }, briefDescription: "Joy in taking care of someone.", detailedDescription: "A flavor of submission where the big thrill comes from doing things for your partner...", relatedIds: [5, 4, 11, 58, 61, 98, 109], rarity: 'uncommon', keywords: ['Service', 'Submission', 'Psychological', 'Devotion', 'Power', 'Care'],
+id: 10, name: "Service Submission", cardType: "Psychological/Goal", visualHandle: "uncommon_service", primaryElement: "I", elementScores: { A: 5, I: 2, S: 4, P: 7, C: 4, R: 6 }, briefDescription: "Joy in taking care of someone.", detailedDescription: "A flavor of submission where the big thrill comes from doing things for your partner...", relatedIds: [5, 4, 11, 58, 61, 98, 109], rarity: 'uncommon', keywords: ['Service', 'Submission', 'Psychological', 'Devotion', 'Power', 'Care'],
 lore: [
 { level: 1, insightCost: 3, text: "Devotional Echo: 'My purpose is found in anticipating your need.'", unlocked: false },
 { level: 2, insightCost: 7, text: "Observation: The act of service elevates the Dominant while simultaneously grounding the Submissive in purpose.", unlocked: false }
@@ -189,7 +189,7 @@ lore: [
 },
 // ID 13: Role-Playing (Scenario)
 {
-id: 13, name: "Role-Playing (Scenario)", cardType: "Practice/Kink", visualHandle: "uncommon_roleplay_art.jpg", primaryElement: "C", elementScores: { A: 6, I: 6, S: 5, P: 6, C: 8, R: 6 }, briefDescription: "Playing characters in scenes.", detailedDescription: "Let's pretend! Adopting specific roles...", relatedIds: [14, 30, 21, 39, 64, 92, 98, 101, 117, 121, 43], rarity: 'uncommon', keywords: ['Role-Play', 'Cognitive', 'Fantasy', 'Scenario', 'Character', 'Pretend'],
+id: 13, name: "Role-Playing (Scenario)", cardType: "Practice/Kink", visualHandle: "uncommon_roleplay_art", primaryElement: "C", elementScores: { A: 6, I: 6, S: 5, P: 6, C: 8, R: 6 }, briefDescription: "Playing characters in scenes.", detailedDescription: "Let's pretend! Adopting specific roles...", relatedIds: [14, 30, 21, 39, 64, 92, 98, 101, 117, 121, 43], rarity: 'uncommon', keywords: ['Role-Play', 'Cognitive', 'Fantasy', 'Scenario', 'Character', 'Pretend'],
 lore: [
 { level: 1, insightCost: 3, text: "Actor's Insight: Stepping into a role allows exploration of desires or facets of self otherwise kept hidden.", unlocked: false },
 { level: 2, insightCost: 7, text: "Narrative Power: The chosen scenario dictates the rules of engagement, creating a contained world for play.", unlocked: false }
@@ -197,7 +197,7 @@ lore: [
 },
 // ID 18: Exhibitionism
 {
-id: 18, name: "Exhibitionism", cardType: "Identity/Role", visualHandle: "uncommon_exhibit.jpg", primaryElement: "I", elementScores: { A: 6, I: 7, S: 5, P: 7, C: 6, R: 5 }, briefDescription: "Loving an audience.", detailedDescription: "Getting off on being watched! Arousal comes from knowing others are seeing you...", relatedIds: [19, 12, 34, 50, 78, 90, 91, 105, 33], rarity: 'uncommon', keywords: ['Performance', 'Visual', 'Public', 'Arousal', 'Validation', 'Exhibitionist'],
+id: 18, name: "Exhibitionism", cardType: "Identity/Role", visualHandle: "uncommon_exhibit", primaryElement: "I", elementScores: { A: 6, I: 7, S: 5, P: 7, C: 6, R: 5 }, briefDescription: "Loving an audience.", detailedDescription: "Getting off on being watched! Arousal comes from knowing others are seeing you...", relatedIds: [19, 12, 34, 50, 78, 90, 91, 105, 33], rarity: 'uncommon', keywords: ['Performance', 'Visual', 'Public', 'Arousal', 'Validation', 'Exhibitionist'],
 lore: [
 { level: 1, insightCost: 3, text: "Performer's Thrill: The gaze of the other transforms the act, adding a layer of vulnerability and excitement.", unlocked: false },
 { level: 2, insightCost: 7, text: "Mirror Effect: Seeing oneself being seen can amplify self-awareness and intensify the experience.", unlocked: false }
@@ -205,7 +205,7 @@ lore: [
 },
 // ID 19: Voyeurism
 {
-id: 19, name: "Voyeurism", cardType: "Identity/Role", visualHandle: "uncommon_voyeur.jpg", primaryElement: "A", elementScores: { A: 7, I: 2, S: 3, P: 6, C: 5, R: 3 }, briefDescription: "Loving the view.", detailedDescription: "Getting turned on by watching others get it on...", relatedIds: [18, 12, 34, 105, 118, 33], rarity: 'uncommon', keywords: ['Observation', 'Visual', 'Arousal', 'Distance', 'Secret', 'Watching', 'Voyeur'],
+id: 19, name: "Voyeurism", cardType: "Identity/Role", visualHandle: "uncommon_voyeur", primaryElement: "A", elementScores: { A: 7, I: 2, S: 3, P: 6, C: 5, R: 3 }, briefDescription: "Loving the view.", detailedDescription: "Getting turned on by watching others get it on...", relatedIds: [18, 12, 34, 105, 118, 33], rarity: 'uncommon', keywords: ['Observation', 'Visual', 'Arousal', 'Distance', 'Secret', 'Watching', 'Voyeur'],
 lore: [
 { level: 1, insightCost: 3, text: "Observer's Paradox: There's a unique charge in witnessing intimacy from a distance, unseen and uninvolved.", unlocked: false },
 { level: 2, insightCost: 7, text: "Power in Looking: The act of watching, especially if secret, holds its own subtle form of power and control.", unlocked: false }
@@ -213,7 +213,7 @@ lore: [
 },
 // ID 26: Open Relationship
 {
-id: 26, name: "Open Relationship", cardType: "Relationship Style", visualHandle: "uncommon_openrel.jpg", primaryElement: "R", elementScores: { A: 6, I: 5, S: 6, P: 5, C: 5, R: 7 }, briefDescription: "Main couple, outside fun allowed.", detailedDescription: "Usually a primary couple agrees that one or both partners can have sexual...", relatedIds: [24, 25, 27, 35], rarity: 'uncommon', keywords: ['Non-Monogamy', 'Structure', 'Rules', 'Openness', 'Dyad', 'CNM'],
+id: 26, name: "Open Relationship", cardType: "Relationship Style", visualHandle: "uncommon_openrel", primaryElement: "R", elementScores: { A: 6, I: 5, S: 6, P: 5, C: 5, R: 7 }, briefDescription: "Main couple, outside fun allowed.", detailedDescription: "Usually a primary couple agrees that one or both partners can have sexual...", relatedIds: [24, 25, 27, 35], rarity: 'uncommon', keywords: ['Non-Monogamy', 'Structure', 'Rules', 'Openness', 'Dyad', 'CNM'],
 lore: [
 { level: 1, insightCost: 3, text: "Agreement Atlas: Success hinges on clear communication and mutually agreed-upon boundaries.", unlocked: false },
 { level: 2, insightCost: 7, text: "Emotional Equation: Navigating feelings like jealousy and compersion becomes an active part of the relationship dynamic.", unlocked: false }
@@ -221,7 +221,7 @@ lore: [
 },
 // ID 28: Asexuality
 {
-id: 28, name: "Asexuality", cardType: "Orientation", visualHandle: "uncommon_ace.jpg", primaryElement: "A", elementScores: { A: 0, I: 3, S: 2, P: 3, C: 3, R: 4 }, briefDescription: "Little or no sexual pull.", detailedDescription: "Feeling little to no sexual attraction towards anyone...", relatedIds: [29, 36], rarity: 'uncommon', keywords: ['Asexuality', 'Orientation', 'Attraction', 'Spectrum', 'Ace'],
+id: 28, name: "Asexuality", cardType: "Orientation", visualHandle: "uncommon_ace", primaryElement: "A", elementScores: { A: 0, I: 3, S: 2, P: 3, C: 3, R: 4 }, briefDescription: "Little or no sexual pull.", detailedDescription: "Feeling little to no sexual attraction towards anyone...", relatedIds: [29, 36], rarity: 'uncommon', keywords: ['Asexuality', 'Orientation', 'Attraction', 'Spectrum', 'Ace'],
 lore: [
 { level: 1, insightCost: 3, text: "Spectrum Study: Asexuality isn't a monolith; it encompasses a wide range of experiences with attraction and desire.", unlocked: false },
 { level: 2, insightCost: 7, text: "Beyond the Binary: Intimacy and connection can flourish profoundly, even without the presence of sexual attraction.", unlocked: false }
@@ -229,7 +229,7 @@ lore: [
 },
 // ID 29: Demisexuality
 {
-id: 29, name: "Demisexuality", cardType: "Orientation", visualHandle: "uncommon_demi.jpg", primaryElement: "A", elementScores: { A: 3, I: 4, S: 4, P: 8, C: 5, R: 5 }, briefDescription: "Connection first, attraction later.", detailedDescription: "The spark only ignites after a strong emotional bond...", relatedIds: [15, 28, 22, 14], rarity: 'uncommon', keywords: ['Demisexuality', 'Attraction', 'Connection', 'Emotion', 'Intimacy', 'Bond'],
+id: 29, name: "Demisexuality", cardType: "Orientation", visualHandle: "uncommon_demi", primaryElement: "A", elementScores: { A: 3, I: 4, S: 4, P: 8, C: 5, R: 5 }, briefDescription: "Connection first, attraction later.", detailedDescription: "The spark only ignites after a strong emotional bond...", relatedIds: [15, 28, 22, 14], rarity: 'uncommon', keywords: ['Demisexuality', 'Attraction', 'Connection', 'Emotion', 'Intimacy', 'Bond'],
 lore: [
 { level: 1, insightCost: 3, text: "Heart's Compass: For the Demisexual, emotional intimacy is the true north guiding attraction.", unlocked: false },
 { level: 2, insightCost: 7, text: "Time and Trust: Building the necessary bond often requires time, patience, and mutual vulnerability.", unlocked: false }
@@ -237,7 +237,7 @@ lore: [
 },
 // ID 34: Group Sex
 {
-id: 34, name: "Group Sex", cardType: "Practice/Kink", visualHandle: "uncommon_group.jpg", primaryElement: "R", elementScores: { A: 6, I: 6, S: 7, P: 5, C: 4, R: 8 }, briefDescription: "More than two's company!", detailedDescription: "Sexual fun involving three or more people at once...", relatedIds: [18, 19, 25, 26, 27, 35, 65, 105], rarity: 'uncommon', keywords: ['Group', 'Multiple Partners', 'Interaction', 'Shared Experience', 'Threesome', 'Orgy'],
+id: 34, name: "Group Sex", cardType: "Practice/Kink", visualHandle: "uncommon_group", primaryElement: "R", elementScores: { A: 6, I: 6, S: 7, P: 5, C: 4, R: 8 }, briefDescription: "More than two's company!", detailedDescription: "Sexual fun involving three or more people at once...", relatedIds: [18, 19, 25, 26, 27, 35, 65, 105], rarity: 'uncommon', keywords: ['Group', 'Multiple Partners', 'Interaction', 'Shared Experience', 'Threesome', 'Orgy'],
 lore: [
 { level: 1, insightCost: 3, text: "Network Effect: The energy in group play can be exponentially different, a complex web of observation and interaction.", unlocked: false },
 { level: 2, insightCost: 7, text: "Logistical Labyrinth: Communication, consent, and managing multiple dynamics simultaneously require significant skill and awareness.", unlocked: false }
@@ -245,7 +245,7 @@ lore: [
 },
 // ID 35: Swinging
 {
-id: 35, name: "Swinging", cardType: "Relationship Style", visualHandle: "uncommon_swing.jpg", primaryElement: "R", elementScores: { A: 5, I: 5, S: 6, P: 4, C: 4, R: 7 }, briefDescription: "Couples playing with others.", detailedDescription: "A scene where committed couples agree to swap partners...", relatedIds: [26, 24, 34], rarity: 'uncommon', keywords: ['Non-Monogamy', 'Recreation', 'Couple', 'Group', 'Social', 'Swinger'],
+id: 35, name: "Swinging", cardType: "Relationship Style", visualHandle: "uncommon_swing", primaryElement: "R", elementScores: { A: 5, I: 5, S: 6, P: 4, C: 4, R: 7 }, briefDescription: "Couples playing with others.", detailedDescription: "A scene where committed couples agree to swap partners...", relatedIds: [26, 24, 34], rarity: 'uncommon', keywords: ['Non-Monogamy', 'Recreation', 'Couple', 'Group', 'Social', 'Swinger'],
 lore: [
 { level: 1, insightCost: 3, text: "Social Spice: Often focused on recreational encounters within a specific community or event setting.", unlocked: false },
 { level: 2, insightCost: 7, text: "Couple's Contract: The primary couple's bond often remains central, with clear rules about outside interactions.", unlocked: false }
@@ -253,7 +253,7 @@ lore: [
 },
 // ID 36: Aromanticism
 {
-id: 36, name: "Aromanticism", cardType: "Orientation", visualHandle: "uncommon_aro.jpg", primaryElement: "A", elementScores: { A: 2, I: 3, S: 3, P: 4, C: 4, R: 3 }, briefDescription: "Romance? No thanks.", detailedDescription: "Feeling little or no romantic attraction...", relatedIds: [28, 27, 59], rarity: 'uncommon', keywords: ['Aromanticism', 'Orientation', 'Romance', 'Spectrum', 'Aro'],
+id: 36, name: "Aromanticism", cardType: "Orientation", visualHandle: "uncommon_aro", primaryElement: "A", elementScores: { A: 2, I: 3, S: 3, P: 4, C: 4, R: 3 }, briefDescription: "Romance? No thanks.", detailedDescription: "Feeling little or no romantic attraction...", relatedIds: [28, 27, 59], rarity: 'uncommon', keywords: ['Aromanticism', 'Orientation', 'Romance', 'Spectrum', 'Aro'],
 lore: [
 { level: 1, insightCost: 3, text: "Diverse Bonds: Strong, committed relationships (like QPRs) can exist entirely outside romantic frameworks.", unlocked: false },
 { level: 2, insightCost: 7, text: "Attraction Alignment: Aromanticism can exist alongside any sexual orientation (or lack thereof).", unlocked: false }
@@ -261,7 +261,7 @@ lore: [
 },
 // ID 37: Sensory Deprivation (Light)
 {
-id: 37, name: "Sensory Deprivation (Light)", cardType: "Practice/Kink", visualHandle: "uncommon_sensdep.jpg", primaryElement: "S", elementScores: { A: 4, I: 3, S: 7, P: 6, C: 5, R: 5 }, briefDescription: "Turning down the senses (blindfolds!).", detailedDescription: "Using things like blindfolds, maybe earplugs, to temporarily block out sight or sound...", relatedIds: [9, 17, 5, 57, 44, 86, 124], rarity: 'uncommon', keywords: ['Sensory Deprivation', 'Sensation', 'Focus', 'Vulnerability', 'Psychological', 'Blindfold'],
+id: 37, name: "Sensory Deprivation (Light)", cardType: "Practice/Kink", visualHandle: "uncommon_sensdep", primaryElement: "S", elementScores: { A: 4, I: 3, S: 7, P: 6, C: 5, R: 5 }, briefDescription: "Turning down the senses (blindfolds!).", detailedDescription: "Using things like blindfolds, maybe earplugs, to temporarily block out sight or sound...", relatedIds: [9, 17, 5, 57, 44, 86, 124], rarity: 'uncommon', keywords: ['Sensory Deprivation', 'Sensation', 'Focus', 'Vulnerability', 'Psychological', 'Blindfold'],
 lore: [
 { level: 1, insightCost: 3, text: "Inner Focus: Removing external stimuli can turn awareness inward, heightening internal sensations and thoughts.", unlocked: false },
 { level: 2, insightCost: 7, text: "Trust Amplified: Relying on a partner while deprived of a key sense significantly deepens the required level of trust.", unlocked: false }
@@ -269,7 +269,7 @@ lore: [
 },
 // ID 39: Age Play
 {
-id: 39, name: "Age Play", cardType: "Practice/Kink", visualHandle: "uncommon_ageplay.jpg", primaryElement: "C", elementScores: { A: 5, I: 6, S: 4, P: 7, C: 8, R: 6 }, briefDescription: "Playing pretend with age roles.", detailedDescription: "Consensual role-play where people act out different ages...", relatedIds: [13, 4, 5, 10, 58, 92, 98], rarity: 'uncommon', keywords: ['Age Play', 'Role-Play', 'Cognitive', 'Psychological', 'Dynamic', 'CGL'],
+id: 39, name: "Age Play", cardType: "Practice/Kink", visualHandle: "uncommon_ageplay", primaryElement: "C", elementScores: { A: 5, I: 6, S: 4, P: 7, C: 8, R: 6 }, briefDescription: "Playing pretend with age roles.", detailedDescription: "Consensual role-play where people act out different ages...", relatedIds: [13, 4, 5, 10, 58, 92, 98], rarity: 'uncommon', keywords: ['Age Play', 'Role-Play', 'Cognitive', 'Psychological', 'Dynamic', 'CGL'],
 lore: [
 { level: 1, insightCost: 3, text: "Persona Portal: Age play can be a gateway to exploring different facets of personality, needs, or desired dynamics.", unlocked: false },
 { level: 2, insightCost: 7, text: "Safety Note: Clear distinctions between the play dynamic and real-life ages/responsibilities are crucial for ethical engagement.", unlocked: false }
@@ -277,7 +277,7 @@ lore: [
 },
 // ID 40: Primal Play
 {
-id: 40, name: "Primal Play", cardType: "Practice/Kink", visualHandle: "uncommon_primal_art.jpg", primaryElement: "I", elementScores: { A: 5, I: 8, S: 7, P: 6, C: 3, R: 5 }, briefDescription: "Getting wild and instinctive.", detailedDescription: "Tapping into that raw, animal energy! Think less talk, more action...", relatedIds: [4, 5, 9, 7, 8, 97], rarity: 'uncommon', keywords: ['Primal', 'Instinct', 'Interaction', 'Physical', 'Animalistic', 'Non-verbal'],
+id: 40, name: "Primal Play", cardType: "Practice/Kink", visualHandle: "uncommon_primal_art", primaryElement: "I", elementScores: { A: 5, I: 8, S: 7, P: 6, C: 3, R: 5 }, briefDescription: "Getting wild and instinctive.", detailedDescription: "Tapping into that raw, animal energy! Think less talk, more action...", relatedIds: [4, 5, 9, 7, 8, 97], rarity: 'uncommon', keywords: ['Primal', 'Instinct', 'Interaction', 'Physical', 'Animalistic', 'Non-verbal'],
 lore: [
 { level: 1, insightCost: 3, text: "Body Language: Communication shifts from verbal to visceral – growls, nips, chases become the dialogue.", unlocked: false },
 { level: 2, insightCost: 7, text: "Cathartic Release: Can be a powerful way to bypass the thinking mind and release pent-up energy or aggression playfully.", unlocked: false }
@@ -285,7 +285,7 @@ lore: [
 },
 // ID 57: Sensory Enhancement
 {
-id: 57, name: "Sensory Enhancement", cardType: "Practice/Kink", visualHandle: "uncommon_sensenh.jpg", primaryElement: "S", elementScores: { A: 4, I: 5, S: 7, P: 5, C: 4, R: 5}, briefDescription: "Turning up the volume on feelings.", detailedDescription: "Using tools or tricks to make specific sensations pop!...", relatedIds: [2, 37, 7, 9, 86, 88, 102, 112], rarity: 'uncommon', keywords: ['Sensation', 'Focus', 'Enhancement', 'Physical', 'Tools', ' Amplify'],
+id: 57, name: "Sensory Enhancement", cardType: "Practice/Kink", visualHandle: "uncommon_sensenh", primaryElement: "S", elementScores: { A: 4, I: 5, S: 7, P: 5, C: 4, R: 5}, briefDescription: "Turning up the volume on feelings.", detailedDescription: "Using tools or tricks to make specific sensations pop!...", relatedIds: [2, 37, 7, 9, 86, 88, 102, 112], rarity: 'uncommon', keywords: ['Sensation', 'Focus', 'Enhancement', 'Physical', 'Tools', ' Amplify'],
 lore: [
 { level: 1, insightCost: 3, text: "Focus Funnel: By amplifying one sensation (e.g., vibration), attention is naturally drawn, creating intense focus.", unlocked: false },
 { level: 2, insightCost: 7, text: "Contrast Play: Often used alongside sensory deprivation to make the reintroduction of sensation incredibly vivid.", unlocked: false }
@@ -293,7 +293,7 @@ lore: [
 },
 // ID 58: Caregiver/Little Dynamics
 {
-id: 58, name: "Caregiver/Little Dynamics", cardType: "Psychological/Goal", visualHandle: "uncommon_cgl.jpeg", primaryElement: "P", elementScores: { A: 5, I: 7, S: 4, P: 8, C: 6, R: 7 }, briefDescription: "Nurturing/dependent role-play.", detailedDescription: "A dynamic where one person takes on a nurturing, guiding Caregiver role...", relatedIds: [39, 4, 5, 10, 15, 82], rarity: 'uncommon', keywords: ['Caregiver', 'Nurturing', 'Dependence', 'Role-Play', 'Psychological', 'Vulnerability', 'CGL', 'DDlg', 'MDlb'],
+id: 58, name: "Caregiver/Little Dynamics", cardType: "Psychological/Goal", visualHandle: "uncommon_cglg", primaryElement: "P", elementScores: { A: 5, I: 7, S: 4, P: 8, C: 6, R: 7 }, briefDescription: "Nurturing/dependent role-play.", detailedDescription: "A dynamic where one person takes on a nurturing, guiding Caregiver role...", relatedIds: [39, 4, 5, 10, 15, 82], rarity: 'uncommon', keywords: ['Caregiver', 'Nurturing', 'Dependence', 'Role-Play', 'Psychological', 'Vulnerability', 'CGL', 'DDlg', 'MDlb'],
 lore: [
 { level: 1, insightCost: 3, text: "Core Need: Often meets deep needs for safety, structure, care, or the freedom from adult responsibilities.", unlocked: false },
 { level: 2, insightCost: 7, text: "Beyond Stereotypes: The specific expression varies greatly – can be strict, playful, therapeutic, or simply comforting.", unlocked: false }
@@ -301,7 +301,7 @@ lore: [
 },
 // ID 59: Platonic Partnership / QPR
 {
-id: 59, name: "Platonic Partnership / QPR", cardType: "Relationship Style", visualHandle: "uncommon_qpr.jpg", primaryElement: "R", elementScores: { A: 3, I: 4, S: 3, P: 7, C: 5, R: 6 }, briefDescription: "Super close, non-romantic bond.", detailedDescription: "Like best friends turned up to 11! Queerplatonic Relationships (QPRs)...", relatedIds: [22, 36, 15, 27, 25], rarity: 'uncommon', keywords: ['Platonic', 'Commitment', 'Intimacy', 'Relationship', 'Non-Romantic', 'QPR'],
+id: 59, name: "Platonic Partnership / QPR", cardType: "Relationship Style", visualHandle: "uncommon_qpr", primaryElement: "R", elementScores: { A: 3, I: 4, S: 3, P: 7, C: 5, R: 6 }, briefDescription: "Super close, non-romantic bond.", detailedDescription: "Like best friends turned up to 11! Queerplatonic Relationships (QPRs)...", relatedIds: [22, 36, 15, 27, 25], rarity: 'uncommon', keywords: ['Platonic', 'Commitment', 'Intimacy', 'Relationship', 'Non-Romantic', 'QPR'],
 lore: [
 { level: 1, insightCost: 3, text: "Defining Connection: Challenges the assumption that romantic/sexual bonds are inherently more valuable than platonic ones.", unlocked: false },
 { level: 2, insightCost: 7, text: "Custom Fit: QPRs are highly individualized, built on the specific needs and agreements of the people involved.", unlocked: false }
@@ -309,7 +309,7 @@ lore: [
 },
 // ID 60: Sapiosexuality
 {
-id: 60, name: "Sapiosexuality", cardType: "Orientation", visualHandle: "uncommon_sapio.jpg", primaryElement: "A", elementScores: { A: 7, I: 5, S: 3, P: 6, C: 8, R: 5 }, briefDescription: "Brains are sexy!", detailedDescription: "Finding intelligence the hottest thing about someone!...", relatedIds: [49, 74, 81], rarity: 'uncommon', keywords: ['Sapiosexual', 'Attraction', 'Intelligence', 'Cognitive', 'Mind', 'Brains'],
+id: 60, name: "Sapiosexuality", cardType: "Orientation", visualHandle: "uncommon_sapio", primaryElement: "A", elementScores: { A: 7, I: 5, S: 3, P: 6, C: 8, R: 5 }, briefDescription: "Brains are sexy!", detailedDescription: "Finding intelligence the hottest thing about someone!...", relatedIds: [49, 74, 81], rarity: 'uncommon', keywords: ['Sapiosexual', 'Attraction', 'Intelligence', 'Cognitive', 'Mind', 'Brains'],
 lore: [
 { level: 1, insightCost: 3, text: "Mental Foreplay: For Sapiosexuals, intellectual sparring or deep conversation can be incredibly arousing.", unlocked: false },
 { level: 2, insightCost: 7, text: "More Than IQ: It's often not just raw intelligence, but wit, curiosity, creativity, or how someone uses their mind.", unlocked: false }
@@ -317,7 +317,7 @@ lore: [
 },
 // ID 61: Body Worship
 {
-id: 61, name: "Body Worship", cardType: "Practice/Kink", visualHandle: "uncommon_bodyworship.jpg", primaryElement: "P", elementScores: { A: 6, I: 4, S: 6, P: 8, C: 3, R: 6 }, briefDescription: "Adoring your partner's form.", detailedDescription: "Showing total appreciation for a partner's body!...", relatedIds: [5, 10, 12, 62, 102], rarity: 'uncommon', keywords: ['Worship', 'Devotion', 'Adoration', 'Psychological', 'Focus', 'Body', 'Appreciation'],
+id: 61, name: "Body Worship", cardType: "Practice/Kink", visualHandle: "uncommon_bodyworship", primaryElement: "P", elementScores: { A: 6, I: 4, S: 6, P: 8, C: 3, R: 6 }, briefDescription: "Adoring your partner's form.", detailedDescription: "Showing total appreciation for a partner's body!...", relatedIds: [5, 10, 12, 62, 102], rarity: 'uncommon', keywords: ['Worship', 'Devotion', 'Adoration', 'Psychological', 'Focus', 'Body', 'Appreciation'],
 lore: [
 { level: 1, insightCost: 3, text: "Act of Devotion: Can be a powerful way to make a partner feel cherished, seen, and desirable.", unlocked: false },
 { level: 2, insightCost: 7, text: "Focus & Presence: Requires intense focus on the partner's form, often creating a meditative, reverent atmosphere.", unlocked: false }
@@ -325,7 +325,7 @@ lore: [
 },
 // ID 62: Foot Fetish / Podophilia
 {
-id: 62, name: "Foot Fetish / Podophilia", cardType: "Orientation", visualHandle: "uncommon_footfetish.jpg", primaryElement: "A", elementScores: { A: 8, I: 4, S: 7, P: 5, C: 3, R: 4 }, briefDescription: "Feet are fascinating!", detailedDescription: "A specific interest where feet trigger sexual arousal...", relatedIds: [61, 12, 102], rarity: 'uncommon', keywords: ['Fetish', 'Feet', 'Attraction', 'Focus', 'Sensation', 'Podophilia'],
+id: 62, name: "Foot Fetish / Podophilia", cardType: "Orientation", visualHandle: "uncommon_footfetish", primaryElement: "A", elementScores: { A: 8, I: 4, S: 7, P: 5, C: 3, R: 4 }, briefDescription: "Feet are fascinating!", detailedDescription: "A specific interest where feet trigger sexual arousal...", relatedIds: [61, 12, 102], rarity: 'uncommon', keywords: ['Fetish', 'Feet', 'Attraction', 'Focus', 'Sensation', 'Podophilia'],
 lore: [
 { level: 1, insightCost: 3, text: "Unexpected Canvas: Feet offer unique textures, shapes, and points for sensory exploration.", unlocked: false },
 { level: 2, insightCost: 7, text: "Symbolic Weight?: For some, feet might symbolize grounding, vulnerability, or service, adding layers to the attraction.", unlocked: false }
@@ -333,7 +333,7 @@ lore: [
 },
 // ID 78: Public Display Affection (Moderate)
 {
-id: 78, name: "Public Display Affection (Moderate)", cardType: "Practice/Kink", visualHandle: "uncommon_pda_mod.jpg", primaryElement: "R", elementScores: { A: 5, I: 6, S: 4, P: 6, C: 3, R: 6 }, briefDescription: "Getting a little bolder in public.", detailedDescription: "Turning up the heat on public affection!...", relatedIds: [77, 18], rarity: 'uncommon', keywords: ['Public', 'Exhibitionism', 'Risk', 'Thrill', 'Affection', 'PDA'],
+id: 78, name: "Public Display Affection (Moderate)", cardType: "Practice/Kink", visualHandle: "uncommon_pda_mod", primaryElement: "R", elementScores: { A: 5, I: 6, S: 4, P: 6, C: 3, R: 6 }, briefDescription: "Getting a little bolder in public.", detailedDescription: "Turning up the heat on public affection!...", relatedIds: [77, 18], rarity: 'uncommon', keywords: ['Public', 'Exhibitionism', 'Risk', 'Thrill', 'Affection', 'PDA'],
 lore: [
 { level: 1, insightCost: 3, text: "Thrill of the Near-Miss: The slight risk of being seen adds an edge of excitement for many.", unlocked: false },
 { level: 2, insightCost: 7, text: "Claiming Space: Can also be a way of publicly affirming the connection or relationship.", unlocked: false }
@@ -341,7 +341,7 @@ lore: [
 },
 // ID 84: Solo Polyamory
 {
-id: 84, name: "Solo Polyamory", cardType: "Relationship Style", visualHandle: "uncommon_solopoly.jpg", primaryElement: "R", elementScores: { A: 5, I: 5, S: 5, P: 6, C: 6, R: 7 }, briefDescription: "Multiple loves, living single.", detailedDescription: "Practicing polyamory (multiple ethical relationships) but choosing to live independently...", relatedIds: [25, 27, 24], rarity: 'uncommon', keywords: ['Polyamory', 'Non-Monogamy', 'Autonomy', 'Independence', 'Structure', 'SoloPoly'],
+id: 84, name: "Solo Polyamory", cardType: "Relationship Style", visualHandle: "uncommon_solopoly", primaryElement: "R", elementScores: { A: 5, I: 5, S: 5, P: 6, C: 6, R: 7 }, briefDescription: "Multiple loves, living single.", detailedDescription: "Practicing polyamory (multiple ethical relationships) but choosing to live independently...", relatedIds: [25, 27, 24], rarity: 'uncommon', keywords: ['Polyamory', 'Non-Monogamy', 'Autonomy', 'Independence', 'Structure', 'SoloPoly'],
 lore: [
 { level: 1, insightCost: 3, text: "Anchored in Self: Prioritizes personal independence while still building meaningful intimate connections.", unlocked: false },
 { level: 2, insightCost: 7, text: "Escaping the Escalator: Rejects the traditional relationship escalator model (dating -> moving in -> marriage).", unlocked: false }
@@ -349,7 +349,7 @@ lore: [
 },
 // ID 86: Sensory Overload
 {
-id: 86, name: "Sensory Overload", cardType: "Practice/Kink", visualHandle: "uncommon_sens_overload.jpg", primaryElement: "S", elementScores: { A: 5, I: 6, S: 8, P: 6, C: 4, R: 5 }, briefDescription: "Too much sensation (in a good way?).", detailedDescription: "Intentionally hitting multiple senses... leading to cool altered states...", relatedIds: [37, 57, 8, 124], rarity: 'uncommon', keywords: ['Sensory Overload', 'Intensity', 'Sensation', 'Altered State', 'Psychological', 'Overwhelm'],
+id: 86, name: "Sensory Overload", cardType: "Practice/Kink", visualHandle: "uncommon_sens_overload", primaryElement: "S", elementScores: { A: 5, I: 6, S: 8, P: 6, C: 4, R: 5 }, briefDescription: "Too much sensation (in a good way?).", detailedDescription: "Intentionally hitting multiple senses... leading to cool altered states...", relatedIds: [37, 57, 8, 124], rarity: 'uncommon', keywords: ['Sensory Overload', 'Intensity', 'Sensation', 'Altered State', 'Psychological', 'Overwhelm'],
 lore: [
 { level: 1, insightCost: 3, text: "System Crash: Overwhelming input can short-circuit the thinking mind, leading to purely reactive states.", unlocked: false },
 { level: 2, insightCost: 7, text: "Controlled Chaos: Requires careful calibration by the giver to achieve the desired effect without causing genuine distress.", unlocked: false }
@@ -357,7 +357,7 @@ lore: [
 },
 // ID 87: Light Bondage (Cuffs/Silk)
 {
-id: 87, name: "Light Bondage (Cuffs/Silk)", cardType: "Practice/Kink", visualHandle: "uncommon_bond_light.jpg", primaryElement: "S", elementScores: { A: 5, I: 5, S: 6, P: 6, C: 4, R: 5 }, briefDescription: "Simple, playful tying.", detailedDescription: "Using easy restraints like handcuffs (maybe fuzzy ones!), silk scarves...", relatedIds: [16, 17, 5, 93], rarity: 'uncommon', keywords: ['Bondage', 'Restriction', 'Playful', 'Sensation', 'Power', 'Cuffs', 'Ties'],
+id: 87, name: "Light Bondage (Cuffs/Silk)", cardType: "Practice/Kink", visualHandle: "uncommon_bond_light", primaryElement: "S", elementScores: { A: 5, I: 5, S: 6, P: 6, C: 4, R: 5 }, briefDescription: "Simple, playful tying.", detailedDescription: "Using easy restraints like handcuffs (maybe fuzzy ones!), silk scarves...", relatedIds: [16, 17, 5, 93], rarity: 'uncommon', keywords: ['Bondage', 'Restriction', 'Playful', 'Sensation', 'Power', 'Cuffs', 'Ties'],
 lore: [
 { level: 1, insightCost: 3, text: "Symbolic Surrender: Even light restraint signals a shift in power and allows for focused sensation.", unlocked: false },
 { level: 2, insightCost: 7, text: "Aesthetic Element: Often chosen for visual appeal as much as physical sensation.", unlocked: false }
@@ -365,7 +365,7 @@ lore: [
 },
 // ID 89: Power Play (Subtle)
 {
-id: 89, name: "Power Play (Subtle)", cardType: "Psychological/Goal", visualHandle: "uncommon_power_subtle.jpg", primaryElement: "P", elementScores: { A: 6, I: 7, S: 5, P: 7, C: 7, R: 6 }, briefDescription: "Enjoying the undercurrents of power.", detailedDescription: "Getting a kick out of the subtle shifts and negotiations of power...", relatedIds: [4, 5, 11, 90], rarity: 'uncommon', keywords: ['Power', 'Subtle', 'Psychological', 'Dynamic', 'Negotiation', 'Cognitive', 'Influence'],
+id: 89, name: "Power Play (Subtle)", cardType: "Psychological/Goal", visualHandle: "uncommon_power_subtle", primaryElement: "P", elementScores: { A: 6, I: 7, S: 5, P: 7, C: 7, R: 6 }, briefDescription: "Enjoying the undercurrents of power.", detailedDescription: "Getting a kick out of the subtle shifts and negotiations of power...", relatedIds: [4, 5, 11, 90], rarity: 'uncommon', keywords: ['Power', 'Subtle', 'Psychological', 'Dynamic', 'Negotiation', 'Cognitive', 'Influence'],
 lore: [
 { level: 1, insightCost: 3, text: "The Unspoken Dance: Recognizing and playing with influence, suggestion, and unspoken agreements.", unlocked: false },
 { level: 2, insightCost: 7, text: "Constant Negotiation: Power exists in all interactions; this is about consciously engaging with that flow.", unlocked: false }
@@ -373,7 +373,7 @@ lore: [
 },
 // ID 90: Performance Focus (Top)
 {
-id: 90, name: "Performance Focus (Top)", cardType: "Identity/Role", visualHandle: "uncommon_perf_top.jpg", primaryElement: "I", elementScores: { A: 5, I: 8, S: 6, P: 7, C: 6, R: 5 }, briefDescription: "Love orchestrating pleasure.", detailedDescription: "A Dom/Top style centered on skillfully giving pleasure...", relatedIds: [4, 11, 18, 89], rarity: 'uncommon', keywords: ['Performance', 'Control', 'Pleasure', 'Skill', 'Validation', 'Leading', 'Top'],
+id: 90, name: "Performance Focus (Top)", cardType: "Identity/Role", visualHandle: "uncommon_perf_top", primaryElement: "I", elementScores: { A: 5, I: 8, S: 6, P: 7, C: 6, R: 5 }, briefDescription: "Love orchestrating pleasure.", detailedDescription: "A Dom/Top style centered on skillfully giving pleasure...", relatedIds: [4, 11, 18, 89], rarity: 'uncommon', keywords: ['Performance', 'Control', 'Pleasure', 'Skill', 'Validation', 'Leading', 'Top'],
 lore: [
 { level: 1, insightCost: 3, text: "The Conductor: Enjoys orchestrating the partner's experience, carefully tuning sensations and responses.", unlocked: false },
 { level: 2, insightCost: 7, text: "Reflected Glory: Satisfaction comes not just from giving, but from witnessing the effect of their actions.", unlocked: false }
@@ -381,7 +381,7 @@ lore: [
 },
 // ID 91: Performance Focus (Bottom)
 {
-id: 91, name: "Performance Focus (Bottom)", cardType: "Identity/Role", visualHandle: "uncommon_perf_bot.jpg", primaryElement: "I", elementScores: { A: 5, I: 3, S: 6, P: 7, C: 5, R: 5 }, briefDescription: "Love showing your pleasure.", detailedDescription: "A Sub/Bottom style where expressing your reactions and pleasure loud and clear...", relatedIds: [5, 18, 50], rarity: 'uncommon', keywords: ['Performance', 'Reaction', 'Expression', 'Pleasure', 'Validation', 'Following', 'Bottom'],
+id: 91, name: "Performance Focus (Bottom)", cardType: "Identity/Role", visualHandle: "uncommon_perf_bot", primaryElement: "I", elementScores: { A: 5, I: 3, S: 6, P: 7, C: 5, R: 5 }, briefDescription: "Love showing your pleasure.", detailedDescription: "A Sub/Bottom style where expressing your reactions and pleasure loud and clear...", relatedIds: [5, 18, 50], rarity: 'uncommon', keywords: ['Performance', 'Reaction', 'Expression', 'Pleasure', 'Validation', 'Following', 'Bottom'],
 lore: [
 { level: 1, insightCost: 3, text: "The Responsive Canvas: Finds joy in being the focus, showcasing reactions as a form of participation.", unlocked: false },
 { level: 2, insightCost: 7, text: "Amplifying the Scene: Enthusiastic responses can heighten the Top's experience and validate the shared dynamic.", unlocked: false }
@@ -389,7 +389,7 @@ lore: [
 },
 // ID 92: Gender Play
 {
-id: 92, name: "Gender Play", cardType: "Practice/Kink", visualHandle: "uncommon_genderplay.jpg", primaryElement: "C", elementScores: { A: 6, I: 6, S: 4, P: 6, C: 7, R: 5 }, briefDescription: "Messing with gender roles/looks.", detailedDescription: "Consensually playing with or flipping traditional gender roles...", relatedIds: [13, 39, 103], rarity: 'uncommon', keywords: ['Gender', 'Role-Play', 'Cognitive', 'Expression', 'Fluidity', 'Cross-dressing'],
+id: 92, name: "Gender Play", cardType: "Practice/Kink", visualHandle: "uncommon_genderplay", primaryElement: "C", elementScores: { A: 6, I: 6, S: 4, P: 6, C: 7, R: 5 }, briefDescription: "Messing with gender roles/looks.", detailedDescription: "Consensually playing with or flipping traditional gender roles...", relatedIds: [13, 39, 103], rarity: 'uncommon', keywords: ['Gender', 'Role-Play', 'Cognitive', 'Expression', 'Fluidity', 'Cross-dressing'],
 lore: [
 { level: 1, insightCost: 3, text: "Identity Exploration: Can be a way to explore different facets of identity or challenge societal expectations.", unlocked: false },
 { level: 2, insightCost: 7, text: "The Power of Presentation: Altering appearance can dramatically shift perceived power dynamics and interactions.", unlocked: false }
@@ -397,7 +397,7 @@ lore: [
 },
 // ID 93: Tickling (Erotic)
 {
-id: 93, name: "Tickling (Erotic)", cardType: "Practice/Kink", visualHandle: "uncommon_tickle.jpg", primaryElement: "S", elementScores: { A: 4, I: 6, S: 6, P: 5, C: 3, R: 5 }, briefDescription: "Tickle torture!", detailedDescription: "Using tickling not just for laughs, but as a form of playful 'torture'...", relatedIds: [7, 38, 87], rarity: 'uncommon', keywords: ['Tickling', 'Playful', 'Sensation', 'Control', 'Teasing', 'Torture'],
+id: 93, name: "Tickling (Erotic)", cardType: "Practice/Kink", visualHandle: "uncommon_tickle", primaryElement: "S", elementScores: { A: 4, I: 6, S: 6, P: 5, C: 3, R: 5 }, briefDescription: "Tickle torture!", detailedDescription: "Using tickling not just for laughs, but as a form of playful 'torture'...", relatedIds: [7, 38, 87], rarity: 'uncommon', keywords: ['Tickling', 'Playful', 'Sensation', 'Control', 'Teasing', 'Torture'],
 lore: [
 { level: 1, insightCost: 3, text: "Involuntary Response: The uncontrollable laughter and squirming is often the core appeal for both parties.", unlocked: false },
 { level: 2, insightCost: 7, text: "Intimate Knowledge: Requires knowing a partner's ticklish spots, adding a layer of playful intimacy.", unlocked: false }
@@ -405,7 +405,7 @@ lore: [
 },
 // ID 94: Leather Fetish
 {
-id: 94, name: "Leather Fetish", cardType: "Orientation", visualHandle: "uncommon_leather.jpeg", primaryElement: "A", elementScores: { A: 8, I: 6, S: 7, P: 6, C: 5, R: 5 }, briefDescription: "Leather just does it.", detailedDescription: "A specific turn-on triggered by the look, smell, sound, or feel of leather...", relatedIds: [20, 21, 4], rarity: 'uncommon', keywords: ['Fetish', 'Leather', 'Material', 'Attraction', 'Sensation', 'Subculture', 'Gear'],
+id: 94, name: "Leather Fetish", cardType: "Orientation", visualHandle: "uncommon_leather", primaryElement: "A", elementScores: { A: 8, I: 6, S: 7, P: 6, C: 5, R: 5 }, briefDescription: "Leather just does it.", detailedDescription: "A specific turn-on triggered by the look, smell, sound, or feel of leather...", relatedIds: [20, 21, 4], rarity: 'uncommon', keywords: ['Fetish', 'Leather', 'Material', 'Attraction', 'Sensation', 'Subculture', 'Gear'],
 lore: [
 { level: 1, insightCost: 3, text: "Sensory Signature: The unique combination of smell, texture, and sound creates a powerful associative trigger.", unlocked: false },
 { level: 2, insightCost: 7, text: "Cultural Code: Often linked with power, rebellion, or specific subcultures, adding layers of meaning.", unlocked: false }
@@ -413,7 +413,7 @@ lore: [
 },
 // ID 98: Pet Play
 {
-id: 98, name: "Pet Play", cardType: "Practice/Kink", visualHandle: "uncommon_petplay.jpg", primaryElement: "C", elementScores: { A: 5, I: 6, S: 5, P: 7, C: 7, R: 6 }, briefDescription: "Role-playing as cute critters.", detailedDescription: "Consensual role-play where someone takes on the persona of an animal or pet...", relatedIds: [13, 39, 4, 5, 10, 121], rarity: 'uncommon', keywords: ['Pet Play', 'Role-Play', 'Cognitive', 'Psychological', 'Animalistic', 'Dynamic', 'Kitten', 'Puppy'],
+id: 98, name: "Pet Play", cardType: "Practice/Kink", visualHandle: "uncommon_petplay", primaryElement: "C", elementScores: { A: 5, I: 6, S: 5, P: 7, C: 7, R: 6 }, briefDescription: "Role-playing as cute critters.", detailedDescription: "Consensual role-play where someone takes on the persona of an animal or pet...", relatedIds: [13, 39, 4, 5, 10, 121], rarity: 'uncommon', keywords: ['Pet Play', 'Role-Play', 'Cognitive', 'Psychological', 'Animalistic', 'Dynamic', 'Kitten', 'Puppy'],
 lore: [
 { level: 1, insightCost: 3, text: "Embodied Persona: Allows exploration of different modes of being – playful, dependent, instinctual.", unlocked: false },
 { level: 2, insightCost: 7, text: "Gear & Dynamics: Collars, tails, ears, and specific rules often enhance the immersion and power exchange.", unlocked: false }
@@ -421,7 +421,7 @@ lore: [
 },
 // ID 99: Masochism (Psychological)
 {
-id: 99, name: "Masochism (Psychological)", cardType: "Psychological/Goal", visualHandle: "uncommon_maso_psych.jpg", primaryElement: "P", elementScores: { A: 5, I: 3, S: 4, P: 8, C: 6, R: 5 }, briefDescription: "Finding pleasure in mental 'ouch'.", detailedDescription: "Getting pleasure or release from consensually experiencing emotional distress...", relatedIds: [5, 17, 45, 100, 120], rarity: 'uncommon', keywords: ['Masochism', 'Psychological', 'Emotion', 'Submission', 'Distress', 'Catharsis', 'Humiliation'],
+id: 99, name: "Masochism (Psychological)", cardType: "Psychological/Goal", visualHandle: "uncommon_maso_psych", primaryElement: "P", elementScores: { A: 5, I: 3, S: 4, P: 8, C: 6, R: 5 }, briefDescription: "Finding pleasure in mental 'ouch'.", detailedDescription: "Getting pleasure or release from consensually experiencing emotional distress...", relatedIds: [5, 17, 45, 100, 120], rarity: 'uncommon', keywords: ['Masochism', 'Psychological', 'Emotion', 'Submission', 'Distress', 'Catharsis', 'Humiliation'],
 lore: [
 { level: 1, insightCost: 3, text: "The Cathartic Sting: Facing difficult emotions within a safe container can be strangely cleansing.", unlocked: false },
 { level: 2, insightCost: 7, text: "Trust as the Net: The ability to explore these states hinges entirely on deep trust in the partner causing the distress.", unlocked: false }
@@ -429,7 +429,7 @@ lore: [
 },
 // ID 100: Sadism (Psychological)
 {
-id: 100, name: "Sadism (Psychological)", cardType: "Psychological/Goal", visualHandle: "uncommon_sad_psych.jpg", primaryElement: "P", elementScores: { A: 5, I: 7, S: 4, P: 8, C: 7, R: 5 }, briefDescription: "Pleasure from causing mental 'ouch'.", detailedDescription: "Finding pleasure or satisfaction from consensually causing emotional distress...", relatedIds: [4, 11, 45, 99, 120], rarity: 'uncommon', keywords: ['Sadism', 'Psychological', 'Emotion', 'Control', 'Distress', 'Humiliation'],
+id: 100, name: "Sadism (Psychological)", cardType: "Psychological/Goal", visualHandle: "uncommon_sad_psych", primaryElement: "P", elementScores: { A: 5, I: 7, S: 4, P: 8, C: 7, R: 5 }, briefDescription: "Pleasure from causing mental 'ouch'.", detailedDescription: "Finding pleasure or satisfaction from consensually causing emotional distress...", relatedIds: [4, 11, 45, 99, 120], rarity: 'uncommon', keywords: ['Sadism', 'Psychological', 'Emotion', 'Control', 'Distress', 'Humiliation'],
 lore: [
 { level: 1, insightCost: 3, text: "The Responsive Spark: Satisfaction often comes from witnessing the partner's genuine emotional reaction.", unlocked: false },
 { level: 2, insightCost: 7, text: "Ethical Edge: Requires careful calibration to push boundaries enjoyably without causing lasting harm.", unlocked: false }
@@ -437,7 +437,7 @@ lore: [
 },
 // ID 102: Sensory Focus (Specific Zone)
 {
-id: 102, name: "Sensory Focus (Specific Zone)", cardType: "Practice/Kink", visualHandle: "uncommon_sens_zone.jpg", primaryElement: "S", elementScores: { A: 5, I: 6, S: 7, P: 5, C: 4, R: 5 }, briefDescription: "Zooming in on one body part.", detailedDescription: "Giving all the attention to one specific spot!...", relatedIds: [57, 2, 61, 62], rarity: 'uncommon', keywords: ['Sensation', 'Focus', 'Body Part', 'Intensity', 'Physical', 'Zone'],
+id: 102, name: "Sensory Focus (Specific Zone)", cardType: "Practice/Kink", visualHandle: "uncommon_sens_zone", primaryElement: "S", elementScores: { A: 5, I: 6, S: 7, P: 5, C: 4, R: 5 }, briefDescription: "Zooming in on one body part.", detailedDescription: "Giving all the attention to one specific spot!...", relatedIds: [57, 2, 61, 62], rarity: 'uncommon', keywords: ['Sensation', 'Focus', 'Body Part', 'Intensity', 'Physical', 'Zone'],
 lore: [
 { level: 1, insightCost: 3, text: "Microcosm of Feeling: Concentrating sensation allows for exquisite awareness of subtle nuances.", unlocked: false },
 { level: 2, insightCost: 7, text: "Anticipation Amplified: Knowing only one area will be stimulated builds intense focus and anticipation.", unlocked: false }
@@ -445,7 +445,7 @@ lore: [
 },
 // ID 103: Androgyny Attraction
 {
-id: 103, name: "Androgyny Attraction", cardType: "Orientation", visualHandle: "uncommon_andro.jpeg", primaryElement: "A", elementScores: { A: 7, I: 5, S: 5, P: 5, C: 5, R: 5 }, briefDescription: "Drawn to gender-blendy looks.", detailedDescription: "Finding people whose gender presentation mixes or blurs traditional...", relatedIds: [55, 92], rarity: 'uncommon', keywords: ['Attraction', 'Androgyny', 'Gender Presentation', 'Aesthetic', 'Non-binary'],
+id: 103, name: "Androgyny Attraction", cardType: "Orientation", visualHandle: "uncommon_andro", primaryElement: "A", elementScores: { A: 7, I: 5, S: 5, P: 5, C: 5, R: 5 }, briefDescription: "Drawn to gender-blendy looks.", detailedDescription: "Finding people whose gender presentation mixes or blurs traditional...", relatedIds: [55, 92], rarity: 'uncommon', keywords: ['Attraction', 'Androgyny', 'Gender Presentation', 'Aesthetic', 'Non-binary'],
 lore: [
 { level: 1, insightCost: 3, text: "Beyond the Binary: Appreciating aesthetics that challenge or play with traditional gender markers.", unlocked: false },
 { level: 2, insightCost: 7, text: "Fluidity Embodied: Can reflect an attraction to ambiguity, fluidity, or the rejection of rigid categories.", unlocked: false }
@@ -453,7 +453,7 @@ lore: [
 },
 // ID 105: Voyeuristic Exhibitionism
 {
-id: 105, name: "Voyeuristic Exhibitionism", cardType: "Identity/Role", visualHandle: "uncommon_voy_exhib.jpeg", primaryElement: "I", elementScores: { A: 7, I: 7, S: 5, P: 7, C: 6, R: 6 }, briefDescription: "Love watching and being watched.", detailedDescription: "Getting turned on by both sides of the gaze...", relatedIds: [18, 19, 34], rarity: 'uncommon', keywords: ['Exhibitionism', 'Voyeurism', 'Visual', 'Performance', 'Shared', 'Group'],
+id: 105, name: "Voyeuristic Exhibitionism", cardType: "Identity/Role", visualHandle: "uncommon_voy_exhib", primaryElement: "I", elementScores: { A: 7, I: 7, S: 5, P: 7, C: 6, R: 6 }, briefDescription: "Love watching and being watched.", detailedDescription: "Getting turned on by both sides of the gaze...", relatedIds: [18, 19, 34], rarity: 'uncommon', keywords: ['Exhibitionism', 'Voyeurism', 'Visual', 'Performance', 'Shared', 'Group'],
 lore: [
 { level: 1, insightCost: 3, text: "The Shared Gaze: A dynamic where the act of watching and being watched becomes a mutual feedback loop.", unlocked: false },
 { level: 2, insightCost: 7, text: "Amplified Energy: The presence of multiple perspectives often intensifies the energy and performance aspects.", unlocked: false }
@@ -461,7 +461,7 @@ lore: [
 },
 // ID 106: Fear Play (Mild)
 {
-id: 106, name: "Fear Play (Mild)", cardType: "Practice/Kink", visualHandle: "uncommon_fear_mild.jpg", primaryElement: "P", elementScores: { A: 5, I: 6, S: 6, P: 7, C: 5, R: 5 }, briefDescription: "Getting thrills from safe scares.", detailedDescription: "Using surprise, startle moments, or the anticipation of something intense...", relatedIds: [44, 38, 9, 111, 122], rarity: 'uncommon', keywords: ['Fear', 'Anticipation', 'Thrill', 'Psychological', 'Edge', 'Startle'],
+id: 106, name: "Fear Play (Mild)", cardType: "Practice/Kink", visualHandle: "uncommon_fear_mild", primaryElement: "P", elementScores: { A: 5, I: 6, S: 6, P: 7, C: 5, R: 5 }, briefDescription: "Getting thrills from safe scares.", detailedDescription: "Using surprise, startle moments, or the anticipation of something intense...", relatedIds: [44, 38, 9, 111, 122], rarity: 'uncommon', keywords: ['Fear', 'Anticipation', 'Thrill', 'Psychological', 'Edge', 'Startle'],
 lore: [
 { level: 1, insightCost: 3, text: "Adrenaline Rush: Tapping into the body's fight-or-flight response for a jolt of excitement within a safe context.", unlocked: false },
 { level: 2, insightCost: 7, text: "The Power of the Unknown: Anticipation and uncertainty are key ingredients in generating the desired thrill.", unlocked: false }
@@ -469,7 +469,7 @@ lore: [
 },
 // ID 107: Tribadism / Scissoring
 {
-id: 107, name: "Tribadism / Scissoring", cardType: "Practice/Kink", visualHandle: "uncommon_tribadism.jpg", primaryElement: "S", elementScores: { A: 5, I: 6, S: 7, P: 5, C: 2, R: 5 }, briefDescription: "Vulva-on-vulva friction.", detailedDescription: "A sexual act involving rubbing vulvas together for friction and mutual pleasure...", relatedIds: [1, 67], rarity: 'uncommon', keywords: ['Tribadism', 'Scissoring', 'Physical', 'Sensation', 'Friction', 'Lesbian'],
+id: 107, name: "Tribadism / Scissoring", cardType: "Practice/Kink", visualHandle: "uncommon_tribadism", primaryElement: "S", elementScores: { A: 5, I: 6, S: 7, P: 5, C: 2, R: 5 }, briefDescription: "Vulva-on-vulva friction.", detailedDescription: "A sexual act involving rubbing vulvas together for friction and mutual pleasure...", relatedIds: [1, 67], rarity: 'uncommon', keywords: ['Tribadism', 'Scissoring', 'Physical', 'Sensation', 'Friction', 'Lesbian'],
 lore: [
 { level: 1, insightCost: 3, text: "Mutual Grounding: The direct, full-body contact offers a unique blend of friction and intimacy.", unlocked: false },
 { level: 2, insightCost: 7, text: "Rhythmic Synergy: Finding a shared rhythm can create waves of mutual pleasure.", unlocked: false }
@@ -477,7 +477,7 @@ lore: [
 },
 // ID 108: Intercrural Sex (Frotting)
 {
-id: 108, name: "Intercrural Sex (Frotting)", cardType: "Practice/Kink", visualHandle: "uncommon_frotting.jpg", primaryElement: "S", elementScores: { A: 5, I: 6, S: 7, P: 5, C: 2, R: 5 }, briefDescription: "Penis-on-penis friction.", detailedDescription: "A sexual act involving rubbing penises together for friction...", relatedIds: [1], rarity: 'uncommon', keywords: ['Frotting', 'Intercrural', 'Physical', 'Sensation', 'Friction', 'Gay'],
+id: 108, name: "Intercrural Sex (Frotting)", cardType: "Practice/Kink", visualHandle: "uncommon_frotting", primaryElement: "S", elementScores: { A: 5, I: 6, S: 7, P: 5, C: 2, R: 5 }, briefDescription: "Penis-on-penis friction.", detailedDescription: "A sexual act involving rubbing penises together for friction...", relatedIds: [1], rarity: 'uncommon', keywords: ['Frotting', 'Intercrural', 'Physical', 'Sensation', 'Friction', 'Gay'],
 lore: [
 { level: 1, insightCost: 3, text: "Friction Focus: Provides direct stimulation through rubbing without penetration.", unlocked: false },
 { level: 2, insightCost: 7, text: "Intimate Proximity: The closeness involved fosters a specific kind of connected, mutual sensation.", unlocked: false }
@@ -485,7 +485,7 @@ lore: [
 },
 // ID 110: Figging
 {
-id: 110, name: "Figging", cardType: "Practice/Kink", visualHandle: "uncommon_figging.jpg", primaryElement: "S", elementScores: { A: 3, I: 6, S: 8, P: 6, C: 3, R: 5 }, briefDescription: "Ginger root = intense sting!", detailedDescription: "An old-school BDSM practice involving inserting peeled ginger...", relatedIds: [9, 8], rarity: 'uncommon', keywords: ['Figging', 'Sensation', 'Intensity', 'Pain Play', 'BDSM', 'Sting'],
+id: 110, name: "Figging", cardType: "Practice/Kink", visualHandle: "uncommon_figging", primaryElement: "S", elementScores: { A: 3, I: 6, S: 8, P: 6, C: 3, R: 5 }, briefDescription: "Ginger root = intense sting!", detailedDescription: "An old-school BDSM practice involving inserting peeled ginger...", relatedIds: [9, 8], rarity: 'uncommon', keywords: ['Figging', 'Sensation', 'Intensity', 'Pain Play', 'BDSM', 'Sting'],
 lore: [
 { level: 1, insightCost: 3, text: "Alchemical Heat: The chemical reaction creates a unique, inescapable internal warmth or sting.", unlocked: false },
 { level: 2, insightCost: 7, text: "Historical Note: Sometimes used historically as a form of punishment, its BDSM use reclaims it for consensual sensation play.", unlocked: false }
