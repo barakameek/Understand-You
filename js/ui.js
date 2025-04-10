@@ -12,9 +12,7 @@ import {
     cardTypeKeys, elementNames, grimoireShelves
 } from '../data.js';
 
-// Define the image extension consistently
-const IMAGE_EXTENSION = '.jpg'; // CHANGE TO '.jpeg' or '.png' if that's what ALL your files use
-// OR handle multiple extensions in renderCard/showConceptDetailPopup if needed
+
 
 console.log("ui.js loading...");
 
@@ -441,11 +439,11 @@ export function renderCard(concept, context = 'grimoire') {
 
     // --- Generate Visual Content (IMAGE or ICON) ---
     let visualContentHTML = '';
-    if (concept.visualHandle) { // Check if visualHandle exists AND is not empty
-        visualContentHTML = `
-            <img src="placeholder_art/${concept.visualHandle}" alt="${concept.name} Art" class="card-art-image" {/* <-- Use visualHandle directly */}
-                 onerror="this.style.display='none'; this.parentElement.querySelector('.card-visual-placeholder')?.style.display='block';">
-            <i class="fas fa-image card-visual-placeholder" style="display: none;" title="Art Placeholder (Load Failed)"></i>`;
+  if (concept.visualHandle) {
+    visualContentHTML = `
+        <img src="placeholder_art/${concept.visualHandle}" alt="${concept.name} Art" class="card-art-image"
+             onerror="this.style.display='none'; this.parentElement.querySelector('.card-visual-placeholder')?.style.display='block';">
+        <i class="fas fa-image card-visual-placeholder" style="display: none;" title="Art Placeholder (Load Failed)"></i>`;
     } else {
         visualContentHTML = `<i class="fas fa-question card-visual-placeholder" title="Visual Placeholder"></i>`;
     }
@@ -487,7 +485,7 @@ export function renderCard(concept, context = 'grimoire') {
                  <span class="card-stamps">${focusStampHTML}${noteStampHTML}${loreStampHTML}</span>
             </span>
         </div>
-        <div class="card-visual">${visualContentHTML}</div> {/* <-- USE visualContentHTML */}
+        <div class="card-visual">${visualContentHTML}</div> 
         <div class="card-footer">
             <div class="card-affinities">${primaryElementHTML}</div>
             <p class="card-brief-desc">${concept.briefDescription || '...'}</p>
@@ -543,10 +541,10 @@ export function showConceptDetailPopup(conceptId) {
     if (popupVisualContainer) {
         popupVisualContainer.innerHTML = '';
         let content;
-        if (conceptData.visualHandle) {
-            content = document.createElement('img');
-            content.src = `placeholder_art/${conceptData.visualHandle}`; // Use full filename from data
-            content.alt = `${conceptData.name} Art`;
+      if (conceptData.visualHandle) {
+    content = document.createElement('img');
+    content.src = `placeholder_art/${conceptData.visualHandle}`; // <-- ONLY visualHandle
+    content.alt = `${conceptData.name} Art`;
             content.classList.add('card-art-image');
             content.onerror = function() {
                 this.style.display='none';
