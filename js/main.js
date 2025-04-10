@@ -1,3 +1,4 @@
+
 // --- START OF FULL main.js (Phase Logic Removed, Corrected Full File) ---
 
 // js/main.js - Application Entry Point, Event Listeners, Initialization
