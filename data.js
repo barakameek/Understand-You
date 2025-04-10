@@ -95,7 +95,7 @@ const elementDetails = {
 
 // --- SHELF DEFINITIONS ---
 // Note: Using 'export const' exports it immediately. No need to list in the final export block.
-export const grimoireShelves = [
+ const grimoireShelves = [
     { id: "uncategorized", name: "Unsorted Discoveries", description: "Newly added Concepts land here. Drag them to other shelves to organize!" },
     { id: "wantToTry", name: "Curious Experiments", description: "Concepts you're intrigued by and want to explore further in thought or practice." },
     { id: "liked", name: "Resonant Echoes", description: "Concepts you've explored and found enjoyable or affirming." },
