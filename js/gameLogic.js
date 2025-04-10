@@ -321,68 +321,57 @@ function unlockLoreInternal(conceptId, level, source = "Unknown") {
                 console.log(`rAF: Trying to update DOM for lore level ${level}`);
                 const loreContentContainer = document.getElementById('popupLoreContent');
                 let loreEntryDiv = null;
-                let childrenFound = 0; // Debug counter
-                let levelsFound = [];   // Debug array
+                // ... (Keep the debugging counters and arrays for now if you want) ...
 
                 if (loreContentContainer) {
-                    console.log(`rAF: Found container #popupLoreContent. Checking children...`); // Debug
-                    for (const child of loreContentContainer.children) {
-                        childrenFound++; // Increment counter
-                        const childLevel = child.dataset.loreLevel;
-                        levelsFound.push(childLevel || 'undefined'); // Store found levels
-
-                        // More detailed log for comparison
-                        console.log(`rAF: Child #${childrenFound}`, child.tagName, `Class: ${child.className}`, `DataLevel: ${childLevel}`, `Target: ${level}`, `Match: ${childLevel === String(level)}`);
-
-                        if (child.classList.contains('lore-entry') && childLevel === String(level)) {
+                    // ... (Keep the loop to find loreEntryDiv) ...
+                     for (const child of loreContentContainer.children) {
+                        if (child.classList.contains('lore-entry') && child.dataset.loreLevel === String(level)) {
                             loreEntryDiv = child;
-                            console.log(`rAF: Found matching div for level ${level}!`);
                             break;
                         }
                     }
-                    // Log results after loop if not found
-                    if (!loreEntryDiv) {
-                         console.warn(`rAF: Loop finished. Total children checked: ${childrenFound}. Levels found: [${levelsFound.join(', ')}]. Target level ${level} NOT found.`);
-                    }
-
                 } else {
                     console.error("rAF: Could not find #popupLoreContent container!");
                     UI.showConceptDetailPopup(conceptId);
                     return;
                 }
 
-                // --- Rest of the logic based on whether loreEntryDiv was found ---
-                if (loreEntryDiv) {
-                    // ... (Existing code to update innerHTML, lore indicator) ...
-                    const conceptData = concepts.find(c => c.id === conceptId); // Re-fetch needed data
+
+                if (loreEntryDiv) { // If found within rAF
+                    const conceptData = concepts.find(c => c.id === conceptId);
                     const loreData = conceptData?.lore?.find(l => l.level === level);
-                     if (loreData) {
+
+                    if (loreData) {
+                        // Update the content directly
                         loreEntryDiv.innerHTML = `
                             <h5 class="lore-level-title">Level ${loreData.level} Insight:</h5>
                             <p class="lore-text">${loreData.text}</p>
                         `;
-                        console.log(`rAF: Updated DOM successfully for level ${level}.`);
+                        // *** ADD THIS LINE: Re-apply the dataset attribute ***
+                        loreEntryDiv.dataset.loreLevel = level;
+                        // *****************************************************
 
-                        // --- Update Lore Indicator on Card (Keep this logic) ---
-                        const cardElemIndicator = document.querySelector(`#grimoireContent .concept-card[data-concept-id="${conceptId}"] .lore-indicator`);
-                        if (cardElemIndicator) {
+                        console.log(`rAF: Updated DOM successfully for level ${level} and re-applied data attribute.`);
+
+                         // --- Update Lore Indicator on Card (Keep this logic) ---
+                         const cardElemIndicator = document.querySelector(`#grimoireContent .concept-card[data-concept-id="${conceptId}"] .lore-indicator`);
+                         if (cardElemIndicator) {
                             const conceptDataForIndicator = concepts.find(c => c.id === conceptId);
                             const highestLore = conceptDataForIndicator?.lore?.reduce((max, l) => Math.max(max, l.level), 0) || 0;
                             const currentlyUnlocked = State.getUnlockedLoreLevel(conceptId);
                             if (currentlyUnlocked >= highestLore) {
                                 cardElemIndicator.remove();
                             }
-                        }
-                        // --- End Lore Indicator Update ---
+                         }
+                         // --- End Lore Indicator Update ---
 
                     } else {
                         console.error(`rAF: Could not find lore data for level ${level} to update DOM.`);
                         UI.showConceptDetailPopup(conceptId); // Fallback redraw
                     }
-
                 } else {
-                    // This log now happens inside the loop check result
-                    // console.error(`rAF: DOM search failed for level ${level} within animation frame. Falling back to redraw.`);
+                    console.error(`rAF: DOM search failed for level ${level} within animation frame. Falling back to redraw.`);
                     UI.showConceptDetailPopup(conceptId); // Fallback redraw
                 }
             }); // End of requestAnimationFrame
