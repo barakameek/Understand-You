@@ -1,4 +1,4 @@
-/ js/gameLogic.js - Application Logic
+
 
 import * as State from './state.js';
 import * as Config from './config.js';
