@@ -316,13 +316,29 @@ function unlockLoreInternal(conceptId, level, source = "Unknown") {
         const conceptName = State.getDiscoveredConceptData(conceptId)?.concept?.name || `ID ${conceptId}`;
         console.log(`Successfully unlocked lore level ${level} for ${conceptName} via ${source}`);
 
-        // --- START REPLACEMENT ---
-        // Check if the popup for this concept is currently open
+        // --- START REPLACEMENT (Modified Finder Logic) ---
         if (getCurrentPopupConceptId() === conceptId && document.getElementById('conceptDetailPopup')) {
-            // Find the specific lore entry div within the open popup
-            const loreEntryDiv = document.querySelector(`#popupLoreContent .lore-entry[data-lore-level="${level}"]`);
+            const loreContentContainer = document.getElementById('popupLoreContent');
+            let loreEntryDiv = null; // Initialize to null
 
-            if (loreEntryDiv) {
+            // Iterate through children to find the matching div
+            if (loreContentContainer) {
+                for (const child of loreContentContainer.children) {
+                    if (child.classList.contains('lore-entry') && child.dataset.loreLevel === String(level)) {
+                        loreEntryDiv = child;
+                        break; // Found it!
+                    }
+                }
+            } else {
+                 console.error("Could not find #popupLoreContent container!");
+                 // Fallback immediately if container missing
+                 UI.showConceptDetailPopup(conceptId);
+                 updateMilestoneProgress('unlockLore', level); // Still track milestone
+                 return true; // Or false depending on desired behavior on UI error
+            }
+
+
+            if (loreEntryDiv) { // Check if we found it
                 // Find the lore data for this level
                 const conceptData = concepts.find(c => c.id === conceptId);
                 const loreData = conceptData?.lore?.find(l => l.level === level);
@@ -333,38 +349,32 @@ function unlockLoreInternal(conceptId, level, source = "Unknown") {
                         <h5 class="lore-level-title">Level ${loreData.level} Insight:</h5>
                         <p class="lore-text">${loreData.text}</p>
                     `;
-                    // Optionally add hr if needed, though structure might handle it
-                    // const nextEntry = loreEntryDiv.nextElementSibling;
-                    // if (nextEntry && nextEntry.tagName !== 'HR') {
-                    //     const hr = document.createElement('hr');
-                    //     loreEntryDiv.parentNode.insertBefore(hr, nextEntry);
-                    // }
-                    console.log(`Updated DOM for lore level ${level}`);
+                    console.log(`Updated DOM for lore level ${level} via iteration.`);
                 } else {
                     console.error(`Could not find lore data for level ${level} to update DOM.`);
-                    // Fallback to redraw if data missing? Or just log error.
                     UI.showConceptDetailPopup(conceptId); // Fallback redraw
                 }
+
+                // --- Update Lore Indicator on Card (Keep this logic) ---
+                const cardElemIndicator = document.querySelector(`#grimoireContent .concept-card[data-concept-id="${conceptId}"] .lore-indicator`);
+                 if (cardElemIndicator) {
+                     const conceptDataForIndicator = concepts.find(c => c.id === conceptId); // Re-fetch needed data
+                     const highestLore = conceptDataForIndicator?.lore?.reduce((max, l) => Math.max(max, l.level), 0) || 0;
+                     const currentlyUnlocked = State.getUnlockedLoreLevel(conceptId); // Get potentially updated level from state
+                     if (currentlyUnlocked >= highestLore) {
+                          cardElemIndicator.remove();
+                     }
+                 }
+                 // --- End Lore Indicator Update ---
+
             } else {
-                console.error(`Could not find lore entry div for level ${level} in the popup DOM.`);
-                 // Fallback to redraw if element missing?
+                // Log the failure reason from the console log
+                console.error(`DOM search failed for level ${level}. Falling back to redraw.`);
                  UI.showConceptDetailPopup(conceptId); // Fallback redraw
             }
-             // Update insight display (already done by spendInsight -> UI.updateInsightDisplays)
-             // UI.updateInsightDisplays();
-             // Update lore indicator on card in background if needed
-             const cardElemIndicator = document.querySelector(`#grimoireContent .concept-card[data-concept-id="${conceptId}"] .lore-indicator`);
-             if (cardElemIndicator) {
-                 // Check if *any* lore is still locked or if all is unlocked
-                 const highestLore = conceptData?.lore?.reduce((max, l) => Math.max(max, l.level), 0) || 0;
-                 if (level >= highestLore) { // If the just unlocked level is the highest
-                      cardElemIndicator.remove(); // Remove indicator if all lore seen/unlocked
-                 }
-             }
-
 
         } else {
-            // If popup wasn't open, just refresh the grimoire (existing logic)
+            // If popup wasn't open, just refresh the grimoire
             UI.refreshGrimoireDisplay();
         }
         // --- END REPLACEMENT ---
@@ -377,7 +387,6 @@ function unlockLoreInternal(conceptId, level, source = "Unknown") {
         return false;
     }
 }
-
 // --- Synergy/Tension Logic (Keep as is) ---
 export function checkSynergyTensionStatus() { calculateTapestryNarrative(true); let status = 'none'; if (currentTapestryAnalysis) { if (currentTapestryAnalysis.synergies.length > 0) status = 'synergy'; if (currentTapestryAnalysis.tensions.length > 0) status = (status === 'synergy') ? 'both' : 'tension'; } UI.updateExploreSynergyButtonStatus(status); return status; }
 export function handleExploreSynergyClick() { if (!currentTapestryAnalysis) { console.warn("Synergy/Tension analysis not available."); UI.showTemporaryMessage("Focus concepts to analyze synergy.", 3000); return; } UI.displaySynergyTensionInfo(currentTapestryAnalysis); }
