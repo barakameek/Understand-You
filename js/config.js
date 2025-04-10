@@ -25,8 +25,8 @@ export const LORE_UNLOCK_COSTS = {
     level2: 7,
     level3: 15,
 };
-export const INSIGHT_BOOST_AMOUNT = 5; // How much insight the boost gives (Added)
-export const INSIGHT_BOOST_COOLDOWN = 5 * 60 * 1000; // 5 minutes in milliseconds (Added)
+export const INSIGHT_BOOST_AMOUNT = 40; // How much insight the boost gives (Added)
+export const INSIGHT_BOOST_COOLDOWN = 4 * 60 * 1000; // 4 minutes in milliseconds (Added)
 
 // --- Gameplay Modifiers ---
 export const DISSONANCE_THRESHOLD = 6.5; // Score distance triggering Dissonance Reflection
