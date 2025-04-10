@@ -137,7 +137,7 @@ const concepts = [ // Ensure commas after lore arrays
     ]
 },
 {
-    id: 22, name: "Monogamy", cardType: "Relationship Style", visualHandle: "common_mono_art.jpg", primaryElement: "R", elementScores: { A: 5, I: 5, S: 5, P: 6, C: 5, R: 2 }, briefDescription: "One partner at a time.", detailedDescription: "Keeping it exclusive! Preferring or practicing having just one sexual...", relatedIds: [23, 15, 29, 59, 76], rarity: 'common', keywords: ['Structure', 'Exclusivity', 'Commitment', 'Dyad', 'One-on-One'], // Added comma
+    id: 22, name: "Monogamy", cardType: "Relationship Style", visualHandle: "common_mono.jpg", primaryElement: "R", elementScores: { A: 5, I: 5, S: 5, P: 6, C: 5, R: 2 }, briefDescription: "One partner at a time.", detailedDescription: "Keeping it exclusive! Preferring or practicing having just one sexual...", relatedIds: [23, 15, 29, 59, 76], rarity: 'common', keywords: ['Structure', 'Exclusivity', 'Commitment', 'Dyad', 'One-on-One'], // Added comma
     lore: [
         { level: 1, insightCost: 3, text: "Focused Flame: Pouring relational energy into a single bond can create intense depth and security.", unlocked: false },
         { level: 2, insightCost: 7, text: "Shared History: The exclusivity allows for the building of a unique shared world and history.", unlocked: false }
@@ -426,7 +426,7 @@ lore: [
 },
 // ID 13: Role-Playing (Scenario)
 {
-id: 13, name: "Role-Playing (Scenario)", cardType: "Practice/Kink", visualHandle: "uncommon_roleplay_art.jpg", primaryElement: "C", elementScores: { A: 6, I: 6, S: 5, P: 6, C: 8, R: 6 }, briefDescription: "Playing characters in scenes.", detailedDescription: "Let's pretend! Adopting specific roles...", relatedIds: [14, 30, 21, 39, 64, 92, 98, 101, 117, 121, 43], rarity: 'uncommon', keywords: ['Role-Play', 'Cognitive', 'Fantasy', 'Scenario', 'Character', 'Pretend'],
+id: 13, name: "Role-Playing (Scenario)", cardType: "Practice/Kink", visualHandle: "uncommon_roleplay.jpg", primaryElement: "C", elementScores: { A: 6, I: 6, S: 5, P: 6, C: 8, R: 6 }, briefDescription: "Playing characters in scenes.", detailedDescription: "Let's pretend! Adopting specific roles...", relatedIds: [14, 30, 21, 39, 64, 92, 98, 101, 117, 121, 43], rarity: 'uncommon', keywords: ['Role-Play', 'Cognitive', 'Fantasy', 'Scenario', 'Character', 'Pretend'],
 lore: [
 { level: 1, insightCost: 3, text: "Actor's Insight: Stepping into a role allows exploration of desires or facets of self otherwise kept hidden.", unlocked: false },
 { level: 2, insightCost: 7, text: "Narrative Power: The chosen scenario dictates the rules of engagement, creating a contained world for play.", unlocked: false }
