@@ -403,17 +403,15 @@ export function renderCard(concept, context = 'grimoire') {
     }
 
     // --- *** Generate Visual Content (IMAGE or ICON) *** ---
-    let visualContentHTML = '';
-    if (concept.visualHandle) {
-        // Use local extension const (ensure it's defined at the top of ui.js)
-        const imageExtension = UNLOCKED_ART_EXTENSION;
-        visualContentHTML = `
-            <img src="placeholder_art/${concept.visualHandle}${imageExtension}" alt="${concept.name} Art" class="card-art-image"
-                 onerror="this.style.display='none'; this.parentElement.querySelector('.card-visual-placeholder')?.style.display='block';">
-            <i class="fas fa-image card-visual-placeholder" style="display: none;" title="Art Placeholder (Load Failed)"></i>`;
-    } else {
-        visualContentHTML = `<i class="fas fa-question card-visual-placeholder" title="Visual Placeholder"></i>`;
-    }
+   let visualContentHTML = '';
+ if (concept.visualHandle) { // Check if visualHandle exists AND is not empty
+     visualContentHTML = `
+         <img src="placeholder_art/${concept.visualHandle}" alt="${concept.name} Art" class="card-art-image" {/* <-- CORRECTED */}
+              onerror="this.style.display='none'; this.parentElement.querySelector('.card-visual-placeholder')?.style.display='block';">
+         <i class="fas fa-image card-visual-placeholder" style="display: none;" title="Art Placeholder (Load Failed)"></i>`;
+ } else {
+     visualContentHTML = `<i class="fas fa-question card-visual-placeholder" title="Visual Placeholder"></i>`;
+ }
     // --- *** END Visual Content Generation *** ---
 
     // --- Generate Action Buttons (Grimoire Context Only) ---
@@ -514,11 +512,10 @@ export function showConceptDetailPopup(conceptId) {
     popupVisualContainer.innerHTML = '';
     let content;
     // Check if the concept has a visual handle defined in data.js
-    if (conceptData.visualHandle) {
-        content = document.createElement('img');
-        const imageExtension = typeof Config !== 'undefined' ? Config.UNLOCKED_ART_EXTENSION : UNLOCKED_ART_EXTENSION;
-        content.src = `placeholder_art/${conceptData.visualHandle}${imageExtension}`; // <-- Use visualHandle
-        content.alt = `${conceptData.name} Art`;
+    if (conceptData.visualHandle) { // Check if visualHandle exists AND is not empty
+    content = document.createElement('img');
+    content.src = `placeholder_art/${conceptData.visualHandle}`; // <-- CORRECTED
+    content.alt = `${conceptData.name} Art`;
         content.classList.add('card-art-image');
         content.onerror = function() { /* ... existing error handler ... */ };
     } else {
