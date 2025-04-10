@@ -147,9 +147,7 @@ const concepts = [ // Ensure commas after lore arrays
     { id: 85, name: "Make-up Sex", cardType: "Psychological/Goal", visualHandle: "common_makeupsex", primaryElement: "P", elementScores: { A: 6, I: 6, S: 6, P: 7, C: 3, R: 5 }, briefDescription: "Post-argument passion.", detailedDescription: "Getting it on after a fight or disagreement. Often fueled by heightened emotions and that feeling of making things right again. Can be intense!", relatedIds: [3], rarity: 'common', canUnlockArt: false, keywords: ['Emotion', 'Intensity', 'Reconciliation', 'Catharsis', 'Conflict'] },
 
     // --- Uncommon Concepts ---
-  lets try some thing different. i have a whole lot of addition lore code writing by you before. lets add that to the data.js file. how do I add this to my existing data.js file. do I just past it in? // --- REPLACE the existing uncommon concept entries in data.js with these ---
-// --- Make sure to keep commas between entries and NO comma after the last concept ---
-// Example for ID 4: Dominance (Psychological) - Already provided, included for completeness
+
 {
 id: 4, name: "Dominance (Psychological)", cardType: "Identity/Role", visualHandle: "uncommon_dom_art.jpg", primaryElement: "I", elementScores: { A: 6, I: 9, S: 5, P: 8, C: 7, R: 6 }, briefDescription: "Leading with your mind.", detailedDescription: "Being the boss, but mentally! This involves taking charge of the vibe, maybe giving instructions, setting rules, making decisions for your partner, or guiding their whole experience. It's about that feeling of control.", relatedIds: [5, 6, 11, 30, 38, 81, 89, 90, 100, 104, 109, 123], rarity: 'uncommon', keywords: ['Control', 'Power', 'Leading', 'Psychological', 'Rules', 'Structure', 'Dominance'],
 lore: [
