@@ -1293,7 +1293,18 @@ const cardTypeThemes = {
     { id: 'task06', phaseRequired: 4, description: "Explore the Repository", reward: { type: 'insight', amount: 1 }, track: { action: 'showScreen', value: 'repositoryScreen' }, hint: "Check the 'Repository' tab for cool unlocked stuff like Scenes, Experiments, and Insights!" }
 ];
 
-
+ const elementalDilemmas = [ // Add 'export' keyword here
+    {
+        id: "ED01", elementFocus: ["P", "R"],
+        situation: "A long-term partner reveals a secret desire that clashes significantly...",
+        question: "Your primary internal guide in responding is:",
+        sliderMinLabel: "Your Partner's Happiness (Relational Focus)",
+        sliderMaxLabel: "Your Own Boundaries/Comfort (Psychological Focus)",
+        elementKeyMin: "R",
+        elementKeyMax: "P"
+    },
+    // ... other dilemmas ...
+];
 
 
 // --- FINAL EXPORT BLOCK ---
