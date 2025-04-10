@@ -56,7 +56,29 @@ export function gainInsight(amount, source = "Unknown") {
         UI.updateInsightDisplays(); // Update UI after insight change
     }
 }
+// Helper function to count undiscovered concepts by rarity for a specific element
+function countUndiscoveredByRarity(elementKey) {
+    const discoveredIds = new Set(State.getDiscoveredConcepts().keys());
+    const counts = { common: 0, uncommon: 0, rare: 0 };
 
+    concepts.forEach(concept => {
+        if (!discoveredIds.has(concept.id)) {
+            // Check if the concept is relevant to the element (Primary or high score)
+            // You might adjust this relevance logic if needed
+            const isPrimary = concept.primaryElement === elementKey;
+            const score = concept.elementScores?.[elementKey] || 0;
+            const isRelevant = isPrimary || score >= 5.0; // Example relevance threshold
+
+            if (isRelevant) {
+                const rarity = concept.rarity || 'common';
+                if (counts.hasOwnProperty(rarity)) {
+                    counts[rarity]++;
+                }
+            }
+        }
+    });
+    return counts;
+}
 export function spendInsight(amount, source = "Unknown") {
     if (typeof amount !== 'number' || isNaN(amount) || amount <= 0) return false;
     if (State.getInsight() >= amount) {
