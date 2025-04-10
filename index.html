@@ -102,7 +102,6 @@
                               <p id="tapestryNarrative">Mark concepts as "Focus" to generate narrative...</p>
                               <div class="tapestry-actions">
                                   <button id="exploreTapestryButton" class="button small-button hidden-by-flow" title="Explore a deeper analysis of your focused tapestry.">Explore Tapestry</button>
-                                  <!-- ** Synergy Button Added ** -->
                                   <button id="exploreSynergyButton" class="button small-button hidden-by-flow" disabled title="Focus concepts to explore synergies...">Explore Synergy</button>
                                   <button id="suggestSceneButton" class="button small-button hidden-by-flow" title="Suggest resonant scenes (Cost Insight)">Suggest Scenes (<span id="sceneSuggestCostDisplay">?</span> <i class="fas fa-brain insight-icon"></i>)</button>
                               </div>
@@ -267,79 +266,109 @@
          </div>
 
       <!-- Popups and Modals -->
+        <!-- Concept Detail Popup (NEW STRUCTURE) -->
         <div id="conceptDetailPopup" class="popup hidden card-popup">
               <button id="closePopupButton" class="close-button">×</button>
+
+              <!-- Popup Header -->
               <div class="popup-header">
                   <span id="popupCardTypeIcon" class="card-type-icon">?</span>
                   <h3 id="popupConceptName">Concept Name</h3>
-                  <p id="popupConceptType">Card Type</p>
+                  <p id="popupConceptType">Card Type</p> <!-- Element icon added here by JS -->
               </div>
-              <div class="popup-content">
-                  <div id="popupVisualContainer" class="popup-visual">
-                      <!-- Visual populated by JS -->
+
+              <!-- Popup Main Content -->
+              <div class="popup-main-content">
+                  <!-- Left Column (Visual) -->
+                  <div class="popup-visual-area">
+                      <div id="popupVisualContainer" class="popup-visual">
+                          <!-- Visual populated by JS -->
+                          <i class="fas fa-question card-visual-placeholder"></i>
+                      </div>
                   </div>
-                  <div class="popup-details">
-                      <p id="popupDetailedDescription" class="detailed-description">Loading description...</p>
-                       <hr class="popup-hr">
-                      <div class="resonance-summary" id="popupResonanceSummary">Loading resonance...</div>
 
-                      <!-- Collapsible Resonance Analysis Section -->
-                      <details id="popupRecipeDetails" class="collapsible-popup-section">
-                            <summary>Resonance Analysis <i class="fas fa-info-circle info-icon" title="Expand for a detailed breakdown of elemental alignment between this Concept and your profile."></i></summary>
+                  <!-- Right Column (Info) -->
+                  <div class="popup-info-area">
+                      <!-- NEW Resonance Gauge -->
+                      <div class="popup-section popup-resonance-gauge-section">
+                          <h4>Resonance <i class="fas fa-info-circle info-icon" title="How closely this Concept aligns with your Core Foundation scores."></i></h4>
+                          <div id="popupResonanceGaugeContainer">
+                              <div id="popupResonanceGaugeBar"></div>
+                              <span id="popupResonanceGaugeLabel">Moderate</span>
+                          </div>
+                          <small id="popupResonanceGaugeText">Shares some common ground.</small>
+                      </div>
+
+                      <!-- Brief Description -->
+                      <div class="popup-section">
+                           <h4>Overview</h4>
+                           <p id="popupBriefDescription" class="popup-brief-desc">Brief flavour text here...</p>
+                       </div>
+
+                      <!-- Detailed Description -->
+                      <div class="popup-section">
+                          <h4>Elaboration</h4>
+                          <p id="popupDetailedDescription" class="popup-detailed-desc">Loading description...</p>
+                      </div>
+
+                      <!-- Related Concepts (Tags/Pills) -->
+                      <div class="popup-section popup-related-concepts-section">
+                          <h4>Synergies / Related <i class="fas fa-info-circle info-icon" title="Concepts with thematic/functional relationships. Focusing synergistic concepts may unlock content."></i></h4>
+                          <div id="popupRelatedConceptsTags" class="related-concepts-tags">
+                              <!-- Related concept tags populated by JS -->
+                              <p><i>None specified.</i></p>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+
+              <!-- Collapsible Sections Area -->
+              <div class="popup-collapsible-area">
+                  <!-- Lore -->
+                  <details id="popupLoreSection" class="collapsible-popup-section hidden">
+                      <summary>Lore Insights <i class="fas fa-scroll"></i></summary>
+                      <div id="popupLoreContent" class="collapsible-content">
+                          <!-- Lore entries populated by JS -->
+                      </div>
+                  </details>
+
+                  <!-- Elemental Recipe -->
+                  <details id="popupRecipeDetails" class="collapsible-popup-section">
+                      <summary>Elemental Recipe <i class="fas fa-flask"></i></summary>
+                      <div class="collapsible-content">
+                           <div id="popupComparisonHighlights"></div>
+                           <details class="element-details">
+                               <summary>View Full Score Comparison</summary>
+                               <div class="profile-comparison">
+                                   <div class="profile-column"><h5>Concept Scores</h5><div id="popupConceptProfile"></div></div>
+                                   <div class="profile-column"><h5>Your Scores</h5><div id="popupUserComparisonProfile"></div></div>
+                               </div>
+                           </details>
+                      </div>
+                  </details>
+
+                  <!-- My Notes -->
+                  <div id="myNotesSection" class="collapsible-popup-section my-notes-section hidden">
+                       <details>
+                            <summary>My Notes <i class="fas fa-pencil-alt"></i></summary>
                             <div class="collapsible-content">
-                                 <!-- Content generated by JS -->
-                                 <div id="popupComparisonHighlights"></div>
-                                 <details class="element-details">
-                                     <summary>View Full Recipe Comparison</summary>
-                                     <div class="profile-comparison">
-                                         <div class="profile-column"><h5>Concept</h5><div id="popupConceptProfile"></div></div>
-                                         <div class="profile-column"><h5>You</h5><div id="popupUserComparisonProfile"></div></div>
-                                     </div>
-                                 </details>
-                            </div>
-                        </details>
-                        <!-- End Collapsible Resonance -->
-
-                       <hr class="popup-hr">
-
-                       <!-- Collapsible Related Concepts Section -->
-                       <details id="popupRelatedDetails" class="collapsible-popup-section">
-                            <summary>Synergies / Related <i class="fas fa-info-circle info-icon" title="Concepts with thematic/functional relationships. Focusing synergistic concepts may unlock content."></i></summary>
-                            <div class="collapsible-content">
-                                 <!-- Content generated by JS -->
-                                 <div class="related-concepts-list-dropdown">
-                                    <!-- List items will be added by JS here -->
-                                 </div>
+                                <textarea id="myNotesTextarea" rows="3" placeholder="Add your personal reflections here..."></textarea>
+                                <button id="saveMyNoteButton" class="button small-button">Save Note</button>
+                                <span id="noteSaveStatus" class="note-status"></span>
                             </div>
                        </details>
-                       <!-- End Collapsible Related Concepts -->
-
-                        <!-- ** Lore Section Inside Details ** -->
-                        <details id="popupLoreSection" class="collapsible-popup-section hidden">
-                            <summary>Unlocked Lore <i class="fas fa-info-circle info-icon" title="Deeper insights and flavor text unlocked for Rare concepts by spending Insight."></i></summary>
-                            <div id="popupLoreContent" class="collapsible-content">
-                                <!-- Lore entries populated by JS -->
-                                <p><i>No lore available or unlocked yet.</i></p>
-                            </div>
-                        </details>
-                        <!-- ** END Lore Section ** -->
-
-                       <div id="myNotesSection" class="my-notes-section hidden">
-                            <hr class="popup-hr">
-                           <h4>My Notes <i class="fas fa-info-circle info-icon" title="Your personal space to jot down thoughts, reflections, or interpretations related to this Concept. Saved automatically."></i></h4>
-                           <textarea id="myNotesTextarea" rows="3" placeholder="Add your personal reflections here..."></textarea>
-                           <button id="saveMyNoteButton" class="button small-button">Save Note</button>
-                           <span id="noteSaveStatus" class="note-status"></span>
-                       </div>
-                    
                   </div>
               </div>
+
+              <!-- Popup Actions Footer -->
               <div class="popup-actions">
                   <button id="addToGrimoireButton" class="button small-button add-grimoire-button" title="Add this Concept to your permanent Grimoire collection.">Add to Grimoire</button>
                   <button id="markAsFocusButton" class="button small-button focus-button hidden" title="Toggle whether this Concept contributes to your Persona Tapestry.">Mark as Focus</button>
                   <!-- Sell button added dynamically by JS if applicable -->
               </div>
         </div>
+        <!-- End Concept Detail Popup -->
+
 
          <div id="reflectionModal" class="popup hidden reflection-modal">
              <button id="closeReflectionModalButton" class="close-button">×</button>
