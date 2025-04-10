@@ -312,72 +312,77 @@ export function handleCategorizeCard(conceptId, categoryId) { // Remove phase ch
 function checkCategoryUnlocks(categoryId) { if (!categoryDrivenUnlocks || categoryDrivenUnlocks.length === 0) return; console.log(`Checking category unlocks for category: ${categoryId}`); const discoveredMap = State.getDiscoveredConcepts(); const cardsInCategory = Array.from(discoveredMap.entries()).filter(([id, data]) => (data.userCategory || 'uncategorized') === categoryId).map(([id]) => id); const cardIdSetInCategory = new Set(cardsInCategory); categoryDrivenUnlocks.forEach(unlock => { if (unlock.categoryRequired === categoryId ) { let requirementsMet = true; if (!unlock.requiredInSameCategory || unlock.requiredInSameCategory.length === 0) requirementsMet = false; else { for (const reqId of unlock.requiredInSameCategory) { if (!cardIdSetInCategory.has(reqId)) { requirementsMet = false; break; } } } if (requirementsMet) { console.log(`Category unlock triggered: ${unlock.id}`); const reward = unlock.unlocks; if (reward.type === 'lore') { const currentLoreLevel = State.getUnlockedLoreLevel(reward.targetConceptId); if (reward.loreLevelToUnlock > currentLoreLevel) { if (unlockLoreInternal(reward.targetConceptId, reward.loreLevelToUnlock, `Category Unlock: ${unlock.description || unlock.id}`)) { UI.showTemporaryMessage(unlock.description || `New Lore Unlocked!`, 4000); } } } else if (reward.type === 'insight') { gainInsight(reward.amount, `Category Unlock: ${unlock.description || unlock.id}`); UI.showTemporaryMessage(unlock.description || `Gained ${reward.amount} Insight!`, 3500); } } } }); }
 export function handleUnlockLore(conceptId, level, cost) { console.log(`Attempting to unlock lore level ${level} for concept ${conceptId} (Cost: ${cost})`); const concept = State.getDiscoveredConceptData(conceptId)?.concept; if (!concept) return; if (State.getUnlockedLoreLevel(conceptId) >= level) { UI.showTemporaryMessage("Lore already unlocked.", 2000); return; } if (spendInsight(cost, `Unlock Lore: ${concept.name} Lvl ${level}`)) { unlockLoreInternal(conceptId, level, `Insight Purchase`); } }
 function unlockLoreInternal(conceptId, level, source = "Unknown") {
-    if (State.unlockLoreLevel(conceptId, level)) { // Handles state save
+    // Update the state immediately (this is fine)
+    if (State.unlockLoreLevel(conceptId, level)) {
         const conceptName = State.getDiscoveredConceptData(conceptId)?.concept?.name || `ID ${conceptId}`;
         console.log(`Successfully unlocked lore level ${level} for ${conceptName} via ${source}`);
 
-        // --- START REPLACEMENT (Modified Finder Logic) ---
+        // --- DOM Update Logic (Now deferred slightly) ---
+        // Check if the relevant popup is open
         if (getCurrentPopupConceptId() === conceptId && document.getElementById('conceptDetailPopup')) {
-            const loreContentContainer = document.getElementById('popupLoreContent');
-            let loreEntryDiv = null; // Initialize to null
 
-            // Iterate through children to find the matching div
-            if (loreContentContainer) {
-                for (const child of loreContentContainer.children) {
-                    if (child.classList.contains('lore-entry') && child.dataset.loreLevel === String(level)) {
-                        loreEntryDiv = child;
-                        break; // Found it!
+            // Use requestAnimationFrame to ensure DOM is ready
+            requestAnimationFrame(() => {
+                console.log(`rAF: Trying to update DOM for lore level ${level}`);
+                const loreContentContainer = document.getElementById('popupLoreContent');
+                let loreEntryDiv = null;
+
+                if (loreContentContainer) {
+                    for (const child of loreContentContainer.children) {
+                        // Adding extra logging here to see what's being checked
+                        // console.log(`rAF: Checking child:`, child, `dataset.loreLevel:`, child.dataset.loreLevel, `Target level:`, level, `Comparison:`, child.dataset.loreLevel === String(level));
+                        if (child.classList.contains('lore-entry') && child.dataset.loreLevel === String(level)) {
+                            loreEntryDiv = child;
+                            console.log(`rAF: Found matching div for level ${level}!`);
+                            break;
+                        }
                     }
-                }
-            } else {
-                 console.error("Could not find #popupLoreContent container!");
-                 // Fallback immediately if container missing
-                 UI.showConceptDetailPopup(conceptId);
-                 updateMilestoneProgress('unlockLore', level); // Still track milestone
-                 return true; // Or false depending on desired behavior on UI error
-            }
-
-
-            if (loreEntryDiv) { // Check if we found it
-                // Find the lore data for this level
-                const conceptData = concepts.find(c => c.id === conceptId);
-                const loreData = conceptData?.lore?.find(l => l.level === level);
-
-                if (loreData) {
-                    // Update the content directly
-                    loreEntryDiv.innerHTML = `
-                        <h5 class="lore-level-title">Level ${loreData.level} Insight:</h5>
-                        <p class="lore-text">${loreData.text}</p>
-                    `;
-                    console.log(`Updated DOM for lore level ${level} via iteration.`);
                 } else {
-                    console.error(`Could not find lore data for level ${level} to update DOM.`);
+                    console.error("rAF: Could not find #popupLoreContent container!");
+                    // Fallback redraw if container missing even in rAF
+                    UI.showConceptDetailPopup(conceptId);
+                    return; // Exit rAF callback
+                }
+
+
+                if (loreEntryDiv) { // If found within rAF
+                    const conceptData = concepts.find(c => c.id === conceptId);
+                    const loreData = conceptData?.lore?.find(l => l.level === level);
+
+                    if (loreData) {
+                        loreEntryDiv.innerHTML = `
+                            <h5 class="lore-level-title">Level ${loreData.level} Insight:</h5>
+                            <p class="lore-text">${loreData.text}</p>
+                        `;
+                        console.log(`rAF: Updated DOM successfully for level ${level}.`);
+
+                         // --- Update Lore Indicator on Card (Keep this logic) ---
+                        const cardElemIndicator = document.querySelector(`#grimoireContent .concept-card[data-concept-id="${conceptId}"] .lore-indicator`);
+                        if (cardElemIndicator) {
+                            const conceptDataForIndicator = concepts.find(c => c.id === conceptId);
+                            const highestLore = conceptDataForIndicator?.lore?.reduce((max, l) => Math.max(max, l.level), 0) || 0;
+                            const currentlyUnlocked = State.getUnlockedLoreLevel(conceptId);
+                            if (currentlyUnlocked >= highestLore) {
+                                cardElemIndicator.remove();
+                            }
+                        }
+                        // --- End Lore Indicator Update ---
+
+                    } else {
+                        console.error(`rAF: Could not find lore data for level ${level} to update DOM.`);
+                        UI.showConceptDetailPopup(conceptId); // Fallback redraw
+                    }
+                } else {
+                    console.error(`rAF: DOM search failed for level ${level} within animation frame. Falling back to redraw.`);
                     UI.showConceptDetailPopup(conceptId); // Fallback redraw
                 }
-
-                // --- Update Lore Indicator on Card (Keep this logic) ---
-                const cardElemIndicator = document.querySelector(`#grimoireContent .concept-card[data-concept-id="${conceptId}"] .lore-indicator`);
-                 if (cardElemIndicator) {
-                     const conceptDataForIndicator = concepts.find(c => c.id === conceptId); // Re-fetch needed data
-                     const highestLore = conceptDataForIndicator?.lore?.reduce((max, l) => Math.max(max, l.level), 0) || 0;
-                     const currentlyUnlocked = State.getUnlockedLoreLevel(conceptId); // Get potentially updated level from state
-                     if (currentlyUnlocked >= highestLore) {
-                          cardElemIndicator.remove();
-                     }
-                 }
-                 // --- End Lore Indicator Update ---
-
-            } else {
-                // Log the failure reason from the console log
-                console.error(`DOM search failed for level ${level}. Falling back to redraw.`);
-                 UI.showConceptDetailPopup(conceptId); // Fallback redraw
-            }
+            }); // End of requestAnimationFrame
 
         } else {
             // If popup wasn't open, just refresh the grimoire
             UI.refreshGrimoireDisplay();
         }
-        // --- END REPLACEMENT ---
+        // --- END DOM Update Logic ---
 
         updateMilestoneProgress('unlockLore', level);
         return true;
