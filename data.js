@@ -530,6 +530,8 @@ const concepts = [ // Ensure commas after lore arrays
         { level: 2, insightCost: 7, text: "Historical Note: Sometimes used historically as a form of punishment, its BDSM use reclaims it for consensual sensation play.", unlocked: false }
     ]
 }
+
+    ];
     // --- Rare Concepts (LORE ADDED - COMMAS CHECKED) ---
     {
         id: 8, name: "Impact Play (Heavy)", cardType: "Practice/Kink", visualHandle: "rare_impact_heavy", primaryElement: "S", elementScores: { A: 5, I: 7, S: 9, P: 7, C: 4, R: 6 }, briefDescription: "Intense impact, feeling the oomph.", detailedDescription: "Turning up the volume! Using tools like canes, whips, heavy paddles, or even fists for strong, often ouchy-but-good sensations. Could be about testing limits, leaving marks, or the power dynamic involved. Trust and safety first!", relatedIds: [7, 9, 4, 5, 44, 97, 110], rarity: 'rare', canUnlockArt: true, visualHandleUnlocked: "rare_impact_heavy_art", uniquePromptId: "rP08", keywords: ['Impact', 'Pain Play', 'Intensity', 'Sensation', 'Endurance', 'Marking', 'Control', 'BDSM'],
