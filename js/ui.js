@@ -622,8 +622,7 @@ export function displayPersonaSummary() {
 
 // --- Study Screen UI ---
 export function displayStudyScreenContent() {
-    // ... (Keep existing displayStudyScreenContent code) ...
-     if (!studyScreen) return;
+    if (!studyScreen) return;
     console.log(`UI: Displaying Study Screen Content`);
     if (userInsightDisplayStudy) userInsightDisplayStudy.textContent = State.getInsight().toFixed(1);
     if (initialDiscoveryElements) {
@@ -641,7 +640,42 @@ export function displayStudyScreenContent() {
             if (freeResearchLeft > 0) { costText = `Free Research (${freeResearchLeft} left)`; titleText = `Conduct FREE research on ${elementData.name || elementName}.`; isFreeClick = true; isDisabled = false; }
             else { costText = `${researchCost} <i class="fas fa-brain insight-icon"></i>`; if (insight < researchCost) { isDisabled = true; titleText = `Research ${elementData.name || elementName} (Requires ${researchCost} Insight)`; } else { isDisabled = false; titleText = `Research ${elementData.name || elementName} (Cost: ${researchCost} Insight)`; } isFreeClick = false; }
             elementDiv.dataset.cost = researchCost;
-            elementDiv.innerHTML = ` <div class="element-header"> <i class="${iconClass}" style="color: ${color};"></i> <span class="element-name">${elementData.name || elementName}</span> <span class="element-score">${score.toFixed(1)} (${scoreLabel})</span> </div> <p class="element-concept">${elementData.coreConcept || 'Loading...'}</p> <div class="element-action ${isDisabled ? 'disabled' : ''}"> <span class="element-cost">${costText}</span> </div>`;
+
+            // --- ADD RARITY COUNT LOGIC ---
+            // NOTE: This assumes countUndiscoveredByRarity is accessible.
+            // If it's in gameLogic.js, you might need to call GameLogic.countUndiscoveredByRarity(key)
+            // or adjust imports/exports appropriately. For simplicity here, assuming it's callable.
+            let rarityCountsHTML = '';
+            try {
+                // IMPORTANT: Call the function via the imported module
+                const rarityCounts = GameLogic.countUndiscoveredByRarity(key);
+                rarityCountsHTML = `
+                    <div class="rarity-counts-display" title="Undiscovered Concepts (Relevant to Element)">
+                        <span class="rarity-count common" title="${rarityCounts.common} Common"><i class="fas fa-circle"></i> ${rarityCounts.common}</span>
+                        <span class="rarity-count uncommon" title="${rarityCounts.uncommon} Uncommon"><i class="fas fa-square"></i> ${rarityCounts.uncommon}</span>
+                        <span class="rarity-count rare" title="${rarityCounts.rare} Rare"><i class="fas fa-star"></i> ${rarityCounts.rare}</span>
+                    </div>
+                `;
+            } catch (error) {
+                console.error(`Error getting rarity counts for ${key}:`, error);
+                rarityCountsHTML = '<div class="rarity-counts-display error">Counts N/A</div>';
+            }
+            // --- END RARITY COUNT LOGIC ---
+
+            // Modified innerHTML to include rarityCountsHTML
+            elementDiv.innerHTML = `
+                <div class="element-header">
+                    <i class="${iconClass}" style="color: ${color};"></i>
+                    <span class="element-name">${elementData.name || elementName}</span>
+                    <span class="element-score">${score.toFixed(1)} (${scoreLabel})</span>
+                </div>
+                <p class="element-concept">${elementData.coreConcept || 'Loading...'}</p>
+                ${rarityCountsHTML} <!-- Inject the rarity counts here -->
+                <div class="element-action ${isDisabled ? 'disabled' : ''}">
+                    <span class="element-cost">${costText}</span>
+                </div>
+            `;
+
             elementDiv.title = titleText; if (!isDisabled) { elementDiv.classList.add('clickable'); } else { elementDiv.classList.add('disabled'); }
             initialDiscoveryElements.appendChild(elementDiv);
         });
