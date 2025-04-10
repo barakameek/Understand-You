@@ -1294,11 +1294,13 @@ const cardTypeThemes = {
 ];
 
 
+
+
 // --- FINAL EXPORT BLOCK ---
 export {
     // Core Data
     elementDetails,
-    concepts,
+    concepts, // Make sure this is here
     elementKeyToFullName,
     elementNameToKey,
     cardTypeKeys,
@@ -1316,12 +1318,14 @@ export {
     elementalInsights,
     // Unlock Mechanisms
     focusDrivenUnlocks,
-    categoryDrivenUnlocks,
-    // UI/Config Helpers (Excluding grimoireShelves as it's directly exported)
-    onboardingTasks,
+    categoryDrivenUnlocks, // Ensure this is here if you added it
+    // UI/Config Helpers
+    // onboardingTasks, // Removed if you deleted onboarding
     elementInteractionThemes,
-    cardTypeThemes
+    cardTypeThemes,
+    grimoireShelves, // Ensure this is here
+    elementalDilemmas // <-- ADD THIS LINE
 };
 
-console.log("data.js exports defined... RARE lore added, shelves defined, category unlocks added!");
+console.log("data.js exports defined... RARE lore added, shelves defined, category unlocks added, dilemmas added!"); // Optional: Update log
 console.log("data.js finished.");
