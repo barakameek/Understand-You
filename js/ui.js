@@ -500,7 +500,69 @@ export function displayElementAttunement() { // CORRECTED LOGIC
     });
 }
 export function updateFocusSlotsDisplay() { const focused = State.getFocusedConcepts(); const totalSlots = State.getFocusSlots(); if (focusedConceptsHeader) { focusedConceptsHeader.textContent = `Focused Concepts (${focused.size} / ${totalSlots})`; const icon = focusedConceptsHeader.querySelector('.info-icon'); if(icon) icon.title = `Concepts marked as Focus (${focused.size}) out of your available slots (${totalSlots}). Slots increase via Milestones.`; } }
-export function displayFocusedConceptsPersona() { if (!focusedConceptsDisplay) return; focusedConceptsDisplay.innerHTML = ''; updateFocusSlotsDisplay(); const focused = State.getFocusedConcepts(); const discovered = State.getDiscoveredConcepts(); if (focused.size === 0) { focusedConceptsDisplay.innerHTML = `<li class="focus-placeholder">Focus Concepts from your Grimoire</li>`; return; } focused.forEach(conceptId => { const conceptData = discovered.get(conceptId); if (conceptData?.concept) { const concept = conceptData.concept; const item = document.createElement('div'); item.classList.add('focus-concept-item'); item.dataset.conceptId = concept.id; item.title = `View ${concept.name}`; let iconClass = Utils.getCardTypeIcon(concept.cardType); let iconColor = '#b8860b'; if (concept.primaryElement && elementKeyToFullName?.[concept.primaryElement]) { const fullElementName = elementKeyToFullName[concept.primaryElement]; iconClass = Utils.getElementIcon(fullElementName); iconColor = Utils.getElementColor(fullElementName); } else { console.warn(`Concept ${concept.name} missing valid primaryElement for focus icon.`); } item.innerHTML = `<i class="${iconClass}" style="color: ${iconColor};"></i><span class="name">${concept.name}</span><span class="type">(${concept.cardType})</span>`; item.addEventListener('click', () => showConceptDetailPopup(concept.id)); focusedConceptsDisplay.appendChild(item); } else { console.warn(`Focused concept ID ${conceptId} not found.`); const item = document.createElement('div'); item.classList.add('focus-concept-item', 'missing'); item.textContent = `Error: ID ${conceptId}`; focusedConceptsDisplay.appendChild(item); } }); updateSuggestSceneButtonState(); }
+export function displayFocusedConceptsPersona() {
+    if (!focusedConceptsDisplay) return;
+    focusedConceptsDisplay.innerHTML = '';
+    updateFocusSlotsDisplay();
+    const focused = State.getFocusedConcepts();
+    const discovered = State.getDiscoveredConcepts();
+
+    if (focused.size === 0) {
+        focusedConceptsDisplay.innerHTML = `<li class="focus-placeholder">Focus Concepts from your Grimoire</li>`;
+        return;
+    }
+
+    focused.forEach(conceptId => {
+        const conceptData = discovered.get(conceptId);
+        if (conceptData?.concept) {
+            const concept = conceptData.concept;
+            const item = document.createElement('div');
+            item.classList.add('focus-concept-item');
+            item.dataset.conceptId = concept.id;
+            item.title = `View ${concept.name}`;
+
+            // --- START: Background Image Logic ---
+            if (concept.visualHandle) {
+                const handle = concept.visualHandle;
+                // Use Config for extension or default if Config isn't imported/doesn't have it
+                const extension = Config.UNLOCKED_ART_EXTENSION || '.jpg';
+                const fileName = handle.includes('.') ? handle : `${handle}${extension}`;
+                const imageUrl = `url('placeholder_art/${fileName}')`; // Correctly format URL
+
+                item.style.backgroundImage = imageUrl;
+                item.classList.add('has-background-image'); // Add class for CSS targeting
+                console.log(`Applying background: ${imageUrl} to focus item ${concept.id}`);
+            } else {
+                 console.log(`No visualHandle for focus item ${concept.id}`);
+            }
+            // --- END: Background Image Logic ---
+
+            // Original icon/text logic
+            let iconClass = Utils.getCardTypeIcon(concept.cardType);
+            let iconColor = '#b8860b'; // Default color
+            if (concept.primaryElement && elementKeyToFullName?.[concept.primaryElement]) {
+                const fullElementName = elementKeyToFullName[concept.primaryElement];
+                iconClass = Utils.getElementIcon(fullElementName);
+                iconColor = Utils.getElementColor(fullElementName);
+            }
+            item.innerHTML = `
+                <i class="${iconClass}" style="color: ${iconColor};"></i>
+                <span class="name">${concept.name}</span>
+                <span class="type">(${concept.cardType})</span>
+            `;
+
+            item.addEventListener('click', () => showConceptDetailPopup(concept.id));
+            focusedConceptsDisplay.appendChild(item);
+        } else {
+            console.warn(`Focused concept ID ${conceptId} not found.`);
+            const item = document.createElement('div');
+            item.classList.add('focus-concept-item', 'missing');
+            item.textContent = `Error: ID ${conceptId}`;
+            focusedConceptsDisplay.appendChild(item);
+        }
+    });
+    updateSuggestSceneButtonState(); // Keep this if needed
+}
 export function generateTapestryNarrative() { if (!tapestryNarrativeP) return; const narrativeHTML = GameLogic.calculateTapestryNarrative(); tapestryNarrativeP.innerHTML = narrativeHTML || 'Mark concepts as "Focus" to generate narrative...'; }
 export function synthesizeAndDisplayThemesPersona() { if (!personaThemesList) return; personaThemesList.innerHTML = ''; const themes = GameLogic.calculateFocusThemes(); if (themes.length === 0) { personaThemesList.innerHTML = `<li>${State.getFocusedConcepts().size > 0 ? 'Focus is currently balanced.' : 'Mark Focused Concepts...'}</li>`; return; } const topTheme = themes[0]; const li = document.createElement('li'); let emphasis = "Strongly"; if (themes.length > 1 && topTheme.count <= themes[1].count + 1) emphasis = "Primarily"; else if (topTheme.count < 3) emphasis = "Leaning towards"; li.textContent = `${emphasis} focused on ${topTheme.name}`; li.style.borderLeft = `3px solid ${Utils.getElementColor(elementKeyToFullName[topTheme.key])}`; li.style.paddingLeft = '8px'; personaThemesList.appendChild(li); if (themes.length > 1 && topTheme.count <= themes[1].count + 1) { const balanceLi = document.createElement('li'); balanceLi.innerHTML = `<small>(with other influences present)</small>`; balanceLi.style.fontSize = '0.85em'; balanceLi.style.color = '#666'; balanceLi.style.paddingLeft = '20px'; balanceLi.style.borderLeft = 'none'; personaThemesList.appendChild(balanceLi); } }
 
