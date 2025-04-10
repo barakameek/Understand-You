@@ -164,7 +164,9 @@ export function loadGameState() {
 
 // ... (clearGameState remains the same) ...
 export function clearGameState() { localStorage.removeItem(Config.SAVE_KEY); gameState = createInitialGameState(); console.log("Game state cleared and reset."); }
-
+export function getInsightBoostCooldownEnd() {
+    return gameState.insightBoostCooldownEnd;
+}
 // --- Getters (Removed getCurrentFocusSetHash) ---
 export function getState() { return gameState; }
 export function getScores() { return gameState.userScores; }
