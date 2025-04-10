@@ -944,4 +944,49 @@ hr { border: none; border-top: 1px dashed var(--border-color-light); margin: 18p
 #myNotesSection summary { background-color: #e8d8c0; /* Consistent summary style */ }
 #myNotesSection .collapsible-content { padding: 12px 15px; border: none; background: #fffefa; border-radius: 0 0 5px 5px; }
 
+/* --- Study Screen Rarity Counts --- */
+}
+
+.initial-discovery-element .rarity-counts-display {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin: 10px 0 8px 0; /* Add some spacing */
+    font-size: 0.8em;
+    opacity: 0.8;
+}
+
+.rarity-counts-display .rarity-count {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    padding: 2px 5px;
+    border-radius: 3px;
+    border: 1px solid transparent; /* Base border */
+}
+
+.rarity-counts-display .rarity-count i {
+    font-size: 0.9em; /* Adjust icon size */
+}
+
+/* Style based on rarity */
+.rarity-counts-display .rarity-count.common {
+    color: #495057; /* Dark grey */
+    border-color: #ced4da;
+    background-color: rgba(248, 249, 250, 0.5); /* Light grey bg */
+}
+.rarity-counts-display .rarity-count.uncommon {
+    color: #0f5132; /* Dark green */
+    border-color: #badbcc;
+    background-color: rgba(209, 231, 221, 0.5); /* Light green bg */
+}
+.rarity-counts-display .rarity-count.rare {
+    color: #8a2be2; /* Purple */
+    border-color: #d1b4f8;
+    background-color: rgba(229, 217, 248, 0.5); /* Light purple bg */
+}
+.rarity-counts-display .rarity-count.error {
+    color: var(--danger-color);
+    font-style: italic;
+}
 /* --- END OF style.css --- */
