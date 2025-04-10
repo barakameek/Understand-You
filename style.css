@@ -495,50 +495,296 @@ hr { border: none; border-top: 1px dashed var(--border-color-light); margin: 18p
 
 /* --- Tapestry Deep Dive Modal ("Resonance Chamber") Overhaul --- */
 .resonance-chamber-modal {
-    max-width: 850px; /* Wider modal */
+    max-width: 850px; /* Keep wider modal */
     width: 95%;
     max-height: 90vh;
-    background: linear-gradient(170deg, #3a302a, #4f423a); /* Darker, richer background */
-    color: var(--background-light); /* Light text */
-    border: 2px solid var(--accent-color); /* Gold border */
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    /* Use standard popup background */
+    background: linear-gradient(to bottom, var(--background-light, #fdf8f0), var(--background-medium, #f5f0e1));
+    /* Use standard text color */
+    color: var(--text-color, #4a392c);
+    /* Use standard border color */
+    border: 2px solid var(--border-color-dark, #a08460);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2); /* Slightly softer shadow */
 }
-.resonance-chamber-modal .popup-header { background-color: rgba(0,0,0, 0.3); border-bottom: 1px solid rgba(255, 215, 0, 0.4); padding: 10px 45px 10px 20px; }
-.resonance-chamber-modal .popup-header h3 { color: var(--accent-color); font-size: 1.3em; text-align: left; text-shadow: 1px 1px 2px rgba(0,0,0,0.5); }
-.resonance-chamber-modal .close-button { color: rgba(255, 215, 0, 0.7); }
-.resonance-chamber-modal .close-button:hover { color: #ffffff; }
-.resonance-chamber-content { padding: 15px; flex-grow: 1; overflow: hidden; display: flex; flex-direction: column; gap: 15px; }
-.resonance-chamber-summary { background-color: rgba(0,0,0, 0.15); padding: 12px 15px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.1); }
-.resonance-chamber-summary h4 { font-family: 'Cinzel Decorative', cursive; font-size: 1.1em; color: var(--secondary-color); margin-bottom: 8px; border-bottom: 1px solid rgba(210, 180, 140, 0.3); padding-bottom: 4px; text-align: left; }
-.resonance-chamber-summary #deepDiveNarrativeP { font-size: 0.95em; font-style: italic; line-height: 1.5; color: #e0d8c0; margin-bottom: 10px; }
-.resonance-chamber-summary .focused-concepts-icons { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-start; margin-top: 8px; }
-.resonance-chamber-summary .focused-concepts-icons i { font-size: 1.2em; opacity: 0.8; padding: 3px; background-color: rgba(0,0,0,0.2); border-radius: 3px; }
-.resonance-chamber-main { display: flex; flex-direction: column; gap: 15px; flex-grow: 1; overflow: hidden; }
-.aspects-navigation { background-color: rgba(0,0,0, 0.2); padding: 10px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.1); flex-shrink: 0; }
-.aspects-navigation h4 { font-family: 'Cinzel Decorative', cursive; font-size: 1.1em; color: var(--secondary-color); margin-bottom: 10px; text-align: center; border: none; padding: 0; }
-.aspects-navigation .aspect-node { display: block; width: 100%; margin-bottom: 8px; text-align: left; background-color: rgba(210, 180, 140, 0.2); border: 1px solid rgba(210, 180, 140, 0.4); color: #e0d8c0; text-shadow: none; font-family: 'Merriweather', serif; font-size: 0.9em; padding: 8px 12px; border-radius: 4px; transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease; }
-.aspects-navigation .aspect-node i { margin-right: 8px; width: 1.2em; text-align: center; color: var(--accent-color); opacity: 0.8; }
-.aspects-navigation .aspect-node:hover:not(:disabled):not(.active) { background-color: rgba(210, 180, 140, 0.4); border-color: var(--secondary-color); color: #ffffff; }
-.aspects-navigation .aspect-node.active { background-color: var(--secondary-color); border-color: var(--accent-color); color: var(--primary-color); font-weight: bold; }
-.aspects-navigation .aspect-node.active i { color: var(--primary-color); opacity: 1; }
-.aspects-navigation .contemplation-node { background-color: rgba(138, 43, 226, 0.2); border-color: rgba(138, 43, 226, 0.4); }
-.aspects-navigation .contemplation-node:hover:not(:disabled):not(.active) { background-color: rgba(138, 43, 226, 0.4); border-color: #8a2be2; }
-.aspects-navigation .contemplation-node.active { background-color: #8a2be2; border-color: #bf7fff; color: white; }
-.aspects-navigation .contemplation-node.active i { color: white; }
-.aspects-navigation .contemplation-node:disabled { background-color: rgba(100, 100, 100, 0.3); border-color: rgba(150, 150, 150, 0.3); color: #999; cursor: not-allowed; opacity: 0.7; }
-.aspects-navigation .contemplation-node:disabled i { color: #999; opacity: 0.7; }
-.contemplation-cost { display: inline; }
-.insight-scroll-panel { background-color: rgba(253, 245, 230, 0.9); color: var(--text-color); padding: 15px; border-radius: 6px; border: 1px solid var(--border-color-light); flex-grow: 1; overflow-y: auto; min-height: 200px; }
-.insight-scroll-panel h4 { font-family: 'Cinzel Decorative', cursive; color: var(--primary-color); margin-bottom: 12px; border-bottom: 1px solid var(--border-color-dark); padding-bottom: 5px; font-size: 1.2em; }
-.insight-scroll-panel h5 { font-family: 'Garamond', serif; color: var(--link-color); margin-top: 15px; margin-bottom: 5px; font-size: 1.1em; border: none; text-align: left; }
-.insight-scroll-panel p, .insight-scroll-panel ul { font-size: 0.95em; line-height: 1.6; margin-bottom: 12px; }
-.insight-scroll-panel ul { list-style: disc; padding-left: 25px; }
+
+/* Header Styling */
+.resonance-chamber-modal .popup-header {
+    /* Use consistent header background and border */
+    background-color: var(--secondary-color, #d2b48c);
+    border-bottom: 2px solid var(--primary-color, #8b4513);
+    padding: 10px 45px 10px 20px;
+}
+
+.resonance-chamber-modal .popup-header h3 {
+    /* Use consistent header text color and font */
+    color: var(--link-color, #5a3a22);
+    font-size: 1.3em;
+    text-align: center; /* Center title */
+    text-shadow: none; /* Remove dark theme shadow */
+    font-family: 'Cinzel Decorative', cursive;
+}
+
+.resonance-chamber-modal .close-button {
+    /* Adjust close button color for light background */
+    color: var(--primary-color, #8b4513);
+    opacity: 0.7;
+}
+
+.resonance-chamber-modal .close-button:hover {
+    color: var(--text-color, #4a392c);
+    opacity: 1;
+}
+.resonance-chamber-content {
+    padding: 15px;
+    flex-grow: 1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* Summary Section */
+.resonance-chamber-summary {
+    /* Lighter background consistent with other sections */
+    background-color: rgba(245, 240, 225, 0.7); /* Similar to study/persona sections */
+    padding: 12px 15px;
+    border-radius: 6px;
+    border: 1px solid var(--border-color-light, #d3c0a0);
+}
+
+.resonance-chamber-summary h4 {
+    font-family: 'Cinzel Decorative', cursive; /* Match other H4 */
+    font-size: 1.1em;
+    color: var(--primary-color, #8b4513); /* Consistent header color */
+    margin-bottom: 8px;
+    border-bottom: 1px solid var(--border-color-light, #d3c0a0);
+    padding-bottom: 4px;
+    text-align: left;
+}
+
+.resonance-chamber-summary #deepDiveNarrativeP {
+    font-size: 0.95em;
+    font-style: italic;
+    line-height: 1.5;
+    color: var(--text-color, #4a392c); /* Standard text color */
+    margin-bottom: 10px;
+}
+
+.resonance-chamber-summary .focused-concepts-icons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: flex-start;
+    margin-top: 8px;
+}
+
+.resonance-chamber-summary .focused-concepts-icons i {
+    font-size: 1.2em;
+    opacity: 0.8;
+    padding: 3px;
+    background-color: transparent; /* Remove dark background */
+    border-radius: 3px;
+    /* Color set by JS, keep this */
+}
+
+/* Main Layout (Nav + Content) */
+.resonance-chamber-main {
+    display: flex;
+    flex-direction: column; /* Stack on mobile */
+    gap: 15px;
+    flex-grow: 1;
+    overflow: hidden;
+}
+
+/* Navigation Section */
+.aspects-navigation {
+    /* Lighter background, similar to summary */
+    background-color: rgba(245, 240, 225, 0.5);
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid var(--border-color-light, #d3c0a0);
+    flex-shrink: 0;
+}
+
+.aspects-navigation h4 {
+    font-family: 'Cinzel Decorative', cursive;
+    font-size: 1.1em;
+    color: var(--primary-color, #8b4513);
+    margin-bottom: 10px;
+    text-align: center;
+    border: none;
+    padding: 0;
+}
+
+/* Navigation Buttons */
+.aspects-navigation .aspect-node {
+    /* Inherit base button styles */
+    display: block;
+    width: 100%;
+    margin-bottom: 8px;
+    text-align: left;
+    /* Reset base button styles that might conflict */
+    border-radius: 4px;
+    text-transform: none; /* Remove uppercase from base button */
+    letter-spacing: normal; /* Remove letter-spacing from base button */
+    font-size: 0.9em;
+    font-family: 'Merriweather', serif;
+    padding: 8px 12px;
+    /* Apply standard button colors */
+    background-color: var(--secondary-color, #d2b48c);
+    border: 1px solid var(--border-color-dark, #a08460);
+    color: var(--text-color, #4a392c);
+    text-shadow: none;
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.1s ease;
+}
+
+.aspects-navigation .aspect-node i {
+    margin-right: 8px;
+    width: 1.2em;
+    text-align: center;
+    color: var(--primary-color); /* Icon color matches primary */
+    opacity: 0.9;
+}
+
+.aspects-navigation .aspect-node:hover:not(:disabled):not(.active) {
+    background-color: #e0d0b0; /* Lighten secondary */
+    border-color: var(--primary-color, #8b4513);
+    color: var(--primary-color, #8b4513);
+    transform: translateY(-1px);
+}
+
+.aspects-navigation .aspect-node.active {
+    background-color: var(--primary-color, #8b4513);
+    border-color: #5a2d0c; /* Darker primary border */
+    color: #ffffff; /* White text on active */
+    font-weight: bold;
+}
+
+.aspects-navigation .aspect-node.active i {
+    color: #ffffff; /* White icon */
+    opacity: 1;
+}
+
+/* Contemplation Button Specifics */
+.aspects-navigation .contemplation-node {
+    /* Start with secondary button style */
+    background-color: #b0a48a;
+    border-color: #8b7d6b;
+    color: #3f372e;
+}
+.aspects-navigation .contemplation-node:hover:not(:disabled):not(.active) {
+     background-color: #c4bba8; /* Lighter secondary */
+     border-color: #7a6d5b;
+}
+.aspects-navigation .contemplation-node.active {
+    /* Use accent color for active contemplation? */
+    background-color: var(--accent-color, #ffd700);
+    border-color: #b8860b; /* Darker gold */
+    color: var(--text-color, #4a392c);
+}
+.aspects-navigation .contemplation-node.active i {
+    color: var(--text-color, #4a392c);
+}
+
+/* Disabled State */
+.aspects-navigation .aspect-node:disabled {
+    background-color: #ccc; /* Standard disabled grey */
+    border-color: #aaa;
+    color: #777;
+    cursor: not-allowed;
+    opacity: 0.7;
+    transform: none;
+    box-shadow: none;
+}
+.aspects-navigation .aspect-node:disabled i {
+    color: #777;
+    opacity: 0.7;
+}
+
+.contemplation-cost { display: inline; } /* Keep this */
+
+/* Insight Content Panel */
+.insight-scroll-panel {
+    /* Already mostly themed correctly, ensure background consistency */
+    background-color: var(--background-light, #fdf8f0); /* Match popup background base */
+    color: var(--text-color, #4a392c);
+    padding: 15px;
+    border-radius: 6px;
+    border: 1px solid var(--border-color-light, #d3c0a0);
+    flex-grow: 1;
+    overflow-y: auto;
+    min-height: 200px; /* Ensure it takes space */
+}
+
+.insight-scroll-panel h4 {
+    font-family: 'Cinzel Decorative', cursive;
+    color: var(--primary-color, #8b4513);
+    margin-bottom: 12px;
+    border-bottom: 1px solid var(--border-color-dark, #a08460);
+    padding-bottom: 5px;
+    font-size: 1.2em;
+}
+
+.insight-scroll-panel h5 {
+    font-family: 'Garamond', serif;
+    color: var(--link-color, #5a3a22);
+    margin-top: 15px;
+    margin-bottom: 5px;
+    font-size: 1.1em;
+    border: none;
+    text-align: left;
+}
+
+.insight-scroll-panel p, .insight-scroll-panel ul {
+    font-size: 0.95em;
+    line-height: 1.6;
+    margin-bottom: 12px;
+}
+
+.insight-scroll-panel ul {
+    list-style: disc;
+    padding-left: 25px;
+}
+
 .insight-scroll-panel li { margin-bottom: 8px; }
-.insight-scroll-panel strong { font-weight: bold; color: var(--primary-color); }
-.insight-scroll-panel p i { color: #888; }
-.insight-scroll-panel .keyword-tag { background-color: var(--secondary-color); color: var(--text-color); padding: 2px 8px; border-radius: 12px; font-size: 0.9em; margin: 2px; display: inline-block; }
-#completeContemplationBtn { display: block; margin: 20px auto 5px auto; }
-@media (min-width: 768px) { .resonance-chamber-main { flex-direction: row; } .aspects-navigation { flex: 0 0 200px; overflow-y: auto; max-height: calc(88vh - 200px); } .insight-scroll-panel { flex: 1 1 auto; min-width: 0; max-height: calc(88vh - 180px); } }
+.insight-scroll-panel strong { font-weight: bold; color: var(--primary-color, #8b4513); }
+.insight-scroll-panel p i { color: #888; } /* Placeholder text color */
+
+.insight-scroll-panel .keyword-tag {
+    /* Style keyword tags if used */
+    background-color: var(--secondary-color, #d2b48c);
+    color: var(--text-color, #4a392c);
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.9em;
+    margin: 2px;
+    display: inline-block;
+    border: 1px solid var(--border-color-dark, #a08460);
+}
+
+#completeContemplationBtn {
+    /* Ensure button styles are applied correctly if added dynamically */
+    display: block;
+    margin: 20px auto 5px auto;
+    /* Inherits base button styles */
+}
+
+/* Responsive adjustments */
+@media (min-width: 768px) {
+    .resonance-chamber-main {
+        flex-direction: row; /* Side-by-side layout on larger screens */
+    }
+    .aspects-navigation {
+        flex: 0 0 220px; /* Slightly wider nav */
+        overflow-y: auto;
+        max-height: calc(88vh - 200px); /* Adjust based on modal height */
+    }
+    .insight-scroll-panel {
+        flex: 1 1 auto;
+        min-width: 0;
+        max-height: calc(88vh - 180px); /* Adjust based on modal height */
+    }
+}
 /* --- END Tapestry Deep Dive Modal Overhaul --- */
 
 /* --- Elemental Dilemma Modal --- */
