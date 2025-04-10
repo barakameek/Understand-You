@@ -1480,7 +1480,7 @@ const cardTypeThemes = {
 
 // You would likely add this export to the end of your data.js if it's not already there:
 // export { elementalDilemmas };
-];
+
 
 
 // --- FINAL EXPORT BLOCK ---
