@@ -1294,7 +1294,7 @@ const cardTypeThemes = {
 ];
 
  const elementalDilemmas = [ // Add 'export' keyword here
-      export const elementalDilemmas = [
+    
     // --- Attraction Focused ---
     {
         id: "ED_A01", elementFocus: ["A", "P"],
