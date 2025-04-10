@@ -57,7 +57,7 @@ export function gainInsight(amount, source = "Unknown") {
     }
 }
 // Helper function to count undiscovered concepts by rarity for a specific element
-function countUndiscoveredByRarity(elementKey) {
+export function countUndiscoveredByRarity(elementKey) {
     const discoveredIds = new Set(State.getDiscoveredConcepts().keys());
     const counts = { common: 0, uncommon: 0, rare: 0 };
 
