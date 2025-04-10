@@ -311,20 +311,71 @@ export function handleCategorizeCard(conceptId, categoryId) { // Remove phase ch
 }
 function checkCategoryUnlocks(categoryId) { if (!categoryDrivenUnlocks || categoryDrivenUnlocks.length === 0) return; console.log(`Checking category unlocks for category: ${categoryId}`); const discoveredMap = State.getDiscoveredConcepts(); const cardsInCategory = Array.from(discoveredMap.entries()).filter(([id, data]) => (data.userCategory || 'uncategorized') === categoryId).map(([id]) => id); const cardIdSetInCategory = new Set(cardsInCategory); categoryDrivenUnlocks.forEach(unlock => { if (unlock.categoryRequired === categoryId ) { let requirementsMet = true; if (!unlock.requiredInSameCategory || unlock.requiredInSameCategory.length === 0) requirementsMet = false; else { for (const reqId of unlock.requiredInSameCategory) { if (!cardIdSetInCategory.has(reqId)) { requirementsMet = false; break; } } } if (requirementsMet) { console.log(`Category unlock triggered: ${unlock.id}`); const reward = unlock.unlocks; if (reward.type === 'lore') { const currentLoreLevel = State.getUnlockedLoreLevel(reward.targetConceptId); if (reward.loreLevelToUnlock > currentLoreLevel) { if (unlockLoreInternal(reward.targetConceptId, reward.loreLevelToUnlock, `Category Unlock: ${unlock.description || unlock.id}`)) { UI.showTemporaryMessage(unlock.description || `New Lore Unlocked!`, 4000); } } } else if (reward.type === 'insight') { gainInsight(reward.amount, `Category Unlock: ${unlock.description || unlock.id}`); UI.showTemporaryMessage(unlock.description || `Gained ${reward.amount} Insight!`, 3500); } } } }); }
 export function handleUnlockLore(conceptId, level, cost) { console.log(`Attempting to unlock lore level ${level} for concept ${conceptId} (Cost: ${cost})`); const concept = State.getDiscoveredConceptData(conceptId)?.concept; if (!concept) return; if (State.getUnlockedLoreLevel(conceptId) >= level) { UI.showTemporaryMessage("Lore already unlocked.", 2000); return; } if (spendInsight(cost, `Unlock Lore: ${concept.name} Lvl ${level}`)) { unlockLoreInternal(conceptId, level, `Insight Purchase`); } }
-function unlockLoreInternal(conceptId, level, source = "Unknown") { // Removed phase check logic
-     if (State.unlockLoreLevel(conceptId, level)) { // Handles state save
-            const conceptName = State.getDiscoveredConceptData(conceptId)?.concept?.name || `ID ${conceptId}`;
-            console.log(`Successfully unlocked lore level ${level} for ${conceptName} via ${source}`);
-            if (getCurrentPopupConceptId() === conceptId) { UI.showConceptDetailPopup(conceptId); }
-            else { UI.refreshGrimoireDisplay(); }
-            updateMilestoneProgress('unlockLore', level);
-            return true;
+function unlockLoreInternal(conceptId, level, source = "Unknown") {
+    if (State.unlockLoreLevel(conceptId, level)) { // Handles state save
+        const conceptName = State.getDiscoveredConceptData(conceptId)?.concept?.name || `ID ${conceptId}`;
+        console.log(`Successfully unlocked lore level ${level} for ${conceptName} via ${source}`);
+
+        // --- START REPLACEMENT ---
+        // Check if the popup for this concept is currently open
+        if (getCurrentPopupConceptId() === conceptId && document.getElementById('conceptDetailPopup')) {
+            // Find the specific lore entry div within the open popup
+            const loreEntryDiv = document.querySelector(`#popupLoreContent .lore-entry[data-lore-level="${level}"]`);
+
+            if (loreEntryDiv) {
+                // Find the lore data for this level
+                const conceptData = concepts.find(c => c.id === conceptId);
+                const loreData = conceptData?.lore?.find(l => l.level === level);
+
+                if (loreData) {
+                    // Update the content directly
+                    loreEntryDiv.innerHTML = `
+                        <h5 class="lore-level-title">Level ${loreData.level} Insight:</h5>
+                        <p class="lore-text">${loreData.text}</p>
+                    `;
+                    // Optionally add hr if needed, though structure might handle it
+                    // const nextEntry = loreEntryDiv.nextElementSibling;
+                    // if (nextEntry && nextEntry.tagName !== 'HR') {
+                    //     const hr = document.createElement('hr');
+                    //     loreEntryDiv.parentNode.insertBefore(hr, nextEntry);
+                    // }
+                    console.log(`Updated DOM for lore level ${level}`);
+                } else {
+                    console.error(`Could not find lore data for level ${level} to update DOM.`);
+                    // Fallback to redraw if data missing? Or just log error.
+                    UI.showConceptDetailPopup(conceptId); // Fallback redraw
+                }
+            } else {
+                console.error(`Could not find lore entry div for level ${level} in the popup DOM.`);
+                 // Fallback to redraw if element missing?
+                 UI.showConceptDetailPopup(conceptId); // Fallback redraw
+            }
+             // Update insight display (already done by spendInsight -> UI.updateInsightDisplays)
+             // UI.updateInsightDisplays();
+             // Update lore indicator on card in background if needed
+             const cardElemIndicator = document.querySelector(`#grimoireContent .concept-card[data-concept-id="${conceptId}"] .lore-indicator`);
+             if (cardElemIndicator) {
+                 // Check if *any* lore is still locked or if all is unlocked
+                 const highestLore = conceptData?.lore?.reduce((max, l) => Math.max(max, l.level), 0) || 0;
+                 if (level >= highestLore) { // If the just unlocked level is the highest
+                      cardElemIndicator.remove(); // Remove indicator if all lore seen/unlocked
+                 }
+             }
+
+
         } else {
-            console.error(`Failed to update lore level in state for ${conceptId}`);
-            if (source === "Insight Purchase") { UI.showTemporaryMessage("Error updating lore state.", 3000); }
-            else { UI.showTemporaryMessage("Error unlocking lore.", 3000); }
-            return false;
+            // If popup wasn't open, just refresh the grimoire (existing logic)
+            UI.refreshGrimoireDisplay();
         }
+        // --- END REPLACEMENT ---
+
+        updateMilestoneProgress('unlockLore', level);
+        return true;
+    } else {
+        console.error(`Failed to update lore level in state for ${conceptId}`);
+        // ... (existing error handling) ...
+        return false;
+    }
 }
 
 // --- Synergy/Tension Logic (Keep as is) ---
