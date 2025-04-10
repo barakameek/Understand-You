@@ -1294,8 +1294,37 @@ const cardTypeThemes = {
 ];
 
  const elementalDilemmas = [ // Add 'export' keyword here
+      export const elementalDilemmas = [
+    // --- Attraction Focused ---
     {
-        id: "ED01", elementFocus: ["P", "R"],
+        id: "ED_A01", elementFocus: ["A", "P"],
+        situation: "You feel an intense, almost purely physical attraction (a specific fetish or look) towards someone, but sense a lack of deeper psychological connection or compatibility.",
+        question: "How strongly do you pursue this connection?",
+        sliderMinLabel: "Prioritize Potential Psychological Depth (Psychological Focus)",
+        sliderMaxLabel: "Follow the Intense Attraction Trigger (Attraction Focus)",
+        elementKeyMin: "P",
+        elementKeyMax: "A"
+    },
+    {
+        id: "ED_A02", elementFocus: ["A", "R"],
+        situation: "A new person enters your social circle who strongly matches your 'type' or attraction patterns, potentially creating friction within your existing relationship structure or agreements.",
+        question: "Your primary leaning is towards:",
+        sliderMinLabel: "Upholding Existing Relationship Stability/Agreements (Relational Focus)",
+        sliderMaxLabel: "Exploring or Acknowledging the New Attraction (Attraction Focus)",
+        elementKeyMin: "R",
+        elementKeyMax: "A"
+    },
+    {
+        id: "ED_A03", elementFocus: ["A", "C"],
+        situation: "You meet someone incredibly stimulating intellectually (Sapiosexual trigger), but their physical appearance or presentation doesn't align with your usual visual attraction patterns.",
+        question: "How likely are you to initiate or pursue intimacy?",
+        sliderMinLabel: "Less Likely; Visual Cues Are Primary (Attraction Focus)",
+        sliderMaxLabel: "More Likely; Mental Spark Overrides Visuals (Cognitive/Attraction Blend)",
+        elementKeyMin: "A", // Leaning towards typical A focus
+        elementKeyMax: "C"  // Leaning towards the Cognitive override
+    },
+       {
+        id: "ED04", elementFocus: ["P", "R"],
         situation: "A long-term partner reveals a secret desire that clashes significantly...",
         question: "Your primary internal guide in responding is:",
         sliderMinLabel: "Your Partner's Happiness (Relational Focus)",
@@ -1303,7 +1332,154 @@ const cardTypeThemes = {
         elementKeyMin: "R",
         elementKeyMax: "P"
     },
-    // ... other dilemmas ...
+    // --- Interaction Focused ---
+    {
+        id: "ED_I01", elementFocus: ["I", "S"],
+        situation: "During a scene, your partner (in the submissive/bottom role) requests a specific, intense sensation you're unfamiliar or slightly uncomfortable delivering, though it fits the established power dynamic.",
+        question: "Your inclination is to:",
+        sliderMinLabel: "Prioritize Your Comfort/Familiarity with the Sensation (Sensory Focus)",
+        sliderMaxLabel: "Fulfill the Role/Dynamic Expectation (Interaction Focus)",
+        elementKeyMin: "S",
+        elementKeyMax: "I"
+    },
+    {
+        id: "ED_I02", elementFocus: ["I", "P"],
+        situation: "You prefer a highly structured, commanding interaction style (High I), but sense your partner deeply needs more nurturing and psychological reassurance (High P need).",
+        question: "How do you adapt your interaction?",
+        sliderMinLabel: "Shift Towards Nurturing/Reassurance (Psychological Focus)",
+        sliderMaxLabel: "Maintain Your Preferred Interaction Structure (Interaction Focus)",
+        elementKeyMin: "P",
+        elementKeyMax: "I"
+    },
+    {
+        id: "ED_I03", elementFocus: ["I", "C"],
+        situation: "You enjoy spontaneous, intuitive interaction, letting the energy flow (Mid I), but your partner wants to meticulously plan out a complex role-play scenario beforehand (High C).",
+        question: "Your preference leans towards:",
+        sliderMinLabel: "Embracing the Detailed Cognitive Planning (Cognitive Focus)",
+        sliderMaxLabel: "Favoring Spontaneous Energetic Flow (Interaction Focus)",
+        elementKeyMin: "C",
+        elementKeyMax: "I"
+    },
+
+    // --- Sensory Focused ---
+    {
+        id: "ED_S01", elementFocus: ["S", "P"],
+        situation: "You crave intense physical sensation for stress relief or catharsis, but your partner is feeling vulnerable and primarily desires gentle, comforting touch.",
+        question: "Tonight, you prioritize:",
+        sliderMinLabel: "Providing Gentle Comfort & Psychological Safety (Psychological Focus)",
+        sliderMaxLabel: "Seeking Your Desired Intense Sensation (Sensory Focus)",
+        elementKeyMin: "P",
+        elementKeyMax: "S"
+    },
+    {
+        id: "ED_S02", elementFocus: ["S", "R"],
+        situation: "An opportunity arises for an exciting, high-sensation group play scenario, but participating might strain the agreements or comfort levels within your primary relationship(s).",
+        question: "Your decision is weighted towards:",
+        sliderMinLabel: "Protecting Existing Relationship Harmony/Agreements (Relational Focus)",
+        sliderMaxLabel: "Pursuing the Novel Sensory Experience (Sensory Focus)",
+        elementKeyMin: "R",
+        elementKeyMax: "S"
+    },
+    {
+        id: "ED_S03", elementFocus: ["S", "I"],
+        situation: "You enjoy receiving specific impact play (High S), but your partner is hesitant to deliver it with the force/intensity you desire, feeling it conflicts with their nurturing interaction style (Lower I/Dom).",
+        question: "The focus should be on:",
+        sliderMinLabel: "Respecting Partner's Interaction Comfort Zone (Interaction Focus)",
+        sliderMaxLabel: "Guiding Towards Your Desired Sensation Level (Sensory Focus)",
+        elementKeyMin: "I",
+        elementKeyMax: "S"
+    },
+
+    // --- Psychological Focused ---
+    {
+        id: "ED_P01", elementFocus: ["P", "I"],
+        situation: "You have a deep psychological need for surrender and helplessness (High P-Sub), but your current partner prefers a very egalitarian, non-hierarchical interaction style (Mid I).",
+        question: "You are more likely to:",
+        sliderMinLabel: "Adapt to the Egalitarian Interaction Style (Interaction Focus)",
+        sliderMaxLabel: "Find Ways to Express/Fulfill Your Need for Surrender (Psychological Focus)",
+        elementKeyMin: "I",
+        elementKeyMax: "P"
+    },
+    {
+        id: "ED_P02", elementFocus: ["P", "C"],
+        situation: "Engaging in a specific fantasy scenario is crucial for your psychological fulfillment (e.g., feeling truly desired), but your partner finds detailed fantasy immersion difficult or distracting.",
+        question: "The priority becomes:",
+        sliderMinLabel: "Focusing on Shared Reality & Cognitive Connection (Cognitive Focus)",
+        sliderMaxLabel: "Ensuring Your Core Psychological Need is Met (Psychological Focus)",
+        elementKeyMin: "C",
+        elementKeyMax: "P"
+    },
+    {
+        id: "ED_P03", elementFocus: ["P", "A"],
+        situation: "You need deep emotional validation (High P) from intimacy, but find yourself overwhelmingly attracted (High A) to someone emotionally unavailable or purely focused on the physical.",
+        question: "Your inclination is to lean towards:",
+        sliderMinLabel: "Pursuing the Intense Attraction, Despite Need Mismatch (Attraction Focus)",
+        sliderMaxLabel: "Prioritizing Partners/Situations Meeting Your Validation Need (Psychological Focus)",
+        elementKeyMin: "A",
+        elementKeyMax: "P"
+    },
+
+    // --- Cognitive Focused ---
+    {
+        id: "ED_C01", elementFocus: ["C", "S"],
+        situation: "Your elaborate fantasy requires specific, perhaps slightly uncomfortable or awkward, physical actions or props to feel 'right', potentially disrupting smooth sensory flow.",
+        question: "You prioritize:",
+        sliderMinLabel: "Maintaining Comfortable Sensory Flow & Presence (Sensory Focus)",
+        sliderMaxLabel: "Executing the Cognitive Fantasy Accurately (Cognitive Focus)",
+        elementKeyMin: "S",
+        elementKeyMax: "C"
+    },
+    {
+        id: "ED_C02", elementFocus: ["C", "R"],
+        situation: "You thrive on complex rules and negotiated scenarios (High C), but your partner(s) prefer a more fluid, less defined relational approach (High R-Anarchy leaning).",
+        question: "In navigating interactions, you emphasize:",
+        sliderMinLabel: "Flexibility & Adapting to Relational Flow (Relational Focus)",
+        sliderMaxLabel: "Establishing Clear Structures & Shared Understanding (Cognitive Focus)",
+        elementKeyMin: "R",
+        elementKeyMax: "C"
+    },
+    {
+        id: "ED_C03", elementFocus: ["C", "P"],
+        situation: "You enjoy detached, analytical mind games or psychological sparring during play (High C), but sense it might be causing genuine emotional distress or insecurity for your partner (Low P comfort).",
+        question: "Your approach tends towards:",
+        sliderMinLabel: "Prioritizing Partner's Emotional Safety & Comfort (Psychological Focus)",
+        sliderMaxLabel: "Engaging in the Stimulating Cognitive Game (Cognitive Focus)",
+        elementKeyMin: "P",
+        elementKeyMax: "C"
+    },
+
+    // --- Relational Focused ---
+    {
+        id: "ED_R01", elementFocus: ["R", "A"],
+        situation: "You are in a happily monogamous relationship (Low R score area) but develop a strong, unexpected attraction to a close friend.",
+        question: "Your primary internal conflict centers on:",
+        sliderMinLabel: "Navigating the Feelings Within Your Attraction Patterns (Attraction Focus)",
+        sliderMaxLabel: "Honoring Your Commitment & Relationship Structure (Relational Focus)",
+        elementKeyMin: "A",
+        elementKeyMax: "R"
+    },
+    {
+        id: "ED_R02", elementFocus: ["R", "I"],
+        situation: "You practice Relationship Anarchy (High R), valuing autonomy, but a partner expresses a desire for a more defined D/s dynamic with specific protocols (High I).",
+        question: "Your response prioritizes:",
+        sliderMinLabel: "Exploring the Desired Interaction Dynamic (Interaction Focus)",
+        sliderMaxLabel: "Maintaining Core Principles of Relational Autonomy/Fluidity (Relational Focus)",
+        elementKeyMin: "I",
+        elementKeyMax: "R"
+    },
+    {
+        id: "ED_R03", elementFocus: ["R", "S"],
+        situation: "Your polyamorous constellation (High R) includes partners with vastly different sensory preferences, making group encounters complex to satisfy everyone physically.",
+        question: "When planning group time, you focus more on:",
+        sliderMinLabel: "Maximizing Potential Sensory Fulfillment for Individuals (Sensory Focus)",
+        sliderMaxLabel: "Facilitating Group Connection & Relational Dynamics (Relational Focus)",
+        elementKeyMin: "S",
+        elementKeyMax: "R"
+    }
+];
+
+// You would likely add this export to the end of your data.js if it's not already there:
+// export { elementalDilemmas };
 ];
 
 
