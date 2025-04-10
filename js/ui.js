@@ -548,7 +548,8 @@ export function showConceptDetailPopup(conceptId) {
             conceptData.lore.forEach((loreEntry, index) => {
                 const loreDiv = document.createElement('div'); loreDiv.classList.add('lore-entry');
                 console.log(`      -> Processing Lore Level ${loreEntry.level}`);
-                if (loreEntry.level <= unlockedLevel) {
+loreDiv.dataset.loreLevel = loreEntry.level;
+                                if (loreEntry.level <= unlockedLevel) {
                     console.log(`         -> UNLOCKED. Adding text: "${loreEntry.text.substring(0, 20)}..."`);
                     loreDiv.innerHTML = `<h5 class="lore-level-title">Level ${loreEntry.level} Insight:</h5><p class="lore-text">${loreEntry.text}</p>`;
                 } else {
