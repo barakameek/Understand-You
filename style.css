@@ -280,7 +280,7 @@ hr { border: none; border-top: 1px dashed var(--border-color-light); margin: 18p
 #grimoireControls label { margin: 0 4px 0 8px; font-weight: bold; color: var(--link-color); font-family: 'Merriweather', serif; font-size: 0.9em; }
 #grimoireControls select, #grimoireControls input[type="text"] { padding: 5px 6px; border-radius: 5px; border: 1px solid var(--border-color-dark); background-color: #fff8e7; font-family: 'Merriweather', serif; font-size: 0.9em; }
 #grimoireControls input[type="text"] { width: 100px; }
-#grimoireContent { background-color: #fff8e7; padding: 15px; border-radius: 8px; border: 1px solid var(--border-color-dark); margin-top: 8px; max-height: calc(100vh - 230px); overflow-y: auto; }
+#grimoireContent { background-color: #fff8e7; padding: 15px; border-radius: 8px; border: 1px solid var(--border-color-dark); margin-top: 8px; max-height: calc(100vh - 230px); /* Adjust based on header/nav/controls */ overflow-y: auto; }
 
 /* --- Grimoire Shelf Styling --- */
 .grimoire-shelves-area { display: flex; flex-wrap: wrap; gap: 10px; padding: 10px 5px; margin-bottom: 15px; background: linear-gradient(to bottom, rgba(0,0,0,0.02), rgba(0,0,0,0.05)); border-radius: 6px; border-top: 1px solid var(--border-color-dark); border-bottom: 1px solid var(--border-color-dark); box-shadow: inset 0 1px 3px rgba(0,0,0,0.05); }
@@ -297,283 +297,48 @@ hr { border: none; border-top: 1px dashed var(--border-color-light); margin: 18p
 .show-all-shelf.active-shelf { border-color: #6c757d; background-color: #e2e6ea; transform: scale(1.01); }
 
 /* --- Concept Card Styling Overhaul --- */
-
 .concept-card {
-    border-radius: 10px; /* Slightly larger radius */
-    padding: 12px; /* Increase padding */
-    text-align: center;
-    cursor: pointer;
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    /* Removed fixed height, use min-height for flexibility */
-    min-height: 290px; /* Adjust as needed based on content */
-    overflow: hidden;
-    border: 1px solid var(--border-color-dark); /* Slightly darker border */
-    border-left-width: 1px; /* Reset left border thickness */
-    background: linear-gradient(160deg, #fffefa, #f5f0e1); /* Softer gradient */
-    box-shadow: 0 4px 8px rgba(80, 50, 20, 0.1), /* Base shadow */
-                inset 0 0 1px rgba(255, 255, 255, 0.5); /* Subtle inner highlight */
-    transition: all 0.25s ease-in-out;
-    /* Category border will be applied using ::before pseudo-element */
+    border-radius: 10px; padding: 12px; text-align: center; cursor: pointer; position: relative; display: flex; flex-direction: column; min-height: 290px; overflow: hidden; border: 1px solid var(--border-color-dark); border-left-width: 1px; background: linear-gradient(160deg, #fffefa, #f5f0e1); box-shadow: 0 4px 8px rgba(80, 50, 20, 0.1), inset 0 0 1px rgba(255, 255, 255, 0.5); transition: all 0.25s ease-in-out;
 }
-
-/* Rarity Specific Backgrounds & Glows */
-.concept-card.rarity-uncommon {
-    background: linear-gradient(160deg, #f8f8ff, #e6f2ff);
-    border-color: #b0c4de; /* Light Steel Blue */
-    box-shadow: 0 4px 8px rgba(80, 50, 20, 0.1), 0 0 5px rgba(70, 130, 180, 0.3);
-}
-.concept-card.rarity-rare {
-    background: linear-gradient(160deg, #fff8dc, #ffecb3); /* Cornsilk to Pale Gold */
-    border-color: #dda0dd; /* Plum */
-    box-shadow: 0 4px 8px rgba(80, 50, 20, 0.1), 0 0 8px var(--highlight-glow);
-}
-
-/* Hover Effects */
-.concept-card:hover {
-    transform: translateY(-4px) scale(1.02);
-    box-shadow: 0 8px 16px rgba(80, 50, 20, 0.18), /* Enhanced shadow */
-                inset 0 0 1px rgba(255, 255, 255, 0.5);
-    z-index: 10;
-}
-.concept-card:hover.rarity-uncommon {
-    box-shadow: 0 8px 16px rgba(80, 50, 20, 0.18), 0 0 9px rgba(70, 130, 180, 0.5);
-}
-.concept-card:hover.rarity-rare {
-    box-shadow: 0 8px 16px rgba(80, 50, 20, 0.18), 0 0 14px var(--highlight-glow);
-}
-
-/* Category Indicator using ::before */
-.concept-card::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 6px; /* Thickness of the category indicator */
-    background-color: var(--category-uncategorized-border); /* Default */
-    border-radius: 10px 0 0 10px; /* Match card radius */
-    transition: background-color 0.2s ease;
-}
+.concept-card.rarity-uncommon { background: linear-gradient(160deg, #f8f8ff, #e6f2ff); border-color: #b0c4de; box-shadow: 0 4px 8px rgba(80, 50, 20, 0.1), 0 0 5px rgba(70, 130, 180, 0.3); }
+.concept-card.rarity-rare { background: linear-gradient(160deg, #fff8dc, #ffecb3); border-color: #dda0dd; box-shadow: 0 4px 8px rgba(80, 50, 20, 0.1), 0 0 8px var(--highlight-glow); }
+.concept-card:hover { transform: translateY(-4px) scale(1.02); box-shadow: 0 8px 16px rgba(80, 50, 20, 0.18), inset 0 0 1px rgba(255, 255, 255, 0.5); z-index: 10; }
+.concept-card:hover.rarity-uncommon { box-shadow: 0 8px 16px rgba(80, 50, 20, 0.18), 0 0 9px rgba(70, 130, 180, 0.5); }
+.concept-card:hover.rarity-rare { box-shadow: 0 8px 16px rgba(80, 50, 20, 0.18), 0 0 14px var(--highlight-glow); }
+.concept-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 6px; background-color: var(--category-uncategorized-border); border-radius: 10px 0 0 10px; transition: background-color 0.2s ease; }
 .concept-card.category-wantToTry::before { background-color: var(--category-wantToTry-border); }
 .concept-card.category-liked::before { background-color: var(--category-liked-border); }
 .concept-card.category-dislikedLimit::before { background-color: var(--category-dislikedLimit-border); }
 .concept-card.category-coreIdentity::before { background-color: var(--category-coreIdentity-border); }
-
-/* Ensure other content respects the category indicator */
-.card-header, .card-visual, .card-footer {
-    margin-left: 6px; /* Adjust content away from the indicator */
-    position: relative; /* Needed for z-index stacking if required later */
-}
-
-
-/* --- Card Header Refinements --- */
-.card-header {
-    display: grid; /* Change to grid */
-    grid-template-columns: auto 1fr auto; /* Icon | Name | Right Side */
-    grid-template-rows: auto auto; /* Row 1: Icons/Rarity, Row 2: Name */
-    align-items: center; /* Center items vertically in their grid cells */
-    grid-template-areas: /* Define grid layout */
-        "icon stamps rarity"
-        "name name name"; /* Name spans all columns in second row */
-    padding: 5px 8px 4px 4px; /* Adjusted padding */
-    margin-bottom: 6px;
-    min-height: 45px; /* INCREASED slightly for wrapped titles */
-    border-bottom: 1px solid var(--border-color-light); /* Add a subtle separator */
-    margin-left: 0; /* Override the margin-left from above for header */
-    padding-left: 10px; /* Add specific padding left for header */
-}
-
-.card-header .card-type-icon-area {
-    grid-area: icon; /* Assign to grid area */
-    flex-shrink: 0;
-    padding-top: 0; /* Reset alignment padding */
-    margin-right: 6px;
-}
-.card-header .card-type-icon {
-     font-size: 1.2em; /* Slightly larger icon */
-     color: var(--primary-color); /* Use primary theme color */
-}
-
-.card-header .card-name {
-    grid-area: name;
-    font-size: 1.0em; /* SLIGHTLY REDUCED default size */
-    color: var(--primary-color);
-    font-family: 'Cinzel Decorative', cursive;
-    font-weight: 700;
-    line-height: 1.15; /* TIGHTENED line height for wrapping */
-    padding-top: 3px;  /* Adjust padding slightly */
-    margin-bottom: 3px; /* Adjust margin slightly */
-    text-align: center;
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
-    /* Ensure wrapping works correctly */
-    white-space: normal; /* Explicitly allow wrapping (default) */
-    overflow-wrap: break-word; /* Break long words if necessary */
-    word-wrap: break-word; /* Older browser support for word break */
-    hyphens: auto; /* Allow automatic hyphenation if needed (browser support varies) */
-    max-height: calc(1.15em * 2 + 4px); /* Allow max ~2 lines + padding */
-    overflow: hidden; /* Hide any text that STILL overflows (should be rare) */
-}
-
-.card-header .card-header-right {
-    grid-area: rarity; /* Assign right content (rarity/stamps) */
-    display: flex; /* Use flex for side-by-side */
-    flex-direction: row; /* Align side-by-side */
-    align-items: center; /* Align items better vertically */
-    gap: 4px; /* Add gap */
-    flex-shrink: 0;
-    justify-self: end; /* Align the container itself to the end */
-}
-
-.card-header .card-rarity {
-    font-size: 0.7em;
-    font-weight: bold;
-    padding: 2px 5px; /* Adjust padding */
-    border-radius: 3px;
-    text-transform: uppercase;
-    line-height: 1.1; /* Adjust line height */
-    border: 1px solid;
-    margin-bottom: 0; /* Remove bottom margin */
-    order: 2; /* Put stamps first visually */
-    white-space: nowrap;
-}
-/* Rarity Color Adjustments */
+.card-header, .card-visual, .card-footer { margin-left: 6px; position: relative; }
+.card-header { display: grid; grid-template-columns: auto 1fr auto; grid-template-rows: auto auto; align-items: center; grid-template-areas: "icon stamps rarity" "name name name"; padding: 5px 8px 4px 4px; margin-bottom: 6px; min-height: 45px; border-bottom: 1px solid var(--border-color-light); margin-left: 0; padding-left: 10px; }
+.card-header .card-type-icon-area { grid-area: icon; flex-shrink: 0; padding-top: 0; margin-right: 6px; }
+.card-header .card-type-icon { font-size: 1.2em; color: var(--primary-color); }
+.card-header .card-name { grid-area: name; font-size: 1.0em; color: var(--primary-color); font-family: 'Cinzel Decorative', cursive; font-weight: 700; line-height: 1.15; padding-top: 3px; margin-bottom: 3px; text-align: center; text-shadow: 1px 1px 2px rgba(0,0,0,0.1); white-space: normal; overflow-wrap: break-word; word-wrap: break-word; hyphens: auto; max-height: calc(1.15em * 2 + 4px); overflow: hidden; }
+.card-header .card-header-right { grid-area: rarity; display: flex; flex-direction: row; align-items: center; gap: 4px; flex-shrink: 0; justify-self: end; }
+.card-header .card-rarity { font-size: 0.7em; font-weight: bold; padding: 2px 5px; border-radius: 3px; text-transform: uppercase; line-height: 1.1; border: 1px solid; margin-bottom: 0; order: 2; white-space: nowrap; }
 .card-header .rarity-indicator-common { color: #495057; border-color: #ced4da; background-color: #f8f9fa;}
 .card-header .rarity-indicator-uncommon { color: #0f5132; border-color: #badbcc; background-color: #d1e7dd;}
 .card-header .rarity-indicator-rare { color: #4d1a7f; border-color: #d1b4f8; background-color: #e5d9f8;}
-
-
-.card-header .card-stamps {
-    font-size: 0.85em;
-    white-space: nowrap;
-    display: flex;
-    align-items: center;
-    gap: 5px; /* Increase gap slightly */
-    order: 1; /* Put stamps first visually */
-    grid-area: stamps; /* Assign to grid area */
-    justify-self: end; /* Align to right within its cell */
-    padding-top: 0; /* Align vertically with rarity */
-}
-/* Stamp styles */
-.card-header .focus-indicator { color: var(--accent-color); text-shadow: 1px 1px 0px #b8860b; font-size: 1.1em; } /* Make focus star bigger */
+.card-header .card-stamps { font-size: 0.85em; white-space: nowrap; display: flex; align-items: center; gap: 5px; order: 1; grid-area: stamps; justify-self: end; padding-top: 0; }
+.card-header .focus-indicator { color: var(--accent-color); text-shadow: 1px 1px 0px #b8860b; font-size: 1.1em; }
 .card-header .note-stamp { color: #777; font-size: 0.8em; opacity: 0.8; }
 .card-header .lore-indicator { color: var(--accent-color); text-shadow: 0 0 3px rgba(139, 69, 19, 0.7); font-size: 1.1em; animation: pulseGlowLore 2s infinite alternate; }
 @keyframes pulseGlowLore { from { opacity: 0.7; transform: scale(1); } to { opacity: 1; transform: scale(1.1); } }
-
-
-/* --- Card Visual Area Enhancement --- */
-.card-visual {
-    flex-grow: 1; /* Let it take available space */
-    /* Removed explicit height */
-    background-color: #ede8d8;
-    margin: 8px 0; /* Increased vertical margin */
-    border-radius: 6px; /* Slightly larger radius */
-    min-height: 100px; /* Ensure minimum space */
-    overflow: hidden;
-    border: 1px solid var(--border-color-light);
-    position: relative;
-    display: flex; /* Use flex again to center placeholder */
-    align-items: center;
-    justify-content: center;
-}
-/* Image style */
-.card-visual .card-art-image {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-/* Placeholder icon style (keep centered) */
-.card-visual .card-visual-placeholder {
-    /* Removed absolute positioning, flex handles it now */
-    font-size: 3.5em; /* Slightly larger icon */
-    color: #b8a880;
-    opacity: 0.7; /* Make it slightly faded */
-}
-
-
-/* --- Card Footer Refinements --- */
-.card-footer {
-    font-size: 0.85em; /* Slightly larger base font for footer */
-    color: var(--text-color);
-    margin-top: 8px; /* Increased margin */
-    position: relative; /* For absolute positioning of actions */
-    /* Removed flex properties, let content flow */
-    padding-bottom: 35px; /* IMPORTANT: Reserve space for action buttons */
-    min-height: 70px; /* Give footer some base height */
-    margin-left: 0; /* Override margin */
-    padding-left: 4px; /* Add specific padding */
-}
-
-.card-affinities {
-    margin-bottom: 8px; /* More space */
-    min-height: 22px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-.card-affinities .primary-element-display {
-    font-size: 0.9em; /* Slightly larger */
-    font-weight: bold;
-    font-family: 'Merriweather', serif;
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    padding: 3px 8px; /* Adjust padding */
-    border-radius: 10px;
-    background-color: rgba(255, 255, 255, 0.8); /* More opaque background */
-    border: 1px solid var(--border-color-dark); /* Darker border */
-    text-shadow: none; /* Remove shadow for clarity */
-}
-.card-affinities .primary-element-display i { font-size: 1.05em; } /* Slightly larger icon */
+.card-visual { flex-grow: 1; background-color: #ede8d8; margin: 8px 0; border-radius: 6px; min-height: 100px; overflow: hidden; border: 1px solid var(--border-color-light); position: relative; display: flex; align-items: center; justify-content: center; }
+.card-visual .card-art-image { display: block; width: 100%; height: 100%; object-fit: cover; }
+.card-visual .card-visual-placeholder { font-size: 3.5em; color: #b8a880; opacity: 0.7; }
+.card-footer { font-size: 0.85em; color: var(--text-color); margin-top: 8px; position: relative; padding-bottom: 35px; min-height: 70px; margin-left: 0; padding-left: 4px; }
+.card-affinities { margin-bottom: 8px; min-height: 22px; display: flex; justify-content: center; align-items: center; }
+.card-affinities .primary-element-display { font-size: 0.9em; font-weight: bold; font-family: 'Merriweather', serif; display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 10px; background-color: rgba(255, 255, 255, 0.8); border: 1px solid var(--border-color-dark); text-shadow: none; }
+.card-affinities .primary-element-display i { font-size: 1.05em; }
 .card-affinities small { font-size: 0.85em; }
-
-.card-brief-desc {
-    font-style: normal; /* Remove italics for better readability */
-    font-size: 0.9em; /* Slightly larger */
-    line-height: 1.4;
-    text-align: center; /* Center description */
-    font-family: 'Merriweather', serif; /* Use main text font */
-    -webkit-line-clamp: 2; /* Keep 2 lines */
-    /* Keep overflow properties */
-    overflow: hidden;
-    text-overflow: ellipsis;
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    margin-bottom: 5px;
-    min-height: calc(1.4em * 2); /* Ensure space for 2 lines */
-    color: #5a4a3a; /* Slightly darker text */
-}
-
-/* Action Buttons Positioning & Style */
-.card-actions {
-    position: absolute; /* Position at bottom */
-    bottom: 6px; /* Distance from card bottom */
-    left: 10px; /* Align with content padding */
-    right: 10px;
-    display: flex;
-    justify-content: center; /* Center buttons horizontally */
-    gap: 12px; /* Increase gap */
-    opacity: 0;
-    transition: opacity 0.2s ease-in-out;
-    pointer-events: none;
-    padding-top: 4px; /* Add some top padding */
-}
-.concept-card:hover .card-actions {
-    opacity: 1;
-    pointer-events: auto;
-}
-/* Keep tiny-button styles or adjust if needed */
-.tiny-button {
-    padding: 4px 8px; font-size: 0.8em; border-radius: 50%; line-height: 1; min-width: 28px; min-height: 28px; display: inline-flex; align-items: center; justify-content: center;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.25); /* Slightly stronger shadow */
-    transition: background-color 0.2s ease, transform 0.1s ease;
-    border: 1px solid rgba(0,0,0,0.1);
-    cursor: pointer;
-}
+.card-brief-desc { font-style: normal; font-size: 0.9em; line-height: 1.4; text-align: center; font-family: 'Merriweather', serif; -webkit-line-clamp: 2; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-box-orient: vertical; margin-bottom: 5px; min-height: calc(1.4em * 2); color: #5a4a3a; }
+.card-actions { position: absolute; bottom: 6px; left: 10px; right: 10px; display: flex; justify-content: center; gap: 12px; opacity: 0; transition: opacity 0.2s ease-in-out; pointer-events: none; padding-top: 4px; }
+.concept-card:hover .card-actions { opacity: 1; pointer-events: auto; }
+.tiny-button { padding: 4px 8px; font-size: 0.8em; border-radius: 50%; line-height: 1; min-width: 28px; min-height: 28px; display: inline-flex; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.25); transition: background-color 0.2s ease, transform 0.1s ease; border: 1px solid rgba(0,0,0,0.1); cursor: pointer; }
 .tiny-button i { margin: 0; font-size: 0.95em; line-height: 1; }
-.tiny-button:hover:not(:disabled) { transform: scale(1.15); /* More pop on hover */ }
+.tiny-button:hover:not(:disabled) { transform: scale(1.15); }
 .card-sell-button { background-color: #e74c3c; border-color: #c0392b; color: white; }
 .card-sell-button:hover:not(:disabled) { background-color: #c0392b; }
 .card-focus-button { background-color: var(--secondary-color); border-color: var(--border-color-dark); color: var(--primary-color); }
@@ -582,16 +347,10 @@ hr { border: none; border-top: 1px dashed var(--border-color-light); margin: 18p
 .card-focus-button.marked:hover:not(:disabled) { background-color: #ffeca0; }
 .card-focus-button:disabled { background-color: #ccc; border-color: #aaa; color: #777; opacity: 0.6; cursor: not-allowed; }
 .tiny-button:disabled { cursor: not-allowed; opacity: 0.6; }
-.card-actions button { pointer-events: auto; } /* Ensure buttons are clickable */
-
-/* Research Note Card Specific Style */
-.research-note-card {
-    border-color: #aaa;
-    background: linear-gradient(145deg, #f5f5f5, #e8e8e8);
-    opacity: 0.95;
-}
-
+.card-actions button { pointer-events: auto; }
+.research-note-card { border-color: #aaa; background: linear-gradient(145deg, #f5f5f5, #e8e8e8); opacity: 0.95; }
 /* --- END Card Styling Overhaul --- */
+
 
 /* --- Repository Screen --- */
 .repository-screen { background-color: var(--background-dark); }
@@ -618,296 +377,88 @@ hr { border: none; border-top: 1px dashed var(--border-color-light); margin: 18p
 
 /* --- Popups & Overlay --- */
 .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.7); z-index: 99; backdrop-filter: blur(1.5px); }
-.popup { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: linear-gradient(to bottom, #fdf5e6, #faf0e6); border: 1px solid var(--border-color-dark); padding: 0; border-radius: 10px; box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2); z-index: 100; width: 92%; /* Start width */ max-height: 90vh; overflow: hidden; display: flex; flex-direction: column; }
+.popup { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: linear-gradient(to bottom, #fdf5e6, #faf0e6); border: 1px solid var(--border-color-dark); padding: 0; border-radius: 10px; box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2); z-index: 100; width: 92%; max-height: 90vh; overflow: hidden; display: flex; flex-direction: column; }
 .close-button { position: absolute; top: 8px; right: 10px; background: none; border: none; font-size: 1.8em; color: #b8a880; cursor: pointer; line-height: 1; z-index: 101; transition: color 0.2s ease; padding: 2px 5px; }
 .close-button:hover { color: var(--primary-color); }
 
 /* --- Concept Detail Popup Overhaul Styles --- */
 .popup.card-popup {
-    max-width: 800px; /* Wider popup for two columns */
+    max-width: 800px; /* Wider popup */
     background: linear-gradient(to bottom, #fdf8f0, #f5f0e1); /* Adjusted background */
     border: 2px solid var(--border-color-dark); /* Stronger border */
 }
-
-.card-popup .popup-header {
-    background-color: #e8d8c0; /* Darker header */
-    border-bottom: 2px solid var(--primary-color); /* Stronger bottom border */
-    padding: 12px 45px 12px 20px; /* Adjust padding */
-    text-align: center;
-    position: relative;
-    border-radius: 9px 9px 0 0; /* Match popup */
-}
-.card-popup .popup-header .card-type-icon {
-    position: absolute; left: 15px; top: 50%; transform: translateY(-50%); font-size: 1.2em; color: #7a5230;
-}
-.card-popup .popup-header h3 {
-    margin: 0; color: var(--link-color); font-size: 1.4em; font-family: 'Cinzel Decorative', cursive;
-}
-.card-popup .popup-header p { /* Contains type and element icon */
-    display: flex; align-items: center; justify-content: center; font-size: 0.95em; color: #6a5a4a; margin: 1px 0 0 0; text-align: center; font-style: italic; font-family: 'Merriweather', serif;
-}
-.card-popup .popup-header .popup-element-icon {
-    font-size: 1.1em; margin-left: 8px; vertical-align: middle;
-}
-
-/* NEW: Main Content Area Layout */
-.popup-main-content {
-    display: flex;
-    flex-direction: column; /* Stack on small screens */
-    padding: 15px;
-    gap: 20px;
-    overflow-y: auto; /* Allow this section to scroll if needed */
-    flex-grow: 1; /* Allow it to take up space */
-    /* Remove flex from parent popup-content if it exists */
-}
-
-@media (min-width: 768px) { /* Apply two columns on wider screens */
-    .popup-main-content {
-        flex-direction: row;
-        overflow-y: hidden; /* Prevent double scrollbars */
-    }
-    .popup-visual-area {
-        flex: 0 0 35%; /* Fixed width for visual */
-        max-width: 280px; /* Max width */
-        align-self: flex-start;
-        position: sticky; /* Keep image visible */
-        top: 0;
-    }
-    .popup-info-area {
-        flex: 1 1 60%; /* Allow info to take remaining space */
-        min-width: 0; /* Prevent overflow issues */
-        overflow-y: auto; /* Allow info area to scroll */
-        max-height: calc(88vh - 150px); /* Estimate max height based on potential footer/header */
-        padding-right: 10px; /* Add padding for scrollbar */
-    }
-}
-
-/* Visual Area Styling */
-.popup-visual-area {
-    display: flex;
-    flex-direction: column; /* Stack image and maybe captions later */
-    align-items: center;
-}
-.popup-visual-area #popupVisualContainer {
-    width: 100%; /* Fill the column width */
-    min-height: 200px; /* Ensure decent height */
-    max-height: 350px; /* Limit height */
-    border-radius: 8px;
-    margin-bottom: 10px; /* Space below image */
-    background-color: var(--background-medium);
-    border: 1px solid var(--border-color-light);
-    overflow: hidden;
-    display: flex; /* Keep for placeholder centering */
-    align-items: center;
-    justify-content: center;
-}
-.popup-visual-area #popupVisualContainer .card-art-image {
-    display: block; max-width: 100%; max-height: 100%; object-fit: contain;
-}
-.popup-visual-area #popupVisualContainer .card-visual-placeholder {
-     font-size: 5em; color: #c8b89a;
-}
-
-
-/* Info Area Styling */
-.popup-info-area {
-    display: flex;
-    flex-direction: column;
-    gap: 18px; /* Space between sections */
-}
-
-.popup-section {
-    background-color: rgba(255, 255, 255, 0.4);
-    border: 1px solid var(--border-color-light);
-    border-radius: 6px;
-    padding: 10px 12px;
-}
-.popup-section h4 {
-    font-family: 'Garamond', serif;
-    font-size: 1.1em;
-    color: var(--primary-color);
-    margin-bottom: 8px;
-    padding-bottom: 4px;
-    border-bottom: 1px dashed var(--border-color-light);
-    text-align: left;
-}
+.card-popup .popup-header { background-color: #e8d8c0; border-bottom: 2px solid var(--primary-color); padding: 12px 45px 12px 20px; text-align: center; position: relative; border-radius: 9px 9px 0 0; }
+.card-popup .popup-header .card-type-icon { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); font-size: 1.2em; color: #7a5230; }
+.card-popup .popup-header h3 { margin: 0; color: var(--link-color); font-size: 1.4em; font-family: 'Cinzel Decorative', cursive; }
+.card-popup .popup-header p { display: flex; align-items: center; justify-content: center; font-size: 0.95em; color: #6a5a4a; margin: 1px 0 0 0; text-align: center; font-style: italic; font-family: 'Merriweather', serif; }
+.card-popup .popup-header .popup-element-icon { font-size: 1.1em; margin-left: 8px; vertical-align: middle; }
+.popup-main-content { display: flex; flex-direction: column; padding: 15px; gap: 20px; overflow-y: auto; flex-grow: 1; }
+@media (min-width: 768px) { .popup-main-content { flex-direction: row; overflow-y: hidden; } .popup-visual-area { flex: 0 0 35%; max-width: 280px; align-self: flex-start; position: sticky; top: 0; } .popup-info-area { flex: 1 1 60%; min-width: 0; overflow-y: auto; max-height: calc(88vh - 150px); padding-right: 10px; } }
+.popup-visual-area { display: flex; flex-direction: column; align-items: center; }
+.popup-visual-area #popupVisualContainer { width: 100%; min-height: 200px; max-height: 350px; border-radius: 8px; margin-bottom: 10px; background-color: var(--background-medium); border: 1px solid var(--border-color-light); overflow: hidden; display: flex; align-items: center; justify-content: center; }
+.popup-visual-area #popupVisualContainer .card-art-image { display: block; max-width: 100%; max-height: 100%; object-fit: contain; }
+.popup-visual-area #popupVisualContainer .card-visual-placeholder { font-size: 5em; color: #c8b89a; }
+.popup-info-area { display: flex; flex-direction: column; gap: 18px; }
+.popup-section { background-color: rgba(255, 255, 255, 0.4); border: 1px solid var(--border-color-light); border-radius: 6px; padding: 10px 12px; }
+.popup-section h4 { font-family: 'Garamond', serif; font-size: 1.1em; color: var(--primary-color); margin-bottom: 8px; padding-bottom: 4px; border-bottom: 1px dashed var(--border-color-light); text-align: left; }
 .popup-section h4 i { font-size: 0.9em; }
-
-/* Specific Section Styling */
-.popup-brief-desc {
-    font-style: italic;
-    font-size: 1.05em; /* Make brief desc more prominent */
-    color: var(--link-color);
-    margin: 0;
-    line-height: 1.4;
-    /* Remove text cutoff for brief desc */
-    white-space: normal;
-    overflow-wrap: break-word;
-    word-wrap: break-word;
-}
-
-.popup-detailed-desc {
-    font-size: 0.95em;
-    line-height: 1.6;
-    margin: 0;
-    max-height: 200px; /* Allow more space for description */
-    overflow-y: auto; /* Add scroll if needed */
-    padding-right: 5px;
-}
-
-/* NEW Resonance Gauge Styles */
-.popup-resonance-gauge-section h4 {
-     margin-bottom: 5px;
-     border-bottom: none; /* Remove border for gauge */
-     display: flex;
-     justify-content: space-between;
-     align-items: center;
-}
-#popupResonanceGaugeContainer {
-    width: 100%;
-    height: 12px; /* Make gauge thicker */
-    background-color: var(--border-color-light);
-    border-radius: 6px;
-    overflow: hidden;
-    border: 1px solid var(--border-color-dark);
-    margin-bottom: 4px;
-    position: relative; /* For label positioning */
-}
-#popupResonanceGaugeBar {
-    height: 100%;
-    background-color: var(--primary-color); /* Default color */
-    width: 50%; /* Default width */
-    border-radius: 6px;
-    transition: width 0.5s ease, background-color 0.5s ease;
-}
-#popupResonanceGaugeLabel {
-     position: absolute;
-     left: 50%;
-     top: 50%;
-     transform: translate(-50%, -50%);
-     font-size: 0.7em;
-     font-weight: bold;
-     color: rgba(255, 255, 255, 0.8);
-     text-shadow: 1px 1px 1px rgba(0,0,0,0.5);
-     white-space: nowrap;
-}
-#popupResonanceGaugeText {
-    display: block;
-    text-align: center;
-    font-size: 0.85em;
-    color: #666;
-}
-/* Add color classes for resonance bar */
+.popup-brief-desc { font-style: italic; font-size: 1.05em; color: var(--link-color); margin: 0; line-height: 1.4; white-space: normal; overflow-wrap: break-word; word-wrap: break-word; }
+.popup-detailed-desc { font-size: 0.95em; line-height: 1.6; margin: 0; max-height: 200px; overflow-y: auto; padding-right: 5px; }
+.popup-resonance-gauge-section h4 { margin-bottom: 5px; border-bottom: none; display: flex; justify-content: space-between; align-items: center; }
+#popupResonanceGaugeContainer { width: 100%; height: 12px; background-color: var(--border-color-light); border-radius: 6px; overflow: hidden; border: 1px solid var(--border-color-dark); margin-bottom: 4px; position: relative; }
+#popupResonanceGaugeBar { height: 100%; background-color: var(--primary-color); width: 50%; border-radius: 6px; transition: width 0.5s ease, background-color 0.5s ease; }
+#popupResonanceGaugeLabel { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); font-size: 0.7em; font-weight: bold; color: rgba(255, 255, 255, 0.8); text-shadow: 1px 1px 1px rgba(0,0,0,0.5); white-space: nowrap; }
+#popupResonanceGaugeText { display: block; text-align: center; font-size: 0.85em; color: #666; }
 #popupResonanceGaugeBar.resonance-high { background-color: var(--success-color); }
 #popupResonanceGaugeBar.resonance-medium { background-color: var(--warning-color); }
 #popupResonanceGaugeBar.resonance-low { background-color: var(--danger-color); }
 #popupResonanceGaugeLabel.resonance-medium { color: var(--text-color); text-shadow: none; }
-
-
-/* NEW Related Concepts Tags Styles */
-.popup-related-concepts-section .related-concepts-tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    padding-top: 5px;
-}
-.related-concepts-tags .related-concept-tag {
-    background-color: #e0d8c8;
-    border: 1px solid var(--border-color-dark);
-    border-radius: 15px;
-    padding: 4px 10px;
-    font-size: 0.9em;
-    color: var(--link-color);
-    cursor: help; /* Indicate potential interaction (future?) */
-    transition: background-color 0.2s;
-}
-.related-concepts-tags .related-concept-tag:hover {
-     background-color: var(--secondary-color);
-}
-.related-concepts-tags p { /* Style for 'None specified' */
-    font-style: italic;
-    color: #888;
-    width: 100%;
-    margin: 0;
-}
-
-
-/* Collapsible Area & Sections */
-.popup-collapsible-area {
-    padding: 0 15px 10px 15px; /* Padding around collapsibles */
-    border-top: 1px solid var(--border-color-light); /* Separator */
-    background-color: rgba(245, 240, 225, 0.5); /* Slightly different background */
-    max-height: 30vh; /* Limit height */
-    overflow-y: auto; /* Allow scrolling if many sections open */
-}
-.collapsible-popup-section {
-    margin: 10px 0; /* Adjust vertical margin */
-    border: 1px solid var(--border-color-dark); /* Darker border */
-    background: transparent; /* Remove inner background */
-    border-radius: 5px; /* Add radius to main details */
-    overflow: hidden; /* Prevent content bleed */
-}
-.collapsible-popup-section summary {
-    background-color: #e8d8c0; /* Match header accent */
-    font-family: 'Cinzel Decorative', cursive;
-    font-size: 1.05em;
-    color: var(--primary-color);
-    padding: 10px 15px; /* Adjust padding */
-    border-radius: 0; /* Remove radius here */
-    display: flex; /* Use flex for icon alignment */
-    justify-content: space-between; /* Push icon to the right */
-    align-items: center;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-    list-style-position: inside; /* Keep marker inside */
-    list-style-image: none; /* Remove default marker image */
-}
-.collapsible-popup-section summary::-webkit-details-marker { display: none; } /* Hide default marker */
-.collapsible-popup-section summary::before { /* Custom marker */
-    content: '\f0da'; /* FontAwesome right arrow */
-    font-family: 'Font Awesome 6 Free';
-    font-weight: 900;
-    margin-right: 8px;
-    transition: transform 0.2s ease-in-out;
-    display: inline-block;
-}
-.collapsible-popup-section[open] > summary::before {
-    transform: rotate(90deg);
-}
-.collapsible-popup-section summary:hover {
-    background-color: #d8c8b0; /* Darker hover */
-}
-.collapsible-popup-section[open] > summary {
-    border-bottom: 1px solid var(--border-color-dark);
-    /* Keep top radius if needed, but generally not with border */
-}
-.collapsible-popup-section .collapsible-content {
-    padding: 12px 15px; /* Adjust padding */
-    background-color: rgba(255, 250, 240, 0.8); /* Lighter content background */
-    border-top: none;
-}
-
-/* Styling for specific collapsible content */
+.popup-related-concepts-section .related-concepts-tags { display: flex; flex-wrap: wrap; gap: 8px; padding-top: 5px; }
+.related-concepts-tags .related-concept-tag { background-color: #e0d8c8; border: 1px solid var(--border-color-dark); border-radius: 15px; padding: 4px 10px; font-size: 0.9em; color: var(--link-color); cursor: help; transition: background-color 0.2s; }
+.related-concepts-tags .related-concept-tag:hover { background-color: var(--secondary-color); }
+.related-concepts-tags p { font-style: italic; color: #888; width: 100%; margin: 0; }
+.popup-collapsible-area { padding: 0 15px 10px 15px; border-top: 1px solid var(--border-color-light); background-color: rgba(245, 240, 225, 0.5); max-height: 30vh; overflow-y: auto; }
+.collapsible-popup-section { margin: 10px 0; border: 1px solid var(--border-color-dark); border-radius: 5px; background: transparent; overflow: hidden; }
+.collapsible-popup-section summary { display: flex; justify-content: space-between; align-items: center; padding: 10px 15px; background-color: #e8d8c0; font-weight: bold; color: var(--primary-color); cursor: pointer; transition: background-color 0.2s ease; list-style: none; font-family: 'Cinzel Decorative', cursive; font-size: 1.05em; }
+.collapsible-popup-section summary::-webkit-details-marker { display: none; }
+.collapsible-popup-section summary::before { content: '\f0da'; font-family: 'Font Awesome 6 Free'; font-weight: 900; margin-right: 8px; transition: transform 0.2s ease-in-out; display: inline-block; }
+.collapsible-popup-section[open] > summary::before { transform: rotate(90deg); }
+.collapsible-popup-section summary:hover { background-color: #d8c8b0; }
+.collapsible-popup-section[open] > summary { border-bottom: 1px solid var(--border-color-dark); }
+.collapsible-popup-section summary i { font-size: 0.9em; margin-left: 10px; color: var(--link-color); opacity: 0.8; }
+.collapsible-popup-section .collapsible-content { padding: 12px 15px; background-color: rgba(255, 250, 240, 0.8); border-top: none; }
 #popupLoreContent .lore-entry { padding-bottom: 10px; margin-bottom: 10px; border-bottom: 1px dashed var(--border-color-light); }
 #popupLoreContent .lore-entry:last-child { border-bottom: none; margin-bottom: 0; }
-#popupRecipeDetails .collapsible-content { padding-top: 5px; } /* Reduce top padding */
+#popupRecipeDetails .collapsible-content { padding-top: 5px; }
 #popupRecipeDetails .element-details { margin-top: 5px; background: transparent; border: none; }
 #popupRecipeDetails .element-details summary { background: transparent; padding: 4px 0; color: var(--link-color); font-family: 'Merriweather', serif; font-size: 0.9em; }
-#myNotesSection details { margin: 0; border: none; background: transparent;} /* Remove extra border/bg */
-#myNotesSection summary { background-color: #e8d8c0; font-family: 'Cinzel Decorative', cursive; font-size: 1.05em; /* etc */ }
-#myNotesSection .collapsible-content { padding: 12px 15px; border: 1px solid var(--border-color-light); border-top: none; border-radius: 0 0 5px 5px; background: #fffefa;}
-
-/* Popup Actions Footer */
-.card-popup .popup-actions {
-    padding: 12px 15px; /* Adjust padding */
-    border-top: 2px solid var(--primary-color); /* Stronger separator */
-    background-color: var(--background-dark);
-    text-align: right;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: flex-end;
-    gap: 8px;
-}
+#popupRecipeDetails .element-details summary::before { display: none; }
+#myNotesSection { border: 1px solid var(--border-color-dark); border-radius: 5px; background: transparent; overflow: hidden; margin: 10px 0;}
+#myNotesSection details { margin: 0; }
+#myNotesSection summary { background-color: #e8d8c0; }
+#myNotesSection .collapsible-content { padding: 12px 15px; border: none; background: #fffefa; border-radius: 0 0 5px 5px; }
+.profile-comparison { display: flex; flex-direction: column; text-align: left; gap: 15px; padding: 10px 12px; }
+@media (min-width: 480px) { .profile-comparison { flex-direction: row; justify-content: space-around; gap: 20px; } }
+.profile-column h5 { text-align: center; font-family: 'Garamond', serif; font-size: 1em; }
+#popupConceptProfile div, #popupUserComparisonProfile div { font-size: 0.9em; margin: 3px 0; display: flex; align-items: center; }
+#popupConceptProfile strong, #popupUserComparisonProfile strong { width: 85px; color: #6a5a4a; font-weight: normal; flex-shrink: 0; }
+#popupConceptProfile span, #popupUserComparisonProfile span { font-weight: bold; color: var(--primary-color); margin-right: 4px; }
+#popupConceptProfile .score-bar-container, #popupUserComparisonProfile .score-bar-container { margin-left: auto; height: 8px; width: 60px; flex-shrink: 0; display: inline-block; vertical-align: middle; background-color: var(--border-color-light); border-radius: 4px; overflow: hidden; border: 1px solid #b8a880; }
+#popupConceptProfile .score-bar-container div, #popupUserComparisonProfile .score-bar-container div { height: 100%; border-radius: 4px; }
+#popupComparisonHighlights { text-align: left; margin: 10px 0; font-size: 0.9em; background-color: rgba(255,255,255,0.6); padding: 12px; border-radius: 5px; border: 1px solid #eee9dd; }
+#popupComparisonHighlights p { text-align: left; margin: 4px 0; line-height: 1.4; }
+#popupComparisonHighlights strong { font-weight: bold; }
+#popupComparisonHighlights strong.match { color: var(--success-color); }
+#popupComparisonHighlights strong.mismatch { color: var(--danger-color); }
+.lore-level-title { font-size: 1em; font-weight: bold; color: var(--link-color); margin-bottom: 4px; text-align: left; border: none; padding: 0; font-family: 'Garamond', serif; }
+.lore-text { font-size: 0.95em; font-style: italic; color: #444; line-height: 1.5; margin: 0; }
+.unlock-lore-button { margin-top: 5px; background-color: var(--accent-color); border-color: #b8860b; color: var(--text-color); padding: 3px 8px; font-size: 0.75em; }
+.unlock-lore-button:hover:not(:disabled) { background-color: #ffeca0; }
+.unlock-lore-button:disabled { background-color: #ccc; border-color: #aaa; opacity: 0.7; }
+.my-notes-section textarea { width: calc(100% - 16px); display: block; margin-bottom: 6px; padding: 6px; border: 1px solid #c8b89a; border-radius: 4px; background-color: #fffefa; font-family: 'Merriweather', serif; font-size: 0.9em; min-height: 4em; }
+.my-notes-section .note-status { font-size: 0.8em; color: var(--success-color); margin-left: 8px; font-style: italic; }
+.my-notes-section .note-status.error { color: var(--danger-color); }
+.card-popup .popup-actions { padding: 12px 15px; border-top: 2px solid var(--primary-color); background-color: var(--background-dark); text-align: right; display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
 .card-popup .popup-actions .button { margin: 0; }
 .card-popup .add-grimoire-button { background-color: var(--success-color); border-color: #1e5a3a; }
 .card-popup .add-grimoire-button:hover:not(:disabled) { background-color: #3cb371; }
@@ -919,8 +470,7 @@ hr { border: none; border-top: 1px dashed var(--border-color-light); margin: 18p
 .card-popup .focus-button.hidden { display: none; }
 .card-popup .popup-sell-button { background-color: var(--danger-color); border-color: #a52a2a; color: white; text-shadow: none; }
 .card-popup .popup-sell-button:hover:not(:disabled) { background-color: #c82333; }
-
-/* --- End Popup Overhaul Styles --- */
+/* --- END Concept Detail Popup Overhaul --- */
 
 
 /* --- Reflection Modal --- */
@@ -943,29 +493,58 @@ hr { border: none; border-top: 1px dashed var(--border-color-light); margin: 18p
 .settings-content button { margin: 4px 8px; }
 .reset-warning { color: var(--danger-color); font-size: 0.85em; margin-top: 12px; font-weight: bold; }
 
-/* --- Tapestry Deep Dive Modal --- */
-.deep-dive-modal { max-width: 750px; width: 94%; }
-.deep-dive-modal .popup-header { padding: 12px 45px 10px 15px; border-bottom: 1px solid var(--border-color-dark); background-color: #d8c8b0; border-radius: 9px 9px 0 0; position: relative; }
-.deep-dive-modal .popup-header h3 { margin: 0; color: #5a3a22; font-size: 1.25em; text-align: left; font-family: 'Cinzel Decorative', cursive; }
-#deepDiveFocusIcons { position: absolute; right: 45px; top: 50%; transform: translateY(-50%); display: flex; gap: 5px; }
-#deepDiveFocusIcons i { font-size: 1em; color: var(--link-color); opacity: 0.8; }
-.deep-dive-content { padding: 15px; flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; }
-.deep-dive-main-narrative h4 { font-size: 1.05em; margin-bottom: 6px; font-family: 'Garamond', serif; color: var(--primary-color); }
-.deep-dive-main-narrative p { font-size: 0.95em; margin-bottom: 15px; font-style: italic; background-color: rgba(255, 250, 240, 0.7); padding: 8px; border-radius: 4px; border: 1px solid #eee9dd; }
-.deep-dive-nodes-container { margin-top: 10px; margin-bottom: 15px; }
-.deep-dive-nodes-container h4 { font-size: 1.05em; margin-bottom: 8px; font-family: 'Garamond', serif; color: var(--primary-color); }
-.deep-dive-nodes-container .deep-dive-node { margin: 3px; background-color: #b0a48a; border-color: #8b7d6b; color: #3f372e; text-shadow: none; }
-.deep-dive-nodes-container .deep-dive-node:hover:not(:disabled) { background-color: #c4bba8; }
-.deep-dive-nodes-container .deep-dive-node.active { background-color: var(--primary-color); color: white; border-color: #5a2d0c; text-shadow: 1px 1px 1px rgba(0,0,0,0.2); }
-.deep-dive-nodes-container .contemplation-node { background-color: #8a2be2; border-color: #6a1ea2; color: white; text-shadow: 1px 1px 1px rgba(0,0,0,0.2); }
-.deep-dive-nodes-container .contemplation-node:hover:not(:disabled) { background-color: #9f45ff; }
-.deep-dive-nodes-container .contemplation-node:disabled { background-color: #aaa; border-color: #888; opacity: 0.6; cursor: not-allowed; color: #eee; text-shadow: none; }
-.deep-dive-detail-area { background-color: #fffefa; border: 1px solid var(--border-color-light); border-radius: 6px; padding: 15px; min-height: 150px; flex-grow: 1; margin-top: 10px; }
-.deep-dive-detail-area h4 { margin-top: 0; margin-bottom: 10px; font-size: 1.1em; color: var(--link-color); font-family: 'Garamond', serif; }
-.deep-dive-detail-area p, .deep-dive-detail-area ul { font-size: 0.95em; margin-bottom: 10px; text-align: left; }
-.deep-dive-detail-area ul { padding-left: 20px; list-style: disc; }
-.deep-dive-detail-area .keyword-tag { background-color: var(--secondary-color); color: var(--text-color); padding: 2px 8px; border-radius: 12px; font-size: 0.9em; margin: 2px; display: inline-block; }
-#completeContemplationBtn { margin-top: 15px; display: block; margin-left: auto; margin-right: auto; }
+/* --- Tapestry Deep Dive Modal ("Resonance Chamber") Overhaul --- */
+.resonance-chamber-modal {
+    max-width: 850px; /* Wider modal */
+    width: 95%;
+    max-height: 90vh;
+    background: linear-gradient(170deg, #3a302a, #4f423a); /* Darker, richer background */
+    color: var(--background-light); /* Light text */
+    border: 2px solid var(--accent-color); /* Gold border */
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+.resonance-chamber-modal .popup-header { background-color: rgba(0,0,0, 0.3); border-bottom: 1px solid rgba(255, 215, 0, 0.4); padding: 10px 45px 10px 20px; }
+.resonance-chamber-modal .popup-header h3 { color: var(--accent-color); font-size: 1.3em; text-align: left; text-shadow: 1px 1px 2px rgba(0,0,0,0.5); }
+.resonance-chamber-modal .close-button { color: rgba(255, 215, 0, 0.7); }
+.resonance-chamber-modal .close-button:hover { color: #ffffff; }
+.resonance-chamber-content { padding: 15px; flex-grow: 1; overflow: hidden; display: flex; flex-direction: column; gap: 15px; }
+.resonance-chamber-summary { background-color: rgba(0,0,0, 0.15); padding: 12px 15px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.1); }
+.resonance-chamber-summary h4 { font-family: 'Cinzel Decorative', cursive; font-size: 1.1em; color: var(--secondary-color); margin-bottom: 8px; border-bottom: 1px solid rgba(210, 180, 140, 0.3); padding-bottom: 4px; text-align: left; }
+.resonance-chamber-summary #deepDiveNarrativeP { font-size: 0.95em; font-style: italic; line-height: 1.5; color: #e0d8c0; margin-bottom: 10px; }
+.resonance-chamber-summary .focused-concepts-icons { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-start; margin-top: 8px; }
+.resonance-chamber-summary .focused-concepts-icons i { font-size: 1.2em; opacity: 0.8; padding: 3px; background-color: rgba(0,0,0,0.2); border-radius: 3px; }
+.resonance-chamber-main { display: flex; flex-direction: column; gap: 15px; flex-grow: 1; overflow: hidden; }
+.aspects-navigation { background-color: rgba(0,0,0, 0.2); padding: 10px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.1); flex-shrink: 0; }
+.aspects-navigation h4 { font-family: 'Cinzel Decorative', cursive; font-size: 1.1em; color: var(--secondary-color); margin-bottom: 10px; text-align: center; border: none; padding: 0; }
+.aspects-navigation .aspect-node { display: block; width: 100%; margin-bottom: 8px; text-align: left; background-color: rgba(210, 180, 140, 0.2); border: 1px solid rgba(210, 180, 140, 0.4); color: #e0d8c0; text-shadow: none; font-family: 'Merriweather', serif; font-size: 0.9em; padding: 8px 12px; border-radius: 4px; transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease; }
+.aspects-navigation .aspect-node i { margin-right: 8px; width: 1.2em; text-align: center; color: var(--accent-color); opacity: 0.8; }
+.aspects-navigation .aspect-node:hover:not(:disabled):not(.active) { background-color: rgba(210, 180, 140, 0.4); border-color: var(--secondary-color); color: #ffffff; }
+.aspects-navigation .aspect-node.active { background-color: var(--secondary-color); border-color: var(--accent-color); color: var(--primary-color); font-weight: bold; }
+.aspects-navigation .aspect-node.active i { color: var(--primary-color); opacity: 1; }
+.aspects-navigation .contemplation-node { background-color: rgba(138, 43, 226, 0.2); border-color: rgba(138, 43, 226, 0.4); }
+.aspects-navigation .contemplation-node:hover:not(:disabled):not(.active) { background-color: rgba(138, 43, 226, 0.4); border-color: #8a2be2; }
+.aspects-navigation .contemplation-node.active { background-color: #8a2be2; border-color: #bf7fff; color: white; }
+.aspects-navigation .contemplation-node.active i { color: white; }
+.aspects-navigation .contemplation-node:disabled { background-color: rgba(100, 100, 100, 0.3); border-color: rgba(150, 150, 150, 0.3); color: #999; cursor: not-allowed; opacity: 0.7; }
+.aspects-navigation .contemplation-node:disabled i { color: #999; opacity: 0.7; }
+.contemplation-cost { display: inline; }
+.insight-scroll-panel { background-color: rgba(253, 245, 230, 0.9); color: var(--text-color); padding: 15px; border-radius: 6px; border: 1px solid var(--border-color-light); flex-grow: 1; overflow-y: auto; min-height: 200px; }
+.insight-scroll-panel h4 { font-family: 'Cinzel Decorative', cursive; color: var(--primary-color); margin-bottom: 12px; border-bottom: 1px solid var(--border-color-dark); padding-bottom: 5px; font-size: 1.2em; }
+.insight-scroll-panel h5 { font-family: 'Garamond', serif; color: var(--link-color); margin-top: 15px; margin-bottom: 5px; font-size: 1.1em; border: none; text-align: left; }
+.insight-scroll-panel p, .insight-scroll-panel ul { font-size: 0.95em; line-height: 1.6; margin-bottom: 12px; }
+.insight-scroll-panel ul { list-style: disc; padding-left: 25px; }
+.insight-scroll-panel li { margin-bottom: 8px; }
+.insight-scroll-panel strong { font-weight: bold; color: var(--primary-color); }
+.insight-scroll-panel p i { color: #888; }
+.insight-scroll-panel .keyword-tag { background-color: var(--secondary-color); color: var(--text-color); padding: 2px 8px; border-radius: 12px; font-size: 0.9em; margin: 2px; display: inline-block; }
+#completeContemplationBtn { display: block; margin: 20px auto 5px auto; }
+@media (min-width: 768px) { .resonance-chamber-main { flex-direction: row; } .aspects-navigation { flex: 0 0 200px; overflow-y: auto; max-height: calc(88vh - 200px); } .insight-scroll-panel { flex: 1 1 auto; min-width: 0; max-height: calc(88vh - 180px); } }
+/* --- END Tapestry Deep Dive Modal Overhaul --- */
+
+/* --- Elemental Dilemma Modal --- */
+#dilemmaModal { max-width: 550px; }
+#dilemmaSituationText { font-style: italic; background-color: #fffefa; padding: 12px; border-radius: 6px; border: 1px solid #eee9dd; text-align: left; line-height: 1.45; }
+#dilemmaQuestionText { font-weight: bold; margin-top: 15px; }
 
 /* --- Info Popup --- */
 .info-popup { max-width: 450px; max-height: 60vh; width: 90%; }
@@ -998,14 +577,32 @@ hr { border: none; border-top: 1px dashed var(--border-color-light); margin: 18p
 .back-button:hover:not(:disabled) { background-color: #948e82; }
 .secondary-button { background-color: #b0a48a; border-color: #8b7d6b; color: #3f372e; text-shadow: none; }
 .secondary-button:hover:not(:disabled) { background-color: #c4bba8; }
+.tiny-button { padding: 4px 8px; font-size: 0.8em; border-radius: 50%; line-height: 1; min-width: 28px; min-height: 28px; display: inline-flex; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.25); transition: background-color 0.2s ease, transform 0.1s ease; border: 1px solid rgba(0,0,0,0.1); cursor: pointer;}
+.tiny-button i { margin: 0; font-size: 0.95em; line-height: 1; }
+.tiny-button:hover:not(:disabled) { transform: scale(1.15); }
+.tiny-button:disabled { cursor: not-allowed; opacity: 0.6; }
 
-/* --- Resonance Indicators (In popup gauge now mostly) --- */
-.resonance-indicator { /* Style for any text indicators if still used elsewhere */
-    font-size: 0.8em; padding: 2px 6px; border-radius: 10px; color: white; font-weight: bold; text-shadow: 1px 1px 1px rgba(0,0,0,0.4); display: inline-block; vertical-align: middle; margin-left: 6px;
+/* Insight Boost Button */
+#addInsightButton {
+    margin-left: 10px;
+    padding: 3px 8px; /* Tiny button size */
+    font-size: 0.75em;
+    vertical-align: middle; /* Align nicely with text */
+    background-color: var(--success-color);
+    border-color: #1c7430;
 }
-.resonance-high { background-color: var(--success-color); }
-.resonance-medium { background-color: var(--warning-color); color: var(--text-color); text-shadow: none; }
-.resonance-low { background-color: var(--danger-color); }
+#addInsightButton:disabled {
+    background-color: #aaa;
+    border-color: #888;
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+#addInsightButton i {
+    margin-right: 4px;
+}
+
+/* --- Resonance Indicators (Only used in popup now) --- */
+/* Styles defined within #popupResonanceGauge section */
 
 /* --- Highlight Class --- */
 .highlight-feature { animation: pulseGlow 1.5s infinite alternate; box-shadow: 0 0 8px 2px var(--highlight-glow); border-radius: 5px; }
@@ -1017,18 +614,19 @@ hr { border: none; border-top: 1px dashed var(--border-color-light); margin: 18p
   .screen { padding: 15px 10px; }
   .popup { width: 95%; max-height: 90vh; }
   .popup.card-popup { max-width: 95%; } /* Allow popup to be wider on medium */
-  .card-popup .popup-content { padding: 10px; gap: 15px; } /* Old rule, remove if not used */
   .card-popup .popup-main-content { flex-direction: column; padding: 10px; gap: 15px; } /* Ensure stacking */
   .card-popup .popup-visual-area { max-width: 250px; width: 80%; align-self: center; position: static; /* Unstick on mobile */ }
   .card-popup .popup-info-area { max-height: none; overflow-y: visible; padding-right: 0;}
   .card-popup .popup-collapsible-area { max-height: none; overflow-y: visible; padding: 0 10px 10px 10px;}
   .card-popup .popup-actions { padding: 8px 10px; justify-content: center; }
+  .resonance-chamber-modal .popup-header h3 { font-size: 1.2em; } /* Adjust deep dive header */
+  .resonance-chamber-main { flex-direction: column; }
+  .aspects-navigation { max-height: none; overflow-y: visible; flex: 0 0 auto; } /* Unset flex basis */
+  .insight-scroll-panel { max-height: none; overflow-y: visible;}
   .nav-button { padding: 6px 8px; font-size: 0.85em; }
   .initial-discovery-elements { grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 10px; }
   .study-actions-area { margin-top: 15px; padding-top: 10px; }
   .rituals-alcove { margin-top: 15px; }
-  .deep-dive-modal .popup-header h3 { font-size: 1.1em; }
-  .deep-dive-nodes-container .deep-dive-node { font-size: 0.75em; padding: 5px 8px; }
   .grimoire-shelves-area { justify-content: center; }
   .card-grid { grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); /* Adjust min width */ gap: 12px; padding: 10px; }
   .concept-card { min-height: 275px; padding: 10px; } /* Adjust min height */
@@ -1056,8 +654,9 @@ hr { border: none; border-top: 1px dashed var(--border-color-light); margin: 18p
     .card-popup .detailed-description { font-size: 0.9em; max-height: 120px; }
     .card-popup .popup-actions { justify-content: space-around; }
     .initial-discovery-elements { grid-template-columns: 1fr; } /* Stack elements */
-    .deep-dive-nodes-container { text-align: center; }
-    .deep-dive-nodes-container .deep-dive-node { display: inline-block; width: auto; margin: 4px; }
+    /* .deep-dive-nodes-container { text-align: center; } */ /* Old rule */
+    /* .deep-dive-nodes-container .deep-dive-node { display: inline-block; width: auto; margin: 4px; } */ /* Old rule */
+    .aspects-navigation .aspect-node { font-size: 0.85em; padding: 6px 10px; } /* Adjust new buttons */
     .chart-container { height: 280px; max-width: 95%; padding: 10px; }
 }
 
@@ -1078,13 +677,13 @@ hr { border: none; border-top: 1px dashed var(--border-color-light); margin: 18p
 
 /* --- Popup Collapsible Sections General --- */
 .collapsible-popup-section { margin: 10px 0; border: 1px solid var(--border-color-dark); border-radius: 5px; background: transparent; overflow: hidden; }
-.collapsible-popup-section summary { display: flex; justify-content: space-between; align-items: center; padding: 10px 15px; background-color: #e8d8c0; font-weight: bold; color: var(--primary-color); cursor: pointer; transition: background-color 0.2s ease; list-style: none; /* Hide default marker */ font-family: 'Cinzel Decorative', cursive; font-size: 1.05em; }
+.collapsible-popup-section summary { display: flex; justify-content: space-between; align-items: center; padding: 10px 15px; background-color: #e8d8c0; font-weight: bold; color: var(--primary-color); cursor: pointer; transition: background-color 0.2s ease; list-style: none; font-family: 'Cinzel Decorative', cursive; font-size: 1.05em; }
 .collapsible-popup-section summary::-webkit-details-marker { display: none; }
-.collapsible-popup-section summary::before { /* Custom marker */ content: '\f0da'; font-family: 'Font Awesome 6 Free'; font-weight: 900; margin-right: 8px; transition: transform 0.2s ease-in-out; display: inline-block; }
+.collapsible-popup-section summary::before { content: '\f0da'; font-family: 'Font Awesome 6 Free'; font-weight: 900; margin-right: 8px; transition: transform 0.2s ease-in-out; display: inline-block; }
 .collapsible-popup-section[open] > summary::before { transform: rotate(90deg); }
 .collapsible-popup-section summary:hover { background-color: #d8c8b0; }
 .collapsible-popup-section[open] > summary { border-bottom: 1px solid var(--border-color-dark); }
-.collapsible-popup-section summary i { /* Style icons in summary */ font-size: 0.9em; margin-left: 10px; color: var(--link-color); opacity: 0.8; }
+.collapsible-popup-section summary i { font-size: 0.9em; margin-left: 10px; color: var(--link-color); opacity: 0.8; }
 .collapsible-popup-section .collapsible-content { padding: 12px 15px; background-color: rgba(255, 250, 240, 0.8); border-top: none; }
 
 /* Specific Collapsible Content Styles */
@@ -1093,7 +692,7 @@ hr { border: none; border-top: 1px dashed var(--border-color-light); margin: 18p
 #popupRecipeDetails .collapsible-content { padding-top: 5px; }
 #popupRecipeDetails .element-details { margin-top: 5px; background: transparent; border: none; }
 #popupRecipeDetails .element-details summary { background: transparent; padding: 4px 0; color: var(--link-color); font-family: 'Merriweather', serif; font-size: 0.9em; }
-#popupRecipeDetails .element-details summary::before { display: none; } /* Hide marker for nested details */
+#popupRecipeDetails .element-details summary::before { display: none; }
 #myNotesSection { border: 1px solid var(--border-color-dark); border-radius: 5px; background: transparent; overflow: hidden; margin: 10px 0;}
 #myNotesSection details { margin: 0; }
 #myNotesSection summary { background-color: #e8d8c0; /* Consistent summary style */ }
