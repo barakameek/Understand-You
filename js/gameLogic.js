@@ -464,12 +464,7 @@ export function handleDeepDiveNodeClick(nodeId) { // Renamed from showTapestryDe
          UI.showTemporaryMessage("Focus on concepts first to explore the Resonance Chamber.", 3000);
          return;
      }
-     calculateTapestryNarrative(true);
-     if (!currentTapestryAnalysis && nodeId !== 'contemplation') {
-         console.error("Failed to generate tapestry analysis for Resonance Chamber.");
-         UI.showTemporaryMessage("Error analyzing Tapestry.", 3000);
-         return;
-     }
+
      // If the main modal isn't open yet, open it first.
      if (tapestryDeepDiveModal && tapestryDeepDiveModal.classList.contains('hidden')) {
         UI.displayTapestryDeepDive(currentTapestryAnalysis || { synergies: [], tensions: [], fullNarrativeHTML: 'Focus concepts to analyze.' });
