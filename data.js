@@ -106,45 +106,282 @@ export const grimoireShelves = [
 
 const concepts = [ // Ensure commas after lore arrays
     // --- Common Concepts ---
-    { id: 1, name: "Vanilla Sex", cardType: "Practice/Kink", visualHandle: "common_vanilla", primaryElement: "S", elementScores: { A: 5, I: 5, S: 3, P: 4, C: 3, R: 4 }, briefDescription: "The usual suspects.", detailedDescription: "Think 'mainstream' sexy times – stuff generally considered 'normal' like P-in-V or mutual masturbation, often without heavy power dynamics, super intense feelings, or complex storylines. Comfort food sex!", relatedIds: [2, 3, 33], rarity: 'common', canUnlockArt: false, keywords: ['Conventional', 'Physical', 'Simple', 'Mainstream'] },
-    { id: 2, name: "Sensual Touch", cardType: "Practice/Kink", visualHandle: "common_sensual", primaryElement: "S", elementScores: { A: 4, I: 4, S: 4, P: 5, C: 2, R: 4 }, briefDescription: "Gentle, connected touch.", detailedDescription: "Slow down and *feel*! This is about soft, loving touch that's more about connection, warmth, and just enjoying the physical closeness than rushing to a finish line. Massage, caressing, holding – pure comfy vibes.", relatedIds: [1, 15, 31, 3, 80, 102], rarity: 'common', canUnlockArt: true, visualHandleUnlocked: "common_sensual_art", keywords: ['Gentle', 'Affection', 'Connection', 'Sensation', 'Comfort', 'Slow'] },
-    { id: 3, name: "Passionate Kissing", cardType: "Practice/Kink", visualHandle: "common_kissing", primaryElement: "S", elementScores: { A: 6, I: 5, S: 5, P: 6, C: 3, R: 5 }, briefDescription: "Kissing like you mean it.", detailedDescription: "More than just a peck! This is when kissing becomes a whole conversation – intense, emotional, maybe deep and slow, maybe urgent and demanding. It's a direct line to connection and arousal.", relatedIds: [1, 2, 15, 47, 66, 85], rarity: 'common', canUnlockArt: false, keywords: ['Intensity', 'Emotion', 'Connection', 'Sensation', 'Intimacy', 'Kissing'] },
-   { id: 15, name: "Intimacy/Deep Connection Focus", cardType: "Psychological/Goal", visualHandle: "common_intimacy", primaryElement: "P", elementScores: { A: 4, I: 5, S: 4, P: 9, C: 4, R: 7 }, briefDescription: "Seeking closeness & vulnerability.", detailedDescription: "Prioritizing emotional closeness, trust, vulnerability, and deep bonding during sexual encounters. The physical act serves to deepen the psychological connection.", relatedIds: [2, 3, 22, 29, 31, 46, 47, 48, 58, 59, 68, 69, 70, 75, 76, 82, 83, 123], rarity: 'common', canUnlockArt: false, keywords: ['Intimacy', 'Connection', 'Vulnerability', 'Trust', 'Emotion', 'Bonding'] },
-    { id: 22, name: "Monogamy", cardType: "Relationship Style", visualHandle: "common_mono", primaryElement: "R", elementScores: { A: 5, I: 5, S: 5, P: 6, C: 5, R: 2 }, briefDescription: "One partner at a time.", detailedDescription: "Keeping it exclusive! Preferring or practicing having just one sexual and/or romantic partner at a time, often with a strong sense of commitment.", relatedIds: [23, 15, 29, 59, 76], rarity: 'common', canUnlockArt: true, visualHandleUnlocked: "common_mono_art", keywords: ['Structure', 'Exclusivity', 'Commitment', 'Dyad', 'One-on-One'] },
-    { id: 23, name: "Serial Monogamy", cardType: "Relationship Style", visualHandle: "common_serialmono", primaryElement: "R", elementScores: { A: 5, I: 5, S: 5, P: 5, C: 5, R: 3 }, briefDescription: "Sequence of exclusive relationships.", detailedDescription: "The pattern of engaging in sequential monogamous relationships over time, moving from one exclusive partnership to the next.", relatedIds: [22, 24], rarity: 'common', canUnlockArt: false, keywords: ['Structure', 'Exclusivity', 'Sequence'] },
-    { id: 24, name: "Casual Sex / Hookups", cardType: "Relationship Style", visualHandle: "common_casual", primaryElement: "R", elementScores: { A: 6, I: 4, S: 6, P: 3, C: 3, R: 5 }, briefDescription: "Sex without commitment.", detailedDescription: "Sexual encounters that occur outside of a committed romantic relationship, typically without expectations of long-term connection or deep emotional intimacy.", relatedIds: [23, 26, 35, 56, 65, 79, 84], rarity: 'common', canUnlockArt: false, keywords: ['Fleeting', 'Physical', 'Low-Commitment', 'Exploration', 'Casual', 'NSA'] },
-    { id: 31, name: "Cuddling / Affection", cardType: "Practice/Kink", visualHandle: "common_cuddle", primaryElement: "P", elementScores: { A: 3, I: 3, S: 3, P: 6, C: 2, R: 4 }, briefDescription: "Non-sexual physical closeness.", detailedDescription: "Sharing physical closeness through hugging, holding, or lying together without explicit sexual intent, focusing on comfort, security, and platonic or romantic affection.", relatedIds: [2, 15, 48, 69, 80], rarity: 'common', canUnlockArt: false, keywords: ['Comfort', 'Affection', 'Security', 'Connection', 'Gentle', 'Cuddle'] },
-    { id: 32, name: "Dirty Talk", cardType: "Practice/Kink", visualHandle: "common_dirtytalk", primaryElement: "C", elementScores: { A: 5, I: 6, S: 3, P: 5, C: 7, R: 5 }, briefDescription: "Explicit language during sex.", detailedDescription: "Verbally expressing desires, fantasies, commands, or descriptions of acts during sexual activity to increase arousal and connection. Can be suggestive or highly explicit.", relatedIds: [13, 11, 4, 5, 46, 49, 66, 74], rarity: 'common', canUnlockArt: false, keywords: ['Language', 'Cognitive', 'Arousal', 'Expression', 'Fantasy', 'Verbal'] },
-    { id: 33, name: "Mutual Masturbation", cardType: "Practice/Kink", visualHandle: "common_mutualmast", primaryElement: "I", elementScores: { A: 5, I: 5, S: 6, P: 4, C: 4, R: 5 }, briefDescription: "Partners masturbating together.", detailedDescription: "Two or more partners engaging in simultaneous masturbation, potentially watching or manually stimulating each other to orgasm.", relatedIds: [1, 18, 19, 72], rarity: 'common', canUnlockArt: false, keywords: ['Shared', 'Physical', 'Visual', 'Sensation', 'Masturbation'] },
-    { id: 46, name: "Compliments / Praise", cardType: "Practice/Kink", visualHandle: "common_praise", primaryElement: "P", elementScores: { A: 4, I: 5, S: 2, P: 7, C: 4, R: 5 }, briefDescription: "Verbal affirmation during intimacy.", detailedDescription: "Using positive verbal feedback, compliments, or praise related to appearance, performance, or desirability to enhance connection, confidence, and arousal.", relatedIds: [32, 15, 50], rarity: 'common', canUnlockArt: false, keywords: ['Validation', 'Affirmation', 'Psychological', 'Connection', 'Confidence', 'Praise'] },
-    { id: 47, name: "Eye Contact", cardType: "Practice/Kink", visualHandle: "common_eyecontact", primaryElement: "P", elementScores: { A: 5, I: 6, S: 2, P: 7, C: 3, R: 6 }, briefDescription: "Intense gazing during intimacy.", detailedDescription: "Maintaining direct and often intense eye contact during sexual activity to heighten intimacy, connection, vulnerability, or sometimes power dynamics.", relatedIds: [3, 15], rarity: 'common', canUnlockArt: false, keywords: ['Intimacy', 'Connection', 'Vulnerability', 'Presence', 'Focus', 'Eyes'] },
-    { id: 48, name: "Holding Hands", cardType: "Practice/Kink", visualHandle: "common_handholding", primaryElement: "P", elementScores: { A: 3, I: 4, S: 3, P: 5, C: 1, R: 4 }, briefDescription: "Simple physical connection.", detailedDescription: "The simple act of clasping hands, often signifying affection, connection, comfort, or partnership, whether during sexual activity or not.", relatedIds: [2, 31, 77], rarity: 'common', canUnlockArt: false, keywords: ['Affection', 'Connection', 'Comfort', 'Simple', 'Touch'] },
-    { id: 49, name: "Shared Fantasy Talk", cardType: "Practice/Kink", visualHandle: "common_fantasytalk", primaryElement: "C", elementScores: { A: 5, I: 5, S: 3, P: 6, C: 6, R: 5 }, briefDescription: "Verbally sharing fantasies.", detailedDescription: "Partners verbally describing their sexual fantasies to each other, either as a form of mutual arousal or to build towards potential future play.", relatedIds: [32, 14], rarity: 'common', canUnlockArt: false, keywords: ['Fantasy', 'Cognitive', 'Sharing', 'Arousal', 'Communication', 'Verbal'] },
-    { id: 50, name: "Validation Seeking", cardType: "Psychological/Goal", visualHandle: "common_validation", primaryElement: "P", elementScores: { A: 5, I: 6, S: 5, P: 7, C: 4, R: 5 }, briefDescription: "Sex motivated by feeling desired.", detailedDescription: "Engaging in sexual activity partly or primarily motivated by the need to feel desired, attractive, skilled, or validated by a partner's reactions or praise.", relatedIds: [18, 46, 91], rarity: 'common', canUnlockArt: false, keywords: ['Validation', 'Psychological', 'Need', 'Desire', 'Performance', 'Approval'] },
-    { id: 51, name: "Stress Relief Focus", cardType: "Psychological/Goal", visualHandle: "common_stressrelief", primaryElement: "P", elementScores: { A: 4, I: 4, S: 5, P: 6, C: 3, R: 4 }, briefDescription: "Using sex to unwind/relax.", detailedDescription: "Utilizing sexual activity, including orgasm, primarily as a means to release tension, reduce stress, and achieve a state of relaxation.", relatedIds: [1], rarity: 'common', canUnlockArt: false, keywords: ['Stress Relief', 'Relaxation', 'Physical', 'Catharsis', 'Coping'] },
-    { id: 52, name: "Heterosexuality", cardType: "Orientation", visualHandle: "common_hetero", primaryElement: "A", elementScores: { A: 7, I: 5, S: 5, P: 5, C: 5, R: 5 }, briefDescription: "Into different gender(s).", detailedDescription: "Primarily feeling sexual and/or romantic attraction to individuals of a different gender identity than one's own. (Often called 'straight').", relatedIds: [53, 54, 55], rarity: 'common', canUnlockArt: false, keywords: ['Orientation', 'Gender', 'Attraction', 'Straight'] },
-    { id: 53, name: "Homosexuality", cardType: "Orientation", visualHandle: "common_homo", primaryElement: "A", elementScores: { A: 7, I: 5, S: 5, P: 5, C: 5, R: 5 }, briefDescription: "Into the same gender(s).", detailedDescription: "Primarily feeling sexual and/or romantic attraction to individuals of the same gender identity as one's own. (Often called 'gay' or 'lesbian').", relatedIds: [52, 54, 55], rarity: 'common', canUnlockArt: false, keywords: ['Orientation', 'Gender', 'Attraction', 'Gay', 'Lesbian'] },
-    { id: 54, name: "Bisexuality", cardType: "Orientation", visualHandle: "common_bi", primaryElement: "A", elementScores: { A: 6, I: 5, S: 5, P: 5, C: 5, R: 5 }, briefDescription: "Into two or more genders.", detailedDescription: "Feeling sexual and/or romantic attraction to more than one gender identity. This can include your own gender and others.", relatedIds: [52, 53, 55], rarity: 'common', canUnlockArt: false, keywords: ['Orientation', 'Gender', 'Attraction', 'Multiple', 'Bi'] },
-    { id: 55, name: "Pansexuality", cardType: "Orientation", visualHandle: "common_pan", primaryElement: "A", elementScores: { A: 5, I: 5, S: 5, P: 5, C: 5, R: 5 }, briefDescription: "Attraction regardless of gender.", detailedDescription: "Feeling sexual and/or romantic attraction to individuals regardless of their gender identity or presentation. It's more about the person, their vibe, or other qualities than their specific gender label.", relatedIds: [52, 53, 54, 103], rarity: 'common', canUnlockArt: false, keywords: ['Orientation', 'Attraction', 'Fluidity', 'Personality', 'Pan'] },
-    { id: 56, name: "Quickie", cardType: "Practice/Kink", visualHandle: "common_quickie", primaryElement: "I", elementScores: { A: 6, I: 6, S: 6, P: 3, C: 2, R: 4 }, briefDescription: "Brief, often spontaneous sex.", detailedDescription: "A short sexual encounter, often focused on achieving orgasm quickly due to time constraints or a desire for immediate gratification.", relatedIds: [1, 24, 79], rarity: 'common', canUnlockArt: false, keywords: ['Brief', 'Spontaneous', 'Physical', 'Goal-Oriented', 'Fast'] },
-    { id: 66, name: "Foreplay Focus", cardType: "Practice/Kink", visualHandle: "common_foreplay", primaryElement: "I", elementScores: { A: 5, I: 6, S: 5, P: 5, C: 4, R: 5 }, briefDescription: "Emphasis on pre-intercourse intimacy.", detailedDescription: "Placing significant importance on activities leading up to intercourse or the main sexual event, such as kissing, touching, oral sex, or dirty talk, to build arousal and connection.", relatedIds: [1, 2, 3, 32, 67, 83], rarity: 'common', canUnlockArt: false, keywords: ['Build-up', 'Arousal', 'Connection', 'Intimacy', 'Anticipation', 'Warm-up'] },
-    { id: 67, name: "Oral Sex (Giving/Receiving)", cardType: "Practice/Kink", visualHandle: "common_oral", primaryElement: "S", elementScores: { A: 6, I: 6, S: 7, P: 5, C: 3, R: 5 }, briefDescription: "Stimulation with mouth/tongue.", detailedDescription: "Engaging in oral stimulation of a partner's genitals (fellatio, cunnilingus) or other erogenous zones.", relatedIds: [1, 66, 73, 107], rarity: 'common', canUnlockArt: false, keywords: ['Sensation', 'Physical', 'Focus', 'Giving', 'Receiving', 'Oral'] },
-    { id: 68, name: "Romantic Gestures", cardType: "Psychological/Goal", visualHandle: "common_romantic", primaryElement: "P", elementScores: { A: 5, I: 5, S: 3, P: 7, C: 4, R: 6 }, briefDescription: "Expressing love/care non-sexually.", detailedDescription: "Actions taken to express love, affection, or care that are not explicitly sexual but enhance the relationship context, such as gift-giving, date nights, or thoughtful acts.", relatedIds: [15, 22, 31, 76], rarity: 'common', canUnlockArt: false, keywords: ['Romance', 'Affection', 'Care', 'Relationship', 'Connection', 'Gestures'] },
-    { id: 69, name: "Aftercare (Basic)", cardType: "Practice/Kink", visualHandle: "common_aftercare", primaryElement: "P", elementScores: { A: 4, I: 5, S: 4, P: 6, C: 3, R: 6 }, briefDescription: "Post-sex connection/comfort.", detailedDescription: "Providing comfort, reassurance, and connection immediately following sexual activity, such as cuddling, talking, providing water, or checking in emotionally.", relatedIds: [31, 15, 70, 80, 123], rarity: 'common', canUnlockArt: false, keywords: ['Comfort', 'Connection', 'Care', 'Post-Scene', 'Psychological', 'Aftercare'] },
-    { id: 70, name: "Pillow Talk", cardType: "Practice/Kink", visualHandle: "common_pillowtalk", primaryElement: "P", elementScores: { A: 4, I: 4, S: 2, P: 7, C: 4, R: 7 }, briefDescription: "Intimate conversation after sex.", detailedDescription: "Engaging in relaxed, intimate, and often vulnerable conversation with a partner after sexual activity.", relatedIds: [69, 15], rarity: 'common', canUnlockArt: false, keywords: ['Intimacy', 'Conversation', 'Vulnerability', 'Connection', 'Post-Scene', 'Talk'] },
-    { id: 71, name: "Shower / Bath Sex", cardType: "Practice/Kink", visualHandle: "common_showersex", primaryElement: "S", elementScores: { A: 5, I: 5, S: 6, P: 4, C: 3, R: 5 }, briefDescription: "Sexual activity in water.", detailedDescription: "Engaging in sexual acts in a shower or bath, often incorporating the sensations of water and steam.", relatedIds: [1], rarity: 'common', canUnlockArt: false, keywords: ['Sensation', 'Environment', 'Water', 'Playful', 'Shower', 'Bath'] },
-    { id: 72, name: "Using Sex Toys (Simple)", cardType: "Practice/Kink", visualHandle: "common_toys_simple", primaryElement: "S", elementScores: { A: 5, I: 5, S: 6, P: 4, C: 3, R: 4 }, briefDescription: "Incorporating basic vibrators/dildos.", detailedDescription: "Using common sex toys like simple vibrators or dildos for added stimulation during solo or partnered play.", relatedIds: [1, 33, 73], rarity: 'common', canUnlockArt: false, keywords: ['Toys', 'Sensation', 'Stimulation', 'Physical', 'Vibrator', 'Dildo'] },
-    { id: 73, name: "Lubricant Use", cardType: "Practice/Kink", visualHandle: "common_lube", primaryElement: "S", elementScores: { A: 4, I: 4, S: 5, P: 3, C: 2, R: 4 }, briefDescription: "Enhancing comfort/sensation.", detailedDescription: "Using personal lubricants to increase comfort, reduce friction, or enhance sensation during various sexual activities.", relatedIds: [1, 67, 72], rarity: 'common', canUnlockArt: false, keywords: ['Comfort', 'Sensation', 'Physical', 'Practical', 'Lube'] },
-    { id: 74, name: "Flirting / Banter", cardType: "Interaction", visualHandle: "common_flirt", primaryElement: "I", elementScores: { A: 6, I: 7, S: 3, P: 5, C: 6, R: 5 }, briefDescription: "Playful, suggestive communication.", detailedDescription: "Engaging in lighthearted, often witty or suggestive conversation aimed at building attraction and rapport.", relatedIds: [32, 60, 75], rarity: 'common', canUnlockArt: false, keywords: ['Playful', 'Communication', 'Cognitive', 'Attraction', 'Rapport', 'Banter', 'Flirt'] },
-    { id: 75, name: "Shared Humor", cardType: "Psychological/Goal", visualHandle: "common_humor", primaryElement: "P", elementScores: { A: 5, I: 6, S: 2, P: 6, C: 5, R: 6 }, briefDescription: "Finding connection through laughter.", detailedDescription: "Valuing and enjoying shared laughter and humor within intimate interactions as a way to build connection and ease tension.", relatedIds: [74, 15], rarity: 'common', canUnlockArt: false, keywords: ['Humor', 'Connection', 'Playful', 'Psychological', 'Lightness', 'Laughter'] },
-    { id: 76, name: "Date Nights", cardType: "Relationship Style", visualHandle: "common_datenight", primaryElement: "R", elementScores: { A: 4, I: 5, S: 4, P: 6, C: 4, R: 5 }, briefDescription: "Dedicated time for connection.", detailedDescription: "Setting aside specific time for shared activities aimed at fostering connection and intimacy within a relationship, which may or may not lead to sex.", relatedIds: [68, 15, 22], rarity: 'common', canUnlockArt: false, keywords: ['Relationship', 'Connection', 'Ritual', 'Intimacy', 'Date'] },
-    { id: 77, name: "Public Display Affection (Mild)", cardType: "Practice/Kink", visualHandle: "common_pda", primaryElement: "R", elementScores: { A: 4, I: 5, S: 3, P: 5, C: 2, R: 5 }, briefDescription: "Holding hands, brief kisses in public.", detailedDescription: "Showing affection to a partner in public spaces through generally acceptable gestures like holding hands, brief kisses, or an arm around the shoulder.", relatedIds: [48, 3, 78], rarity: 'common', canUnlockArt: false, keywords: ['Public', 'Affection', 'Subtle', 'Relationship', 'PDA'] },
-    { id: 79, name: "Spontaneity Seeker", cardType: "Psychological/Goal", visualHandle: "common_spontaneity", primaryElement: "P", elementScores: { A: 6, I: 6, S: 6, P: 5, C: 3, R: 5 }, briefDescription: "Enjoying unplanned encounters.", detailedDescription: "Deriving particular enjoyment from unexpected or spontaneous sexual encounters or expressions of desire.", relatedIds: [56, 24], rarity: 'common', canUnlockArt: false, keywords: ['Spontaneous', 'Excitement', 'Unpredictable', 'Physical', 'Surprise'] },
-    { id: 80, name: "Comfort Seeker", cardType: "Psychological/Goal", visualHandle: "common_comfort", primaryElement: "P", elementScores: { A: 3, I: 3, S: 4, P: 7, C: 2, R: 4 }, briefDescription: "Using intimacy for security/soothing.", detailedDescription: "Primarily seeking physical closeness and intimacy (not necessarily orgasm) for feelings of safety, security, and emotional soothing.", relatedIds: [31, 2, 69], rarity: 'common', canUnlockArt: false, keywords: ['Comfort', 'Security', 'Psychological', 'Affection', 'Soothing', 'Safe'] },
-    { id: 81, name: "Attraction to Confidence", cardType: "Orientation", visualHandle: "common_attr_conf", primaryElement: "A", elementScores: { A: 7, I: 6, S: 4, P: 6, C: 5, R: 5 }, briefDescription: "Finding self-assuredness attractive.", detailedDescription: "Being primarily attracted to individuals who exhibit strong self-confidence, assertiveness, or a commanding presence.", relatedIds: [4, 60], rarity: 'common', canUnlockArt: false, keywords: ['Attraction', 'Confidence', 'Power', 'Personality', 'Assertive'] },
-    { id: 82, name: "Attraction to Kindness", cardType: "Orientation", visualHandle: "common_attr_kind", primaryElement: "A", elementScores: { A: 5, I: 4, S: 4, P: 7, C: 4, R: 6 }, briefDescription: "Finding compassion/empathy attractive.", detailedDescription: "Being primarily attracted to individuals who exhibit kindness, empathy, compassion, and nurturing qualities.", relatedIds: [15, 58], rarity: 'common', canUnlockArt: false, keywords: ['Attraction', 'Kindness', 'Empathy', 'Connection', 'Personality', 'Nurturing'] },
-    { id: 83, name: "Slow Burn", cardType: "Practice/Kink", visualHandle: "common_slowburn", primaryElement: "P", elementScores: { A: 5, I: 5, S: 5, P: 7, C: 5, R: 6 }, briefDescription: "Gradual build-up of intimacy/arousal.", detailedDescription: "Preferring a gradual, extended build-up of emotional intimacy and sexual tension over time or within an encounter, rather than immediate gratification.", relatedIds: [15, 66, 38], rarity: 'common', canUnlockArt: false, keywords: ['Anticipation', 'Intimacy', 'Tension', 'Psychological', 'Pacing', 'Build-up'] },
-    { id: 85, name: "Make-up Sex", cardType: "Psychological/Goal", visualHandle: "common_makeupsex", primaryElement: "P", elementScores: { A: 6, I: 6, S: 6, P: 7, C: 3, R: 5 }, briefDescription: "Post-argument passion.", detailedDescription: "Getting it on after a fight or disagreement. Often fueled by heightened emotions and that feeling of making things right again. Can be intense!", relatedIds: [3], rarity: 'common', canUnlockArt: false, keywords: ['Emotion', 'Intensity', 'Reconciliation', 'Catharsis', 'Conflict'] },
+  
+
+{
+    id: 1, name: "Vanilla Sex", cardType: "Practice/Kink", visualHandle: "common_vanilla", primaryElement: "S", elementScores: { A: 5, I: 5, S: 3, P: 4, C: 3, R: 4 }, briefDescription: "The usual suspects.", detailedDescription: "Think 'mainstream' sexy times...", relatedIds: [2, 3, 33], rarity: 'common', keywords: ['Conventional', 'Physical', 'Simple', 'Mainstream'], // Added comma
+    lore: [
+        { level: 1, insightCost: 3, text: "Foundation Stone: Often the starting point, the baseline from which other explorations begin.", unlocked: false },
+        { level: 2, insightCost: 7, text: "Comfort's Embrace: Its familiarity can provide comfort, reliability, and a sense of shared 'normalcy'.", unlocked: false }
+    ]
+},
+{
+    id: 2, name: "Sensual Touch", cardType: "Practice/Kink", visualHandle: "common_sensual_touch", primaryElement: "S", elementScores: { A: 4, I: 4, S: 4, P: 5, C: 2, R: 4 }, briefDescription: "Gentle, connected touch.", detailedDescription: "Slow down and *feel*! This is about soft, loving touch...", relatedIds: [1, 15, 31, 3, 80, 102], rarity: 'common', keywords: ['Gentle', 'Affection', 'Connection', 'Sensation', 'Comfort', 'Slow'], // Added comma
+    lore: [
+        { level: 1, insightCost: 3, text: "Whispers on Skin: Communicates care and presence beyond words.", unlocked: false },
+        { level: 2, insightCost: 7, text: "Mindful Moment: Focusing purely on the sensation of touch can be a powerful grounding technique.", unlocked: false }
+    ]
+},
+{
+    id: 3, name: "Passionate Kissing", cardType: "Practice/Kink", visualHandle: "common_kissing", primaryElement: "S", elementScores: { A: 6, I: 5, S: 5, P: 6, C: 3, R: 5 }, briefDescription: "Kissing like you mean it.", detailedDescription: "More than just a peck! This is when kissing becomes a whole conversation...", relatedIds: [1, 2, 15, 47, 66, 85], rarity: 'common', keywords: ['Intensity', 'Emotion', 'Connection', 'Sensation', 'Intimacy', 'Kissing'], // Added comma
+    lore: [
+        { level: 1, insightCost: 3, text: "The First Spark: Often the initial gateway to deeper physical and emotional intimacy.", unlocked: false },
+        { level: 2, insightCost: 7, text: "Dialogue of Lips: A passionate kiss can convey desire, urgency, tenderness, or dominance without a single word.", unlocked: false }
+    ]
+},
+{
+    id: 15, name: "Deep Emotional Intimacy", cardType: "Psychological/Goal", visualHandle: "uncommon_intimacy_art", primaryElement: "P", elementScores: { A: 7, I: 5, S: 4, P: 9, C: 5, R: 7 }, briefDescription: "Seeking that soul connection.", detailedDescription: "For you, sex might be a powerful way to get *really* close emotionally...", relatedIds: [2, 3, 22, 29, 47, 58, 68, 70, 75, 76, 82, 83, 123, 59], rarity: 'uncommon', // This was uncommon, but adding example lore anyway
+    lore: [
+        { level: 1, insightCost: 3, text: "Vulnerability as Strength: Sharing deep feelings during intimacy builds profound trust.", unlocked: false },
+        { level: 2, insightCost: 7, text: "Soul Gazing: The feeling of being truly 'seen' and accepted by a partner is a powerful psychological reward.", unlocked: false }
+    ]
+},
+{
+    id: 22, name: "Monogamy", cardType: "Relationship Style", visualHandle: "common_mono_art", primaryElement: "R", elementScores: { A: 5, I: 5, S: 5, P: 6, C: 5, R: 2 }, briefDescription: "One partner at a time.", detailedDescription: "Keeping it exclusive! Preferring or practicing having just one sexual...", relatedIds: [23, 15, 29, 59, 76], rarity: 'common', keywords: ['Structure', 'Exclusivity', 'Commitment', 'Dyad', 'One-on-One'], // Added comma
+    lore: [
+        { level: 1, insightCost: 3, text: "Focused Flame: Pouring relational energy into a single bond can create intense depth and security.", unlocked: false },
+        { level: 2, insightCost: 7, text: "Shared History: The exclusivity allows for the building of a unique shared world and history.", unlocked: false }
+    ]
+},
+{
+    id: 23, name: "Serial Monogamy", cardType: "Relationship Style", visualHandle: "common_serialmono", primaryElement: "R", elementScores: { A: 5, I: 5, S: 5, P: 5, C: 5, R: 3 }, briefDescription: "One exclusive relationship after another.", detailedDescription: "Like monogamy, but in sequence! Engaging in one exclusive relationship...", relatedIds: [22, 24], rarity: 'common', keywords: ['Structure', 'Exclusivity', 'Sequence', 'Relationship'], // Added comma
+    lore: [
+        { level: 1, insightCost: 3, text: "Chapter by Chapter: Exploring deep connections one at a time, learning and growing with each.", unlocked: false },
+        { level: 2, insightCost: 7, text: "Balancing Act: Holds onto the structure of monogamy while allowing for change and new beginnings over time.", unlocked: false }
+    ]
+},
+{
+    id: 24, name: "Casual Sex / Hookups", cardType: "Relationship Style", visualHandle: "common_casual", primaryElement: "R", elementScores: { A: 6, I: 4, S: 6, P: 3, C: 3, R: 5 }, briefDescription: "Sexy times, no strings attached.", detailedDescription: "Getting physical without the relationship label...", relatedIds: [23, 26, 35, 56, 65, 79, 84], rarity: 'common', keywords: ['Fleeting', 'Physical', 'Low-Commitment', 'Exploration', 'Casual', 'NSA'], // Added comma
+    lore: [
+        { level: 1, insightCost: 3, text: "Freedom & Exploration: Allows for exploring physical chemistry and desire without long-term entanglement.", unlocked: false },
+        { level: 2, insightCost: 7, text: "Clarity is Kind: While low-commitment, clear communication about expectations (or lack thereof) is still key.", unlocked: false }
+    ]
+},
+{
+    id: 31, name: "Cuddling / Affection", cardType: "Practice/Kink", visualHandle: "common_cuddle", primaryElement: "P", elementScores: { A: 3, I: 3, S: 3, P: 6, C: 2, R: 4 }, briefDescription: "Just wanna snuggle.", detailedDescription: "Pure physical closeness without the sexy pressure...", relatedIds: [2, 15, 48, 69, 80], rarity: 'common', keywords: ['Comfort', 'Affection', 'Security', 'Connection', 'Gentle', 'Cuddle'], // Added comma
+    lore: [
+        { level: 1, insightCost: 3, text: "The Human Need for Touch: Satisfies a fundamental desire for warmth, safety, and non-demanding connection.", unlocked: false },
+        { level: 2, insightCost: 7, text: "Silent Language: Cuddling can communicate care, reassurance, and presence when words fail.", unlocked: false }
+    ]
+},
+{
+    id: 32, name: "Dirty Talk", cardType: "Practice/Kink", visualHandle: "common_dirtytalk", primaryElement: "C", elementScores: { A: 5, I: 6, S: 3, P: 5, C: 7, R: 5 }, briefDescription: "Talking the talk.", detailedDescription: "Using your words! Saying sexy things...", relatedIds: [13, 11, 4, 5, 46, 49, 66, 74], rarity: 'common', keywords: ['Language', 'Cognitive', 'Arousal', 'Expression', 'Fantasy', 'Verbal'], // Added comma
+    lore: [
+        { level: 1, insightCost: 3, text: "Painting Pictures with Words: Can create vivid mental imagery, amplifying arousal and guiding fantasy.", unlocked: false },
+        { level: 2, insightCost: 7, text: "Vocal Power: The tone, volume, and specific words used can significantly shape the power dynamic and emotional intensity.", unlocked: false }
+    ]
+},
+{
+    id: 33, name: "Mutual Masturbation", cardType: "Practice/Kink", visualHandle: "common_mutualmast", primaryElement: "I", elementScores: { A: 5, I: 5, S: 6, P: 4, C: 4, R: 5 }, briefDescription: "Getting off together, separately.", detailedDescription: "Partners masturbating at the same time...", relatedIds: [1, 18, 19, 72], rarity: 'common', keywords: ['Shared', 'Physical', 'Visual', 'Sensation', 'Masturbation'], // Added comma
+    lore: [
+        { level: 1, insightCost: 3, text: "Shared Vulnerability: Witnessing a partner's self-pleasure can be uniquely intimate and informative.", unlocked: false },
+        { level: 2, insightCost: 7, text: "Visual Feedback Loop: Watching each other can create a cycle of escalating arousal.", unlocked: false }
+    ]
+},
+{
+    id: 46, name: "Compliments / Praise", cardType: "Practice/Kink", visualHandle: "common_praise", primaryElement: "P", elementScores: { A: 4, I: 5, S: 2, P: 7, C: 4, R: 5 }, briefDescription: "Words that feel good.", detailedDescription: "Using positive words – compliments on looks, skills...", relatedIds: [32, 15, 50], rarity: 'common', keywords: ['Validation', 'Affirmation', 'Psychological', 'Connection', 'Confidence', 'Praise'], // Added comma
+    lore: [
+        { level: 1, insightCost: 3, text: "Verbal Sunlight: Genuine praise can nourish confidence and deepen feelings of being valued.", unlocked: false },
+        { level: 2, insightCost: 7, text: "Specificity Matters: Praising specific actions or qualities often lands with more impact than generic compliments.", unlocked: false }
+    ]
+},
+{
+    id: 47, name: "Eye Contact", cardType: "Practice/Kink", visualHandle: "common_eyecontact", primaryElement: "P", elementScores: { A: 5, I: 6, S: 2, P: 7, C: 3, R: 6 }, briefDescription: "That intense gaze.", detailedDescription: "Locking eyes during sexy times! Can create super intense intimacy...", relatedIds: [3, 15], rarity: 'common', keywords: ['Intimacy', 'Connection', 'Vulnerability', 'Presence', 'Focus', 'Eyes'], // Added comma
+    lore: [
+        { level: 1, insightCost: 3, text: "Windows to the Soul: Sustained eye contact bypasses defenses, fostering raw connection.", unlocked: false },
+        { level: 2, insightCost: 7, text: "The Unblinking Gaze: Can be used to assert dominance, demand attention, or convey unwavering presence.", unlocked: false }
+    ]
+},
+{
+    id: 48, name: "Holding Hands", cardType: "Practice/Kink", visualHandle: "common_handholding", primaryElement: "P", elementScores: { A: 3, I: 4, S: 3, P: 5, C: 1, R: 4 }, briefDescription: "Simple, connected touch.", detailedDescription: "Sometimes the simplest things are the sweetest...", relatedIds: [2, 31, 77], rarity: 'common', keywords: ['Affection', 'Connection', 'Comfort', 'Simple', 'Touch'], // Added comma
+    lore: [
+        { level: 1, insightCost: 3, text: "Silent Anchor: A simple clasp can convey partnership, reassurance, and belonging.", unlocked: false },
+        { level: 2, insightCost: 7, text: "Subtle Pulse: The feeling of another's pulse through held hands is a quiet reminder of shared life.", unlocked: false }
+    ]
+},
+{
+    id: 49, name: "Shared Fantasy Talk", cardType: "Practice/Kink", visualHandle: "common_fantasytalk", primaryElement: "C", elementScores: { A: 5, I: 5, S: 3, P: 6, C: 6, R: 5 }, briefDescription: "Talking through fantasies together.", detailedDescription: "Sharing your secret brain movies! Partners describe their fantasies out loud...", relatedIds: [32, 14], rarity: 'common', keywords: ['Fantasy', 'Cognitive', 'Sharing', 'Arousal', 'Communication', 'Verbal'], // Added comma
+    lore: [
+        { level: 1, insightCost: 3, text: "Building Worlds Together: Co-creating a fantasy verbally can be a deeply collaborative and intimate act.", unlocked: false },
+        { level: 2, insightCost: 7, text: "Testing the Waters: Allows partners to gauge interest in potential scenarios before enacting them.", unlocked: false }
+    ]
+},
+{
+    id: 50, name: "Validation Seeking", cardType: "Psychological/Goal", visualHandle: "common_validation", primaryElement: "P", elementScores: { A: 5, I: 6, S: 5, P: 7, C: 4, R: 5 }, briefDescription: "Needing to feel desired/good.", detailedDescription: "A big motivator for sex might be the need to feel wanted...", relatedIds: [18, 46, 91], rarity: 'common', keywords: ['Validation', 'Psychological', 'Need', 'Desire', 'Performance', 'Approval'], // Added comma
+    lore: [
+        { level: 1, insightCost: 3, text: "Mirror Gazing: Seeking reflection of one's desirability or skill in a partner's responses.", unlocked: false },
+        { level: 2, insightCost: 7, text: "Double-Edged Sword: While understandable, relying heavily on external validation can create pressure or insecurity.", unlocked: false }
+    ]
+},
+{
+    id: 51, name: "Stress Relief Focus", cardType: "Psychological/Goal", visualHandle: "common_stressrelief", primaryElement: "P", elementScores: { A: 4, I: 4, S: 5, P: 6, C: 3, R: 4 }, briefDescription: "Sex as a way to unwind.", detailedDescription: "Feeling stressed? For some, sex (especially orgasm) is a go-to way...", relatedIds: [1], rarity: 'common', keywords: ['Stress Relief', 'Relaxation', 'Physical', 'Catharsis', 'Coping'], // Added comma
+    lore: [
+        { level: 1, insightCost: 3, text: "The Body's Reset Button: Orgasm triggers a cascade of relaxing neurochemicals.", unlocked: false },
+        { level: 2, insightCost: 7, text: "Temporary Escape: Can provide a welcome distraction and physical release from daily pressures.", unlocked: false }
+    ]
+},
+{
+    id: 52, name: "Heterosexuality", cardType: "Orientation", visualHandle: "common_hetero", primaryElement: "A", elementScores: { A: 7, I: 5, S: 5, P: 5, C: 5, R: 5 }, briefDescription: "Into different gender(s).", detailedDescription: "Primarily feeling sexual and/or romantic attraction to people of a different gender...", relatedIds: [53, 54, 55], rarity: 'common', keywords: ['Orientation', 'Gender', 'Attraction', 'Straight'], // Added comma
+    lore: [
+        { level: 1, insightCost: 3, text: "Societal Default?: Often assumed, but still a specific constellation of attraction.", unlocked: false },
+        { level: 2, insightCost: 7, text: "Internal Compass: Represents a consistent pattern of desire oriented towards different genders.", unlocked: false }
+    ]
+},
+{
+    id: 53, name: "Homosexuality", cardType: "Orientation", visualHandle: "common_homo", primaryElement: "A", elementScores: { A: 7, I: 5, S: 5, P: 5, C: 5, R: 5 }, briefDescription: "Into the same gender(s).", detailedDescription: "Primarily feeling sexual and/or romantic attraction to people of the same gender...", relatedIds: [52, 54, 55], rarity: 'common', keywords: ['Orientation', 'Gender', 'Attraction', 'Gay', 'Lesbian'], // Added comma
+    lore: [
+        { level: 1, insightCost: 3, text: "Mirror Attraction: Desire directed towards those who share a similar gender identity.", unlocked: false },
+        { level: 2, insightCost: 7, text: "Community & Culture: Often associated with specific LGBTQ+ communities and cultural expressions.", unlocked: false }
+    ]
+},
+{
+    id: 54, name: "Bisexuality", cardType: "Orientation", visualHandle: "common_bi", primaryElement: "A", elementScores: { A: 6, I: 5, S: 5, P: 5, C: 5, R: 5 }, briefDescription: "Into two or more genders.", detailedDescription: "Feeling sexual and/or romantic attraction to more than one gender identity...", relatedIds: [52, 53, 55], rarity: 'common', keywords: ['Orientation', 'Gender', 'Attraction', 'Multiple', 'Bi'], // Added comma
+    lore: [
+        { level: 1, insightCost: 3, text: "Beyond Binary: Attraction isn't limited to just one gender category.", unlocked: false },
+        { level: 2, insightCost: 7, text: "Fluid Spectrum: Attraction might lean differently at different times or towards different individuals.", unlocked: false }
+    ]
+},
+{
+    id: 55, name: "Pansexuality", cardType: "Orientation", visualHandle: "common_pan", primaryElement: "A", elementScores: { A: 5, I: 5, S: 5, P: 5, C: 5, R: 5 }, briefDescription: "Attraction beyond gender.", detailedDescription: "Feeling sexual and/or romantic attraction to people *regardless* of their gender...", relatedIds: [52, 53, 54, 103], rarity: 'common', keywords: ['Orientation', 'Attraction', 'Fluidity', 'Personality', 'Pan'], // Added comma
+    lore: [
+        { level: 1, insightCost: 3, text: "Hearts Not Parts: Focuses on the person, connection, or vibe, rather than gender as a primary factor.", unlocked: false },
+        { level: 2, insightCost: 7, text: "Expansive View: Opens the door to attraction across the entire spectrum of gender identity and expression.", unlocked: false }
+    ]
+},
+{
+    id: 56, name: "Quickie", cardType: "Practice/Kink", visualHandle: "common_quickie", primaryElement: "I", elementScores: { A: 6, I: 6, S: 6, P: 3, C: 2, R: 4 }, briefDescription: "Fast and fun!", detailedDescription: "Short, sweet, and to the point! A quick sexual encounter...", relatedIds: [1, 24, 79], rarity: 'common', keywords: ['Brief', 'Spontaneous', 'Physical', 'Goal-Oriented', 'Fast'], // Added comma
+    lore: [
+        { level: 1, insightCost: 3, text: "Efficiency Expert: Sometimes the goal is simply release, achieved with minimal preamble.", unlocked: false },
+        { level: 2, insightCost: 7, text: "Thrill of Speed: The rushed nature itself can add a layer of excitement or urgency.", unlocked: false }
+    ]
+},
+{
+    id: 66, name: "Foreplay Focus", cardType: "Practice/Kink", visualHandle: "common_foreplay.jpg", primaryElement: "I", elementScores: { A: 5, I: 6, S: 5, P: 5, C: 4, R: 5 }, briefDescription: "Loving the warm-up.", detailedDescription: "For you, the build-up is just as important...", relatedIds: [1, 2, 3, 32, 67, 83], rarity: 'common', keywords: ['Build-up', 'Arousal', 'Connection', 'Intimacy', 'Anticipation', 'Warm-up'], // Added comma
+    lore: [
+        { level: 1, insightCost: 3, text: "Savoring the Start: Appreciating the journey of arousal, not just the destination.", unlocked: false },
+        { level: 2, insightCost: 7, text: "Building the Foundation: Good foreplay sets the stage for deeper connection and more satisfying climaxes.", unlocked: false }
+    ]
+},
+{
+    id: 67, name: "Oral Sex (Giving/Receiving)", cardType: "Practice/Kink", visualHandle: "common_oral", primaryElement: "S", elementScores: { A: 6, I: 6, S: 7, P: 5, C: 3, R: 5 }, briefDescription: "Using your mouth!", detailedDescription: "Getting busy with mouths and tongues on genitals...", relatedIds: [1, 66, 73, 107], rarity: 'common', keywords: ['Sensation', 'Physical', 'Focus', 'Giving', 'Receiving', 'Oral'], // Added comma
+    lore: [
+        { level: 1, insightCost: 3, text: "Unique Intimacy: Offers a specific kind of focused pleasure and connection.", unlocked: false },
+        { level: 2, insightCost: 7, text: "Versatile Act: Can be a central focus or a delightful part of a larger repertoire.", unlocked: false }
+    ]
+},
+{
+    id: 68, name: "Romantic Gestures", cardType: "Psychological/Goal", visualHandle: "common_romantic", primaryElement: "P", elementScores: { A: 5, I: 5, S: 3, P: 7, C: 4, R: 6 }, briefDescription: "Showing love outside the bedroom.", detailedDescription: "Sweet actions that aren't directly sexual but boost the relationship vibe...", relatedIds: [15, 22, 31, 76], rarity: 'common', keywords: ['Romance', 'Affection', 'Care', 'Relationship', 'Connection', 'Gestures'], // Added comma
+    lore: [
+        { level: 1, insightCost: 3, text: "Nurturing the Bond: Small acts of thoughtfulness reinforce connection and feelings of being cherished.", unlocked: false },
+        { level: 2, insightCost: 7, text: "Setting the Stage: Romantic atmosphere often enhances receptiveness to deeper intimacy.", unlocked: false }
+    ]
+},
+{
+    id: 69, name: "Aftercare (Basic)", cardType: "Practice/Kink", visualHandle: "common_aftercare", primaryElement: "P", elementScores: { A: 4, I: 5, S: 4, P: 6, C: 3, R: 6 }, briefDescription: "Post-play connection & comfort.", detailedDescription: "Checking in after the fun stops! Cuddling, talking...", relatedIds: [31, 15, 70, 80, 123], rarity: 'common', keywords: ['Comfort', 'Connection', 'Care', 'Post-Scene', 'Psychological', 'Aftercare'], // Added comma
+    lore: [
+        { level: 1, insightCost: 3, text: "Gentle Landing: Helps transition back from heightened states, ensuring emotional well-being.", unlocked: false },
+        { level: 2, insightCost: 7, text: "Reinforcing Trust: Demonstrates care for the person beyond the sexual act.", unlocked: false }
+    ]
+},
+{
+    id: 70, name: "Pillow Talk", cardType: "Practice/Kink", visualHandle: "common_pillowtalk", primaryElement: "P", elementScores: { A: 4, I: 4, S: 2, P: 7, C: 4, R: 7 }, briefDescription: "Cozy chats after sex.", detailedDescription: "Those relaxed, intimate, maybe vulnerable conversations...", relatedIds: [69, 15], rarity: 'common', keywords: ['Intimacy', 'Conversation', 'Vulnerability', 'Connection', 'Post-Scene', 'Talk'], // Added comma
+    lore: [
+        { level: 1, insightCost: 3, text: "Heart Opening: Post-coital hormones can lower defenses, facilitating deeper sharing.", unlocked: false },
+        { level: 2, insightCost: 7, text: "Weaving the Narrative: Sharing reflections strengthens the shared story of the relationship.", unlocked: false }
+    ]
+},
+{
+    id: 71, name: "Shower/Bath Sex", cardType: "Practice/Kink", visualHandle: "common_showersex", primaryElement: "S", elementScores: { A: 5, I: 5, S: 6, P: 4, C: 3, R: 5 }, briefDescription: "Getting wet 'n' wild.", detailedDescription: "Taking the fun into the shower or bath!...", relatedIds: [1], rarity: 'common', keywords: ['Sensation', 'Environment', 'Water', 'Playful', 'Shower', 'Bath'], // Added comma
+    lore: [
+        { level: 1, insightCost: 3, text: "Liquid Sensations: Water adds a unique element of slipperiness and temperature.", unlocked: false },
+        { level: 2, insightCost: 7, text: "Logistical Fun: Navigating the practicalities can add a layer of playful challenge.", unlocked: false }
+    ]
+},
+{
+    id: 72, name: "Using Sex Toys (Simple)", cardType: "Practice/Kink", visualHandle: "common_toys_simple", primaryElement: "S", elementScores: { A: 5, I: 5, S: 6, P: 4, C: 3, R: 4 }, briefDescription: "Adding some buzz or bounce.", detailedDescription: "Bringing in the basics! Using common toys like simple vibrators...", relatedIds: [1, 33, 73], rarity: 'common', keywords: ['Toys', 'Sensation', 'Stimulation', 'Physical', 'Vibrator', 'Dildo'], // Added comma
+    lore: [
+        { level: 1, insightCost: 3, text: "Targeted Pleasure: Toys allow for precise and consistent stimulation difficult to achieve manually.", unlocked: false },
+        { level: 2, insightCost: 7, text: "Expanding Options: Introduces new textures, sensations, and possibilities for play.", unlocked: false }
+    ]
+},
+{
+    id: 73, name: "Lubricant Use", cardType: "Practice/Kink", visualHandle: "common_lube", primaryElement: "S", elementScores: { A: 4, I: 4, S: 5, P: 3, C: 2, R: 4 }, briefDescription: "Making things slide.", detailedDescription: "Using lube to make things more comfortable...", relatedIds: [1, 67, 72], rarity: 'common', keywords: ['Comfort', 'Sensation', 'Physical', 'Practical', 'Lube'], // Added comma
+    lore: [
+        { level: 1, insightCost: 3, text: "Comfort Enhancer: Reduces friction, increasing comfort and allowing for longer or different types of play.", unlocked: false },
+        { level: 2, insightCost: 7, text: "Sensation Modifier: Different lubes (warming, cooling, silicone, water-based) offer varied sensory experiences.", unlocked: false }
+    ]
+},
+{
+    id: 74, name: "Flirting / Banter", cardType: "Interaction", visualHandle: "common_flirt", primaryElement: "I", elementScores: { A: 6, I: 7, S: 3, P: 5, C: 6, R: 5 }, briefDescription: "Playful, witty chat.", detailedDescription: "That fun, lighthearted back-and-forth! Using suggestive comments...", relatedIds: [32, 60, 75], rarity: 'common', keywords: ['Playful', 'Communication', 'Cognitive', 'Attraction', 'Rapport', 'Banter', 'Flirt'], // Added comma
+    lore: [
+        { level: 1, insightCost: 3, text: "Testing the Waters: A low-stakes way to gauge interest and build initial connection.", unlocked: false },
+        { level: 2, insightCost: 7, text: "The Art of the Tease: Playful banter builds anticipation and establishes a fun dynamic.", unlocked: false }
+    ]
+},
+{
+    id: 75, name: "Shared Humor", cardType: "Psychological/Goal", visualHandle: "common_humor", primaryElement: "P", elementScores: { A: 5, I: 6, S: 2, P: 6, C: 5, R: 6 }, briefDescription: "Laughing together.", detailedDescription: "Finding connection through giggles! Enjoying shared jokes...", relatedIds: [74, 15], rarity: 'common', keywords: ['Humor', 'Connection', 'Playful', 'Psychological', 'Lightness', 'Laughter'], // Added comma
+    lore: [
+        { level: 1, insightCost: 3, text: "Instant Icebreaker: Laughter diffuses tension and creates an immediate sense of shared experience.", unlocked: false },
+        { level: 2, insightCost: 7, text: "Sign of Compatibility: Sharing a sense of humor often indicates aligned values or perspectives.", unlocked: false }
+    ]
+},
+{
+    id: 76, name: "Date Nights", cardType: "Relationship Style", visualHandle: "common_datenight", primaryElement: "R", elementScores: { A: 4, I: 5, S: 4, P: 6, C: 4, R: 5 }, briefDescription: "Making time for connection.", detailedDescription: "Setting aside specific time just for your partner(s) to connect...", relatedIds: [68, 15, 22], rarity: 'common', keywords: ['Relationship', 'Connection', 'Ritual', 'Intimacy', 'Date'], // Added comma
+    lore: [
+        { level: 1, insightCost: 3, text: "Intentional Investment: Prioritizing relationship health through dedicated quality time.", unlocked: false },
+        { level: 2, insightCost: 7, text: "Creating Shared Memories: Rituals like date nights build a bank of positive shared experiences.", unlocked: false }
+    ]
+},
+{
+    id: 77, name: "Public Display Affection (Mild)", cardType: "Practice/Kink", visualHandle: "common_pda", primaryElement: "R", elementScores: { A: 4, I: 5, S: 3, P: 5, C: 2, R: 5 }, briefDescription: "Subtle affection out and about.", detailedDescription: "Showing you're together in public, but keeping it chill...", relatedIds: [48, 3, 78], rarity: 'common', keywords: ['Public', 'Affection', 'Subtle', 'Relationship', 'PDA'], // Added comma
+    lore: [
+        { level: 1, insightCost: 3, text: "Quiet Connection: A small gesture affirming the bond even amidst the everyday world.", unlocked: false },
+        { level: 2, insightCost: 7, text: "Subtle Signal: Can communicate partnership or belonging without drawing significant attention.", unlocked: false }
+    ]
+},
+{
+    id: 79, name: "Spontaneity Seeker", cardType: "Psychological/Goal", visualHandle: "common_spontaneity", primaryElement: "P", elementScores: { A: 6, I: 6, S: 6, P: 5, C: 3, R: 5 }, briefDescription: "Loving the unexpected!", detailedDescription: "Getting a special kick out of unplanned sexy moments...", relatedIds: [56, 24], rarity: 'common', keywords: ['Spontaneous', 'Excitement', 'Unpredictable', 'Physical', 'Surprise'], // Added comma
+    lore: [
+        { level: 1, insightCost: 3, text: "The Thrill of Now: Finds excitement in unplanned moments and deviations from routine.", unlocked: false },
+        { level: 2, insightCost: 7, text: "Breaking the Script: Resists predictability, seeking energy in the unexpected.", unlocked: false }
+    ]
+},
+{
+    id: 80, name: "Comfort Seeker", cardType: "Psychological/Goal", visualHandle: "common_comfort", primaryElement: "P", elementScores: { A: 3, I: 3, S: 4, P: 7, C: 2, R: 4 }, briefDescription: "Seeking safety & soothing touch.", detailedDescription: "Craving closeness mostly for that feeling of safety, security...", relatedIds: [31, 2, 69], rarity: 'common', keywords: ['Comfort', 'Security', 'Psychological', 'Affection', 'Soothing', 'Safe'], // Added comma
+    lore: [
+        { level: 1, insightCost: 3, text: "Safe Harbor: Intimacy provides a refuge, a place to feel secure and emotionally held.", unlocked: false },
+        { level: 2, insightCost: 7, text: "Restorative Touch: Physical closeness can regulate the nervous system and provide deep soothing.", unlocked: false }
+    ]
+},
+{
+    id: 81, name: "Attraction to Confidence", cardType: "Orientation", visualHandle: "common_attr_conf", primaryElement: "A", elementScores: { A: 7, I: 6, S: 4, P: 6, C: 5, R: 5 }, briefDescription: "Drawn to self-assuredness.", detailedDescription: "Finding someone who knows what they want and carries themselves with confidence...", relatedIds: [4, 60], rarity: 'common', keywords: ['Attraction', 'Confidence', 'Power', 'Personality', 'Assertive'], // Added comma
+    lore: [
+        { level: 1, insightCost: 3, text: "Power Signature: Confidence radiates a sense of capability and self-possession.", unlocked: false },
+        { level: 2, insightCost: 7, text: "Leading Energy: Often translates into a perceived ability to lead or take initiative.", unlocked: false }
+    ]
+},
+{
+    id: 82, name: "Attraction to Kindness", cardType: "Orientation", visualHandle: "common_attr_kind", primaryElement: "A", elementScores: { A: 5, I: 4, S: 4, P: 7, C: 4, R: 6 }, briefDescription: "A kind heart is hot.", detailedDescription: "Being drawn to people who are genuinely kind, empathetic...", relatedIds: [15, 58], rarity: 'common', keywords: ['Attraction', 'Kindness', 'Empathy', 'Connection', 'Personality', 'Nurturing'], // Added comma
+    lore: [
+        { level: 1, insightCost: 3, text: "Sign of Safety: Kindness often signals emotional intelligence and the capacity for safe connection.", unlocked: false },
+        { level: 2, insightCost: 7, text: "Nurturing Resonance: Appeals to a desire for care, understanding, and gentle interaction.", unlocked: false }
+    ]
+},
+{
+    id: 83, name: "Slow Burn", cardType: "Practice/Kink", visualHandle: "common_slowburn", primaryElement: "P", elementScores: { A: 5, I: 5, S: 5, P: 7, C: 5, R: 6 }, briefDescription: "Enjoying the anticipation.", detailedDescription: "Loving the journey, not just the destination! Preferring a gradual...", relatedIds: [15, 66, 38], rarity: 'common', keywords: ['Anticipation', 'Intimacy', 'Tension', 'Psychological', 'Pacing', 'Build-up'], // Added comma
+    lore: [
+        { level: 1, insightCost: 3, text: "Savoring the Simmer: Finds pleasure in the mounting tension and gradual unfolding of intimacy.", unlocked: false },
+        { level: 2, insightCost: 7, text: "Deepening the Flavor: Allows time for emotional connection and subtle nuances to develop.", unlocked: false }
+    ]
+},
+{
+    id: 85, name: "Make-up Sex", cardType: "Psychological/Goal", visualHandle: "common_makeupsex", primaryElement: "P", elementScores: { A: 6, I: 6, S: 6, P: 7, C: 3, R: 5 }, briefDescription: "Post-argument passion.", detailedDescription: "Getting it on after a fight or disagreement...", relatedIds: [3], rarity: 'common', keywords: ['Emotion', 'Intensity', 'Reconciliation', 'Catharsis', 'Conflict'], // Added comma
+    lore: [
+        { level: 1, insightCost: 3, text: "Emotional Peak: Heightened emotions from conflict can sometimes translate into intense arousal.", unlocked: false },
+        { level: 2, insightCost: 7, text: "Reaffirming the Bond: Can serve as a powerful, physical way to reconnect and reaffirm the relationship after conflict.", unlocked: false }
+    ]
+},
+
 
     // --- Uncommon Concepts ---
 
