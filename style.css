@@ -1,4 +1,3 @@
-
 /* --- START OF COMPLETE style.css --- */
 
 :root {
@@ -56,12 +55,12 @@ body {
 .save-indicator i { margin-right: 4px; }
 
 /* --- Screen Management --- */
-.screen { padding: 20px 15px; box-sizing: border-box; min-height: calc(100vh - 20px - 45px); }
+.screen { padding: 20px 15px; box-sizing: border-box; min-height: calc(100vh - 20px - 45px); /* Adjust height based on potential nav bar */ }
 .hidden { display: none !important; }
 .current { display: block; }
 
 /* --- Headings and Text --- */
-h1, h2, h3, h4, h5 { font-family: 'Cinzel Decorative', cursive; letter-spacing: 0.5px; margin-top: 0; }
+h1, h2, h3, h4, h5 { font-family: 'Cinzel Decorative', cursive; letter-spacing: 0.5px; margin-top: 0; margin-bottom: 0.5em; /* Consistent bottom margin */ }
 h1 { color: #6a3906; text-align: center; margin-bottom: 20px; font-size: 1.8em; text-shadow: 1px 1px 2px rgba(0,0,0,0.1); }
 h2 { text-align: center; color: var(--primary-color); margin-bottom: 20px; font-size: 1.4em; border-bottom: 1px solid var(--border-color-light); padding-bottom: 6px; }
 h3 { font-size: 1.2em; font-weight: bold; margin-bottom: 15px; color: var(--link-color); font-family: 'Garamond', serif; }
@@ -380,7 +379,7 @@ hr { border: none; border-top: 1px dashed var(--border-color-light); margin: 18p
         "name name name"; /* Name spans all columns in second row */
     padding: 5px 8px 4px 4px; /* Adjusted padding */
     margin-bottom: 6px;
-    min-height: 42px; /* Slightly increased */
+    min-height: 45px; /* INCREASED slightly for wrapped titles */
     border-bottom: 1px solid var(--border-color-light); /* Add a subtle separator */
     margin-left: 0; /* Override the margin-left from above for header */
     padding-left: 10px; /* Add specific padding left for header */
@@ -398,17 +397,23 @@ hr { border: none; border-top: 1px dashed var(--border-color-light); margin: 18p
 }
 
 .card-header .card-name {
-    grid-area: name; /* Assign to grid area */
-    font-size: 1.05em; /* Make name slightly more prominent */
+    grid-area: name;
+    font-size: 1.0em; /* SLIGHTLY REDUCED default size */
     color: var(--primary-color);
-    font-family: 'Cinzel Decorative', cursive; /* Use the decorative font */
-    font-weight: 700; /* Bolder */
-    line-height: 1.25;
-    word-break: break-word;
-    padding-top: 4px;
-    margin-bottom: 2px; /* Space below name */
-    text-align: center; /* Center the title */
+    font-family: 'Cinzel Decorative', cursive;
+    font-weight: 700;
+    line-height: 1.15; /* TIGHTENED line height for wrapping */
+    padding-top: 3px;  /* Adjust padding slightly */
+    margin-bottom: 3px; /* Adjust margin slightly */
+    text-align: center;
     text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+    /* Ensure wrapping works correctly */
+    white-space: normal; /* Explicitly allow wrapping (default) */
+    overflow-wrap: break-word; /* Break long words if necessary */
+    word-wrap: break-word; /* Older browser support for word break */
+    hyphens: auto; /* Allow automatic hyphenation if needed (browser support varies) */
+    max-height: calc(1.15em * 2 + 4px); /* Allow max ~2 lines + padding */
+    overflow: hidden; /* Hide any text that STILL overflows (should be rare) */
 }
 
 .card-header .card-header-right {
@@ -433,7 +438,7 @@ hr { border: none; border-top: 1px dashed var(--border-color-light); margin: 18p
     order: 2; /* Put stamps first visually */
     white-space: nowrap;
 }
-/* Rarity Color Adjustments remain the same */
+/* Rarity Color Adjustments */
 .card-header .rarity-indicator-common { color: #495057; border-color: #ced4da; background-color: #f8f9fa;}
 .card-header .rarity-indicator-uncommon { color: #0f5132; border-color: #badbcc; background-color: #d1e7dd;}
 .card-header .rarity-indicator-rare { color: #4d1a7f; border-color: #d1b4f8; background-color: #e5d9f8;}
@@ -588,7 +593,6 @@ hr { border: none; border-top: 1px dashed var(--border-color-light); margin: 18p
 
 /* --- END Card Styling Overhaul --- */
 
-
 /* --- Repository Screen --- */
 .repository-screen { background-color: var(--background-dark); }
 .repository-screen h1 { color: var(--link-color); }
@@ -614,66 +618,296 @@ hr { border: none; border-top: 1px dashed var(--border-color-light); margin: 18p
 
 /* --- Popups & Overlay --- */
 .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.7); z-index: 99; backdrop-filter: blur(1.5px); }
-.popup { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: linear-gradient(to bottom, #fdf5e6, #faf0e6); border: 1px solid var(--border-color-dark); padding: 0; border-radius: 10px; box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2); z-index: 100; width: 92%; max-width: 650px; max-height: 88vh; overflow: hidden; display: flex; flex-direction: column; }
+.popup { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: linear-gradient(to bottom, #fdf5e6, #faf0e6); border: 1px solid var(--border-color-dark); padding: 0; border-radius: 10px; box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2); z-index: 100; width: 92%; /* Start width */ max-height: 90vh; overflow: hidden; display: flex; flex-direction: column; }
 .close-button { position: absolute; top: 8px; right: 10px; background: none; border: none; font-size: 1.8em; color: #b8a880; cursor: pointer; line-height: 1; z-index: 101; transition: color 0.2s ease; padding: 2px 5px; }
 .close-button:hover { color: var(--primary-color); }
-.card-popup .popup-header { padding: 10px 40px 10px 20px; border-bottom: 1px solid var(--border-color-light); text-align: center; position: relative; border-radius: 9px 9px 0 0; background-color: var(--background-dark); }
-.card-popup .popup-header .card-type-icon { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); font-size: 1.2em; color: #7a5230; }
-.card-popup .popup-header h3 { margin: 0; color: var(--link-color); font-size: 1.3em; font-family: 'Cinzel Decorative', cursive; }
-.card-popup .popup-header p { display: flex; align-items: center; justify-content: center; font-size: 0.9em; color: #6a5a4a; margin: 1px 0 0 0; text-align: center; font-style: italic; font-family: 'Merriweather', serif; }
-.card-popup .popup-header .popup-element-icon { font-size: 1.1em; margin-left: 8px; vertical-align: middle; } /* Added style */
-.card-popup .popup-content { display: flex; flex-direction: column; flex: 1; overflow-y: auto; padding: 15px; gap: 18px; }
-@media (min-width: 600px) { .card-popup .popup-content { flex-direction: row; gap: 25px; padding: 20px; } .card-popup #popupVisualContainer { flex: 1 1 180px; min-width: 180px; align-self: flex-start; width: auto; max-width: none; } .card-popup .popup-details { flex: 2 1 350px; min-width: 280px; } }
-.card-popup #popupVisualContainer { display: flex; align-items: center; justify-content: center; background-color: var(--background-medium); border: 1px solid var(--border-color-light); border-radius: 8px; overflow: hidden; min-height: 150px; max-height: 250px; align-self: center; width: 80%; max-width: 250px; }
-.card-popup #popupVisualContainer .card-visual-placeholder { font-size: 5em; color: #c8b89a; }
-.card-popup #popupVisualContainer .card-art-unlocked { font-size: 6em; color: var(--primary-color); }
-.card-popup #popupVisualContainer .card-art-image { display: block; max-width: 100%; max-height: 100%; object-fit: contain; }
-.card-popup .detailed-description { font-size: 0.95em; margin-bottom: 15px; max-height: 150px; overflow-y: auto; padding-right: 5px; text-align: left; }
-.card-popup .resonance-summary { font-weight: bold; margin-bottom: 10px; font-size: 1em; background-color: rgba(255,255,255,0.5); padding: 8px 10px; border-radius: 5px; border: 1px solid #eee9dd; text-align: center; }
-.card-popup .resonance-summary .resonance-indicator { margin-left: 8px; font-size: 0.85em; }
-.resonance-summary small { font-size: 0.8em; color: #666; display: block; margin-top: 2px; font-weight: normal; }
-.card-popup .recipe-view h4 { font-size: 1.1em; margin-top: 15px; margin-bottom: 8px; color: var(--link-color); text-align: left; border: none; padding: 0; font-family: 'Garamond', serif; }
-.card-popup #popupComparisonHighlights { text-align: left; margin: 10px 0; font-size: 0.9em; background-color: rgba(255,255,255,0.6); padding: 12px; border-radius: 5px; border: 1px solid #eee9dd; }
-.card-popup #popupComparisonHighlights p { text-align: left; margin: 4px 0; line-height: 1.4; }
-.card-popup #popupComparisonHighlights strong { font-weight: bold; }
-.card-popup #popupComparisonHighlights strong.match { color: var(--success-color); }
-.card-popup #popupComparisonHighlights strong.mismatch { color: var(--danger-color); }
-.card-popup .element-details { margin-top: 15px; text-align: left; border: 1px solid var(--border-color-light); border-radius: 5px; background: #fffefa; }
-.card-popup .element-details summary { cursor: pointer; padding: 8px 10px; font-weight: bold; color: #7a5230; background-color: #eee9dd; border-radius: 4px 4px 0 0; font-family: 'Merriweather', serif; font-size: 0.95em; list-style-position: inside; }
-.card-popup .element-details summary:hover { background-color: #e8e4d8; }
-.card-popup .profile-comparison { display: flex; flex-direction: column; text-align: left; gap: 15px; padding: 10px 12px; }
-@media (min-width: 480px) { .card-popup .profile-comparison { flex-direction: row; justify-content: space-around; gap: 20px; } }
-.card-popup .profile-column h5 { text-align: center; font-family: 'Garamond', serif; font-size: 1em; }
-.card-popup #popupConceptProfile div, .card-popup #popupUserComparisonProfile div { font-size: 0.9em; margin: 3px 0; display: flex; align-items: center; }
-.card-popup #popupConceptProfile strong, .card-popup #popupUserComparisonProfile strong { width: 85px; color: #6a5a4a; font-weight: normal; flex-shrink: 0; }
-.card-popup #popupConceptProfile span, .card-popup #popupUserComparisonProfile span { font-weight: bold; color: var(--primary-color); margin-right: 4px; }
-.card-popup #popupConceptProfile .score-bar-container, .card-popup #popupUserComparisonProfile .score-bar-container { margin-left: auto; height: 8px; width: 60px; flex-shrink: 0; display: inline-block; vertical-align: middle; background-color: var(--border-color-light); border-radius: 4px; overflow: hidden; border: 1px solid #b8a880; }
-.card-popup #popupConceptProfile .score-bar-container div, .card-popup #popupUserComparisonProfile .score-bar-container div { height: 100%; border-radius: 4px; }
-.related-concepts details { margin-top: 15px; }
-.related-concepts summary { cursor: pointer; font-weight: bold; color: var(--link-color); font-size: 1.1em; font-family: 'Garamond', serif; margin-bottom: 5px; list-style: revert; list-style-position: inside; }
-.related-concepts .related-concepts-list-dropdown { display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 0; list-style: none; margin: 0; }
-.related-concepts .related-concept-item { background-color: #eee9dd; border: 1px solid var(--border-color-light); border-radius: 15px; padding: 3px 10px; font-size: 0.9em; color: #6a5a4a; }
 
-/* --- Lore Section Styling --- */
-#popupLoreSection { /* No special display needed */ }
-#popupLoreContent { /* No special border needed */ min-height: auto; }
-.lore-entry { margin-bottom: 12px; padding-bottom: 8px; }
-.lore-entry:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
-.lore-level-title { font-size: 1em; font-weight: bold; color: var(--link-color); margin-bottom: 4px; text-align: left; border: none; padding: 0; font-family: 'Garamond', serif; }
-.lore-text { font-size: 0.95em; font-style: italic; color: #444; line-height: 1.5; margin: 0; }
-.unlock-lore-button { margin-top: 5px; background-color: var(--accent-color); border-color: #b8860b; color: var(--text-color); padding: 3px 8px; font-size: 0.75em; }
-.unlock-lore-button:hover:not(:disabled) { background-color: #ffeca0; }
-.unlock-lore-button:disabled { background-color: #ccc; border-color: #aaa; opacity: 0.7; }
+/* --- Concept Detail Popup Overhaul Styles --- */
+.popup.card-popup {
+    max-width: 800px; /* Wider popup for two columns */
+    background: linear-gradient(to bottom, #fdf8f0, #f5f0e1); /* Adjusted background */
+    border: 2px solid var(--border-color-dark); /* Stronger border */
+}
 
-.my-notes-section { margin-top: 12px; }
-.my-notes-section h4 { font-size: 1em; margin-bottom: 6px; text-align: left; font-family: 'Garamond', serif; }
-.my-notes-section textarea { width: calc(100% - 16px); display: block; margin-bottom: 6px; padding: 6px; border: 1px solid #c8b89a; border-radius: 4px; background-color: #fffefa; font-family: 'Merriweather', serif; font-size: 0.9em; min-height: 4em; }
-.my-notes-section .note-status { font-size: 0.8em; color: var(--success-color); margin-left: 8px; font-style: italic; }
-.my-notes-section .note-status.error { color: var(--danger-color); }
+.card-popup .popup-header {
+    background-color: #e8d8c0; /* Darker header */
+    border-bottom: 2px solid var(--primary-color); /* Stronger bottom border */
+    padding: 12px 45px 12px 20px; /* Adjust padding */
+    text-align: center;
+    position: relative;
+    border-radius: 9px 9px 0 0; /* Match popup */
+}
+.card-popup .popup-header .card-type-icon {
+    position: absolute; left: 15px; top: 50%; transform: translateY(-50%); font-size: 1.2em; color: #7a5230;
+}
+.card-popup .popup-header h3 {
+    margin: 0; color: var(--link-color); font-size: 1.4em; font-family: 'Cinzel Decorative', cursive;
+}
+.card-popup .popup-header p { /* Contains type and element icon */
+    display: flex; align-items: center; justify-content: center; font-size: 0.95em; color: #6a5a4a; margin: 1px 0 0 0; text-align: center; font-style: italic; font-family: 'Merriweather', serif;
+}
+.card-popup .popup-header .popup-element-icon {
+    font-size: 1.1em; margin-left: 8px; vertical-align: middle;
+}
 
-/* Removed Evolution Section CSS */
+/* NEW: Main Content Area Layout */
+.popup-main-content {
+    display: flex;
+    flex-direction: column; /* Stack on small screens */
+    padding: 15px;
+    gap: 20px;
+    overflow-y: auto; /* Allow this section to scroll if needed */
+    flex-grow: 1; /* Allow it to take up space */
+    /* Remove flex from parent popup-content if it exists */
+}
 
-.card-popup .popup-actions { padding: 10px 15px; border-top: 1px solid var(--border-color-light); background-color: var(--background-medium); text-align: right; display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
+@media (min-width: 768px) { /* Apply two columns on wider screens */
+    .popup-main-content {
+        flex-direction: row;
+        overflow-y: hidden; /* Prevent double scrollbars */
+    }
+    .popup-visual-area {
+        flex: 0 0 35%; /* Fixed width for visual */
+        max-width: 280px; /* Max width */
+        align-self: flex-start;
+        position: sticky; /* Keep image visible */
+        top: 0;
+    }
+    .popup-info-area {
+        flex: 1 1 60%; /* Allow info to take remaining space */
+        min-width: 0; /* Prevent overflow issues */
+        overflow-y: auto; /* Allow info area to scroll */
+        max-height: calc(88vh - 150px); /* Estimate max height based on potential footer/header */
+        padding-right: 10px; /* Add padding for scrollbar */
+    }
+}
+
+/* Visual Area Styling */
+.popup-visual-area {
+    display: flex;
+    flex-direction: column; /* Stack image and maybe captions later */
+    align-items: center;
+}
+.popup-visual-area #popupVisualContainer {
+    width: 100%; /* Fill the column width */
+    min-height: 200px; /* Ensure decent height */
+    max-height: 350px; /* Limit height */
+    border-radius: 8px;
+    margin-bottom: 10px; /* Space below image */
+    background-color: var(--background-medium);
+    border: 1px solid var(--border-color-light);
+    overflow: hidden;
+    display: flex; /* Keep for placeholder centering */
+    align-items: center;
+    justify-content: center;
+}
+.popup-visual-area #popupVisualContainer .card-art-image {
+    display: block; max-width: 100%; max-height: 100%; object-fit: contain;
+}
+.popup-visual-area #popupVisualContainer .card-visual-placeholder {
+     font-size: 5em; color: #c8b89a;
+}
+
+
+/* Info Area Styling */
+.popup-info-area {
+    display: flex;
+    flex-direction: column;
+    gap: 18px; /* Space between sections */
+}
+
+.popup-section {
+    background-color: rgba(255, 255, 255, 0.4);
+    border: 1px solid var(--border-color-light);
+    border-radius: 6px;
+    padding: 10px 12px;
+}
+.popup-section h4 {
+    font-family: 'Garamond', serif;
+    font-size: 1.1em;
+    color: var(--primary-color);
+    margin-bottom: 8px;
+    padding-bottom: 4px;
+    border-bottom: 1px dashed var(--border-color-light);
+    text-align: left;
+}
+.popup-section h4 i { font-size: 0.9em; }
+
+/* Specific Section Styling */
+.popup-brief-desc {
+    font-style: italic;
+    font-size: 1.05em; /* Make brief desc more prominent */
+    color: var(--link-color);
+    margin: 0;
+    line-height: 1.4;
+    /* Remove text cutoff for brief desc */
+    white-space: normal;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+}
+
+.popup-detailed-desc {
+    font-size: 0.95em;
+    line-height: 1.6;
+    margin: 0;
+    max-height: 200px; /* Allow more space for description */
+    overflow-y: auto; /* Add scroll if needed */
+    padding-right: 5px;
+}
+
+/* NEW Resonance Gauge Styles */
+.popup-resonance-gauge-section h4 {
+     margin-bottom: 5px;
+     border-bottom: none; /* Remove border for gauge */
+     display: flex;
+     justify-content: space-between;
+     align-items: center;
+}
+#popupResonanceGaugeContainer {
+    width: 100%;
+    height: 12px; /* Make gauge thicker */
+    background-color: var(--border-color-light);
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid var(--border-color-dark);
+    margin-bottom: 4px;
+    position: relative; /* For label positioning */
+}
+#popupResonanceGaugeBar {
+    height: 100%;
+    background-color: var(--primary-color); /* Default color */
+    width: 50%; /* Default width */
+    border-radius: 6px;
+    transition: width 0.5s ease, background-color 0.5s ease;
+}
+#popupResonanceGaugeLabel {
+     position: absolute;
+     left: 50%;
+     top: 50%;
+     transform: translate(-50%, -50%);
+     font-size: 0.7em;
+     font-weight: bold;
+     color: rgba(255, 255, 255, 0.8);
+     text-shadow: 1px 1px 1px rgba(0,0,0,0.5);
+     white-space: nowrap;
+}
+#popupResonanceGaugeText {
+    display: block;
+    text-align: center;
+    font-size: 0.85em;
+    color: #666;
+}
+/* Add color classes for resonance bar */
+#popupResonanceGaugeBar.resonance-high { background-color: var(--success-color); }
+#popupResonanceGaugeBar.resonance-medium { background-color: var(--warning-color); }
+#popupResonanceGaugeBar.resonance-low { background-color: var(--danger-color); }
+#popupResonanceGaugeLabel.resonance-medium { color: var(--text-color); text-shadow: none; }
+
+
+/* NEW Related Concepts Tags Styles */
+.popup-related-concepts-section .related-concepts-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding-top: 5px;
+}
+.related-concepts-tags .related-concept-tag {
+    background-color: #e0d8c8;
+    border: 1px solid var(--border-color-dark);
+    border-radius: 15px;
+    padding: 4px 10px;
+    font-size: 0.9em;
+    color: var(--link-color);
+    cursor: help; /* Indicate potential interaction (future?) */
+    transition: background-color 0.2s;
+}
+.related-concepts-tags .related-concept-tag:hover {
+     background-color: var(--secondary-color);
+}
+.related-concepts-tags p { /* Style for 'None specified' */
+    font-style: italic;
+    color: #888;
+    width: 100%;
+    margin: 0;
+}
+
+
+/* Collapsible Area & Sections */
+.popup-collapsible-area {
+    padding: 0 15px 10px 15px; /* Padding around collapsibles */
+    border-top: 1px solid var(--border-color-light); /* Separator */
+    background-color: rgba(245, 240, 225, 0.5); /* Slightly different background */
+    max-height: 30vh; /* Limit height */
+    overflow-y: auto; /* Allow scrolling if many sections open */
+}
+.collapsible-popup-section {
+    margin: 10px 0; /* Adjust vertical margin */
+    border: 1px solid var(--border-color-dark); /* Darker border */
+    background: transparent; /* Remove inner background */
+    border-radius: 5px; /* Add radius to main details */
+    overflow: hidden; /* Prevent content bleed */
+}
+.collapsible-popup-section summary {
+    background-color: #e8d8c0; /* Match header accent */
+    font-family: 'Cinzel Decorative', cursive;
+    font-size: 1.05em;
+    color: var(--primary-color);
+    padding: 10px 15px; /* Adjust padding */
+    border-radius: 0; /* Remove radius here */
+    display: flex; /* Use flex for icon alignment */
+    justify-content: space-between; /* Push icon to the right */
+    align-items: center;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    list-style-position: inside; /* Keep marker inside */
+    list-style-image: none; /* Remove default marker image */
+}
+.collapsible-popup-section summary::-webkit-details-marker { display: none; } /* Hide default marker */
+.collapsible-popup-section summary::before { /* Custom marker */
+    content: '\f0da'; /* FontAwesome right arrow */
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    margin-right: 8px;
+    transition: transform 0.2s ease-in-out;
+    display: inline-block;
+}
+.collapsible-popup-section[open] > summary::before {
+    transform: rotate(90deg);
+}
+.collapsible-popup-section summary:hover {
+    background-color: #d8c8b0; /* Darker hover */
+}
+.collapsible-popup-section[open] > summary {
+    border-bottom: 1px solid var(--border-color-dark);
+    /* Keep top radius if needed, but generally not with border */
+}
+.collapsible-popup-section .collapsible-content {
+    padding: 12px 15px; /* Adjust padding */
+    background-color: rgba(255, 250, 240, 0.8); /* Lighter content background */
+    border-top: none;
+}
+
+/* Styling for specific collapsible content */
+#popupLoreContent .lore-entry { padding-bottom: 10px; margin-bottom: 10px; border-bottom: 1px dashed var(--border-color-light); }
+#popupLoreContent .lore-entry:last-child { border-bottom: none; margin-bottom: 0; }
+#popupRecipeDetails .collapsible-content { padding-top: 5px; } /* Reduce top padding */
+#popupRecipeDetails .element-details { margin-top: 5px; background: transparent; border: none; }
+#popupRecipeDetails .element-details summary { background: transparent; padding: 4px 0; color: var(--link-color); font-family: 'Merriweather', serif; font-size: 0.9em; }
+#myNotesSection details { margin: 0; border: none; background: transparent;} /* Remove extra border/bg */
+#myNotesSection summary { background-color: #e8d8c0; font-family: 'Cinzel Decorative', cursive; font-size: 1.05em; /* etc */ }
+#myNotesSection .collapsible-content { padding: 12px 15px; border: 1px solid var(--border-color-light); border-top: none; border-radius: 0 0 5px 5px; background: #fffefa;}
+
+/* Popup Actions Footer */
+.card-popup .popup-actions {
+    padding: 12px 15px; /* Adjust padding */
+    border-top: 2px solid var(--primary-color); /* Stronger separator */
+    background-color: var(--background-dark);
+    text-align: right;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 8px;
+}
 .card-popup .popup-actions .button { margin: 0; }
 .card-popup .add-grimoire-button { background-color: var(--success-color); border-color: #1e5a3a; }
 .card-popup .add-grimoire-button:hover:not(:disabled) { background-color: #3cb371; }
@@ -685,6 +919,9 @@ hr { border: none; border-top: 1px dashed var(--border-color-light); margin: 18p
 .card-popup .focus-button.hidden { display: none; }
 .card-popup .popup-sell-button { background-color: var(--danger-color); border-color: #a52a2a; color: white; text-shadow: none; }
 .card-popup .popup-sell-button:hover:not(:disabled) { background-color: #c82333; }
+
+/* --- End Popup Overhaul Styles --- */
+
 
 /* --- Reflection Modal --- */
 .reflection-modal { max-width: 500px; }
@@ -762,12 +999,13 @@ hr { border: none; border-top: 1px dashed var(--border-color-light); margin: 18p
 .secondary-button { background-color: #b0a48a; border-color: #8b7d6b; color: #3f372e; text-shadow: none; }
 .secondary-button:hover:not(:disabled) { background-color: #c4bba8; }
 
-/* --- Resonance Indicators --- */
-.resonance-indicator { font-size: 0.8em; padding: 2px 6px; border-radius: 10px; color: white; font-weight: bold; text-shadow: 1px 1px 1px rgba(0,0,0,0.4); display: inline-block; vertical-align: middle; margin-left: 6px; }
+/* --- Resonance Indicators (In popup gauge now mostly) --- */
+.resonance-indicator { /* Style for any text indicators if still used elsewhere */
+    font-size: 0.8em; padding: 2px 6px; border-radius: 10px; color: white; font-weight: bold; text-shadow: 1px 1px 1px rgba(0,0,0,0.4); display: inline-block; vertical-align: middle; margin-left: 6px;
+}
 .resonance-high { background-color: var(--success-color); }
 .resonance-medium { background-color: var(--warning-color); color: var(--text-color); text-shadow: none; }
 .resonance-low { background-color: var(--danger-color); }
-.resonance-summary .resonance-indicator { margin-left: 8px; }
 
 /* --- Highlight Class --- */
 .highlight-feature { animation: pulseGlow 1.5s infinite alternate; box-shadow: 0 0 8px 2px var(--highlight-glow); border-radius: 5px; }
@@ -778,7 +1016,12 @@ hr { border: none; border-top: 1px dashed var(--border-color-light); margin: 18p
   .app-container { margin: 5px; border-radius: 5px;}
   .screen { padding: 15px 10px; }
   .popup { width: 95%; max-height: 90vh; }
-  .card-popup .popup-content { padding: 10px; gap: 15px; }
+  .popup.card-popup { max-width: 95%; } /* Allow popup to be wider on medium */
+  .card-popup .popup-content { padding: 10px; gap: 15px; } /* Old rule, remove if not used */
+  .card-popup .popup-main-content { flex-direction: column; padding: 10px; gap: 15px; } /* Ensure stacking */
+  .card-popup .popup-visual-area { max-width: 250px; width: 80%; align-self: center; position: static; /* Unstick on mobile */ }
+  .card-popup .popup-info-area { max-height: none; overflow-y: visible; padding-right: 0;}
+  .card-popup .popup-collapsible-area { max-height: none; overflow-y: visible; padding: 0 10px 10px 10px;}
   .card-popup .popup-actions { padding: 8px 10px; justify-content: center; }
   .nav-button { padding: 6px 8px; font-size: 0.85em; }
   .initial-discovery-elements { grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 10px; }
@@ -809,7 +1052,7 @@ hr { border: none; border-top: 1px dashed var(--border-color-light); margin: 18p
     .tiny-button i { font-size: 0.9em; }
     .nav-button { padding: 5px 6px; font-size: 0.8em; }
     .popup { width: 96%; }
-    .card-popup #popupVisualContainer { min-height: 120px; width: 70%; max-width: 200px;}
+    .card-popup .popup-visual-area { max-width: 200px;}
     .card-popup .detailed-description { font-size: 0.9em; max-height: 120px; }
     .card-popup .popup-actions { justify-content: space-around; }
     .initial-discovery-elements { grid-template-columns: 1fr; } /* Stack elements */
@@ -833,18 +1076,27 @@ hr { border: none; border-top: 1px dashed var(--border-color-light); margin: 18p
 .element-deep-dive-container .unlock-error { color: var(--danger-color); font-size: 0.8em; margin-top: 4px; display: inline-block; margin-left: 5px; }
 .element-deep-dive-container .all-unlocked-message { font-style: italic; color: #6a5a4a; font-size: 0.9em; margin-top: 10px; }
 
-/* --- Popup Collapsible Sections --- */
-.collapsible-popup-section { margin: 15px 0; border: 1px solid var(--border-color-light); border-radius: 5px; background: rgba(255,255,255,0.3); overflow: hidden; }
-.collapsible-popup-section summary { display: block; padding: 8px 12px; background-color: #eee9dd; font-weight: bold; color: #7a5230; cursor: pointer; transition: background-color 0.2s ease; list-style-position: inside; border-radius: 4px; position: relative; }
-.collapsible-popup-section summary:hover { background-color: #e8e4d8; }
-.collapsible-popup-section[open] summary { border-bottom: 1px solid var(--border-color-light); border-radius: 4px 4px 0 0; }
-.collapsible-popup-section .collapsible-content { padding: 10px 15px; background-color: #fffefa; }
-.collapsible-popup-section .element-details { border: none; background: none; margin-top: 10px; }
-.collapsible-popup-section .element-details summary { background-color: transparent; padding: 4px 0; font-size: 0.95em; color: var(--link-color); }
-.collapsible-popup-section .element-details summary:hover { background-color: transparent; text-decoration: underline; }
-.collapsible-popup-section .related-concepts { margin-top: 0; }
-.collapsible-popup-section .related-concepts-list-dropdown { padding: 8px 0 0 0; }
-.popup-details > hr { margin: 12px 0; }
-.collapsible-content > hr { margin: 8px 0; }
+/* --- Popup Collapsible Sections General --- */
+.collapsible-popup-section { margin: 10px 0; border: 1px solid var(--border-color-dark); border-radius: 5px; background: transparent; overflow: hidden; }
+.collapsible-popup-section summary { display: flex; justify-content: space-between; align-items: center; padding: 10px 15px; background-color: #e8d8c0; font-weight: bold; color: var(--primary-color); cursor: pointer; transition: background-color 0.2s ease; list-style: none; /* Hide default marker */ font-family: 'Cinzel Decorative', cursive; font-size: 1.05em; }
+.collapsible-popup-section summary::-webkit-details-marker { display: none; }
+.collapsible-popup-section summary::before { /* Custom marker */ content: '\f0da'; font-family: 'Font Awesome 6 Free'; font-weight: 900; margin-right: 8px; transition: transform 0.2s ease-in-out; display: inline-block; }
+.collapsible-popup-section[open] > summary::before { transform: rotate(90deg); }
+.collapsible-popup-section summary:hover { background-color: #d8c8b0; }
+.collapsible-popup-section[open] > summary { border-bottom: 1px solid var(--border-color-dark); }
+.collapsible-popup-section summary i { /* Style icons in summary */ font-size: 0.9em; margin-left: 10px; color: var(--link-color); opacity: 0.8; }
+.collapsible-popup-section .collapsible-content { padding: 12px 15px; background-color: rgba(255, 250, 240, 0.8); border-top: none; }
+
+/* Specific Collapsible Content Styles */
+#popupLoreContent .lore-entry { padding-bottom: 10px; margin-bottom: 10px; border-bottom: 1px dashed var(--border-color-light); }
+#popupLoreContent .lore-entry:last-child { border-bottom: none; margin-bottom: 0; }
+#popupRecipeDetails .collapsible-content { padding-top: 5px; }
+#popupRecipeDetails .element-details { margin-top: 5px; background: transparent; border: none; }
+#popupRecipeDetails .element-details summary { background: transparent; padding: 4px 0; color: var(--link-color); font-family: 'Merriweather', serif; font-size: 0.9em; }
+#popupRecipeDetails .element-details summary::before { display: none; } /* Hide marker for nested details */
+#myNotesSection { border: 1px solid var(--border-color-dark); border-radius: 5px; background: transparent; overflow: hidden; margin: 10px 0;}
+#myNotesSection details { margin: 0; }
+#myNotesSection summary { background-color: #e8d8c0; /* Consistent summary style */ }
+#myNotesSection .collapsible-content { padding: 12px 15px; border: none; background: #fffefa; border-radius: 0 0 5px 5px; }
 
 /* --- END OF style.css --- */
