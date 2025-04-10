@@ -6,7 +6,7 @@ import * as Config from './config.js';
 import * as Utils from './utils.js';
 import * as GameLogic from './gameLogic.js'; // Needed for button actions
 import { elementDetails, elementKeyToFullName, elementNameToKey, concepts, questionnaireGuided, reflectionPrompts, elementDeepDive, dailyRituals, milestones, focusRituals, sceneBlueprints, alchemicalExperiments, elementalInsights, focusDrivenUnlocks, cardTypeKeys, elementNames, grimoireShelves } from '../data.js';
-const UNLOCKED_ART_EXTENSION = '.jpg';
+
 
 console.log("ui.js loading...");
 
