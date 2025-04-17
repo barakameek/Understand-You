@@ -441,4 +441,98 @@ h5 { font-size: 1rem; color: var(--text-muted-color); margin-bottom: 0.5em; font
   #workshop-research-area{
     max-height: none;
   }
+/* =============================================
+   Persona Alchemy Lab – Workshop UI overrides
+   ---------------------------------------------
+   Drop this file AFTER the main style.css import
+   to visually improve the Workshop screen.
+   ============================================= */
+
+/***********************
+ * 1. Research Bench  *
+ **********************/
+/* Treat each element tile as a pill‑button so it reads/feels clickable. */
+.element-research-buttons-grid .initial-discovery-element{
+  /* layout */
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  /* spacing + shape */
+  padding:8px 16px;
+  border-radius:9999px;  /* pill */
+  /* colour & elevation */
+  background:var(--background-medium);
+  border:1px solid var(--border-color-light);
+  box-shadow:0 1px 3px rgb(0 0 0 / .12);
+  cursor:pointer;
+  transition:background .15s ease, box-shadow .15s ease, transform .1s;
 }
+.element-research-buttons-grid .initial-discovery-element:hover{
+  background:var(--background-dark);
+  box-shadow:0 2px 6px rgb(0 0 0 / .18);
+  transform:translateY(-1px);
+}
+.element-research-buttons-grid .initial-discovery-element:active{
+  transform:scale(.97);
+}
+/* Optional – add an icon in front via <i> tag or ::before if desired */
+
+/*******************************
+ * 2. Grimoire Library Shelves *
+ *******************************/
+/* Turn each shelf into a compact card‑accordion */
+.grimoire-shelf{
+  border:none;
+  margin-bottom:var(--spacing);
+  border-radius:var(--border-radius);
+  box-shadow:var(--box-shadow);
+  overflow:hidden;
+  background:var(--background-medium);
+}
+.grimoire-shelf > summary{
+  list-style:none;
+  cursor:pointer;
+  font-weight:bold;
+  padding:10px 14px;
+  background:var(--primary-color);
+  color:#fff;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+.grimoire-shelf[open] > summary{
+  background:var(--accent-color);
+}
+.grimoire-shelf > *:not(summary){
+  padding:12px 16px;
+  background:var(--background-light);
+}
+
+/**************************************
+ * 3. Insight badge – top right pill  *
+ **************************************/
+.workshop-insight-display{
+  /* Re‑use existing element but place top‑right & shrink */
+  position:absolute;
+  top:calc(var(--spacing) + 2px);
+  right:calc(var(--spacing) + 2px);
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:6px 14px;
+  border-radius:9999px;
+  background:var(--secondary-color);
+  border:none;
+  color:#fff;
+  box-shadow:0 2px 5px rgb(0 0 0 / .2);
+}
+.workshop-insight-display i{
+  font-size:1.1em;
+}
+
+/* Make sure the parent position is relative */
+#workshopScreen{position:relative;}
+
+/* Remove the original oversized margin if any */
+#workshopScreen h1{margin-bottom:0.5rem;}
+
