@@ -46,7 +46,7 @@
              <!-- NOTE: Button classes might change based on final CSS -->
              <button id="startGuidedButton" class="button btn">Begin Experimentation</button>
              <button id="loadButton" class="button secondary-button btn hidden">Load Previous Session</button>
-             <p><small>Version: Enhanced v4 + New Look</small></p>
+             <p><small>Version: Enhanced v4 + Visual Overhaul</small></p> <!-- Updated version -->
         </div>
 
         <!-- Questionnaire Screen -->
@@ -85,7 +85,7 @@
              <div id="personaDetailedView" class="persona-view current">
                  <div class="persona-overview">
                      <!-- Left Column -->
-                     <div class="persona-column persona-elements-detailed card"> <!-- Added .card class for potential styling -->
+                     <div class="persona-column persona-elements-detailed"> <!-- Removed .card class -->
                          <h2>Core Foundation <i class="fas fa-info-circle info-icon" title="Your scores across the 7 core elements, based on the initial questionnaire. Expand each for details, interpretations, current Attunement, and unlockable Insights."></i></h2>
                          <p>Your fundamental attributes and elemental attunement. Expand each element below.</p>
                          <div id="personaElementDetails" aria-live="polite">
@@ -105,7 +105,7 @@
                          </div>
                      </div>
                      <!-- Right Column -->
-                     <div class="persona-column persona-constellation card"> <!-- Added .card class for potential styling -->
+                     <div class="persona-column persona-constellation"> <!-- Removed .card class -->
                           <h2>Persona Tapestry - Focus <i class="fas fa-info-circle info-icon" title="Mark Concepts from your Workshop as 'Focus' here (using the ☆ icon). This shapes your Tapestry Narrative and may unlock unique content based on combinations."></i></h2>
                           <p>Curate concepts to shape your active Persona.</p>
                           <div class="tapestry-area" id="tapestryArea">
@@ -142,7 +142,7 @@
              </div>
 
              <!-- Summary View -->
-             <div id="personaSummaryView" class="persona-view hidden card"> <!-- Added .card class -->
+             <div id="personaSummaryView" class="persona-view hidden"> <!-- Removed .card class -->
                   <h2>Persona Summary <i class="fas fa-info-circle info-icon" title="A concise overview combining your Core Foundation scores, Tapestry Narrative, and Focus Themes, plus a visual profile chart."></i></h2>
                   <div id="summaryContent">
                         <h3>Core Essence</h3>
@@ -168,11 +168,11 @@
         <div id="workshopScreen" class="screen hidden workshop-screen">
             <h1>The Workshop <i class="fas fa-info-circle info-icon" title="Conduct research using Insight or Daily Meditation, perform other actions, and manage your permanent Grimoire collection."></i></h1>
 
-            <div class="workshop-insight-display card"> <!-- Added .card class -->
+            <div class="workshop-insight-display"> <!-- Style separately, maybe not a card -->
                 Current Insight: <strong id="userInsightDisplayWorkshop">0.0</strong> <i class="fas fa-brain insight-icon"></i>
             </div>
 
-            <section id="workshop-research-area" class="workshop-section research-area card" aria-labelledby="research-heading"> <!-- Added .card class -->
+            <section id="workshop-research-area" class="workshop-section research-area"> <!-- Removed .card class -->
                 <h2 id="research-heading">Research Bench <i class="fas fa-info-circle info-icon" title="Select an Element to research or perform daily actions. Results appear in a popup. Research costs Insight unless using Daily Meditation or initial free attempts."></i></h2>
                 <div id="element-research-buttons" class="element-research-buttons-grid" aria-live="polite">
                     <p><i>Loading research options...</i></p>
@@ -183,7 +183,7 @@
                 </div>
             </section>
 
-            <section id="workshop-library-area" class="workshop-section library-area card" aria-labelledby="library-heading"> <!-- Added .card class -->
+            <section id="workshop-library-area" class="workshop-section library-area"> <!-- Removed .card class -->
                 <h2 id="library-heading">Grimoire Library <i class="fas fa-info-circle info-icon" title="Your permanent collection of discovered Concepts. Filter, sort, categorize using shelves (drag cards onto shelves!), and manage focus (☆ icon)."></i></h2>
                 <div id="grimoire-controls-workshop" class="grimoire-controls">
                      <label for="grimoireSortOrderWorkshop">Sort:</label>
@@ -223,30 +223,30 @@
              <h1>Repository <i class="fas fa-info-circle info-icon" title="A collection of rare discoveries, daily tasks, and milestones achieved."></i></h1>
              <p>Track your progress and review unique findings.</p>
              <div class="repository-layout">
-                 <!-- Each section could potentially be styled as a card -->
-                 <section id="repositoryFocusUnlocks" class="repository-section card" aria-labelledby="focus-unlocks-heading">
+                 <!-- Sections without .card for simpler layout -->
+                 <section id="repositoryFocusUnlocks" class="repository-section" aria-labelledby="focus-unlocks-heading">
                      <h2 id="focus-unlocks-heading"><i class="fas fa-link"></i> Focus-Driven Discoveries <i class="fas fa-info-circle info-icon" title="Special items unlocked automatically by having specific combinations of Concepts marked as 'Focus'."></i></h2>
                      <div class="repo-list focus-unlocks-list" aria-live="polite"></div>
                  </section>
-                 <section id="repositoryScenes" class="repository-section card" aria-labelledby="scenes-heading">
+                 <section id="repositoryScenes" class="repository-section" aria-labelledby="scenes-heading">
                      <h2 id="scenes-heading"><i class="fas fa-scroll"></i> Scene Blueprints <i class="fas fa-info-circle info-icon" title="Scenarios discovered via 'Suggest Scenes' or other means. Meditate on them (costs Insight) for unique Reflection prompts."></i></h2>
                      <div class="repo-list" aria-live="polite"></div>
                  </section>
-                 <section id="repositoryExperiments" class="repository-section card" aria-labelledby="experiments-heading">
+                 <section id="repositoryExperiments" class="repository-section" aria-labelledby="experiments-heading">
                      <h2 id="experiments-heading"><i class="fas fa-flask"></i> Alchemical Experiments <i class="fas fa-info-circle info-icon" title="Challenging procedures unlocked by high Attunement. Attempting them costs Insight and may require specific Focused Concepts or RoleFocus scores."></i></h2>
                      <div class="repo-list" aria-live="polite"></div>
                  </section>
-                 <section id="repositoryInsights" class="repository-section card" aria-labelledby="insights-heading">
+                 <section id="repositoryInsights" class="repository-section" aria-labelledby="insights-heading">
                      <h2 id="insights-heading"><i class="fas fa-lightbulb"></i> Elemental Insights <i class="fas fa-info-circle info-icon" title="Short, evocative text fragments related to specific Elements, occasionally discovered during Research."></i></h2>
                      <div class="repo-list" aria-live="polite"></div>
                  </section>
-                 <section id="dailyRitualsSection" class="repository-section card" aria-labelledby="rituals-heading">
+                 <section id="dailyRitualsSection" class="repository-section" aria-labelledby="rituals-heading">
                       <h2 id="rituals-heading"><i class="fas fa-clock"></i> Daily Rituals <i class="fas fa-info-circle info-icon" title="Track your progress on daily tasks here. Rituals reset each day. Focus Rituals appear based on your focused Concepts."></i></h2>
                       <ul id="dailyRitualsDisplayRepo" aria-live="polite">
                           <li>Loading rituals...</li>
                       </ul>
                  </section>
-                 <section id="milestonesSection" class="repository-section card" aria-labelledby="milestones-heading">
+                 <section id="milestonesSection" class="repository-section" aria-labelledby="milestones-heading">
                       <h2 id="milestones-heading"><i class="fas fa-award"></i> Milestones Achieved <i class="fas fa-info-circle info-icon" title="Significant accomplishments tracked throughout your journey, often granting rewards."></i></h2>
                       <ul id="milestonesDisplay" aria-live="polite"></ul>
                  </section>
@@ -350,7 +350,7 @@
              <h3 id="reflectionModalTitle">Moment for Reflection <i class="fas fa-info-circle info-icon" title="Pause and consider the presented prompt. Check the box once you've genuinely reflected. Confirming grants Insight and potentially Attunement."></i></h3>
              <p>Regarding <strong id="reflectionElement">[Element/Concept]</strong>:</p>
              <p id="reflectionPromptText" class="prompt-text">Prompt text...</p>
-             <div class="reflection-confirm form-group"> <!-- Added form-group for potential styling -->
+             <div class="reflection-confirm form-group"> <!-- Added form-group -->
                  <input type="checkbox" id="reflectionCheckbox">
                  <label for="reflectionCheckbox">I have taken a moment to reflect on this.</label>
                  <br>
@@ -469,13 +469,14 @@
          .onboarding-highlight { position: fixed; border: 3px dashed var(--accent-color); border-radius: 5px; box-shadow: 0 0 15px rgba(255, 216, 0, 0.7); pointer-events: none; z-index: 1049; transition: all 0.3s ease-in-out; display: none; }
          #onboardingOverlay.visible { display: flex; opacity: 1; }
          /* Internal accordion style */
-        .element-elaboration summary { cursor: pointer; color: var(--link-color); font-weight: bold; font-size: 0.9em; margin-top: 8px; }
-        .element-elaboration summary::before { content: '▶ '; display: inline-block; transition: transform 0.2s; }
+        .element-elaboration summary { cursor: pointer; color: var(--link-color); font-weight: bold; font-size: 0.9em; margin-top: 8px; list-style: none; padding-left: 1.2em; position: relative; }
+        .element-elaboration summary::-webkit-details-marker { display: none; }
+        .element-elaboration summary::before { content: '▶'; position: absolute; left: 0; top: 0.1em; transition: transform 0.2s; font-size: 0.8em; }
         .element-elaboration[open] summary::before { transform: rotate(90deg); }
-        .element-elaboration[open] p { margin-top: 8px; }
+        .element-elaboration[open] .collapsible-content { margin-top: 8px; } /* Added collapsible-content class target */
         /* General chart container styling */
-        .chart-container { position: relative; height: 400px; width: 100%; max-width: 850px; margin: 20px auto; padding: 15px; background-color: rgba(255, 255, 255, 0.3); /* Light background for contrast */ border-radius: var(--border-radius); box-shadow: var(--box-shadow); }
-        :root.dark .chart-container { background-color: rgba(68, 68, 68, 0.7); /* Dark mode background */ } /* Example dark mode adjustment */
+        .chart-container { position: relative; height: 350px; /* Slightly smaller */ width: 100%; max-width: 600px; /* Narrower */ margin: var(--spacing) auto; padding: var(--spacing); background-color: rgba(255, 255, 255, 0.3); border-radius: var(--border-radius); box-shadow: var(--box-shadow); }
+        :root.dark .chart-container { background-color: rgba(68, 68, 68, 0.7); }
 
     </style>
 
