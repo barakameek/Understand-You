@@ -1,25 +1,25 @@
 /* =========================================================
-   Persona Alchemy Lab - Visuals Overhauled (v4 + New Look v3)
+   Persona Alchemy Lab - Visual Overhaul Styles
    ========================================================= */
 
 /* ---------- 0. Global Variables & Styles ------------- */
 :root {
-  /* New Theme Variables */
+  /* --- New Theme Variables --- */
   --primary-color: #1e90ff; /* Blue */
   --secondary-color: #32cd32; /* Lime Green */
   --accent-color: #ff6347; /* Tomato Red */
   --background-color: #f0f0f0; /* Light Grey */
   --text-color: #333; /* Dark Grey */
-  --font-family: 'Arial', sans-serif; /* New Font */
+  --font-family: 'Arial', sans-serif;
   --border-radius: 8px;
   --box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   --transition-duration: 0.3s;
 
-  /* Keep Original Element/Category Colors for Functionality */
+  /* --- Original Element/Category Colors (Kept for logic) --- */
   --attraction-color: #FF6347;
   --interaction-color: #4682B4;
   --sensory-color: #32CD32;
-  --psychological-color: #FFD700;
+  --psychological-color: #FFD700; /* Gold - might need adjustment for contrast */
   --cognitive-color: #8A2BE2;
   --relational-color: #FF8C00;
   --rolefocus-color: #40E0D0;
@@ -34,7 +34,7 @@
   --category-uncategorized-bg: transparent;
   --category-uncategorized-border: #ddd;
 
-  /* UI Component Colors (Adapted to new theme) */
+  /* --- Adapted UI Component Colors --- */
   --background-light: #ffffff;
   --background-medium: #f8f9fa;
   --background-dark: #e9ecef;
@@ -52,7 +52,7 @@
   --popup-header-bg: var(--background-dark);
   --popup-header-border: var(--border-color-dark);
 
-  /* Visual Polish Bundle Variables */
+  /* --- Visual Polish Bundle Variables --- */
   --spacing: clamp(0.75rem, 1.2vw, 1.25rem);
   --progress-pct: 0%;
 }
@@ -76,109 +76,101 @@ a:hover {
   color: var(--accent-color);
 }
 
+.app-container {
+  max-width: 1450px; /* Keep wider width */
+  margin: var(--spacing) auto;
+  background-color: var(--background-light);
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+  border: 1px solid var(--border-color-light);
+  overflow: hidden;
+}
+
+/* ---------- 1. Screen viewport confinement -------------- */
+.screen {
+  height: calc(100dvh - 55px); /* Adjust based on nav height */
+  overflow: auto;
+  padding: calc(var(--spacing)*1.5) var(--spacing); /* Use fluid spacing */
+  box-sizing: border-box;
+}
+.hidden { display: none !important; }
+.current { display: block; }
+
+/* ---------- Headings & Fluid Type ------------- */
+h1, h2, h3, h4, h5 { margin-top: 0; margin-bottom: 0.75em; line-height: 1.3; font-weight: bold; }
+h1 { font-size: clamp(1.75rem, 2.2vw, 2.4rem); color: var(--primary-color); text-align: center; }
+h2 { font-size: clamp(1.30rem, 1.6vw, 1.60rem); color: var(--primary-color); margin-bottom: 1em; border-bottom: 1px solid var(--border-color-light); padding-bottom: 0.4em; text-align: center; }
+.persona-elements-detailed h2, .repository-section h2, .workshop-section h2 { text-align: left; border-bottom: none; }
+h3 { font-size: 1.2rem; color: var(--secondary-color); margin-bottom: 0.7em; text-align: center; }
+.popup h3 { text-align: left; font-size: 1.3rem; color: var(--text-color); margin: 0; } /* Popup titles */
+h4 { font-size: 1.1rem; color: var(--text-color); font-weight: bold; margin-bottom: 0.5em; text-align: left; }
+h5 { font-size: 1rem; color: var(--text-muted-color); margin-bottom: 0.5em; font-weight: bold; text-align: center; }
+p { margin-bottom: 1em; }
+hr { border: none; border-top: 1px dashed var(--border-color-light); margin: var(--spacing) 0; }
+.popup-hr { border-top: 1px solid var(--border-color-light); margin: 10px 0; }
+
+/* Info Icon */
+.info-icon { color: var(--text-muted-color); margin-left: 6px; cursor: help; font-size: 0.9em; transition: color 0.2s ease; }
+.info-icon:hover { color: var(--primary-color); }
+.insight-icon { color: var(--cognitive-color); margin-left: 4px; font-size: 1.1em; vertical-align: middle; }
+
 /* ---------- 2. Sticky, shaded top navigation ------------ */
 .main-nav {
-  position: sticky;
-  top: 0;
-  z-index: 900;
-  display: flex;
-  flex-wrap: wrap;
-  gap: .5rem;
-  padding: .4rem var(--spacing);
+  position: sticky; top: 0; z-index: 900;
+  display: flex; gap: .5rem; padding: .4rem var(--spacing);
   background: var(--background-light);
   box-shadow: 0 1px 4px rgb(0 0 0 / .08);
   border-bottom: 1px solid var(--border-color-light);
-  align-items: center;
+  align-items: center; flex-wrap: wrap;
 }
 .main-nav .nav-button, .main-nav .theme-toggle {
-  background: none;
-  border: none;
-  color: var(--primary-color);
-  padding: 8px 12px;
-  font-size: 0.95em;
-  font-weight: bold;
-  cursor: pointer;
-  border-bottom: 3px solid transparent;
-  margin: 0;
-  transition: background .15s, color .15s, border-color 0.2s ease;
-  font-family: var(--font-family);
-  white-space: nowrap;
-  border-radius: 4px;
+  background: none; border: none; color: var(--primary-color);
+  padding: 8px 12px; font-size: 0.95em; font-weight: bold; cursor: pointer;
+  border-bottom: 3px solid transparent; margin: 0;
+  transition: background .15s ease, color .15s ease, border-color 0.2s ease;
+  font-family: var(--font-family); white-space: nowrap; border-radius: 4px;
 }
 .main-nav .nav-button:hover:not(.active) {
-  background: var(--secondary-color);
-  color: white;
+  background: var(--secondary-color); color: white;
   border-bottom-color: transparent;
 }
 .main-nav .nav-button.active {
-  color: var(--accent-color);
-  border-bottom-color: var(--accent-color);
+  color: var(--accent-color); border-bottom-color: var(--accent-color);
   background: none;
 }
-.main-nav .settings-button {
-    margin-left: 0;
-    order: 98; /* Place before theme toggle */
+.main-nav .settings-button { order: 98; }
+.theme-toggle{
+  background:none; border:none; font-size:1.2rem; cursor:pointer;
+  margin-left:auto; /* Push right */
+  padding: 0.3rem 0.5rem; border-radius: 5px;
+  transition: background 0.15s; line-height: 1;
+  color: var(--primary-color); order: 99;
 }
-.theme-toggle {
-  background: none;
-  border: none;
-  font-size: 1.2rem;
-  cursor: pointer;
-  margin-left: auto;
-  padding: 0.3rem 0.5rem;
-  border-radius: 5px;
-  transition: background 0.15s;
-  line-height: 1;
-  color: var(--primary-color);
-  order: 99;
-}
-.theme-toggle:hover {
-    background: rgba(0,0,0,0.08);
-}
+.theme-toggle:hover { background: rgba(0,0,0,0.08); }
 .main-nav.hidden { display: none !important; }
 .nav-button.hidden-by-flow { display: none; }
 
-/* ---------- Buttons (Merging Original and New) ---------- */
+/* ---------- 5. Buttons tactile feedback ---------------- */
 .button, .btn { /* Base style from new theme */
-  display: inline-block;
-  padding: 10px 20px;
-  background-color: var(--primary-color);
-  color: white;
-  text-decoration: none;
-  border: none;
-  border-radius: 5px; /* Use new radius */
-  transition: transform .1s, box-shadow .1s, background-color var(--transition-duration) ease;
-  cursor: pointer;
-  font-size: 0.9em;
-  font-weight: bold;
-  text-align: center;
-  box-shadow: var(--box-shadow);
-  font-family: var(--font-family);
-  text-transform: uppercase;
-  letter-spacing: 0.8px;
-  line-height: 1.4;
+  display: inline-block; padding: 10px 20px; background-color: var(--primary-color);
+  color: white; text-decoration: none; border: none; border-radius: 5px;
+  transition: background-color var(--transition-duration) ease, transform .1s, box-shadow .1s;
+  cursor: pointer; font-size: 0.9em; font-weight: bold; text-align: center;
+  font-family: var(--font-family); text-transform: uppercase; letter-spacing: 0.8px;
+  line-height: 1.4; box-shadow: var(--box-shadow);
 }
 .button:hover, .btn:hover {
-  background-color: var(--accent-color);
-  color: white;
+  background-color: var(--accent-color); color: white;
   box-shadow: 0 2px 6px rgb(0 0 0 / .15);
 }
-.button:active, .btn:active {
-  transform: scale(.97);
-}
+.button:active, .btn:active { transform: scale(.97); }
 .button:disabled, .btn:disabled {
-  background-color: #aaa;
-  border-color: #888;
-  color: #eee;
-  cursor: not-allowed;
-  text-shadow: none;
-  transform: none;
-  box-shadow: none;
-  opacity: 0.7;
+  background-color: #aaa; border-color: #aaa; color: #eee; cursor: not-allowed;
+  text-shadow: none; transform: none; box-shadow: none; opacity: 0.6;
 }
-/* Adapt specific buttons */
-.small-button { padding: 7px 14px; font-size: 0.8em; border-radius: 4px; }
-.tiny-button { padding: 5px 10px; font-size: 0.8em; line-height: 1; min-height: auto; display: inline-flex; align-items: center; justify-content: center; border-radius: 4px; }
+/* Specific button variants */
+.small-button { padding: 7px 14px; font-size: 0.8em; }
+.tiny-button { padding: 5px 10px; font-size: 0.8em; line-height: 1; min-height: auto; display: inline-flex; align-items: center; justify-content: center; }
 .back-button { background-color: var(--text-muted-color); color: var(--background-light); }
 .back-button:hover:not(:disabled) { background-color: var(--text-color); }
 .secondary-button { background-color: var(--secondary-color); color: white; }
@@ -189,31 +181,21 @@ a:hover {
 
 /* ---------- 3. Questionnaire Stepper ------------------- */
 #questionnaireScreen header {
-  padding: var(--spacing);
-  border-bottom: 1px solid var(--border-color-light);
-  margin-bottom: var(--spacing);
-  position: sticky;
-  top: 55px; /* Adjust if nav height changes */
-  background: rgba(240, 240, 240, 0.95);
-  backdrop-filter: blur(3px);
-  z-index: 890;
-  box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+  padding: var(--spacing); border-bottom: 1px solid var(--border-color-light);
+  margin-bottom: var(--spacing); position: sticky; top: 55px; /* Below nav */
+  background: rgba(248, 249, 250, 0.95); /* --background-medium */
+  backdrop-filter: blur(4px); z-index: 890; box-shadow: 0 3px 8px rgba(0,0,0,0.1);
 }
 #elementProgressHeader { /* Stepper Container */
-  display: flex;
-  position: relative;
-  counter-reset: step;
-  margin-bottom: 1rem;
-  gap: .25rem;
-  padding: 5px;
-  background-color: rgba(0,0,0, 0.05);
-  border-radius: var(--border-radius);
+  display: flex; position: relative; counter-reset: step;
+  margin-bottom: 1rem; gap: .25rem; padding: 5px;
+  background-color: rgba(0,0,0, 0.05); border-radius: var(--border-radius);
   border: 1px solid var(--border-color-light);
 }
 #elementProgressHeader::before { /* Progress Bar */
   content: ''; position: absolute; background: var(--accent-color);
   inset: 50% 0 auto; transform: translateY(-50%); height: 4px;
-  width: var(--progress-pct, 0%); transition: width .3s ease-in-out;
+  width: var(--progress-pct); transition: width .3s ease-in-out;
   z-index: 0; border-radius: 2px;
 }
 #elementProgressHeader .step { /* Individual Step */
@@ -233,140 +215,212 @@ a:hover {
 #elementProgressHeader .step.active { color: var(--primary-color); }
 #elementProgressHeader .step.active::before { background: var(--primary-color); box-shadow: 0 0 0 3px var(--accent-color); border-color: var(--accent-color); }
 #elementProgressHeader .step.completed::before { background: var(--secondary-color); color: white; border-color: var(--secondary-color); }
-#progressText { /* Keep original */ }
-#dynamicScoreFeedback { /* Keep original */ }
-.score-bar-container { /* Keep original */ }
-#feedbackScoreBar { /* Keep original */ }
-.element-intro { /* Keep original, uses vars */ }
-.question-block { /* Keep original, uses vars */ }
-.question-title { /* Keep original */ }
-.input-container { /* Keep original */ }
-.slider-container { /* Keep original */ }
-.slider { width: 100%; cursor: pointer; accent-color: var(--primary-color); }
-.label-container { /* Keep original */ }
-.label-text { /* Keep original */ }
-.value-text { /* Keep original */ }
-.slider-feedback { /* Keep original */ }
-.radio-options, .checkbox-options { /* Keep original */ }
-.radio-options div, .checkbox-options div { /* Keep original */ }
-.radio-options label, .checkbox-options label { /* Style the container label */
-    display: block; background-color: var(--background-medium); padding: 11px 14px;
-    border-radius: var(--border-radius); border: 1px solid var(--border-color-light);
-    cursor: pointer; transition: background-color 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
-    font-size: 0.98em; }
-.radio-options input[type="radio"], .checkbox-options input[type="checkbox"] { margin-right: 10px; accent-color: var(--primary-color); }
-.radio-options input[type="radio"] + label, .checkbox-options input[type="checkbox"] + label { display: inline; background: none; padding: 0; border: none; box-shadow: none; }
-.radio-options input[type="radio"]:checked ~ label, .checkbox-options input[type="checkbox"]:checked ~ label { /* Style wrapper label when checked */ }
-#questionnaireScreen footer { /* Keep original */ }
 
-/* ---------- Now with more Cardification! ----------- */
-.persona-overview, .repository-layout { /* Control direct column layout */
-    display: grid;
-    grid-template-columns: 1fr 1.2fr; /* Use existing layout */
-    gap: var(--spacing);
+/* Questionnaire Content Styling */
+#progressText { color: var(--text-muted-color); }
+#dynamicScoreFeedback { /* Keep original structure, colors adapt via vars */ }
+.score-bar-container { /* Keep original structure */ }
+#feedbackScoreBar { /* Keep original structure */ }
+.element-intro { background-color: var(--background-medium); padding: var(--spacing); border-radius: var(--border-radius); margin: 0 auto var(--spacing) auto; border-left: 5px solid var(--primary-color); max-width: 95%; }
+.element-intro h2 { color: var(--primary-color); }
+.question-block { margin: 0 auto var(--spacing) auto; padding: var(--spacing); border: 1px solid var(--border-color-light); background-color: var(--background-light); border-radius: var(--border-radius); max-width: 95%; box-shadow: var(--box-shadow); }
+.question-title { color: var(--text-color); }
+.slider { accent-color: var(--primary-color); } /* Use modern slider styling */
+.slider-feedback { background-color: var(--background-medium); color: var(--text-color); border: 1px dashed var(--border-color-light); }
+.radio-options label, .checkbox-options label { /* Style the wrapper label */ background-color: var(--background-medium); border-color: var(--border-color-light); }
+.radio-options input[type="radio"] + label, .checkbox-options input[type="checkbox"] + label { display: inline; background: none; padding: 0; border: none; box-shadow: none; }
+.radio-options input[type="radio"]:checked ~ label, .checkbox-options input[type="checkbox"]:checked ~ label { background-color: var(--primary-color-light); /* Example checked style */ border-color: var(--primary-color); }
+#questionnaireScreen footer { margin-top: var(--spacing); }
+
+/* ---------- Section/Layout Styling (Simpler) ------------- */
+.persona-overview { display: grid; grid-template-columns: 1fr 1.2fr; gap: var(--spacing); }
+.persona-column, .workshop-section, .repository-section {
+    background-color: transparent; /* Remove card look from sections */
+    border-radius: 0;
+    padding: 0; /* Remove section padding */
+    margin-bottom: var(--spacing);
+    border: none; /* Remove section border */
+    box-shadow: none;
 }
-/* Apply card-like backgrounds, borders, shadows where desired */
-.persona-column,
-.workshop-section,
-.repository-section,
-#personaSummaryView {
-    background-color: var(--background-light); /* More contrast */
+.repository-section { border-bottom: 1px dashed var(--border-color-light); padding-bottom: var(--spacing); }
+.workshop-insight-display { /* Style separately */
+    background-color: var(--background-medium);
     border: 1px solid var(--border-color-light);
     border-radius: var(--border-radius);
-    padding: var(--spacing);
+    padding: 10px 15px; margin: 0 auto var(--spacing); text-align: center;
+}
+.element-detail-entry {
+    background-color: var(--background-medium); margin-bottom: var(--spacing);
+    border-radius: var(--border-radius); border: 1px solid var(--border-color-light);
+}
+.element-detail-entry[open] { border-left: 4px solid var(--element-color, var(--primary-color)); background-color: var(--background-light); }
+.element-detail-entry summary.element-detail-header { padding: 10px var(--spacing); cursor: pointer; list-style: none; background-color: transparent; transition: background-color 0.2s; }
+.element-detail-entry summary.element-detail-header:hover { background-color: rgba(0,0,0,0.03); }
+.element-description { padding: 0 var(--spacing) var(--spacing); } /* Padding only when open */
+.element-elaboration summary { color: var(--link-color); }
+
+/* ---------- Card Styling (Concepts) ------------- */
+.concept-card {
+    background-color: var(--background-light);
+    border-radius: var(--border-radius);
     box-shadow: var(--box-shadow);
+    padding: 12px; /* Keep padding */
     margin-bottom: var(--spacing);
+    border: 1px solid var(--border-color-light);
+    transition: transform var(--transition-duration) ease, box-shadow var(--transition-duration) ease;
+    display: flex; flex-direction: column; overflow: hidden;
+    cursor: pointer;
 }
-/* Keep shop's Insight display a bit distinct */
-.workshop-insight-display {
-    text-align: center;
-    font-size: 1.15em;
-    font-weight: bold;
-    color: var(--link-color);
-    background-color: rgba(255, 248, 220, 0.85); /* Subtle bg */
-    padding: 10px 15px;
-    border-radius: 6px;
-    border: 1px dashed var(--primary-color);
-    margin: 0 auto 25px auto;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
-}
-/* Force card titles */
-.persona-column h2,
-.workshop-section h2,
-.repository-section h2 {
-    text-align: left;
-    border: none; /* Remove default HR */
-    padding: 0;
-}
+.concept-card:hover { transform: translateY(-5px); box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15); }
+/* Keep internal styles */
+.card-header { border-color: var(--border-color-light); }
+.card-name { color: var(--text-color); }
+.card-visual { background-color: var(--background-dark); }
+.card-brief-desc { color: var(--text-muted-color); }
+.card-actions { border-top: 1px solid var(--border-color-light); }
 
-/* -------- Other Revisions --------- */
-#grimoire-grid-workshop { min-height: 250px; }
-/* Removed the unecessary visual styles */
+/* Focus Item Styling (similar to concept card) */
+.focus-concept-item {
+    background-color: var(--background-light); border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow); padding: 8px; border: 1px solid var(--border-color-light);
+    transition: transform var(--transition-duration) ease, box-shadow var(--transition-duration) ease;
+    display: flex; flex-direction: column; align-items: center; text-align: center;
+    cursor: pointer; min-height: 80px; position: relative;
+}
+.focus-concept-item:hover { transform: translateY(-3px); }
+.focus-concept-item.has-background-image::before { background-color: rgba(255, 255, 255, 0.85); border-radius: inherit; }
+.focus-concept-item .name { color: var(--text-color); }
+.focus-concept-item .type { color: var(--text-muted-color); }
 
-/* ---------- 7. Dark‑mode palette ----------------------- */
+/* ---------- 4. Card masonry grid ----------------------- */
+.concept-grid {
+  column-count: 3; column-gap: var(--spacing);
+}
+.concept-grid .concept-card, .concept-grid .focus-concept-item {
+  break-inside: avoid; margin: 0 0 var(--spacing);
+  display: inline-block; width: 100%; vertical-align: top;
+}
+@media (max-width: 900px) { .concept-grid { column-count: 2; } }
+@media (max-width: 600px) { .concept-grid { column-count: 1; } }
+
+/* ---------- Popups & Modals (Centering & Styling) ------------- */
+.overlay { /* Keep original */ }
+.popup {
+  position: fixed !important; top: 50% !important; left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  background: var(--background-light); border: 1px solid var(--border-color-dark);
+  padding: 0; border-radius: var(--border-radius); box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+  z-index: 1000; width: 92%; max-width: 750px; max-height: 85dvh;
+  overflow: hidden; display: flex; flex-direction: column;
+  transition: opacity 0.3s ease, transform 0.3s ease; opacity: 1;
+}
+.popup.hidden { opacity: 0; transform: translate(-50%, -45%) !important; pointer-events: none; }
+.popup > * { /* Apply padding/scrolling to direct children */
+    overflow-y: auto;
+    padding: var(--spacing);
+}
+.popup-header { padding: 15px var(--spacing); background-color: var(--popup-header-bg); border-bottom: 1px solid var(--popup-header-border); overflow: visible; /* Header shouldn't scroll */ flex-shrink: 0;}
+.popup-main-content { padding: var(--spacing); overflow-y: auto; flex-grow: 1;} /* Main content scrolls */
+.popup-collapsible-area { padding: 10px var(--spacing); border-top: 1px solid var(--border-color-light); background-color: rgba(0,0,0,0.02); flex-shrink: 0; overflow: visible; }
+.popup-actions { padding: 15px var(--spacing); border-top: 1px solid var(--border-color-light); text-align: right; flex-shrink: 0; background-color: var(--background-medium); overflow: visible; }
+.close-button { /* Keep original */ }
+
+/* Restyle specific popup internals */
+.popup-visual { background-color: var(--background-dark); }
+.popup-resonance-gauge-section { background-color: rgba(0,0,0,0.02); padding: 10px; border-radius: 4px; }
+.related-concept-tag { background-color: var(--secondary-color); color: white; }
+
+/* ---------- Forms ------------- */
+.form-group { margin-bottom: var(--spacing); }
+.form-group label { color: var(--text-color); }
+.form-group input, .form-group textarea, .form-group select { /* Keep original structure */ }
+.grimoire-controls label { color: var(--text-color); }
+
+/* ---------- Dark‑mode palette ----------------------- */
 :root.dark {
-  --primary-color: #007bff;
-  --secondary-color: #28a745;
-  --accent-color: #ff6b6b;
-  --background-color: #212529;
-  --background-light: #343a40;
-  --background-medium: #495057;
-  --background-dark: #212529;
-  --text-color: #f8f9fa;
-  --text-muted-color: #adb5bd;
-  --link-color: #64b5f6;
-  --border-color-light: #495057;
+  --primary-color    : #007bff; /* Brighter Blue */
+  --secondary-color  : #28a745; /* Brighter Green */
+  --accent-color     : #ff6b6b; /* Lighter Red/Coral */
+  --background-color : #212529; /* Very Dark Grey */
+  --background-light : #343a40; /* Dark Grey */
+  --background-medium: #495057; /* Medium Grey */
+  --background-dark  : #212529;
+  --text-color       : #f8f9fa; /* Almost White */
+  --text-muted-color : #adb5bd; /* Lighter Grey */
+  --link-color       : #64b5f6; /* Light Blue Links */
+  --border-color-light:#495057;
   --border-color-dark: #6c757d;
-  --input-bg: #495057;
-  --input-border: #6c757d;
-  --box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
-  --overlay-bg: rgba(0, 0, 0, 0.75);
+  --input-bg         : #495057;
+  --input-border     : #6c757d;
+  --box-shadow       : 0 4px 8px rgba(0, 0, 0, 0.4);
+  --overlay-bg       : rgba(0, 0, 0, 0.75);
   --popup-header-bg: var(--background-dark);
   --popup-header-border: var(--border-color-dark);
-}
 
-/* Theme Toggle Button (from bundle) */
-.theme-toggle {
-  background: none;
-  border: none;
-  font-size: 1.2rem;
-  cursor: pointer;
-  margin-left: auto;
-  padding: 0.3rem 0.5rem;
-  border-radius: 5px;
-  transition: background 0.15s;
-  line-height: 1;
-  color: var(--primary-color);
+  /* Adjusted Element/Category Colors */
+  --attraction-color : #ff7f7f;
+  --interaction-color: #87cefa;
+  --sensory-color    : #90ee90;
+  --psychological-color: #fffacd;
+  --cognitive-color  : #dda0dd;
+  --relational-color : #ffa07a;
+  --rolefocus-color  : #7fffd4;
+  --category-wantToTry-border: #87cefa;
+  --category-liked-border: #90ee90;
+  --category-dislikedLimit-border: #ffb6c1;
+  --category-coreIdentity-border: #fffacd;
+  --category-uncategorized-border: var(--border-color-light);
+
+  color-scheme: dark;
 }
-.theme-toggle:hover {
-    background: rgba(0,0,0,0.08);
-}
+/* Dark Mode Specific Overrides */
+:root.dark body { background-color: var(--background-color); color: var(--text-color); }
+:root.dark .app-container { background-color: var(--background-light); border-color: var(--border-color-dark); }
+:root.dark a { color: var(--link-color); }
+:root.dark a:hover { color: var(--accent-color); }
+:root.dark .main-nav { background: var(--background-dark); border-color: var(--border-color-light); }
+:root.dark .main-nav .nav-button, :root.dark .main-nav .theme-toggle { color: var(--link-color); }
+:root.dark .main-nav .nav-button:hover:not(.active) { background: var(--secondary-color); color: var(--background-dark); }
+:root.dark .main-nav .nav-button.active { color: var(--accent-color); border-bottom-color: var(--accent-color); }
+:root.dark .theme-toggle:hover { background: rgba(255,255,255,0.1); }
+:root.dark .button, :root.dark .btn { background-color: var(--primary-color); color: white; }
+:root.dark .button:hover, :root.dark .btn:hover { background-color: var(--accent-color); }
+:root.dark .back-button { background-color: var(--text-muted-color); color: var(--background-dark); }
+:root.dark .secondary-button { background-color: var(--secondary-color); color: var(--background-dark); }
+:root.dark .concept-card, :root.dark .focus-concept-item, :root.dark .workshop-insight-display, :root.dark .element-detail-entry { background-color: var(--background-medium); border-color: var(--border-color-light); }
+:root.dark .card-name { color: var(--text-color); }
+:root.dark .card-brief-desc { color: var(--text-muted-color); }
+:root.dark #questionnaireScreen header { background: rgba(52, 58, 64, 0.95); border-color: var(--border-color-light); }
+:root.dark #elementProgressHeader { background-color: rgba(255,255,255,0.05); border-color: var(--border-color-light); }
+:root.dark #elementProgressHeader .step::before { background: var(--border-color-dark); color: var(--background-light); border-color: var(--background-light); }
+:root.dark #elementProgressHeader .step.active { color: var(--accent-color); }
+:root.dark #elementProgressHeader .step.active::before { background: var(--primary-color); border-color: var(--accent-color); }
+:root.dark #elementProgressHeader .step.completed::before { background: var(--secondary-color); color: var(--background-dark); border-color: var(--secondary-color); }
+:root.dark .form-group label { color: var(--text-color); }
+:root.dark .form-group input, :root.dark .form-group textarea, :root.dark .form-group select { background-color: var(--input-bg); border-color: var(--input-border); color: var(--text-color); }
+:root.dark .popup { background: linear-gradient(to bottom, var(--background-light), var(--background-medium)); border-color: var(--border-color-dark); }
+:root.dark .popup-header { background-color: var(--background-dark); border-color: var(--primary-color); }
+:root.dark .popup-header h3 { color: var(--text-color); }
+:root.dark .close-button { color: var(--text-muted-color); }
+:root.dark .close-button:hover { color: var(--accent-color); }
+:root.dark .popup-actions { background-color: var(--background-dark); border-color: var(--border-color-light); }
+:root.dark .toast { background-color: rgba(220, 220, 220, 0.9); color: #111; }
+:root.dark .chart-container { background-color: rgba(68, 68, 68, 0.7); }
+:root.dark canvas#personaScoreChartCanvas { background-color: transparent !important; }
+:root.dark .repo-list li, :root.dark .repo-list .repository-item { background-color: var(--background-medium); border-left-color: var(--secondary-color); }
+:root.dark .repo-list .completed, :root.dark .repository-item.completed { border-left-color: var(--success-color); background-color: rgba(40, 167, 69, 0.15); }
+:root.dark .related-concept-tag { background-color: var(--secondary-color); color: var(--background-dark); }
+:root.dark #insightLogContainer { background-color: rgba(0,0,0, 0.2); border-color: var(--border-color-light); }
+
 
 /* ---------- 8. Reduced‑motion respect ------------------ */
-@media (prefers-reduced-motion: reduce) {
-  * {
-    animation: none !important;
-    transition: none !important;
-    scroll-behavior: auto !important;
-  }
-  .onboarding-highlight { transition: none !important; }
+@media (prefers-reduced-motion: reduce){
+  *{animation:none !important;transition:none !important; scroll-behavior: auto !important;}
+  .onboarding-highlight{transition:none !important;}
 }
 
-/* --- Responsiveness --- */
-@media (max-width: 900px) {
-    .persona-overview { grid-template-columns: 1fr; }
-    .concept-grid { column-count: 2; }
-    .popup-main-content { grid-template-columns: 1fr; }
-}
-@media (max-width: 600px) {
-    .concept-grid { column-count: 1; }
-    .main-nav { gap: .2rem; padding: .3rem .4rem; }
-    .nav-button, .theme-toggle { padding: 8px 9px; font-size: 0.9em; }
-    .popup { width: 95%; max-height: 90dvh; }
-    .resonance-chamber-main { grid-template-columns: 1fr; }
-    .aspects-navigation { border-right: none; border-bottom: 1px solid var(--border-color-light); padding-right: 0; padding-bottom: var(--spacing); margin-bottom: var(--spacing); flex-direction: row; overflow-x: auto; }
-    .element-research-buttons-grid { grid-template-columns: 1fr; } /* Stack research buttons */
-    .persona-header { flex-direction: column; align-items: stretch; } /* Stack persona header */
-    .persona-header h1 { text-align: center; margin-bottom: 10px;}
-    .view-toggle-buttons { justify-content: center; display: flex;}
-}
+/* --- Keep other necessary original styles --- */
+/* Add back styles for components not fully covered by the new theme, adapting vars */
+.save-indicator { /* Position and basic style */ }
+.milestone-alert { /* Position and basic style */ }
+/* ... etc ... */
