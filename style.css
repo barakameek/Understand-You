@@ -362,3 +362,83 @@ h5 { font-size: 1rem; color: var(--text-muted-color); margin-bottom: 0.5em; font
 
 /* ---------- 9. Reduced‑motion ------------------------------- */
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important; scroll-behavior: auto !important;}}
+/* ==========  Persona Page Tweaks  ========== */
+
+/* give the page a tidy two‑column skeleton that degrades to one column on small screens */
+.persona-screen .persona-overview{
+  display:grid;                 /* you already set grid, just tightening it up */
+  grid-template-columns: 300px 1fr;   /* narrow left rail, roomy content */
+  gap: var(--spacing);
+}
+
+/* card‑like treatment for each rail so it doesn’t feel like floating text */
+.persona-column{
+  background: var(--background-light);
+  border: 1px solid var(--border-color-light);
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+  padding: calc(var(--spacing) * .9);
+}
+
+/* let the long element accordion scroll instead of the whole page */
+.persona-elements-detailed{
+  max-height: calc(100vh - 230px);   /* room for nav + header */
+  overflow-y: auto;
+}
+
+/* resource block now sticky so Insight is always visible */
+.persona-elements-detailed h2[title*="Insight"]{
+  position: sticky;
+  top: -1px;                       /* hugs the card edge */
+  background: inherit;
+  z-index: 1;
+}
+
+/* Focused‑Concepts grid gets real CSS grid instead of equal‑width flex boxes */
+.focus-concepts-grid{
+  display:grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: var(--spacing);
+}
+
+/* ==========  Workshop Page Tweaks  ========== */
+
+/* two‑pane layout: tools on the left, library on the right */
+.workshop-screen{
+  display:grid;
+  grid-template-columns: 320px 1fr;
+  gap: var(--spacing);
+}
+
+/* keep research tools fixed‑width & scrolling internally */
+#workshop-research-area{
+  background: var(--background-light);
+  border: 1px solid var(--border-color-light);
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+  padding: var(--spacing);
+  overflow-y: auto;
+}
+
+/* library column fills remaining space and scrolls */
+#workshop-library-area{
+  overflow-y: auto;
+  padding-right: calc(var(--spacing) * .5);
+}
+
+/* friendlier spacing for the action buttons */
+.workshop-screen .button{
+  margin-bottom: .4rem;
+  width: 100%;
+}
+
+/* ==========  Responsive fallback  ========== */
+@media (max-width: 900px){
+  .persona-screen .persona-overview,
+  .workshop-screen{
+    grid-template-columns: 1fr;   /* collapse to single column */
+  }
+  #workshop-research-area{
+    max-height: none;
+  }
+}
