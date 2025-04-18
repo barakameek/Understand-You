@@ -1451,27 +1451,7 @@ export function setupInitialUI() {
 }
 
 /* Called for every step */
-export function showOnboarding(stepNumber) {
-  // …all your existing code that composes the popup text…
 
-  /* highlight target */
-  const targetSel = onboardingTasks.find(t => t.phaseRequired === stepNumber)?.highlightSelector;
-  const target    = targetSel ? document.querySelector(targetSel) : null;
-
-  if (target && target.offsetParent !== null) {   // <<  NEW safe‑guard
-    const rect = target.getBoundingClientRect();
-    onboardingHighlight.style.display = 'block';
-    onboardingHighlight.style.top  = `${rect.top  - 4 + window.scrollY}px`;
-    onboardingHighlight.style.left = `${rect.left - 4 + window.scrollX}px`;
-    onboardingHighlight.style.width  = `${rect.width + 8}px`;
-    onboardingHighlight.style.height = `${rect.height+ 8}px`;
-  } else {
-    onboardingHighlight.style.display = 'none';
-  }
-
-  onboardingOverlay.classList.add('visible');
-  onboardingPopup.classList.remove('hidden');
-}
 // --- Onboarding UI ---
 export function showOnboarding(phase) {
     if (!onboardingOverlay || !onboardingPopup || !onboardingContent || !onboardingProgressSpan || !onboardingPrevButton || !onboardingNextButton || !onboardingSkipButton) { console.error("Onboarding UI elements missing!"); State.markOnboardingComplete(); return; }
@@ -1503,7 +1483,26 @@ function updateOnboardingHighlight(elementId) {
         targetElement.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' }); console.log(`UI: Highlighting element: ${elementId}`);
     } else { onboardingHighlight.style.display = 'none'; if(elementId) console.log(`UI: Cannot highlight hidden/missing element: ${elementId}`); }
 }
+  // …all your existing code that composes the popup text…
 
+  /* highlight target */
+  const targetSel = onboardingTasks.find(t => t.phaseRequired === stepNumber)?.highlightSelector;
+  const target    = targetSel ? document.querySelector(targetSel) : null;
+
+  if (target && target.offsetParent !== null) {   // <<  NEW safe‑guard
+    const rect = target.getBoundingClientRect();
+    onboardingHighlight.style.display = 'block';
+    onboardingHighlight.style.top  = `${rect.top  - 4 + window.scrollY}px`;
+    onboardingHighlight.style.left = `${rect.left - 4 + window.scrollX}px`;
+    onboardingHighlight.style.width  = `${rect.width + 8}px`;
+    onboardingHighlight.style.height = `${rect.height+ 8}px`;
+  } else {
+    onboardingHighlight.style.display = 'none';
+  }
+
+  onboardingOverlay.classList.add('visible');
+  onboardingPopup.classList.remove('hidden');
+}
 // --- Update Note Save Status ---
 export function updateNoteSaveStatus(message, isError = false) { if (noteSaveStatusSpan) { noteSaveStatusSpan.textContent = message; noteSaveStatusSpan.classList.toggle('error', isError); setTimeout(() => { if(noteSaveStatusSpan) noteSaveStatusSpan.textContent = ""; }, 2500); } }
 
