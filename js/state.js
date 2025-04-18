@@ -402,7 +402,22 @@ export function addInsightLogEntry(amount, source, newTotal) {
     }
     // Note: Saving is handled by the calling function (changeInsight)
 }
+// ---- Onboarding helpers ----
+export function completeOnboarding() {
+  gameState.onboardingPhase = Config.MAX_ONBOARDING_PHASE + 1;
+  gameState.onboardingComplete = true;
 
+  // save *immediately* so the flag survives the next load
+  localStorage.setItem(Config.SAVE_KEY, JSON.stringify({
+    ...gameState,
+    discoveredConcepts: [],
+    focusedConcepts: [],
+    achievedMilestones: [],
+    seenPrompts: [],
+    discoveredRepositoryItems: { scenes: [], experiments: [], insights: [] },
+    unlockedFocusItems: [],
+  }));
+}
 
 console.log("state.js loaded.");
 // --- END OF FILE state.js ---
