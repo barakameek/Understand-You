@@ -1,3 +1,5 @@
+// --- START OF FILE config.js ---
+
 // js/config.js - Constants and Configuration (Inner Cosmos Theme - 7 Elements + Enhancements v4.1)
 
 console.log("config.js loading... (Acknowledging 7 Elements + Enhancements v4.1)");
@@ -12,14 +14,15 @@ export const INITIAL_FREE_RESEARCH_COUNT = 3; // Number of free researches after
 
 // --- Onboarding/Tutorial ---
 export const ONBOARDING_ENABLED = true; // Toggle for the onboarding tutorial
-export const MAX_ONBOARDING_PHASE = 8; // CORRECTED: Total number of phases to match tasks in data.js
+// *** NOTE: Ensure this value (8) matches the EXACT number of distinct phases defined in data.js -> onboardingTasks ***
+export const MAX_ONBOARDING_PHASE = 8; // Total number of phases to match tasks in data.js
 
 // --- Action Costs ---
 export const BASE_RESEARCH_COST = 15; // Standard cost (applies to researching RoleFocus too)
 export const GUIDED_REFLECTION_COST = 12; // Cost to trigger a guided reflection (Slightly increased)
 export const SCENE_MEDITATION_BASE_COST = 8; // Base cost to meditate on a scene
 export const EXPERIMENT_BASE_COST = 30; // Base cost to attempt an experiment
-export const ART_EVOLVE_COST = 25; // Cost to unlock enhanced art (NOTE: art unlocking was removed, keep for potential future use or remove?) - Keeping for now.
+export const ART_EVOLVE_COST = 25; // Cost to unlock enhanced art (NOTE: art unlocking feature was removed, but constant kept for potential future use)
 export const SCENE_SUGGESTION_COST = 12; // Cost to suggest a scene based on focus
 export const CONTEMPLATION_COST = 5; // Cost for Tapestry Deep Dive contemplation
 export const LORE_UNLOCK_COSTS = { // Applies to Concept Lore levels
@@ -32,7 +35,7 @@ export const INSIGHT_BOOST_AMOUNT = 40; // How much insight the boost gives
 export const INSIGHT_BOOST_COOLDOWN = 5 * 60 * 1000; // 5 minutes in milliseconds (Slightly increased)
 
 // --- Gameplay Modifiers ---
-export const DISSONANCE_THRESHOLD = 6.5; // Score distance triggering Dissonance Reflection (Evaluate if RF inclusion warrants change)
+export const DISSONANCE_THRESHOLD = 6.5; // Score distance triggering Dissonance Reflection (Evaluate if RF inclusion warrants change - Seems okay for now)
 export const SCORE_NUDGE_AMOUNT = 0.15; // How much scores shift during Dissonance/Dilemma Reflection nudge (Applies to all 7 scores if nudged)
 export const SELL_INSIGHT_FACTOR = 0.4; // % of discovery value gained when selling
 export const SYNERGY_INSIGHT_BONUS = 1.5; // Insight bonus for adding related concept
@@ -56,7 +59,9 @@ export const MILESTONE_ALERT_DURATION = 5000; // Duration for milestone popups
 export const INSIGHT_LOG_MAX_ENTRIES = 15; // How many recent Insight changes to show
 
 // --- Deprecated/Review Items ---
-export const UNLOCKED_ART_EXTENSION = '.jpg'; // Note: Art state was removed from save/load - Keep for now
+// Note: Art state was removed from save/load, but visualHandle still used for image names.
+// Keep for consistency with placeholder image loading, assuming '.jpg' is the common extension.
+export const UNLOCKED_ART_EXTENSION = '.jpg';
 
-console.log("config.js loaded. (v4.1)");
-// --- END OF CORRECTED config.js (v4.1) ---
+console.log("config.js loaded successfully. (v4.1)");
+// --- END OF FILE config.js ---
