@@ -1450,6 +1450,28 @@ export function setupInitialUI() {
     if (localStorage.getItem('theme') === 'dark') { document.documentElement.classList.add('dark'); }
 }
 
+/* Called for every step */
+export function showOnboarding(stepNumber) {
+  // …all your existing code that composes the popup text…
+
+  /* highlight target */
+  const targetSel = onboardingTasks.find(t => t.phaseRequired === stepNumber)?.highlightSelector;
+  const target    = targetSel ? document.querySelector(targetSel) : null;
+
+  if (target && target.offsetParent !== null) {   // <<  NEW safe‑guard
+    const rect = target.getBoundingClientRect();
+    onboardingHighlight.style.display = 'block';
+    onboardingHighlight.style.top  = `${rect.top  - 4 + window.scrollY}px`;
+    onboardingHighlight.style.left = `${rect.left - 4 + window.scrollX}px`;
+    onboardingHighlight.style.width  = `${rect.width + 8}px`;
+    onboardingHighlight.style.height = `${rect.height+ 8}px`;
+  } else {
+    onboardingHighlight.style.display = 'none';
+  }
+
+  onboardingOverlay.classList.add('visible');
+  onboardingPopup.classList.remove('hidden');
+}
 // --- Onboarding UI ---
 export function showOnboarding(phase) {
     if (!onboardingOverlay || !onboardingPopup || !onboardingContent || !onboardingProgressSpan || !onboardingPrevButton || !onboardingNextButton || !onboardingSkipButton) { console.error("Onboarding UI elements missing!"); State.markOnboardingComplete(); return; }
@@ -1467,9 +1489,10 @@ export function showOnboarding(phase) {
     setTimeout(() => { updateOnboardingHighlight(task.highlightElementId); }, 100);
 }
 export function hideOnboarding() {
-    if (onboardingOverlay) { onboardingOverlay.classList.add('hidden'); onboardingOverlay.classList.remove('visible'); onboardingOverlay.setAttribute('aria-hidden', 'true'); }
-    if (onboardingPopup) onboardingPopup.classList.add('hidden'); updateOnboardingHighlight(null); console.log("UI: Hiding onboarding.");
-     const anyGeneralPopupVisible = document.querySelector('.popup:not(.hidden):not(.onboarding-popup)'); if (!anyGeneralPopupVisible && popupOverlay) { popupOverlay.classList.add('hidden'); }
+  if (onboardingOverlay) onboardingOverlay.classList.remove('visible');
+  if (onboardingPopup)   onboardingPopup.classList.add('hidden');
+  State.completeOnboarding();           // <<  NEW – save immediately
+  mainNavBar?.classList.remove('hidden'); // nav becomes usable again
 }
 function updateOnboardingHighlight(elementId) {
     if (!onboardingHighlight) { console.warn("Onboarding highlight element missing"); return; }
