@@ -1482,7 +1482,7 @@ function updateOnboardingHighlight(elementId) {
         onboardingHighlight.style.left = `${rect.left - 5 + window.scrollX}px`; onboardingHighlight.style.top = `${rect.top - 5 + window.scrollY}px`; onboardingHighlight.style.width = `${rect.width + 10}px`; onboardingHighlight.style.height = `${rect.height + 10}px`; onboardingHighlight.style.display = 'block';
         targetElement.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' }); console.log(`UI: Highlighting element: ${elementId}`);
     } else { onboardingHighlight.style.display = 'none'; if(elementId) console.log(`UI: Cannot highlight hidden/missing element: ${elementId}`); }
-}
+
   // …all your existing code that composes the popup text…
 
   /* highlight target */
