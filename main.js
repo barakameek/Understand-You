@@ -34,14 +34,41 @@ function initializeApp() {
         console.log(`Resuming onboarding at phase ${onboardingPhase}.`);
         // Show the underlying screen required by the onboarding phase first
         const currentTask = onboardingTasks.find(t => t.phaseRequired === onboardingPhase);
-        const requiredScreen = currentTask?.requiredScreen || (currentState.questionnaireCompleted ? 'personaScreen' : 'welcomeScreen');
+        // FIX: Determine required screen more robustly based on questionnaire state too
+        let requiredScreen = 'welcomeScreen'; // Default
+        if (currentTask?.highlightElementId) {
+             const targetElement = getElement(currentTask.highlightElementId);
+             const screenElement = targetElement?.closest('.screen');
+             if (screenElement?.id) {
+                 requiredScreen = screenElement.id;
+                 // Ensure screen is accessible based on questionnaire state
+                 if (!currentState.questionnaireCompleted && ['workshopScreen', 'repositoryScreen'].includes(requiredScreen)) {
+                     requiredScreen = currentState.currentElementIndex > -1 ? 'questionnaireScreen' : 'welcomeScreen';
+                     console.warn(`Onboarding task ${currentTask.id} target ${currentTask.highlightElementId} is on screen ${screenElement.id}, but questionnaire not complete. Showing ${requiredScreen}.`);
+                 } else if (currentState.questionnaireCompleted && requiredScreen === 'questionnaireScreen') {
+                     requiredScreen = 'personaScreen'; // Shouldn't be on Q screen if done
+                 }
+             } else if (currentState.questionnaireCompleted) {
+                 requiredScreen = 'personaScreen'; // Fallback to persona if target missing and Q done
+             } else if (currentState.currentElementIndex > -1) {
+                  requiredScreen = 'questionnaireScreen'; // Fallback to Q if in progress
+             }
+        } else if (currentState.questionnaireCompleted) {
+             requiredScreen = 'personaScreen';
+        } else if (currentState.currentElementIndex > -1) {
+             requiredScreen = 'questionnaireScreen';
+        }
+
         UI.showScreen(requiredScreen); // Show the screen needed for context
         UI.showOnboarding(onboardingPhase); // Then show the onboarding overlay/highlight
     } else if (loaded && currentState.questionnaireCompleted) {
         // Standard load: Questionnaire done, show Persona screen
         console.log("Loaded completed state. Showing Persona screen.");
         UI.showScreen('personaScreen');
-        GameLogic.checkForDailyLogin(); // Check daily login after loading state
+        // Check if GameLogic is loaded before calling
+        if (typeof GameLogic !== 'undefined' && GameLogic.checkForDailyLogin) {
+             GameLogic.checkForDailyLogin(); // Check daily login after loading state
+        } else { console.error("GameLogic or checkForDailyLogin not available yet!"); }
         // UI updates happen within showScreen or GameLogic calls
     } else if (loaded && !currentState.questionnaireCompleted && currentState.currentElementIndex > -1) {
         // Loaded incomplete questionnaire state
@@ -155,7 +182,10 @@ function setupGlobalEventListeners() {
     if (forceSaveBtn) forceSaveBtn.addEventListener('click', () => { State.saveGameState(true); UI.showTemporaryMessage("Game Saved!", 1500); });
     if (resetBtn) resetBtn.addEventListener('click', () => {
         if (confirm("Are you SURE you want to reset all progress? This cannot be undone!")) {
-            GameLogic.clearPopupState(); // Clear any lingering temp logic state
+            // Check if GameLogic is loaded before calling
+            if (typeof GameLogic !== 'undefined' && GameLogic.clearPopupState) {
+                 GameLogic.clearPopupState(); // Clear any lingering temp logic state
+            } else { console.error("GameLogic or clearPopupState not available."); }
             State.clearGameState(); // Wipes state and localStorage (will reload)
         }
     });
@@ -188,7 +218,12 @@ function setupGlobalEventListeners() {
 
     const addInsightBtn = getElement('addInsightButton');
     if(addInsightBtn) {
-        addInsightBtn.addEventListener('click', GameLogic.handleInsightBoostClick);
+        addInsightBtn.addEventListener('click', () => {
+             // Check if GameLogic is loaded before calling
+             if (typeof GameLogic !== 'undefined' && GameLogic.handleInsightBoostClick) {
+                  GameLogic.handleInsightBoostClick();
+             } else { console.error("GameLogic or handleInsightBoostClick not available."); }
+        });
     } else { console.warn("Add Insight button not found."); }
 
     // Global listener for info icons
@@ -220,7 +255,7 @@ function setupDrawerListeners() {
     // Specific buttons inside drawer
     if (drawerSettingsButton) {
         drawerSettingsButton.addEventListener('click', () => {
-            UI.showSettings();
+            UI.showSettings(); // Uses stub function now
             UI.toggleDrawer(); // Close drawer after opening settings
         });
     }
@@ -246,17 +281,17 @@ function handleDrawerNavClick(event) {
     const canNavigate = isPostQuestionnaire || targetScreen === 'personaScreen';
 
     if (canNavigate) {
-         // Use triggerActionAndCheckOnboarding to handle screen change and potential onboarding step
+         // Determine onboarding phase target based on the screen
          let phaseTarget = null;
-         if(targetScreen === 'personaScreen') phaseTarget = 1;
-         else if(targetScreen === 'workshopScreen') phaseTarget = 2;
-         else if(targetScreen === 'repositoryScreen') phaseTarget = 8;
+         if(targetScreen === 'personaScreen') phaseTarget = 6; // Phase 6 involves returning to Persona
+         else if(targetScreen === 'workshopScreen') phaseTarget = 2; // Phase 2 is visiting Workshop
+         else if(targetScreen === 'repositoryScreen') phaseTarget = 8; // Phase 8 is visiting Repository
 
          triggerActionAndCheckOnboarding(
              () => UI.showScreen(targetScreen), // Action: Show the screen
-             'showScreen',
-             phaseTarget !== null ? phaseTarget : -1, // Target phase or -1 if none
-             targetScreen // Pass screen ID as value
+             'showScreen', // Action name used for tracking
+             phaseTarget !== null ? phaseTarget : -1, // Target phase or -1 if none explicitly linked
+             targetScreen // Pass screen ID as value for potential finer tracking
          );
          UI.toggleDrawer(); // Close drawer after navigation initiated
     } else {
@@ -304,8 +339,13 @@ function setupWelcomeScreenListeners() {
 function setupQuestionnaireListeners() {
     const nextBtn = getElement('nextElementButton');
     const prevBtn = getElement('prevElementButton');
-    if (nextBtn) nextBtn.addEventListener('click', GameLogic.goToNextElement);
-    if (prevBtn) prevBtn.addEventListener('click', GameLogic.goToPrevElement);
+    // Check if GameLogic is loaded before adding listeners that call it
+    if (typeof GameLogic !== 'undefined' && GameLogic.goToNextElement && GameLogic.goToPrevElement) {
+         if (nextBtn) nextBtn.addEventListener('click', GameLogic.goToNextElement);
+         if (prevBtn) prevBtn.addEventListener('click', GameLogic.goToPrevElement);
+    } else {
+         console.error("GameLogic not available for questionnaire listeners.");
+    }
     // Input listeners are added dynamically by UI.displayElementQuestions
 }
 
@@ -333,11 +373,14 @@ function setupPersonaScreenListeners() {
                  const cost = parseFloat(unlockButton.dataset.cost);
 
                  if (elementKey && !isNaN(level) && !isNaN(cost)) {
-                    triggerActionAndCheckOnboarding(
-                        () => GameLogic.handleUnlockLibraryLevel(event), // Pass event for delegation handling
-                        'unlockLibrary', // Action name
-                        6 // Target phase for first unlock (assuming phase 6 involves this)
-                    );
+                     // Check if GameLogic is loaded before calling
+                     if (typeof GameLogic !== 'undefined' && GameLogic.handleUnlockLibraryLevel) {
+                         triggerActionAndCheckOnboarding(
+                             () => GameLogic.handleUnlockLibraryLevel(event), // Pass event for delegation handling
+                             'unlockLibrary', // Action name
+                             6 // Target phase for first unlock (assuming phase 6 involves this)
+                         );
+                     } else { console.error("GameLogic or handleUnlockLibraryLevel not available."); }
                  }
             } else if (headerButton) {
                  // Accordion toggle is handled by UI automatically via aria-expanded
@@ -345,8 +388,12 @@ function setupPersonaScreenListeners() {
                  const accordionItem = headerButton.closest('.accordion-item');
                  const elementKey = accordionItem?.dataset.elementKey;
                  // Example: Check if opening the 'Attraction' details completes phase 1
-                 if (elementKey === 'A') { // Check the specific key required by the task
-                     triggerActionAndCheckOnboarding(null, 'openElementDetails', 1);
+                 // Adjust phase target based on your onboarding flow
+                 if (elementKey === 'A') { // Check the specific key required by the task (assuming 'Attraction' is for phase 1)
+                      triggerActionAndCheckOnboarding(null, 'openElementDetails', 1); // Adjust phase target if needed
+                 } else {
+                      // Trigger generic check if any accordion is opened, might be needed for a later phase
+                      // triggerActionAndCheckOnboarding(null, 'openElementDetails', DESIRED_PHASE_HERE);
                  }
             }
         });
@@ -391,10 +438,16 @@ function setupPersonaScreenListeners() {
     const suggestSceneBtn = getElement('suggestSceneButton');
     const deepDiveBtn = getElement('deepDiveTriggerButton');
 
-    if (dilemmaBtn) dilemmaBtn.addEventListener('click', GameLogic.handleElementalDilemmaClick);
-    if (synergyBtn) synergyBtn.addEventListener('click', GameLogic.handleExploreSynergyClick);
-    if (suggestSceneBtn) suggestSceneBtn.addEventListener('click', GameLogic.handleSuggestSceneClick);
-    if (deepDiveBtn) deepDiveBtn.addEventListener('click', GameLogic.showTapestryDeepDive);
+     // Check if GameLogic is loaded before adding listeners
+     if (typeof GameLogic !== 'undefined') {
+         if (dilemmaBtn && GameLogic.handleElementalDilemmaClick) dilemmaBtn.addEventListener('click', GameLogic.handleElementalDilemmaClick);
+         if (synergyBtn && GameLogic.handleExploreSynergyClick) synergyBtn.addEventListener('click', GameLogic.handleExploreSynergyClick);
+         if (suggestSceneBtn && GameLogic.handleSuggestSceneClick) suggestSceneBtn.addEventListener('click', GameLogic.handleSuggestSceneClick);
+         if (deepDiveBtn && GameLogic.showTapestryDeepDive) deepDiveBtn.addEventListener('click', GameLogic.showTapestryDeepDive);
+     } else {
+         console.error("GameLogic not available for persona action button listeners.");
+     }
+
 
     // Event Delegation for Suggested Scene Meditate Button
     const suggestedSceneContainer = getElement('suggestedSceneContent');
@@ -402,7 +455,10 @@ function setupPersonaScreenListeners() {
          suggestedSceneContainer.addEventListener('click', (event) => {
             const meditateButton = event.target.closest('.button[data-scene-id]');
              if (meditateButton && !meditateButton.disabled) {
-                 GameLogic.handleMeditateScene(event);
+                 // Check if GameLogic is loaded before calling
+                 if (typeof GameLogic !== 'undefined' && GameLogic.handleMeditateScene) {
+                      GameLogic.handleMeditateScene(event);
+                 } else { console.error("GameLogic or handleMeditateScene not available."); }
              }
          });
      }
@@ -420,12 +476,14 @@ function setupWorkshopScreenListeners() {
             const buttonCard = event.target.closest('.initial-discovery-element.clickable');
             if (buttonCard?.dataset.elementKey) {
                 const isFreeClick = buttonCard.dataset.isFree === 'true';
-                 // Use helper for onboarding check - Target phase 3
-                 triggerActionAndCheckOnboarding(
-                     () => GameLogic.handleResearchClick({ currentTarget: buttonCard, isFree: isFreeClick }),
-                     'conductResearch', // Action name matches onboarding task
-                     3 // Target phase
-                 );
+                 // Check if GameLogic is loaded before calling
+                 if (typeof GameLogic !== 'undefined' && GameLogic.handleResearchClick) {
+                      triggerActionAndCheckOnboarding(
+                          () => GameLogic.handleResearchClick({ currentTarget: buttonCard, isFree: isFreeClick }),
+                          'conductResearch', // Action name matches onboarding task
+                          3 // Target phase
+                      );
+                 } else { console.error("GameLogic or handleResearchClick not available."); }
             }
         });
     }
@@ -435,14 +493,18 @@ function setupWorkshopScreenListeners() {
     const seekGuidanceBtn = getElement('seekGuidanceButtonWorkshop');
     if (freeResearchBtn) {
         freeResearchBtn.addEventListener('click', () => {
-            // Daily meditation might also trigger phase 3 if it's the first research
-            triggerActionAndCheckOnboarding(GameLogic.handleFreeResearchClick, 'conductResearch', 3);
+             // Check if GameLogic is loaded before calling
+             if (typeof GameLogic !== 'undefined' && GameLogic.handleFreeResearchClick) {
+                 triggerActionAndCheckOnboarding(GameLogic.handleFreeResearchClick, 'conductResearch', 3);
+             } else { console.error("GameLogic or handleFreeResearchClick not available."); }
         });
     }
     if (seekGuidanceBtn) {
         seekGuidanceBtn.addEventListener('click', () => {
-             // Use helper for onboarding check - Target phase 7 (Seek Guidance -> Reflection)
-            triggerActionAndCheckOnboarding(GameLogic.triggerGuidedReflection, 'triggerReflection', 7);
+             // Check if GameLogic is loaded before calling
+             if (typeof GameLogic !== 'undefined' && GameLogic.triggerGuidedReflection) {
+                  triggerActionAndCheckOnboarding(GameLogic.triggerGuidedReflection, 'triggerReflection', 7);
+             } else { console.error("GameLogic or triggerGuidedReflection not available."); }
         });
     }
 
@@ -491,20 +553,23 @@ function setupWorkshopScreenListeners() {
             if (focusButton?.dataset.conceptId && !focusButton.disabled) {
                 event.stopPropagation(); // Prevent card click from firing
                 const conceptId = parseInt(focusButton.dataset.conceptId);
-                 // Use helper for onboarding check - Target phase 5
-                 triggerActionAndCheckOnboarding(() => {
-                     // GameLogic handles state, UI update happens after
-                     if(GameLogic.handleCardFocusToggle(conceptId)) {
-                         // Update button state immediately after successful toggle in the card
-                         const isFocused = State.getFocusedConcepts().has(conceptId);
-                         focusButton.classList.toggle('marked', isFocused);
-                         focusButton.innerHTML = `<i class="fas ${isFocused ? 'fa-star' : 'fa-regular fa-star'}"></i>`;
-                         focusButton.title = isFocused ? 'Remove Focus' : 'Mark as Focus';
-                     }
-                 }, 'markFocus', 5);
+                 // Check if GameLogic is loaded before calling
+                 if (typeof GameLogic !== 'undefined' && GameLogic.handleCardFocusToggle) {
+                      triggerActionAndCheckOnboarding(() => {
+                          if(GameLogic.handleCardFocusToggle(conceptId)) {
+                              const isFocused = State.getFocusedConcepts().has(conceptId);
+                              focusButton.classList.toggle('marked', isFocused);
+                              focusButton.innerHTML = `<i class="fas ${isFocused ? 'fa-star' : 'fa-regular fa-star'}"></i>`;
+                              focusButton.title = isFocused ? 'Remove Focus' : 'Mark as Focus';
+                          }
+                      }, 'markFocus', 5);
+                 } else { console.error("GameLogic or handleCardFocusToggle not available."); }
             } else if (sellButton?.dataset.conceptId) {
                  event.stopPropagation(); // Prevent card click
-                 GameLogic.handleSellConcept(event); // Sell logic handles confirmation etc.
+                  // Check if GameLogic is loaded before calling
+                  if (typeof GameLogic !== 'undefined' && GameLogic.handleSellConcept) {
+                       GameLogic.handleSellConcept(event); // Sell logic handles confirmation etc.
+                  } else { console.error("GameLogic or handleSellConcept not available."); }
             } else if (card?.dataset.conceptId && !event.target.closest('button')) {
                 // If the click was on the card itself, not a button inside
                  UI.showConceptDetailPopup(parseInt(card.dataset.conceptId));
@@ -566,12 +631,14 @@ function setupWorkshopScreenListeners() {
 
                 if (shelf?.dataset.categoryId && finalCardId !== null) {
                     const categoryId = shelf.dataset.categoryId;
-                    // Use onboarding helper - Categorizing card might complete phase 5
-                    triggerActionAndCheckOnboarding(
-                        () => GameLogic.handleCategorizeCard(finalCardId, categoryId),
-                        'categorizeCard',
-                        5 // Target phase (Mark Focus/Categorize share a phase target)
-                    );
+                    // Check if GameLogic is loaded before calling
+                    if (typeof GameLogic !== 'undefined' && GameLogic.handleCategorizeCard) {
+                         triggerActionAndCheckOnboarding(
+                             () => GameLogic.handleCategorizeCard(finalCardId, categoryId),
+                             'categorizeCard',
+                             5 // Target phase (Mark Focus/Categorize share a phase target? Check onboardingTasks)
+                         );
+                    } else { console.error("GameLogic or handleCategorizeCard not available."); }
                 } else {
                     console.log("Drop failed: Invalid target shelf or missing card ID.");
                 }
@@ -590,11 +657,16 @@ function setupRepositoryListeners() {
         const meditateButton = event.target.closest('.button[data-scene-id]');
         const experimentButton = event.target.closest('.button[data-experiment-id]');
 
-        if (meditateButton && !meditateButton.disabled) {
-            GameLogic.handleMeditateScene(event);
-        }
-        else if (experimentButton && !experimentButton.disabled) {
-            GameLogic.handleAttemptExperiment(event);
+        // Check if GameLogic is loaded before calling
+        if (typeof GameLogic !== 'undefined') {
+             if (meditateButton && !meditateButton.disabled && GameLogic.handleMeditateScene) {
+                 GameLogic.handleMeditateScene(event);
+             }
+             else if (experimentButton && !experimentButton.disabled && GameLogic.handleAttemptExperiment) {
+                 GameLogic.handleAttemptExperiment(event);
+             }
+        } else {
+             console.error("GameLogic not available for repository button listeners.");
         }
     });
 }
@@ -627,31 +699,40 @@ function setupConceptDetailPopupListeners() {
 
     if (addBtn) {
         addBtn.addEventListener('click', () => {
-            const conceptId = GameLogic.getCurrentPopupConceptId();
-            if (conceptId !== null) {
-                // Pass action to helper for onboarding check - Target phase 4
-                triggerActionAndCheckOnboarding(
-                    () => GameLogic.addConceptToGrimoireById(conceptId, addBtn), // Pass button to update UI
-                    'addToGrimoire',
-                    4
-                );
-            }
+            // Check if GameLogic is loaded before calling
+            if (typeof GameLogic !== 'undefined' && GameLogic.getCurrentPopupConceptId && GameLogic.addConceptToGrimoireById) {
+                const conceptId = GameLogic.getCurrentPopupConceptId();
+                if (conceptId !== null) {
+                    triggerActionAndCheckOnboarding(
+                        () => GameLogic.addConceptToGrimoireById(conceptId, addBtn), // Pass button to update UI
+                        'addToGrimoire',
+                        4
+                    );
+                }
+            } else { console.error("GameLogic functions for AddToGrimoire not available."); }
         });
     }
 
     if (focusBtn) {
         focusBtn.addEventListener('click', () => {
-            // Pass action to helper for onboarding check - Target phase 5
-            triggerActionAndCheckOnboarding(
-                () => GameLogic.handleToggleFocusConcept(), // Calls logic which updates state and UI
-                'markFocus',
-                5
-            );
+             // Check if GameLogic is loaded before calling
+             if (typeof GameLogic !== 'undefined' && GameLogic.handleToggleFocusConcept) {
+                 triggerActionAndCheckOnboarding(
+                     () => GameLogic.handleToggleFocusConcept(), // Calls logic which updates state and UI
+                     'markFocus',
+                     5
+                 );
+             } else { console.error("GameLogic function handleToggleFocusConcept not available."); }
         });
     }
 
     if (saveNoteBtn) {
-        saveNoteBtn.addEventListener('click', GameLogic.handleSaveNote);
+        saveNoteBtn.addEventListener('click', () => {
+             // Check if GameLogic is loaded before calling
+             if (typeof GameLogic !== 'undefined' && GameLogic.handleSaveNote) {
+                  GameLogic.handleSaveNote();
+             } else { console.error("GameLogic function handleSaveNote not available."); }
+        });
     }
 
     // Event delegation for Unlock Lore buttons
@@ -659,12 +740,14 @@ function setupConceptDetailPopupListeners() {
         loreContent.addEventListener('click', (event) => {
             const button = event.target.closest('.unlock-lore-button');
             if (button?.dataset.conceptId && button.dataset.loreLevel && button.dataset.cost && !button.disabled) {
-                 // Check onboarding phase 6 for unlocking lore
-                triggerActionAndCheckOnboarding(
-                     () => GameLogic.handleUnlockLore(parseInt(button.dataset.conceptId), parseInt(button.dataset.loreLevel), parseFloat(button.dataset.cost)),
-                     'unlockLore',
-                     6
-                 );
+                 // Check if GameLogic is loaded before calling
+                 if (typeof GameLogic !== 'undefined' && GameLogic.handleUnlockLore) {
+                      triggerActionAndCheckOnboarding(
+                          () => GameLogic.handleUnlockLore(parseInt(button.dataset.conceptId), parseInt(button.dataset.loreLevel), parseFloat(button.dataset.cost)),
+                          'unlockLore',
+                          6 // Check onboardingTasks for correct phase target
+                      );
+                 } else { console.error("GameLogic function handleUnlockLore not available."); }
             }
         });
     }
@@ -674,7 +757,10 @@ function setupConceptDetailPopupListeners() {
         actionsContainer.addEventListener('click', (event) => {
             const sellButton = event.target.closest('.popup-sell-button');
             if (sellButton?.dataset.conceptId) {
-                GameLogic.handleSellConcept(event); // Sell logic handles confirmation
+                 // Check if GameLogic is loaded before calling
+                 if (typeof GameLogic !== 'undefined' && GameLogic.handleSellConcept) {
+                      GameLogic.handleSellConcept(event); // Sell logic handles confirmation
+                 } else { console.error("GameLogic function handleSellConcept not available."); }
             }
         });
     }
@@ -699,17 +785,18 @@ function setupResearchPopupListeners() {
             if (actionButton?.dataset.conceptId) {
                 const conceptId = parseInt(actionButton.dataset.conceptId);
                 const action = actionButton.dataset.action; // 'keep' or 'sell'
-
-                 // Wrap the action for onboarding check if it's a 'keep' action - Target phase 4
-                 if (action === 'keep') {
-                     triggerActionAndCheckOnboarding(
-                         () => GameLogic.handleResearchPopupChoice(conceptId, action),
-                         'addToGrimoire', // 'keep' action ultimately calls addConceptToGrimoireInternal
-                         4 // Target phase for adding first concept
-                     );
-                 } else {
-                      GameLogic.handleResearchPopupChoice(conceptId, action); // Handle sell directly
-                 }
+                 // Check if GameLogic is loaded before calling
+                 if (typeof GameLogic !== 'undefined' && GameLogic.handleResearchPopupChoice) {
+                      if (action === 'keep') {
+                          triggerActionAndCheckOnboarding(
+                              () => GameLogic.handleResearchPopupChoice(conceptId, action),
+                              'addToGrimoire', // 'keep' action ultimately calls addConceptToGrimoireInternal
+                              4 // Target phase for adding first concept
+                          );
+                      } else {
+                           GameLogic.handleResearchPopupChoice(conceptId, action); // Handle sell directly
+                      }
+                 } else { console.error("GameLogic function handleResearchPopupChoice not available."); }
             }
         });
     }
@@ -730,12 +817,14 @@ function setupReflectionPopupListeners() {
         });
 
         confirmBtn.addEventListener('click', () => {
-             // Wrap for onboarding check - Target phase 7 (completing first reflection)
-             triggerActionAndCheckOnboarding(
-                 () => GameLogic.handleConfirmReflection(nudgeCheck?.checked || false),
-                 'completeReflection',
-                 7 // Target phase
-             );
+             // Check if GameLogic is loaded before calling
+             if (typeof GameLogic !== 'undefined' && GameLogic.handleConfirmReflection) {
+                  triggerActionAndCheckOnboarding(
+                      () => GameLogic.handleConfirmReflection(nudgeCheck?.checked || false),
+                      'completeReflection',
+                      7 // Target phase
+                  );
+             } else { console.error("GameLogic function handleConfirmReflection not available."); }
         });
     }
 }
@@ -752,11 +841,14 @@ function setupDeepDivePopupListeners() {
             const nodeButton = event.target.closest('.aspect-node[data-node-id]');
             if (nodeButton && !nodeButton.disabled) {
                  const nodeId = nodeButton.dataset.nodeId;
-                 if (nodeId === 'contemplation') {
-                     GameLogic.handleContemplationNodeClick();
-                 } else {
-                     GameLogic.handleDeepDiveNodeClick(nodeId);
-                 }
+                 // Check if GameLogic is loaded before calling
+                 if (typeof GameLogic !== 'undefined') {
+                      if (nodeId === 'contemplation' && GameLogic.handleContemplationNodeClick) {
+                          GameLogic.handleContemplationNodeClick();
+                      } else if (GameLogic.handleDeepDiveNodeClick) {
+                          GameLogic.handleDeepDiveNodeClick(nodeId);
+                      } else { console.error("GameLogic deep dive handlers not available."); }
+                 } else { console.error("GameLogic not available for deep dive node clicks."); }
             }
         });
     }
@@ -766,8 +858,10 @@ function setupDeepDivePopupListeners() {
          detailContent.addEventListener('click', (event) => {
              const completeButton = event.target.closest('#completeContemplationBtn');
              if (completeButton) {
-                 // Assuming GameLogic can retrieve the current task data if needed
-                 GameLogic.handleCompleteContemplation();
+                 // Check if GameLogic is loaded before calling
+                 if (typeof GameLogic !== 'undefined' && GameLogic.handleCompleteContemplation) {
+                     GameLogic.handleCompleteContemplation();
+                 } else { console.error("GameLogic function handleCompleteContemplation not available."); }
              }
          });
      }
@@ -779,7 +873,10 @@ function setupDilemmaPopupListeners() {
 
     const confirmBtn = getElement('confirmDilemmaButton');
     if (confirmBtn) {
-        confirmBtn.addEventListener('click', GameLogic.handleConfirmDilemma);
+         // Check if GameLogic is loaded before calling
+         if (typeof GameLogic !== 'undefined' && GameLogic.handleConfirmDilemma) {
+              confirmBtn.addEventListener('click', GameLogic.handleConfirmDilemma);
+         } else { console.error("GameLogic function handleConfirmDilemma not available."); }
     }
 
     // Add listener for slider to update display text
