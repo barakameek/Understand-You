@@ -2,7 +2,8 @@
 
 // js/state.js - Manages Application State and Persistence (Enhanced v4.1)
 import * as Config from './config.js';
-import { elementNames, concepts } from '../data.js'; // concepts needed for loading enrichment
+// Import elementNames for structure initialization and concepts for loading enrichment
+import { elementNames, concepts } from '../data.js';
 import { formatTimestamp } from './utils.js'; // For Insight Log timestamp
 
 console.log("state.js loading... (Enhanced v4.1 - Onboarding, Insight Log, RF)");
@@ -26,7 +27,6 @@ const createInitialGameState = () => {
         lastLoginDate: null, // string | null
         freeResearchAvailableToday: true, // Reset daily - Start true for first day
         initialFreeResearchRemaining: Config.INITIAL_FREE_RESEARCH_COUNT,
-        grimoireFirstVisitDone: false, // Legacy - Might be removable if onboarding replaces its purpose
         seenPrompts: new Set(), // Set<promptId>
         currentElementIndex: -1, // Index for questionnaire
         questionnaireCompleted: false,
@@ -46,8 +46,9 @@ const createInitialGameState = () => {
         onboardingPhase: 0, // Current phase of the onboarding tutorial (0 = not started)
         onboardingComplete: false, // Has the user finished/skipped onboarding?
         insightLog: [], // Array<{ timestamp: string, amount: number, source: string, newTotal: number }>
+        // Removed grimoireFirstVisitDone as onboarding handles this flow
     };
-    // Initialize userAnswers structure for all elements
+    // Initialize userAnswers structure for all elements using elementNames from data.js
     elementNames.forEach(name => {
         initial.userAnswers[name] = {};
     });
@@ -59,7 +60,7 @@ let gameState = createInitialGameState();
 // --- Internal Helper ---
 // Calculates a simple hash based on sorted focused concept IDs.
 function _calculateFocusSetHash() {
-    if (!gameState.focusedConcepts || gameState.focusedConcepts.size === 0) { return ''; }
+    if (!(gameState.focusedConcepts instanceof Set) || gameState.focusedConcepts.size === 0) { return ''; }
     // Ensure items are numbers before sorting if needed, though IDs should be numbers
     const sortedIds = Array.from(gameState.focusedConcepts).map(Number).sort((a, b) => a - b);
     return sortedIds.join(',');
@@ -67,7 +68,7 @@ function _calculateFocusSetHash() {
 
 // --- Saving & Loading ---
 let saveTimeout = null;
-const SAVE_DELAY = 1200; // Slightly increased delay
+const SAVE_DELAY = 1200; // Milliseconds
 
 // Triggers a debounced save to localStorage
 function _triggerSave() {
@@ -79,7 +80,6 @@ function _triggerSave() {
      saveTimeout = setTimeout(() => {
          try {
              // Prepare state for saving: Convert Sets/Maps to Arrays/plain objects
-             // Specifically handle the discoveredConcepts Map to only save metadata
              const stateToSave = {
                  ...gameState, // Spread basic properties
                  // --- Convert complex types ---
@@ -101,12 +101,13 @@ function _triggerSave() {
                  },
                  unlockedFocusItems: Array.from(gameState.unlockedFocusItems),
                  // insightLog is already serializable (array of simple objects)
+                 // userScores, userAnswers, elementAttunement, unlockedDeepDiveLevels are plain objects
+                 // completedRituals is a plain object
              };
              localStorage.setItem(Config.SAVE_KEY, JSON.stringify(stateToSave));
-             // console.log(`Game state saved at ${new Date().toLocaleTimeString()}`); // Optional: Reduced console noise
+             // console.log(`Game state saved at ${new Date().toLocaleTimeString()}`); // Reduced noise
          } catch (error) {
             console.error("Error saving game state:", error);
-            // Optionally show an error to the user here
          }
          finally {
             if(saveIndicator) saveIndicator.classList.add('hidden'); // Hide indicator
@@ -120,10 +121,11 @@ export function saveGameState(forceImmediate = false) {
     if (forceImmediate) {
         if (saveTimeout) clearTimeout(saveTimeout); // Cancel scheduled save
         saveTimeout = null; // Prevent debounced save from running after immediate save
-        _triggerSave(); // Trigger save immediately (still has internal timeout but shorter effective delay)
-        // Force hide indicator immediately after trying to save
         const saveIndicator = document.getElementById('saveIndicator');
-        setTimeout(() => { if(saveIndicator) saveIndicator.classList.add('hidden'); }, 50); // Short delay to allow visual flash
+        if(saveIndicator) saveIndicator.classList.remove('hidden');
+        _triggerSave(); // Trigger save immediately (still has internal timeout but shorter effective delay)
+        // Force hide indicator shortly after trying to save
+        setTimeout(() => { if(saveIndicator) saveIndicator.classList.add('hidden'); }, 50);
     } else {
         _triggerSave(); // Trigger debounced save
     }
@@ -145,24 +147,23 @@ export function loadGameState() {
             // --- Merge Core State (Scores, Attunement, Deep Dive including RF handling) ---
             // Helper to merge objects, ensuring all 7 element keys exist including RF
             const mergeWithDefault = (target, source, defaultValue) => {
-                let result = { ...target }; // Start with default keys
+                let result = { ...target }; // Start with default keys (A, I, S, P, C, R, RF)
                 if (typeof source === 'object' && source !== null) {
                     // Merge saved values
                     for (const key in source) {
-                        if (result.hasOwnProperty(key)) { // Only merge keys that exist in the default structure
+                        // Only merge keys that exist in the default structure (A-RF)
+                        if (result.hasOwnProperty(key)) {
                            result[key] = source[key];
+                        } else {
+                            console.warn(`Load Warning: Ignoring unknown key "${key}" found in saved object.`);
                         }
                     }
-                     // Ensure RF key exists if it was missing in the save (using provided default)
-                    if (result.RF === undefined && defaultValue !== undefined) {
-                        result.RF = defaultValue;
-                        console.log("Load: Added missing RF key to state object with default:", defaultValue);
-                    }
-                } else {
-                     // Ensure RF key exists even if source was invalid/missing
-                     if (result.RF === undefined && defaultValue !== undefined) {
-                         result.RF = defaultValue;
-                     }
+                }
+                // Ensure RF key exists with default value if missing in loaded source
+                // This handles loading saves from before RF was added
+                if (result.RF === undefined || typeof result.RF !== typeof defaultValue) {
+                    result.RF = defaultValue;
+                    console.log(`Load Info: RF key missing or invalid in loaded data, set to default: ${defaultValue}`);
                 }
                 return result;
             };
@@ -177,9 +178,13 @@ export function loadGameState() {
                 elementNames.forEach(name => {
                     if (!gameState.userAnswers[name]) {
                         gameState.userAnswers[name] = {};
-                        console.log(`Load: Added missing userAnswers key for element: ${name}`);
+                        console.log(`Load Info: Added missing userAnswers key for element: ${name}`);
                     }
                 });
+            } else {
+                 // Initialize userAnswers structure if missing in save
+                 elementNames.forEach(name => gameState.userAnswers[name] = {});
+                 console.warn("Load Warning: userAnswers missing or invalid in saved data. Initialized empty structure.");
             }
 
             // --- Restore Collections (Maps & Sets) ---
@@ -201,16 +206,25 @@ export function loadGameState() {
                        userCategory: savedConceptData.userCategory || 'uncategorized',
                        newLoreAvailable: savedConceptData.newLoreAvailable || false
                    }];
-                }).filter(entry => entry !== null)); // Filter out null entries where concept data was missing
+                }).filter(Boolean)); // Filter out null entries where concept data was missing
+            } else {
+                 console.warn("Load Warning: discoveredConcepts in saved data is not an array. Initializing empty Map.");
+                 gameState.discoveredConcepts = new Map();
             }
 
             // Helper to restore Sets safely
             const restoreSet = (key, defaultSet = new Set(), sourceObj = loadedState) => {
                  if (sourceObj && Array.isArray(sourceObj[key])) {
-                     // Ensure values are of expected type (e.g., numbers for IDs) if necessary
-                     // For simple IDs, direct Set creation is usually fine.
-                     return new Set(sourceObj[key]);
+                     try {
+                         // Filter potential non-primitive values just in case
+                         const validItems = sourceObj[key].filter(item => typeof item === 'number' || typeof item === 'string');
+                         return new Set(validItems);
+                     } catch (e) {
+                         console.error(`Load Error: Failed to restore Set for key "${key}". Using default.`, e);
+                         return defaultSet;
+                     }
                  }
+                 console.warn(`Load Warning: Data for Set key "${key}" is not an array or missing. Using default.`);
                  return defaultSet; // Return default (usually empty Set) if saved data is invalid/missing
             };
             gameState.focusedConcepts = restoreSet('focusedConcepts', gameState.focusedConcepts);
@@ -224,29 +238,38 @@ export function loadGameState() {
                 gameState.discoveredRepositoryItems.scenes = restoreSet('scenes', gameState.discoveredRepositoryItems.scenes, loadedState.discoveredRepositoryItems);
                 gameState.discoveredRepositoryItems.experiments = restoreSet('experiments', gameState.discoveredRepositoryItems.experiments, loadedState.discoveredRepositoryItems);
                 gameState.discoveredRepositoryItems.insights = restoreSet('insights', gameState.discoveredRepositoryItems.insights, loadedState.discoveredRepositoryItems);
+            } else {
+                 console.warn("Load Warning: discoveredRepositoryItems missing or invalid. Initialized empty Sets.");
             }
 
             // --- Merge Primitive/Simple Object Types (with defaults) ---
             // Helper to merge simple values, providing a default if the key is missing in loadedState
-            const mergeSimple = (key, defaultValue) => (loadedState && loadedState[key] !== undefined) ? loadedState[key] : defaultValue;
+            const mergeSimple = (key, defaultValue) => (loadedState && loadedState[key] !== undefined && loadedState[key] !== null) ? loadedState[key] : defaultValue;
+
             gameState.focusSlotsTotal = mergeSimple('focusSlotsTotal', Config.INITIAL_FOCUS_SLOTS);
             gameState.userInsight = mergeSimple('userInsight', Config.INITIAL_INSIGHT);
             gameState.completedRituals = mergeSimple('completedRituals', { daily: {}, weekly: {} });
             gameState.lastLoginDate = mergeSimple('lastLoginDate', null);
             gameState.freeResearchAvailableToday = mergeSimple('freeResearchAvailableToday', true); // Default to true on load, let login check correct it
             gameState.initialFreeResearchRemaining = mergeSimple('initialFreeResearchRemaining', Config.INITIAL_FREE_RESEARCH_COUNT);
-            gameState.grimoireFirstVisitDone = mergeSimple('grimoireFirstVisitDone', false);
             gameState.currentElementIndex = mergeSimple('currentElementIndex', -1);
             gameState.questionnaireCompleted = mergeSimple('questionnaireCompleted', false);
             gameState.cardsAddedSinceLastPrompt = mergeSimple('cardsAddedSinceLastPrompt', 0);
             gameState.promptCooldownActive = mergeSimple('promptCooldownActive', false);
             gameState.contemplationCooldownEnd = mergeSimple('contemplationCooldownEnd', null);
             gameState.insightBoostCooldownEnd = mergeSimple('insightBoostCooldownEnd', null);
-            gameState.pendingRarePrompts = mergeSimple('pendingRarePrompts', []);
+            gameState.pendingRarePrompts = Array.isArray(loadedState?.pendingRarePrompts) ? loadedState.pendingRarePrompts : [];
             // New state properties
             gameState.onboardingPhase = mergeSimple('onboardingPhase', 0);
-            gameState.onboardingComplete = mergeSimple('onboardingComplete', gameState.questionnaireCompleted); // If questionnaire done, assume onboarding done in old saves
-            gameState.insightLog = mergeSimple('insightLog', []);
+            // Handle potential old save state where onboarding wasn't tracked
+            const loadedOnboardingComplete = mergeSimple('onboardingComplete', false);
+            gameState.onboardingComplete = loadedOnboardingComplete || gameState.questionnaireCompleted; // If Q done, assume onboarding done
+            if (!loadedOnboardingComplete && gameState.questionnaireCompleted) {
+                 console.log("Load Info: Questionnaire complete but onboarding wasn't; marking onboarding complete.");
+                 gameState.onboardingPhase = Config.MAX_ONBOARDING_PHASE + 1; // Mark phase as done too
+            }
+
+            gameState.insightLog = Array.isArray(loadedState?.insightLog) ? loadedState.insightLog : [];
 
             // Ensure log length doesn't exceed max from old saves
              gameState.insightLog = gameState.insightLog.slice(-Config.INSIGHT_LOG_MAX_ENTRIES);
@@ -258,7 +281,6 @@ export function loadGameState() {
             return true; // Indicate successful load
         } catch (error) {
             console.error("Error loading or parsing game state:", error);
-            // Avoid clearing if the error was minor during merge? Or clear to be safe? Clearing is safer.
             clearGameState(); // Reset to default on error
             return false; // Indicate failed load
         }
@@ -285,8 +307,8 @@ export function clearGameState() {
      console.log("Game state cleared and reset to initial state.");
      // Save the cleared state immediately to prevent accidental loading of old data on refresh before next action
      saveGameState(true);
-     // Potentially trigger a page reload or UI reset function here if needed
-     // window.location.reload(); // Consider if a full reload is desired
+     // Trigger a page reload for a clean start
+     window.location.reload();
 }
 
 // --- Getters ---
@@ -536,9 +558,18 @@ export function addUnlockedFocusItem(unlockId) { if (!(gameState.unlockedFocusIt
 }
 
 // Milestones & Misc
-export function addAchievedMilestone(milestoneId) { if (!(gameState.achievedMilestones instanceof Set)) { console.error("CRITICAL ERROR: gameState.achievedMilestones is not a Set! Reinitializing."); gameState.achievedMilestones = new Set();} if (!gameState.achievedMilestones.has(milestoneId)) { gameState.achievedMilestones.add(milestoneId); saveGameState(); return true; } return false; // Already achieved
+export function addAchievedMilestone(milestoneId) {
+    if (!(gameState.achievedMilestones instanceof Set)) {
+        console.error("CRITICAL ERROR: gameState.achievedMilestones is not a Set! Attempting recovery.");
+        gameState.achievedMilestones = new Set(Array.isArray(gameState.achievedMilestones) ? gameState.achievedMilestones : []);
+    }
+    if (!gameState.achievedMilestones.has(milestoneId)) {
+        gameState.achievedMilestones.add(milestoneId);
+        saveGameState();
+        return true;
+    }
+    return false; // Already achieved
 }
-export function markGrimoireVisited() { /* Deprecated - Handled by onboarding now */ }
 
 // --- New State Functions ---
 export function advanceOnboardingPhase() {
@@ -555,7 +586,7 @@ export function advanceOnboardingPhase() {
 }
 // Specifically set the onboarding phase - Used by Prev button in UI
 export function updateOnboardingPhase(newPhase) {
-     if (!gameState.onboardingComplete && newPhase >= 1 && newPhase <= Config.MAX_ONBOARDING_PHASE) {
+     if (!gameState.onboardingComplete && newPhase >= 0 && newPhase <= Config.MAX_ONBOARDING_PHASE) { // Allow setting to 0
          gameState.onboardingPhase = newPhase;
          saveGameState();
          console.log(`State: Set onboarding phase to ${newPhase}`);
