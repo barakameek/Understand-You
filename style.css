@@ -1428,7 +1428,8 @@ canvas#personaScoreChartCanvas { background-color: transparent !important; } /* 
 }
 :root.dark .element-detail-entry { background-color: var(--background-medium); border-color: var(--border-color-light); }
 
-summary.element-detail-header {
+/* Accordion Header Button */
+.accordion-header {
     background: var(--background-medium);
     padding: 10px var(--spacing);
     cursor: pointer;
@@ -1437,13 +1438,35 @@ summary.element-detail-header {
     align-items: center;
     list-style: none; /* Hide default marker */
     transition: background-color 0.2s;
+    width: 100%; /* Ensure full width */
+    border: none; /* Remove button border */
+    font: inherit; /* Inherit font styles */
+    text-align: left; /* Align text left */
+    position: relative; /* For pseudo-element */
 }
-summary.element-detail-header::-webkit-details-marker { display: none; }
-:root.dark summary.element-detail-header { background-color: var(--background-dark); }
-summary.element-detail-header:hover { background-color: var(--background-dark); }
-:root.dark summary.element-detail-header:hover { background-color: var(--background-light); }
+.accordion-header::-webkit-details-marker { display: none; }
+:root.dark .accordion-header { background-color: var(--background-dark); }
+.accordion-header:hover { background-color: var(--background-dark); }
+:root.dark .accordion-header:hover { background-color: var(--background-light); }
 
-/* Style the content inside summary */
+/* Add accordion icon */
+.accordion-header::after {
+    content: '+';
+    font-size: 1.4em;
+    color: var(--primary-color);
+    margin-left: auto; /* Push to right */
+    transition: transform 0.2s ease-out;
+    flex-shrink: 0; /* Prevent shrinking */
+    padding-left: 10px;
+}
+:root.dark .accordion-header::after { color: var(--primary-color); }
+
+.accordion-item[open] > .accordion-header::after {
+    content: '−'; /* Change to minus sign when open */
+    transform: rotate(180deg);
+}
+
+/* Style the content inside summary/button */
 .element-summary-header {
     display: flex;
     align-items: center;
@@ -1453,15 +1476,34 @@ summary.element-detail-header:hover { background-color: var(--background-dark); 
 }
 .element-summary-header .element-icon-indicator { font-size: 1.1em; }
 .element-summary-header .score-label { font-size: 0.9em; color: var(--text-muted-color); font-weight: normal; }
-.element-detail-header .score-bar-container { width: 100px; height: 8px; background-color: var(--border-color-light); border-radius: 4px; overflow: hidden; margin-left: auto; /* Push to right */}
-.element-detail-header .score-bar-container div { height: 100%; }
+.accordion-header .score-bar-container { width: 100px; height: 8px; background-color: var(--border-color-light); border-radius: 4px; overflow: hidden; margin-left: 15px; /* Add space between score and bar */ }
+.accordion-header .score-bar-container div { height: 100%; }
+
+/* Accordion Body */
+.accordion-body {
+    max-height: 0; /* Start hidden */
+    overflow: hidden;
+    transition: max-height 0.3s ease-out;
+    border-top: 1px solid transparent; /* For transition */
+}
+.accordion-item[open] > .accordion-body {
+    max-height: 1000px; /* Allow it to expand - adjust if needed */
+    border-top-color: var(--border-color-light); /* Show border when open */
+}
+:root.dark .accordion-item[open] > .accordion-body { border-top-color: var(--border-color-dark); }
 
 /* Style the content body */
 .element-detail-entry .element-description {
     padding: var(--spacing);
-    border-top: 1px solid var(--border-color-light);
 }
-:root.dark .element-detail-entry .element-description { border-color: var(--border-color-dark); }
+.element-elaboration summary {
+     font-weight: bold;
+     cursor: pointer;
+     color: var(--link-color);
+     margin-top: 10px;
+}
+.element-elaboration .collapsible-content { padding-left: 15px; font-size: 0.95em; }
+
 /* Remove max-height to allow natural flow */
 .persona-elements-detailed {
   /* max-height: none !important; */ /* Removed */
@@ -1472,11 +1514,33 @@ summary.element-detail-header:hover { background-color: var(--background-dark); 
 .persona-elements-detailed h2[title*="Insight"] {
   position: sticky;
   top: -1px;
-  background: inherit; /* Uses .persona-column bg */
+  background: var(--background-light); /* Use card background */
   z-index: 1;
   padding-top: 5px;
   padding-bottom: 5px;
 }
+:root.dark .persona-elements-detailed h2[title*="Insight"] { background: var(--background-medium); }
+
+/* Deep Dive Container within Accordion */
+.element-deep-dive-container { margin-top: var(--spacing); }
+.deep-dive-level { margin-bottom: 15px; padding: 10px; border-radius: 4px; }
+.deep-dive-level.unlocked { background-color: rgba(0, 128, 0, 0.05); border-left: 3px solid var(--success-color); }
+.deep-dive-level.locked { background-color: rgba(128, 128, 128, 0.05); border-left: 3px solid var(--text-muted-color); }
+:root.dark .deep-dive-level.unlocked { background-color: rgba(95, 217, 166, 0.1); }
+:root.dark .deep-dive-level.locked { background-color: rgba(255, 255, 255, 0.05); }
+.deep-dive-level h6 { margin: 0 0 5px 0; font-weight: bold; font-family: var(--font-accent); display: flex; align-items: center; gap: 6px; }
+.deep-dive-level h6 i { font-size: 0.9em; }
+.deep-dive-level p, .deep-dive-level div { font-size: 0.9em; }
+.deep-dive-level .unlock-button { margin-top: 8px; }
+
+/* Attunement Bar styling */
+.attunement-display { margin-top: 10px; font-size: 0.9em; }
+.attunement-item { display: flex; align-items: center; gap: 8px; }
+.attunement-name { font-weight: bold; white-space: nowrap; }
+.attunement-bar-container { flex-grow: 1; height: 10px; background-color: var(--border-color-light); border-radius: 5px; overflow: hidden; border: 1px solid var(--border-color-dark); }
+:root.dark .attunement-bar-container { background-color: var(--border-color-dark); border-color: var(--border-color-light); }
+.attunement-bar { height: 100%; transition: width 0.5s ease-out; border-radius: 4px 0 0 4px; }
+
 
 /* ---------- 12. Workshop Screen Layout Tweaks ----------- */
 /* Workshop Insight Display - Top Right */
@@ -1629,6 +1693,27 @@ summary.element-detail-header:hover { background-color: var(--background-dark); 
     animation-delay: -0.0001s !important
   }
 }
+/* Save Indicator Styling */
+.save-indicator {
+  position: fixed;
+  top: var(--spacing);
+  right: var(--spacing);
+  background-color: rgba(40, 167, 69, 0.8); /* success color alpha */
+  color: white;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 0.85em;
+  z-index: 1100; /* Above most things */
+  backdrop-filter: blur(2px);
+  transition: opacity 0.3s ease-out;
+  opacity: 1;
+  pointer-events: none; /* Don't intercept clicks */
+}
+.save-indicator.hidden {
+  opacity: 0;
+}
+.save-indicator i {
+  margin-right: 5px;
+}
 
 /* --- END OF FILE style.css --- */
-
