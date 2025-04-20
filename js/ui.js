@@ -1,5 +1,7 @@
+// --- START OF FILE ui.js ---
+
 // js/ui.js - User Interface Logic (Enhanced v4.10 + Drawer/Accordion/Layout Fixes)
-// DEDUPLICATED VERSION
+// DEDUPLICATED VERSION + FIX for updateSuggestSceneButtonState scope
 
 import * as State from './state.js';
 import * as Config from './config.js';
@@ -272,14 +274,14 @@ export function hideMilestoneAlert() {
 
 /** Hides all popups and the overlay, except for pending research or active onboarding. */
 export function hidePopups() {
-    console.log("UI: hidePopups called");
+    // console.log("UI: hidePopups called"); // Reduce noise
     let researchPopupIsOpenAndPending = false;
     // Check if research popup is open and has unprocessed items
     if (researchResultsPopup && !researchResultsPopup.classList.contains('hidden')) {
         const pendingItems = researchPopupContent?.querySelectorAll('.research-result-item[data-processed="false"], .research-result-item[data-choice-made="pending_dissonance"]');
         if (pendingItems && pendingItems.length > 0) {
             researchPopupIsOpenAndPending = true;
-            console.log(`UI: Keeping research results popup open (${pendingItems.length} items pending).`);
+            // console.log(`UI: Keeping research results popup open (${pendingItems.length} items pending).`); // Reduce noise
         }
     }
 
@@ -300,7 +302,7 @@ export function hidePopups() {
         // Clear temporary game logic state associated with popups
         if (typeof GameLogic !== 'undefined' && GameLogic.clearPopupState) {
             GameLogic.clearPopupState();
-            console.log("UI: All general popups hidden, cleared popup logic state.");
+            // console.log("UI: All general popups hidden, cleared popup logic state."); // Reduce noise
         }
     } else if (anyGeneralPopupVisible) {
          // console.log("UI: Some general popups remain visible, overlay kept."); // Reduce noise
@@ -336,8 +338,11 @@ export function showInfoPopup(message) {
 // FIX 4: Helper function to update drawer link visibility
 function updateDrawerLinks() {
   const done = State.getState().questionnaireCompleted;
-  document.querySelectorAll('.drawer-link.hidden-by-flow')
-    .forEach(btn => btn.classList.toggle('hidden', !done));
+  const drawer = getElement('sideDrawer');
+  if(drawer) {
+      drawer.querySelectorAll('.drawer-link.hidden-by-flow')
+        .forEach(btn => btn.classList.toggle('hidden', !done));
+  }
 }
 
 
@@ -759,10 +764,10 @@ export function displayElementQuestions(index) {
     });
     // Add listeners to radio/checkbox labels to update their own 'checked' class for styling
      questionContent.querySelectorAll('.radio-options label.form-group, .checkbox-options label.form-group').forEach(label => {
-         const input = label.control; // Get associated input
+         const input = label.querySelector('input'); // Find the input inside the label
          if (input) {
              input.addEventListener('change', () => {
-                 // For radio, remove 'checked' from siblings
+                 // For radio, remove 'checked' from siblings' labels in the same fieldset
                  if (input.type === 'radio') {
                      const fieldset = label.closest('fieldset');
                      fieldset?.querySelectorAll('label.form-group').forEach(l => l.classList.remove('checked'));
@@ -790,7 +795,7 @@ export function displayElementQuestions(index) {
     const pct = ((displayIndex + 1) / elementNames.length) * 100;
     document.documentElement.style.setProperty('--progress-pct', `${pct}%`);
 
-    console.log(`UI: Finished displaying questions for ${elementNameKey} at index ${displayIndex}`);
+    // console.log(`UI: Finished displaying questions for ${elementNameKey} at index ${displayIndex}`); // Reduce noise
 }
 
 // Named handler functions for adding/removing listeners correctly
@@ -871,6 +876,11 @@ export function getQuestionnaireAnswers() {
     return answers;
 }
 
+// --- Persona Action Buttons State ---
+// Define these functions in the module scope so they are accessible
+export function updateElementalDilemmaButtonState() { const btn = getElement('elementalDilemmaButton'); if (btn) { btn.disabled = !State.getState().questionnaireCompleted; btn.title = btn.disabled ? "Complete questionnaire first" : "Engage with an Elemental Dilemma for Insight."; } else { console.warn("UI: Elemental Dilemma Button not found!"); } }
+export function updateExploreSynergyButtonStatus(status) { const btn = getElement('exploreSynergyButton'); if (!btn) return; const hasFocus = State.getFocusedConcepts().size >= 2; btn.disabled = !hasFocus; btn.classList.remove('highlight-synergy', 'highlight-tension'); btn.textContent = "Explore Synergy"; if (!hasFocus) { btn.title = "Focus at least 2 concepts to explore"; } else { btn.title = "Explore synergies and tensions between focused concepts"; if (status === 'synergy') { btn.classList.add('highlight-synergy'); btn.title += " (Synergy detected!)"; btn.textContent = "Explore Synergy ✨"; } else if (status === 'tension') { btn.classList.add('highlight-tension'); btn.title += " (Tension detected!)"; btn.textContent = "Explore Synergy ⚡"; } else if (status === 'both') { btn.classList.add('highlight-synergy', 'highlight-tension'); btn.title += " (Synergy & Tension detected!)"; btn.textContent = "Explore Synergy 💥"; } } }
+export function updateSuggestSceneButtonState() { const btn = getElement('suggestSceneButton'); if (!btn) return; const costDisplay = getElement('sceneSuggestCostDisplay'); const hasFocus = State.getFocusedConcepts().size > 0; const canAfford = State.getInsight() >= Config.SCENE_SUGGESTION_COST; btn.disabled = !hasFocus || !canAfford; if (!hasFocus) btn.title = "Focus on concepts first"; else if (!canAfford) btn.title = `Requires ${Config.SCENE_SUGGESTION_COST} Insight`; else btn.title = `Suggest resonant scenes (${Config.SCENE_SUGGESTION_COST} Insight)`; if(costDisplay) costDisplay.textContent = Config.SCENE_SUGGESTION_COST; }
 
 // --- Persona Screen UI ---
 
@@ -987,7 +997,14 @@ export function displayPersonaScreen() {
         }
     });
     // Update other persona screen elements
-    displayElementAttunement(); updateInsightDisplays(); displayFocusedConceptsPersona(); generateTapestryNarrative(); synthesizeAndDisplayThemesPersona(); updateElementalDilemmaButtonState(); updateSuggestSceneButtonState(); GameLogic.checkSynergyTensionStatus();
+    displayElementAttunement();
+    updateInsightDisplays();
+    displayFocusedConceptsPersona();
+    generateTapestryNarrative();
+    synthesizeAndDisplayThemesPersona();
+    updateElementalDilemmaButtonState();
+    updateSuggestSceneButtonState();
+    GameLogic.checkSynergyTensionStatus();
 }
 
 
@@ -1674,7 +1691,6 @@ export function renderCard(concept, context = 'grimoire', discoveredData = null)
     return cardDiv;
 }
 
-
 // --- Concept Detail Popup UI --- (Includes Resonance Gauge, Related Tags, Recipe Comparison, Lore, Notes, Buttons)
 // ... (displayPopupResonanceGauge, displayPopupRelatedConceptsTags, etc. remain the same) ...
 // ... (Make sure displayPopupRecipeComparison uses elementNames for iteration) ...
@@ -1696,8 +1712,6 @@ export function renderCard(concept, context = 'grimoire', discoveredData = null)
 // ... (displayTapestryDeepDive, displaySynergyTensionInfo, updateContemplationButtonState, updateDeepDiveContent, displayContemplationTask, clearContemplationTask remain the same) ...
 // --- Elemental Dilemma Modal Display ---
 // ... (displayElementalDilemma remains the same) ...
-// --- Persona Action Buttons State ---
-// ... (updateElementalDilemmaButtonState, updateExploreSynergyButtonStatus, updateSuggestSceneButtonState remain the same) ...
 
 // --- Initial UI Setup Helper ---
 /** Sets up the initial state of the UI on load. */
@@ -1715,11 +1729,11 @@ export function setupInitialUI() { console.log("UI: Setting up initial UI state"
     if (loadButton) { loadButton.classList.toggle('hidden', !localStorage.getItem(Config.SAVE_KEY)); } else { console.warn("Load button element not found during initial setup."); }
 
     // Set initial state for Persona action buttons
-    updateSuggestSceneButtonState();
-    updateElementalDilemmaButtonState();
-    updateExploreSynergyButtonStatus('none');
-    updateInsightBoostButtonState();
-    populateGrimoireFilters(); // Populate filters early
+    updateSuggestSceneButtonState(); // Moved definition to module scope
+    updateElementalDilemmaButtonState(); // Moved definition to module scope
+    updateExploreSynergyButtonStatus('none'); // Moved definition to module scope
+    updateInsightBoostButtonState(); // Already module scope
+    populateGrimoireFilters(); // Already module scope
     updateDrawerLinks(); // FIX 4: Ensure drawer links are correct initially
 
     // Apply theme
