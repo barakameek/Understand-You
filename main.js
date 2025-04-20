@@ -1,6 +1,6 @@
 // --- START OF FILE main.js ---
 
-// js/main.js - Application Entry Point & Event Listener Setup (Enhanced v4.1)
+// js/main.js - Application Entry Point & Event Listener Setup (Enhanced v4.1 + Drawer)
 
 import * as UI from './js/ui.js';
 import * as State from './js/state.js';
@@ -9,13 +9,13 @@ import * as Utils from './js/utils.js';
 import * as Config from './js/config.js';
 import { onboardingTasks } from './data.js'; // Import onboarding tasks definitions
 
-console.log("main.js loading... (Enhanced v4.1 - Onboarding, Debounce)");
+console.log("main.js loading... (Enhanced v4.1 + Drawer)");
 
 // --- Initialization ---
 function initializeApp() {
     console.log("Initializing Persona Alchemy Lab (v4.1)...");
     const loaded = State.loadGameState(); // Load state first
-    UI.setupInitialUI(); // Sets initial screen visibility, nav state, theme etc.
+    UI.setupInitialUI(); // Sets initial screen visibility, theme etc. BEFORE showing content
 
     // Determine starting screen based on loaded state and onboarding status
     const currentState = State.getState();
@@ -24,41 +24,39 @@ function initializeApp() {
 
     console.log(`Initial State: Onboarding Phase ${onboardingPhase}, Complete: ${onboardingComplete}, Questionnaire Complete: ${currentState.questionnaireCompleted}`);
 
-    if (Config.ONBOARDING_ENABLED && !onboardingComplete && onboardingPhase > 0 && onboardingPhase <= Config.MAX_ONBOARDING_PHASE) {
+    // Decide initial screen and onboarding state
+    if (Config.ONBOARDING_ENABLED && !onboardingComplete && onboardingPhase >= 1 && onboardingPhase <= Config.MAX_ONBOARDING_PHASE) {
         // Resume onboarding if it's enabled, incomplete, and within valid phase range
         console.log(`Resuming onboarding at phase ${onboardingPhase}.`);
-        UI.showOnboarding(onboardingPhase);
-        // Don't show main screen yet, onboarding overlay takes precedence
+        // Show the underlying screen required by the onboarding phase first
+        const currentTask = onboardingTasks.find(t => t.phaseRequired === onboardingPhase);
+        const requiredScreen = currentTask?.requiredScreen || (currentState.questionnaireCompleted ? 'personaScreen' : 'welcomeScreen');
+        UI.showScreen(requiredScreen); // Show the screen needed for context
+        UI.showOnboarding(onboardingPhase); // Then show the onboarding overlay/highlight
     } else if (loaded && currentState.questionnaireCompleted) {
         // Standard load: Questionnaire done, show Persona screen
         console.log("Loaded completed state. Showing Persona screen.");
-        UI.showScreen('personaScreen'); // Show the screen first
+        UI.showScreen('personaScreen');
         GameLogic.checkForDailyLogin(); // Check daily login after loading state
-        UI.populateGrimoireFilters(); // Populate filters based on loaded concepts
-        UI.displayMilestones(); // Display achieved milestones
-        UI.displayDailyRituals(); // Display current rituals
-        UI.updateInsightDisplays(); // Show current insight
-        UI.updateFocusSlotsDisplay(); // Show focus slots
-        UI.updateGrimoireCounter(); // Update counter
-        UI.displayInsightLog(); // Display log if visible
+        // UI updates happen within showScreen or GameLogic calls
     } else if (loaded && !currentState.questionnaireCompleted && currentState.currentElementIndex > -1) {
         // Loaded incomplete questionnaire state
         console.log("Loaded incomplete questionnaire state. Resuming questionnaire.");
-        UI.showScreen('questionnaireScreen'); // UI.showScreen calls displayElementQuestions
+        UI.showScreen('questionnaireScreen');
     } else {
         // No saved state or starting completely fresh.
         console.log("No saved state or starting fresh. Showing welcome screen.");
         UI.showScreen('welcomeScreen');
-        // If onboarding is enabled and hasn't started (phase 0 or 1 is default), trigger phase 1
+        // If onboarding is enabled and should start (phase 1), trigger it
         if (Config.ONBOARDING_ENABLED && !onboardingComplete && onboardingPhase === 1) {
              console.log("Starting onboarding automatically from phase 1.");
-             UI.showOnboarding(1);
+             UI.showOnboarding(1); // Show onboarding overlay
         }
     }
 
     // Setup General Event Listeners (always needed)
     setupGlobalEventListeners();
-    setupNavigationListeners();
+    setupDrawerListeners(); // Setup listeners for the drawer navigation
     setupPopupInteractionListeners();
     setupQuestionnaireListeners();
     setupPersonaScreenListeners();
@@ -66,10 +64,10 @@ function initializeApp() {
     setupRepositoryListeners();
     setupOnboardingListeners(); // Add listeners for onboarding controls
 
-    // Initial UI updates based on loaded/initial state
+    // Initial UI updates based on loaded/initial state (some might be redundant if called within showScreen)
     UI.updateInsightDisplays();
     UI.updateFocusSlotsDisplay();
-    UI.updateGrimoireCounter(); // Update counter on nav bar
+    UI.updateGrimoireCounter();
 
     console.log("Initialization complete.");
 }
@@ -79,17 +77,19 @@ function initializeApp() {
 // actionName: A string identifier for the action (must match onboardingTasks[phase].track.action).
 // targetPhase: The onboarding phase this action is expected to complete.
 // actionValue: Optional value associated with the action (must match onboardingTasks[phase].track.value).
+// Returns the result of actionFn if it was called, otherwise null.
 function triggerActionAndCheckOnboarding(actionFn, actionName, targetPhase, actionValue = null) {
     console.log(`Action Triggered: '${actionName}' (Target Phase: ${targetPhase}, Value: ${actionValue})`);
 
+    let actionResult = null;
     // Execute the primary game action if provided
-    if (actionFn) {
+    if (actionFn && typeof actionFn === 'function') {
         try {
-            actionFn();
+            actionResult = actionFn(); // Store the result if needed
         } catch (error) {
             console.error(`Error executing action function for '${actionName}':`, error);
             // Decide if onboarding check should still proceed or not
-            // return; // Option: Stop if the action failed
+            // return actionResult; // Option: Stop if the action failed, return potential partial result
         }
     }
 
@@ -103,7 +103,7 @@ function triggerActionAndCheckOnboarding(actionFn, actionName, targetPhase, acti
 
         if (!task) {
             console.warn(`Onboarding task definition missing for phase ${targetPhase}. Cannot check trigger conditions.`);
-            return;
+            return actionResult; // Return action result even if task definition missing
         }
 
         let meetsCondition = false;
@@ -115,10 +115,10 @@ function triggerActionAndCheckOnboarding(actionFn, actionName, targetPhase, acti
                  meetsCondition = (!task.track.value || task.track.value === actionValue);
                  console.log(`Onboarding Check: Action '${actionName}' matches task action. Value check needed: ${!!task.track.value}. Provided: ${actionValue}. Condition met: ${meetsCondition}`);
             }
-            // Could add checks for task.track.state here if needed later
+            // TODO: Add checks for task.track.state here if needed later
             // else if (task.track.state === ...) { meetsCondition = ...; }
         } else {
-            // If no track object, assume the action itself is the trigger (less specific)
+            // If no track object in data, assume the action itself is the trigger (less specific)
             console.log(`Onboarding Check: No specific track conditions for phase ${targetPhase}. Assuming action '${actionName}' is the trigger.`);
             meetsCondition = true;
         }
@@ -134,60 +134,60 @@ function triggerActionAndCheckOnboarding(actionFn, actionName, targetPhase, acti
         // Log if the action happened but wasn't for the current phase
         // console.log(`Action '${actionName}' triggered, but current onboarding phase (${currentPhase}) doesn't match target (${targetPhase}).`);
     }
+    return actionResult; // Return the result of the original action function
 }
 
 
 // --- Event Listener Setup Functions ---
 
 function setupGlobalEventListeners() {
-    const settingsBtn = document.getElementById('settingsButton');
-    if (settingsBtn) {
-        settingsBtn.addEventListener('click', UI.showSettings);
-    } else { console.warn("Settings button not found."); }
-
-    const closeSettingsBtn = document.getElementById('closeSettingsPopupButton');
-    const forceSaveBtn = document.getElementById('forceSaveButton');
-    const resetBtn = document.getElementById('resetAppButton');
+    const closeSettingsBtn = getElement('closeSettingsPopupButton');
+    const forceSaveBtn = getElement('forceSaveButton');
+    const resetBtn = getElement('resetAppButton');
 
     if (closeSettingsBtn) closeSettingsBtn.addEventListener('click', UI.hidePopups);
     if (forceSaveBtn) forceSaveBtn.addEventListener('click', () => { State.saveGameState(true); UI.showTemporaryMessage("Game Saved!", 1500); });
     if (resetBtn) resetBtn.addEventListener('click', () => {
         if (confirm("Are you SURE you want to reset all progress? This cannot be undone!")) {
             GameLogic.clearPopupState(); // Clear any lingering temp logic state
-            State.clearGameState(); // Wipes state and localStorage
-            initializeApp(); // Re-initialize the app state and UI
-            UI.hidePopups(); // Ensure popups are hidden after reset
-            UI.showTemporaryMessage("Progress Reset.", 2000);
+            State.clearGameState(); // Wipes state and localStorage (will reload)
+            // initializeApp(); // Re-initialize the app state and UI - Handled by reload in clearGameState
+            // UI.hidePopups(); // Ensure popups are hidden after reset - Handled by reload
+            // UI.showTemporaryMessage("Progress Reset.", 2000); // Handled by reload
         }
     });
 
-    const closeMilestoneBtn = document.getElementById('closeMilestoneAlertButton');
+    const closeMilestoneBtn = getElement('closeMilestoneAlertButton');
     if (closeMilestoneBtn) closeMilestoneBtn.addEventListener('click', UI.hideMilestoneAlert);
 
-    const overlay = document.getElementById('popupOverlay');
+    const overlay = getElement('popupOverlay');
     if (overlay) {
         overlay.addEventListener('click', (event) => {
             // Prevent closing general popups if onboarding overlay is active and click is outside onboarding popup
-            const onboardingOverlay = document.getElementById('onboardingOverlay');
-            const onboardingPopup = document.getElementById('onboardingPopup');
+            const onboardingOverlay = getElement('onboardingOverlay');
+            const onboardingPopup = getElement('onboardingPopup');
             const isClickInsideOnboardingPopup = onboardingPopup && onboardingPopup.contains(event.target);
+            const isClickOnDrawer = getElement('sideDrawer')?.contains(event.target); // Prevent closing on drawer click
 
             if (onboardingOverlay?.classList.contains('visible') && !isClickInsideOnboardingPopup) {
-                // If onboarding is visible and click is outside its popup, do nothing (don't close general popups)
+                // If onboarding is visible and click is outside its popup, do nothing
                 return;
-            } else if (!onboardingOverlay?.classList.contains('visible')) {
-                 // If onboarding is not visible, standard behavior: hide general popups
+            } else if (getElement('sideDrawer')?.classList.contains('open') && !isClickOnDrawer) {
+                 // If drawer is open and click is outside it, close the drawer BUT NOT other popups
+                 UI.toggleDrawer();
+            } else if (!onboardingOverlay?.classList.contains('visible') && !getElement('sideDrawer')?.classList.contains('open')) {
+                 // If onboarding and drawer are NOT visible, standard behavior: hide general popups
                  UI.hidePopups();
             }
         });
     }
 
-     const closeInfoBtn = document.getElementById('closeInfoPopupButton');
-     const confirmInfoBtn = document.getElementById('confirmInfoPopupButton');
+     const closeInfoBtn = getElement('closeInfoPopupButton');
+     const confirmInfoBtn = getElement('confirmInfoPopupButton');
      if (closeInfoBtn) closeInfoBtn.addEventListener('click', UI.hidePopups);
      if (confirmInfoBtn) confirmInfoBtn.addEventListener('click', UI.hidePopups);
 
-    const addInsightBtn = document.getElementById('addInsightButton');
+    const addInsightBtn = getElement('addInsightButton');
     if(addInsightBtn) {
         addInsightBtn.addEventListener('click', GameLogic.handleInsightBoostClick);
     } else { console.warn("Add Insight button not found."); }
@@ -197,22 +197,78 @@ function setupGlobalEventListeners() {
         const target = event.target.closest('.info-icon');
         if (target?.title) {
             event.preventDefault(); // Prevent default tooltip potentially
+            event.stopPropagation(); // Prevent card click etc.
             UI.showInfoPopup(target.title);
         }
     });
 }
 
-function setupNavigationListeners() {
-    // Main Navigation Buttons (excluding theme toggle and settings)
-    const navButtons = document.querySelectorAll('.main-nav .nav-button[data-target]');
-    navButtons.forEach(button => {
-        // No need to remove/re-add for static nav, just add once
-        button.addEventListener('click', handleNavClick);
-    });
+// Setup listeners for Drawer navigation and theme toggle
+function setupDrawerListeners() {
+    if (drawerToggle) {
+        drawerToggle.addEventListener('click', UI.toggleDrawer);
+    } else { console.warn("Drawer toggle button not found."); }
 
-    // Welcome Screen Buttons
-    const startBtn = document.getElementById('startGuidedButton');
-    const loadBtn = document.getElementById('loadButton');
+    if (sideDrawer) {
+        sideDrawer.addEventListener('click', handleDrawerNavClick); // Use delegation
+    } else { console.warn("Side drawer element not found."); }
+
+    // Specific buttons inside drawer
+    if (drawerSettingsButton) {
+        drawerSettingsButton.addEventListener('click', () => {
+            UI.showSettings();
+            UI.toggleDrawer(); // Close drawer after opening settings
+        });
+    }
+    if (drawerThemeToggle) {
+         drawerThemeToggle.addEventListener('click', UI.toggleTheme);
+         // No need to close drawer for theme toggle
+    }
+}
+
+// Handle clicks within the drawer nav
+function handleDrawerNavClick(event) {
+    const button = event.target.closest('.drawer-link[data-target]');
+    if (!button) return; // Ignore clicks not on actual nav links with targets
+
+    const targetScreen = button.dataset.target;
+    if (!targetScreen) {
+         console.warn("Drawer link clicked without target screen:", button);
+         return;
+    }
+
+    const isPostQuestionnaire = State.getState().questionnaireCompleted;
+    // Allow access only if questionnaire complete OR target is persona (always accessible after Q)
+    const canNavigate = isPostQuestionnaire || targetScreen === 'personaScreen';
+
+    if (canNavigate) {
+         // Show the target screen first
+         UI.showScreen(targetScreen);
+         UI.toggleDrawer(); // Close drawer after navigation
+
+         // Check if this screen change corresponds to an onboarding step completion
+         let phaseTarget = null;
+         if(targetScreen === 'personaScreen') phaseTarget = 1; // Target phase 1 (view Persona)
+         else if(targetScreen === 'workshopScreen') phaseTarget = 2; // Target phase 2 (view Workshop)
+         else if(targetScreen === 'repositoryScreen') phaseTarget = 8; // Target phase 8 (view Repository)
+
+         if(phaseTarget !== null) {
+              // Use the helper function - pass null actionFn as screen change is the trigger
+              triggerActionAndCheckOnboarding(null, 'showScreen', phaseTarget, targetScreen);
+         }
+    } else {
+        // Navigation blocked (likely trying to access Workshop/Repo before questionnaire)
+        console.log("Navigation blocked: Questionnaire not complete.");
+        UI.showTemporaryMessage("Complete the initial Experimentation first!", 2500);
+        UI.toggleDrawer(); // Close drawer even if navigation fails
+    }
+}
+
+
+function setupWelcomeScreenListeners() {
+     // Welcome Screen Buttons
+    const startBtn = getElement('startGuidedButton');
+    const loadBtn = getElement('loadButton');
     if (startBtn) {
         startBtn.addEventListener('click', () => {
             const currentPhase = State.getOnboardingPhase();
@@ -241,44 +297,10 @@ function setupNavigationListeners() {
     }
 }
 
-function handleNavClick(event) {
-    const button = event.target.closest('.nav-button[data-target]');
-    if (!button) return; // Ignore clicks not on actual nav buttons with targets
-
-    const targetScreen = button.dataset.target;
-    if (!targetScreen) {
-         console.warn("Nav button clicked without target screen:", button);
-         return;
-    }
-
-    const isPostQuestionnaire = State.getState().questionnaireCompleted;
-    const canNavigate = isPostQuestionnaire || ['welcomeScreen', 'questionnaireScreen'].includes(targetScreen); // Allow access to welcome/Q anytime
-
-    if (canNavigate) {
-         // Show the target screen immediately
-         UI.showScreen(targetScreen);
-
-         // Check if this screen change corresponds to an onboarding step completion
-         let phaseTarget = null;
-         if(targetScreen === 'personaScreen') phaseTarget = 1; // Target phase 1 (view Persona)
-         else if(targetScreen === 'workshopScreen') phaseTarget = 2; // Target phase 2 (view Workshop)
-         else if(targetScreen === 'repositoryScreen') phaseTarget = 8; // Target phase 8 (view Repository)
-
-         if(phaseTarget !== null) {
-              // Use the helper function - pass null actionFn as screen change is the trigger
-              triggerActionAndCheckOnboarding(null, 'showScreen', phaseTarget, targetScreen);
-         }
-
-    } else {
-        // Navigation blocked (likely trying to access Workshop/Repo before questionnaire)
-        console.log("Navigation blocked: Questionnaire not complete.");
-        UI.showTemporaryMessage("Complete the initial Experimentation first!", 2500);
-    }
-}
 
 function setupQuestionnaireListeners() {
-    const nextBtn = document.getElementById('nextElementButton');
-    const prevBtn = document.getElementById('prevElementButton');
+    const nextBtn = getElement('nextElementButton');
+    const prevBtn = getElement('prevElementButton');
     if (nextBtn) nextBtn.addEventListener('click', GameLogic.goToNextElement);
     if (prevBtn) prevBtn.addEventListener('click', GameLogic.goToPrevElement);
     // Input listeners are added dynamically by UI.displayElementQuestions
@@ -286,41 +308,50 @@ function setupQuestionnaireListeners() {
 
 function setupPersonaScreenListeners() {
     // View Toggle Buttons
-    const detailedViewBtn = document.getElementById('showDetailedViewBtn');
-    const summaryViewBtn = document.getElementById('showSummaryViewBtn');
+    const detailedViewBtn = getElement('showDetailedViewBtn');
+    const summaryViewBtn = getElement('showSummaryViewBtn');
     if (detailedViewBtn && summaryViewBtn) {
         detailedViewBtn.addEventListener('click', () => UI.togglePersonaView(true));
         summaryViewBtn.addEventListener('click', () => UI.togglePersonaView(false));
     }
 
     // Event Delegation for Element Details (Accordion Toggles, Unlock Buttons)
-    const personaElementsContainer = document.getElementById('personaElementDetails');
+    const personaElementsContainer = getElement('personaElementDetails');
     if (personaElementsContainer) {
         personaElementsContainer.addEventListener('click', (event) => {
             const unlockButton = event.target.closest('.unlock-button');
-            const detailsToggle = event.target.closest('details.element-detail-entry > summary.element-detail-header'); // Target direct child summary
-            const elaborationToggle = event.target.closest('.element-elaboration summary'); // Target elaboration summary
+            const headerButton = event.target.closest('.accordion-header');
 
             if (unlockButton) {
-                 // Use helper for onboarding check - target phase 6 for unlocking library
-                triggerActionAndCheckOnboarding(() => GameLogic.handleUnlockLibraryLevel(event), 'unlockLibrary', 6);
-            } else if (detailsToggle) {
-                 // Check if opening phase 1 task element (Persona Screen exploration)
-                 // We only advance if the *Persona screen* itself was the target (Phase 1)
-                 const parentDetails = detailsToggle.closest('details.element-detail-entry');
-                 if(parentDetails) {
-                      // No specific actionFn needed, just check if opening satisfies the phase
-                      triggerActionAndCheckOnboarding(null, 'openElementDetails', 1);
+                 // Use helper for onboarding check - target phase 6 for unlocking library/deep dive
+                 // Pass the specific level unlock logic as the action function
+                 const conceptId = parseInt(unlockButton.dataset.conceptId); // Or elementKey? Check data structure
+                 const level = parseInt(unlockButton.dataset.level);
+                 const cost = parseFloat(unlockButton.dataset.cost);
+                 const elementKey = unlockButton.dataset.elementKey; // Assuming key is stored
+
+                 if (elementKey && !isNaN(level) && !isNaN(cost)) {
+                    triggerActionAndCheckOnboarding(
+                        () => GameLogic.handleUnlockLibraryLevel(event), // Pass event to handle the unlock
+                        'unlockLibrary', // Action name
+                        6 // Target phase for first unlock
+                    );
                  }
-            } else if (elaborationToggle) {
-                 // Optional: Track opening elaboration if needed for future onboarding
-                 // console.log('Elaboration toggled');
+            } else if (headerButton) {
+                 // Accordion toggle logic is handled in UI now based on aria-expanded
+                 // Check if opening this *specific* accordion completes an onboarding step
+                 const accordionItem = headerButton.closest('.accordion-item');
+                 const elementKey = accordionItem?.dataset.elementKey;
+                 // Example: Check if opening the 'Attraction' accordion completes phase 1
+                 if (elementKey === 'A') { // Check the specific key for the task
+                     triggerActionAndCheckOnboarding(null, 'openElementDetails', 1); // Action: open details, Target Phase 1
+                 }
             }
         });
     }
 
     // Event Delegation for Focused Concepts (Click to view details)
-    const focusedConceptsContainer = document.getElementById('focusedConceptsDisplay');
+    const focusedConceptsContainer = getElement('focusedConceptsDisplay');
     if (focusedConceptsContainer) {
         focusedConceptsContainer.addEventListener('click', (event) => {
             const targetItem = event.target.closest('.focus-concept-item[data-concept-id]');
@@ -334,7 +365,7 @@ function setupPersonaScreenListeners() {
     }
 
      // Insight Log Toggle
-     const insightLogContainer = document.getElementById('insightLogContainer');
+     const insightLogContainer = getElement('insightLogContainer');
      if (insightLogContainer) {
          // Target the "Resources" H2 more reliably
          const header = document.querySelector('#personaDetailedView .persona-elements-detailed h2:nth-of-type(2)');
@@ -348,7 +379,6 @@ function setupPersonaScreenListeners() {
              });
              // Ensure it's hidden initially if the class is present
              if (insightLogContainer.classList.contains('log-hidden')) {
-                 // Ensure display is none if hidden by class initially
                  insightLogContainer.style.display = 'none';
              }
              // Add listener to toggle display style along with class
@@ -366,10 +396,10 @@ function setupPersonaScreenListeners() {
      }
 
     // Persona Action Buttons
-    const dilemmaBtn = document.getElementById('elementalDilemmaButton');
-    const synergyBtn = document.getElementById('exploreSynergyButton');
-    const suggestSceneBtn = document.getElementById('suggestSceneButton');
-    const deepDiveBtn = document.getElementById('deepDiveTriggerButton');
+    const dilemmaBtn = getElement('elementalDilemmaButton');
+    const synergyBtn = getElement('exploreSynergyButton');
+    const suggestSceneBtn = getElement('suggestSceneButton');
+    const deepDiveBtn = getElement('deepDiveTriggerButton');
 
     if (dilemmaBtn) dilemmaBtn.addEventListener('click', GameLogic.handleElementalDilemmaClick);
     if (synergyBtn) synergyBtn.addEventListener('click', GameLogic.handleExploreSynergyClick);
@@ -377,7 +407,7 @@ function setupPersonaScreenListeners() {
     if (deepDiveBtn) deepDiveBtn.addEventListener('click', GameLogic.showTapestryDeepDive);
 
     // Event Delegation for Suggested Scene Meditate Button
-    const suggestedSceneContainer = document.getElementById('suggestedSceneContent');
+    const suggestedSceneContainer = getElement('suggestedSceneContent');
      if (suggestedSceneContainer) {
          suggestedSceneContainer.addEventListener('click', (event) => {
             const meditateButton = event.target.closest('.button[data-scene-id]');
@@ -389,17 +419,17 @@ function setupPersonaScreenListeners() {
 }
 
 function setupWorkshopScreenListeners() {
-    const workshopScreen = document.getElementById('workshopScreen');
+    const workshopScreen = getElement('workshopScreen');
     if (!workshopScreen) return;
 
     // --- Research Bench --- (Event Delegation)
-    const researchButtonsContainer = document.getElementById('element-research-buttons');
+    const researchButtonsContainer = getElement('element-research-buttons');
     if (researchButtonsContainer) {
         researchButtonsContainer.addEventListener('click', (event) => {
             // Target the clickable element card, not just the button inside
             const buttonCard = event.target.closest('.initial-discovery-element.clickable');
             if (buttonCard?.dataset.elementKey) {
-                const isFreeClick = State.getInitialFreeResearchRemaining() > 0;
+                const isFreeClick = buttonCard.dataset.isFree === 'true';
                  // Use helper for onboarding check - Target phase 3
                  triggerActionAndCheckOnboarding(
                      () => GameLogic.handleResearchClick({ currentTarget: buttonCard, isFree: isFreeClick }),
@@ -411,8 +441,8 @@ function setupWorkshopScreenListeners() {
     }
 
     // --- Daily Actions ---
-    const freeResearchBtn = document.getElementById('freeResearchButtonWorkshop');
-    const seekGuidanceBtn = document.getElementById('seekGuidanceButtonWorkshop');
+    const freeResearchBtn = getElement('freeResearchButtonWorkshop');
+    const seekGuidanceBtn = getElement('seekGuidanceButtonWorkshop');
     if (freeResearchBtn) {
         freeResearchBtn.addEventListener('click', () => {
             // Daily meditation might also trigger phase 3 if it's the first research
@@ -427,15 +457,15 @@ function setupWorkshopScreenListeners() {
     }
 
     // --- Library Area ---
-    const controls = document.getElementById('grimoire-controls-workshop');
-    const shelves = document.getElementById('grimoire-shelves-workshop');
-    const grid = document.getElementById('grimoire-grid-workshop');
+    const controls = getElement('grimoire-controls-workshop');
+    const shelves = getElement('grimoire-shelves-workshop');
+    const grid = getElement('grimoire-grid-workshop');
 
     // Filter/Sort Controls
     if (controls) {
-        const searchInput = document.getElementById('grimoireSearchInputWorkshop');
+        const searchInput = getElement('grimoireSearchInputWorkshop');
         if (searchInput) {
-             const debouncedRefresh = Utils.debounce(() => UI.refreshGrimoireDisplay(), 350); // Slightly longer debounce
+             const debouncedRefresh = Utils.debounce(() => UI.refreshGrimoireDisplay(), 350);
              searchInput.addEventListener('input', debouncedRefresh);
         }
         // Refresh immediately on other control changes (select dropdowns)
@@ -475,7 +505,7 @@ function setupWorkshopScreenListeners() {
                  triggerActionAndCheckOnboarding(() => {
                      // GameLogic handles state, UI update happens after
                      if(GameLogic.handleCardFocusToggle(conceptId)) {
-                         // Update button state immediately after successful toggle
+                         // Update button state immediately after successful toggle in the card
                          const isFocused = State.getFocusedConcepts().has(conceptId);
                          focusButton.classList.toggle('marked', isFocused);
                          focusButton.innerHTML = `<i class="fas ${isFocused ? 'fa-star' : 'fa-regular fa-star'}"></i>`;
@@ -498,9 +528,7 @@ function setupWorkshopScreenListeners() {
             if (card?.dataset.conceptId) {
                 draggedCardId = parseInt(card.dataset.conceptId);
                 event.dataTransfer.effectAllowed = 'move';
-                // Use standard text data transfer
-                try { event.dataTransfer.setData('text/plain', draggedCardId.toString()); } catch (e) { /* Handle potential IE legacy needs if required */ event.dataTransfer.setData('Text', draggedCardId.toString()); }
-                // Add dragging style slightly after drag starts for better visual feedback
+                try { event.dataTransfer.setData('text/plain', draggedCardId.toString()); } catch (e) { event.dataTransfer.setData('Text', draggedCardId.toString()); }
                 setTimeout(() => card.classList.add('dragging'), 0);
             } else {
                 event.preventDefault(); // Prevent dragging if not a valid card
@@ -510,7 +538,6 @@ function setupWorkshopScreenListeners() {
         grid.addEventListener('dragend', (event) => {
             const card = event.target.closest('.concept-card');
             if (card) { card.classList.remove('dragging'); }
-            // Clear dragged ID and remove hover states from shelves
             draggedCardId = null;
             shelves?.querySelectorAll('.grimoire-shelf').forEach(shelf => shelf.classList.remove('drag-over'));
         });
@@ -519,21 +546,19 @@ function setupWorkshopScreenListeners() {
         if (shelves) {
             shelves.addEventListener('dragover', (event) => {
                 event.preventDefault(); // Necessary to allow dropping
-                const shelf = event.target.closest('.grimoire-shelf:not(.show-all-shelf)'); // Can't drop on "Show All"
+                const shelf = event.target.closest('.grimoire-shelf:not(.show-all-shelf)');
                 if (shelf) {
                     event.dataTransfer.dropEffect = 'move';
-                    // Highlight the potential drop target
                     shelves.querySelectorAll('.grimoire-shelf').forEach(s => s.classList.remove('drag-over'));
                     shelf.classList.add('drag-over');
                 } else {
-                    event.dataTransfer.dropEffect = 'none'; // Indicate invalid drop target
+                    event.dataTransfer.dropEffect = 'none';
                     shelves.querySelectorAll('.grimoire-shelf').forEach(s => s.classList.remove('drag-over'));
                 }
             });
 
             shelves.addEventListener('dragleave', (event) => {
                 const shelf = event.target.closest('.grimoire-shelf');
-                 // Only remove highlight if leaving the shelf element itself or the container entirely
                  if (shelf && !shelf.contains(event.relatedTarget)) { shelf.classList.remove('drag-over'); }
                  if (event.currentTarget === shelves && !shelves.contains(event.relatedTarget)){
                      shelves.querySelectorAll('.grimoire-shelf').forEach(s => s.classList.remove('drag-over'));
@@ -542,22 +567,20 @@ function setupWorkshopScreenListeners() {
 
             shelves.addEventListener('drop', (event) => {
                 event.preventDefault();
-                shelves.querySelectorAll('.grimoire-shelf').forEach(shelf => shelf.classList.remove('drag-over')); // Clear all highlights
+                shelves.querySelectorAll('.grimoire-shelf').forEach(shelf => shelf.classList.remove('drag-over'));
                 const shelf = event.target.closest('.grimoire-shelf:not(.show-all-shelf)');
 
-                // Retrieve card ID reliably
                 let droppedCardIdFromData = null;
-                try { droppedCardIdFromData = parseInt(event.dataTransfer.getData('text/plain')); } catch (e) { try { droppedCardIdFromData = parseInt(event.dataTransfer.getData('Text')); } catch (e2) { /* ignore fallback error */ } }
-                // Use ID from data transfer if valid, otherwise fallback to the ID stored during dragstart
+                try { droppedCardIdFromData = parseInt(event.dataTransfer.getData('text/plain')); } catch (e) { try { droppedCardIdFromData = parseInt(event.dataTransfer.getData('Text')); } catch (e2) { /* ignore */ } }
                 const finalCardId = !isNaN(droppedCardIdFromData) ? droppedCardIdFromData : draggedCardId;
 
                 if (shelf?.dataset.categoryId && finalCardId !== null) {
                     const categoryId = shelf.dataset.categoryId;
-                    // Use onboarding helper - Check if categorizing fulfills phase 5 (same phase as focus)
+                    // Use onboarding helper - Categorizing card might complete phase 5
                     triggerActionAndCheckOnboarding(
                         () => GameLogic.handleCategorizeCard(finalCardId, categoryId),
                         'categorizeCard',
-                        5 // Target phase (Mark Focus/Categorize share a phase target in original logic)
+                        5 // Target phase (Mark Focus/Categorize share a phase target)
                     );
                 } else {
                     console.log("Drop failed: Invalid target shelf or missing card ID.");
@@ -569,7 +592,7 @@ function setupWorkshopScreenListeners() {
 }
 
 function setupRepositoryListeners() {
-    const repoContainer = document.getElementById('repositoryScreen');
+    const repoContainer = getElement('repositoryScreen');
     if (!repoContainer) return;
 
     // Event delegation for action buttons within repository lists
@@ -603,13 +626,13 @@ function setupPopupInteractionListeners() {
 }
 
 function setupConceptDetailPopupListeners() {
-    const popup = document.getElementById('conceptDetailPopup');
+    const popup = getElement('conceptDetailPopup');
     if (!popup) return;
 
-    const addBtn = document.getElementById('addToGrimoireButton');
-    const focusBtn = document.getElementById('markAsFocusButton');
-    const saveNoteBtn = document.getElementById('saveMyNoteButton');
-    const loreContent = document.getElementById('popupLoreContent');
+    const addBtn = getElement('addToGrimoireButton');
+    const focusBtn = getElement('markAsFocusButton');
+    const saveNoteBtn = getElement('saveMyNoteButton');
+    const loreContent = getElement('popupLoreContent');
     const actionsContainer = popup.querySelector('.popup-actions'); // For sell button delegation
 
     if (addBtn) {
@@ -669,12 +692,12 @@ function setupConceptDetailPopupListeners() {
 
 
 function setupResearchPopupListeners() {
-    const popup = document.getElementById('researchResultsPopup');
+    const popup = getElement('researchResultsPopup');
     if (!popup) return;
 
-    const closeBtn = document.getElementById('closeResearchResultsPopupButton');
-    const confirmBtn = document.getElementById('confirmResearchChoicesButton');
-    const contentArea = document.getElementById('researchPopupContent');
+    const closeBtn = getElement('closeResearchResultsPopupButton');
+    const confirmBtn = getElement('confirmResearchChoicesButton');
+    const contentArea = getElement('researchPopupContent');
 
     if (closeBtn) closeBtn.addEventListener('click', UI.hidePopups);
     if (confirmBtn) confirmBtn.addEventListener('click', UI.hidePopups); // Confirm button just closes if enabled
@@ -692,7 +715,7 @@ function setupResearchPopupListeners() {
                      triggerActionAndCheckOnboarding(
                          () => GameLogic.handleResearchPopupChoice(conceptId, action),
                          'addToGrimoire', // 'keep' action ultimately calls addConceptToGrimoireInternal
-                         4
+                         4 // Target phase for adding first concept
                      );
                  } else {
                       GameLogic.handleResearchPopupChoice(conceptId, action); // Handle sell directly
@@ -703,12 +726,12 @@ function setupResearchPopupListeners() {
 }
 
 function setupReflectionPopupListeners() {
-    const popup = document.getElementById('reflectionModal');
+    const popup = getElement('reflectionModal');
     if (!popup) return;
 
-    const reflectionCheck = document.getElementById('reflectionCheckbox');
-    const confirmBtn = document.getElementById('confirmReflectionButton');
-    const nudgeCheck = document.getElementById('scoreNudgeCheckbox');
+    const reflectionCheck = getElement('reflectionCheckbox');
+    const confirmBtn = getElement('confirmReflectionButton');
+    const nudgeCheck = getElement('scoreNudgeCheckbox');
 
     if (reflectionCheck && confirmBtn) {
         // Enable confirm button only when the checkbox is checked
@@ -717,22 +740,22 @@ function setupReflectionPopupListeners() {
         });
 
         confirmBtn.addEventListener('click', () => {
-             // Wrap for onboarding check - Target phase 7
+             // Wrap for onboarding check - Target phase 7 (completing first reflection)
              triggerActionAndCheckOnboarding(
                  () => GameLogic.handleConfirmReflection(nudgeCheck?.checked || false),
                  'completeReflection',
-                 7
+                 7 // Target phase
              );
         });
     }
 }
 
 function setupDeepDivePopupListeners() {
-    const popup = document.getElementById('tapestryDeepDiveModal');
+    const popup = getElement('tapestryDeepDiveModal');
     if (!popup) return;
 
-    const nodesContainer = document.getElementById('deepDiveAnalysisNodes');
-    const detailContent = document.getElementById('deepDiveDetailContent');
+    const nodesContainer = getElement('deepDiveAnalysisNodes');
+    const detailContent = getElement('deepDiveDetailContent');
 
     if (nodesContainer) {
         nodesContainer.addEventListener('click', (event) => {
@@ -748,33 +771,32 @@ function setupDeepDivePopupListeners() {
         });
     }
 
-     // Listener for completing the contemplation task is added dynamically by UI.displayContemplationTask
+     // Listener for dynamically added contemplation completion button
      if (detailContent) {
          detailContent.addEventListener('click', (event) => {
              const completeButton = event.target.closest('#completeContemplationBtn');
              if (completeButton) {
-                 // The task data should be associated with the button or retrieved differently
-                 // Assuming GameLogic can retrieve the current task data
-                 GameLogic.handleCompleteContemplation(); // Modify this if task data needs passing
+                 // Assuming GameLogic can retrieve the current task data if needed
+                 GameLogic.handleCompleteContemplation();
              }
          });
      }
 }
 
 function setupDilemmaPopupListeners() {
-    const popup = document.getElementById('dilemmaModal');
+    const popup = getElement('dilemmaModal');
     if (!popup) return;
 
-    const confirmBtn = document.getElementById('confirmDilemmaButton');
+    const confirmBtn = getElement('confirmDilemmaButton');
     if (confirmBtn) {
         confirmBtn.addEventListener('click', GameLogic.handleConfirmDilemma);
     }
 
     // Add listener for slider to update display text
-    const slider = document.getElementById('dilemmaSlider');
-    const valueDisplay = document.getElementById('dilemmaSliderValueDisplay');
-    const minLabel = document.getElementById('dilemmaSliderMinLabel');
-    const maxLabel = document.getElementById('dilemmaSliderMaxLabel');
+    const slider = getElement('dilemmaSlider');
+    const valueDisplay = getElement('dilemmaSliderValueDisplay');
+    const minLabel = getElement('dilemmaSliderMinLabel');
+    const maxLabel = getElement('dilemmaSliderMaxLabel');
     if (slider && valueDisplay && minLabel && maxLabel) {
         slider.addEventListener('input', () => {
             const val = parseFloat(slider.value);
@@ -790,12 +812,12 @@ function setupDilemmaPopupListeners() {
 }
 
 function setupOnboardingListeners() {
-    const overlay = document.getElementById('onboardingOverlay');
+    const overlay = getElement('onboardingOverlay');
     if (!overlay) return; // No onboarding elements, no listeners needed
 
-    const nextBtn = document.getElementById('onboardingNextButton');
-    const prevBtn = document.getElementById('onboardingPrevButton');
-    const skipBtn = document.getElementById('onboardingSkipButton');
+    const nextBtn = getElement('onboardingNextButton');
+    const prevBtn = getElement('onboardingPrevButton');
+    const skipBtn = getElement('onboardingSkipButton');
 
     if (nextBtn) {
         nextBtn.addEventListener('click', () => {
@@ -843,35 +865,5 @@ function setupOnboardingListeners() {
 // --- App Start ---
 document.addEventListener('DOMContentLoaded', initializeApp);
 
-// --- Dark Mode Persistence & Toggle ---
-(() => {
-  const root = document.documentElement;
-  const themeToggle = document.getElementById('themeToggle');
-
-  // Apply saved theme on initial load
-  const savedTheme = localStorage.getItem('theme');
-  if (savedTheme === 'dark') {
-      root.classList.add('dark');
-  } else {
-      root.classList.remove('dark'); // Ensure default is light if no setting
-  }
-
-  // Set up toggle button listener
-  if (themeToggle) {
-    themeToggle.addEventListener('click', () => {
-      root.classList.toggle('dark');
-      const currentTheme = root.classList.contains('dark') ? 'dark' : 'light';
-      localStorage.setItem('theme', currentTheme);
-       // Redraw chart if visible, as colors change
-      if (document.getElementById('personaSummaryView')?.classList.contains('current')) {
-        UI.drawPersonaChart(State.getScores());
-      }
-    });
-  } else {
-      console.warn("Theme toggle button not found.");
-  }
-})();
-
-
-console.log("main.js loaded successfully. (Enhanced v4.1)");
+console.log("main.js loaded successfully. (Enhanced v4.1 + Drawer)");
 // --- END OF FILE main.js ---
