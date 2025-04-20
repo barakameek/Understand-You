@@ -8,7 +8,7 @@ import * as Utils from './utils.js';
 import * as UI from './ui.js';
 // Import updated data structures (now including RoleFocus, onboardingTasks)
 import {
-    elementDetails, elementKeyToFullName, // Removed elementNameToKey
+    elementDetails, elementKeyToFullName, // elementNameToKey removed
     concepts, questionnaireGuided,
     reflectionPrompts, elementDeepDive, dailyRituals, milestones, focusRituals,
     sceneBlueprints, alchemicalExperiments, elementalInsights, focusDrivenUnlocks,
@@ -23,13 +23,14 @@ console.log("gameLogic.js loading... (Enhanced v4.1 - RF, Onboarding, Logging)")
 let currentlyDisplayedConceptId = null; // ID of concept in the detail popup
 let currentReflectionContext = null; // e.g., 'Standard', 'Dissonance', 'Guided', 'SceneMeditation', 'RareConcept'
 let reflectionTargetConceptId = null; // ID of concept causing Dissonance/Rare prompt
-let currentReflectionCategory = null; // e.g., 'Attraction', 'Interaction' for Standard/Guided reflections (using element name key)
+let currentReflectionCategory = null; // e.g., 'Attraction', 'Interaction' for Standard/Guided reflections (using element name key from data.js)
 let currentPromptId = null; // ID of the specific prompt being shown
 let reflectionCooldownTimeout = null; // Timeout ID for standard reflection cooldown
 let currentDilemma = null; // Data object for the active dilemma
 
 // --- Tapestry Analysis Cache ---
 // Stores result of calculateTapestryNarrative { synergies, tensions, etc. }
+// Cache invalidation based on focus set hash in State.
 let currentTapestryAnalysis = null;
 
 // --- Initialization & Core State ---
@@ -78,28 +79,20 @@ function checkOnboardingInternal(actionName, targetPhase, conditionValue = null)
              console.warn(`Onboarding Internal Check: Task missing for phase ${currentPhase}. Cannot advance.`);
              return;
         }
-         if (!task.track) {
-              console.warn(`Onboarding Internal Check: Task track missing for phase ${currentPhase}. Cannot check trigger.`);
-              return; // Cannot check condition without track object
+         // Task tracking logic depends on how `track` is defined in onboardingTasks
+         // Assuming a simple action match for now
+         let conditionMet = task.track?.action === actionName;
+         // Add value check if applicable
+         if (conditionMet && task.track?.value !== undefined) {
+              conditionMet = task.track.value === conditionValue;
          }
-
-        const track = task.track;
-        let conditionMet = false;
-
-        // Check if the action and optional value match the task requirements
-        if (track.action === actionName) {
-            conditionMet = (!track.value || track.value === conditionValue);
-        }
-        // Add checks for state-based triggers if needed in the future
-        // else if (track.state === actionName) { ... }
 
         if (conditionMet) {
             console.log(`Onboarding Check (Internal): Action '${actionName}' meets criteria for phase ${targetPhase}. Advancing.`);
             const nextPhase = State.advanceOnboardingPhase(); // Advance state
             // UI update for the next step is usually handled by main.js or the calling function's UI update.
-            // Only call UI.showOnboarding here if this internal action *doesn't* lead to a natural UI update
-            // that would show the next step anyway. In most cases, this call might be redundant.
-             UI.showOnboarding(nextPhase); // Re-show onboarding UI for next step
+            // Avoid calling UI.showOnboarding here unless absolutely necessary to prevent double calls.
+            // UI.showOnboarding(nextPhase); // Generally avoid calling this here
         }
     }
 }
@@ -179,6 +172,7 @@ export function countUndiscoveredByRarity(elementKey) {
 
 /**
  * Grants attunement points for specific actions, potentially targeting specific elements or all.
+ * Includes handling for RF element.
  * @param {string} actionType - Identifier for the action causing the gain (e.g., 'completeReflection', 'researchSuccess').
  * @param {string | null} [elementKey=null] - The specific element key ('A'...'RF') to target, or 'All'.
  * @param {number} [amount=0.5] - The base amount of attunement to grant per targeted element.
@@ -197,15 +191,15 @@ export function gainAttunementForAction(actionType, elementKey = null, amount = 
         let keyFromContext = null;
         // Standard/Guided use currentReflectionCategory which stores the element name key ('Attraction', etc.)
         if ((currentReflectionContext === 'Standard' || currentReflectionContext === 'Guided') && currentReflectionCategory) {
-            // Map the element name key back to the single letter key ('A')
+             // Map the element name key back to the single letter key ('A'...'RF')
              keyFromContext = Object.keys(elementKeyToFullName).find(k => elementKeyToFullName[k] === currentReflectionCategory);
         } else if (currentReflectionContext === 'SceneMeditation') {
             const scene = sceneBlueprints.find(s => s.reflectionPromptId === currentPromptId);
-            keyFromContext = scene?.element || null; // Element defined in scene data ('A', 'I', etc.)
+            keyFromContext = scene?.element || null; // Element defined in scene data ('A'...'RF')
         } else if (currentReflectionContext === 'RareConcept') {
             // Find concept associated with the rare prompt ID
             const conceptEntry = Array.from(State.getDiscoveredConcepts().entries()).find(([id, data]) => data.concept.uniquePromptId === currentPromptId);
-            keyFromContext = conceptEntry ? conceptEntry[1].concept.primaryElement : null; // ('A', 'I', etc.)
+            keyFromContext = conceptEntry ? conceptEntry[1].concept.primaryElement : null; // ('A'...'RF')
         }
 
         if (keyFromContext && allKeys.includes(keyFromContext)) {
@@ -229,6 +223,7 @@ export function gainAttunementForAction(actionType, elementKey = null, amount = 
             case 'addToGrimoire': baseAmount = 0.6; break;
             case 'discover': baseAmount = 0.3; break;
             case 'markFocus': baseAmount = 1.0; break;
+            case 'experimentSuccess': baseAmount = 1.0; break; // Added default for experiment success
             default: baseAmount = 0.2; break; // Default small gain for other generic actions
         }
     } else {
@@ -290,7 +285,7 @@ export function handleQuestionnaireInputChange(event) {
         console.warn("Questionnaire input change outside valid element index.");
         return;
     }
-    // elementNames contains the keys like "Attraction", "Interaction", etc.
+    // elementNames contains the keys like "Attraction", "Interaction", ..., "RoleFocus"
     const elementNameKey = elementNames[currentState.currentElementIndex];
     // Get all current answers for this element from the UI
     const currentAnswers = UI.getQuestionnaireAnswers();
@@ -330,6 +325,7 @@ export function handleCheckboxChange(event) {
 
 /**
  * Calculates the score for a single element based on its answers.
+ * Includes RoleFocus.
  * @param {string} elementNameKey - The key for the element (e.g., "Attraction", "RoleFocus").
  * @param {object} answersForElement - The answers object for this specific element.
  * @returns {number} The calculated score (0-10).
@@ -368,7 +364,8 @@ export function calculateElementScore(elementNameKey, answersForElement) {
         }
         score += pointsToAdd;
     });
-    return Math.max(0, Math.min(10, score)); // Clamp score between 0 and 10
+    // Clamp score between 0 and 10
+    return Math.max(0, Math.min(10, score));
 }
 
 /**
@@ -412,12 +409,12 @@ export function goToPrevElement() {
         UI.displayElementQuestions(prevIndex); // Display previous questions
     } else {
         console.log("Already at the first element.");
-        // Optionally provide user feedback
     }
 }
 
 /**
  * Finalizes the questionnaire, calculates all scores, determines starter hand, and transitions UI.
+ * Includes RoleFocus.
  */
 export function finalizeQuestionnaire() {
     console.log("Logic: Finalizing scores for 7 elements...");
@@ -437,7 +434,7 @@ export function finalizeQuestionnaire() {
         }
     });
 
-    State.updateScores(finalScores); // Save the calculated scores ('A', 'I', etc.)
+    State.updateScores(finalScores); // Save the calculated scores ('A', 'I', ..., 'RF')
     State.saveAllAnswers(allAnswers); // Save the raw answers
     State.setQuestionnaireComplete(); // Marks done, saves state, handles onboarding flag if needed
 
@@ -453,21 +450,18 @@ export function finalizeQuestionnaire() {
     UI.populateGrimoireFilters();
     calculateTapestryNarrative(true); // Calculate initial narrative
     checkSynergyTensionStatus(); // Check initial status
-    UI.togglePersonaView(false); // Show summary view first after questionnaire
+    // Let main.js handle showScreen call after this
 
     console.log("Logic: Final User Scores (7 Elements):", State.getScores());
-    UI.showScreen('personaScreen'); // Transition to the main Persona screen
     UI.showTemporaryMessage("Experiment Complete! Explore your results.", 4000);
-
-    // Check onboarding phase 1 completion (handled by triggerAction in main.js via showScreen)
-    // This internal check might be redundant if main.js handles it
-    // checkOnboardingInternal('completeQuestionnaire', 1);
+    // UI.showScreen is handled by the calling function in main.js via triggerActionAndCheckOnboarding
 }
 
 
 // --- Starter Hand Determination (Uses 7 element distance) ---
 /**
  * Determines the initial set of discovered concepts based on score proximity.
+ * Includes RoleFocus in distance calculation.
  */
 export function determineStarterHandAndEssence() {
      console.log("Logic: Determining starter hand (7 Dimensions)...");
@@ -477,27 +471,34 @@ export function determineStarterHandAndEssence() {
      }
      const userScores = State.getScores(); // Includes RF score ('A'...'RF')
 
-     // Calculate distance for all concepts that have valid scores
+     // Calculate distance for all concepts that have valid scores for ALL 7 elements
      let conceptsWithDistance = concepts.map(c => {
-         // Ensure concept has elementScores and it includes all 7 keys
-         const conceptScoresValid = c.elementScores && Object.keys(c.elementScores).length === elementNames.length;
-         const distance = conceptScoresValid ? Utils.euclideanDistance(userScores, c.elementScores, c.name) : Infinity;
+         const conceptScores = c.elementScores;
+         // Strict check: Ensure elementScores exists and has exactly 7 keys
+         const conceptScoresValid = conceptScores && Object.keys(conceptScores).length === elementNames.length &&
+                                    elementNames.every(nameKey => {
+                                        const key = Object.keys(elementKeyToFullName).find(k => elementKeyToFullName[k] === nameKey);
+                                        return key && conceptScores.hasOwnProperty(key) && typeof conceptScores[key] === 'number';
+                                    });
+
+         const distance = conceptScoresValid ? Utils.euclideanDistance(userScores, conceptScores, c.name) : Infinity;
+
          if (!conceptScoresValid) {
-             console.warn(`Concept ${c.name} (ID: ${c.id}) missing or has incomplete scores (${Object.keys(c.elementScores || {}).length}/7). Excluding from starter hand calculation.`);
+             console.warn(`Concept ${c.name} (ID: ${c.id}) missing or has incomplete/invalid scores (${Object.keys(conceptScores || {}).length}/7). Excluding from starter hand calculation.`);
          }
          return { ...c, distance };
-     }).filter(c => c.distance !== Infinity && !isNaN(c.distance)); // Filter out concepts with calculation errors
+     }).filter(c => c.distance !== Infinity && !isNaN(c.distance)); // Filter out concepts with calculation errors or missing scores
 
      if (conceptsWithDistance.length === 0) {
         console.error("Distance calculation failed for all concepts or no valid concepts with complete scores found.");
         // Fallback: Grant first few concepts as default
-        const defaultStarters = concepts.slice(0, 5);
+        const defaultStarters = concepts.slice(0, Config.INITIAL_FOCUS_SLOTS); // Grant initial slots worth
         defaultStarters.forEach(c => {
             if (State.addDiscoveredConcept(c.id, c)) {
                 gainAttunementForAction('discover', c.primaryElement, 0.3);
             }
         });
-        console.warn("Granted default starter concepts due to error.");
+        console.warn(`Granted first ${Config.INITIAL_FOCUS_SLOTS} concepts due to error.`);
         UI.updateGrimoireCounter();
         return;
      }
@@ -509,7 +510,7 @@ export function determineStarterHandAndEssence() {
      const candidates = conceptsWithDistance.slice(0, 30); // Consider top 30 closest
      const starterHand = [];
      const starterHandIds = new Set();
-     const targetHandSize = 7;
+     const targetHandSize = Math.max(5, Config.INITIAL_FOCUS_SLOTS); // Aim for at least 5, up to initial slots
      const elementRepTarget = 4; // Try to get at least 4 unique primary elements represented
      const representedElements = new Set();
 
@@ -528,14 +529,14 @@ export function determineStarterHandAndEssence() {
          if (starterHandIds.has(c.id)) continue; // Skip already added
 
          const needsRep = c.primaryElement && representedElements.size < elementRepTarget && !representedElements.has(c.primaryElement);
-         // Add if it adds diversity and we need it, OR if we still need cards to reach a minimum (e.g., 5)
-         if (needsRep || starterHand.length < 5) {
+         // Add if it adds diversity and we need it, OR if we still need cards to reach target
+         if (needsRep || starterHand.length < targetHandSize) {
               starterHand.push(c);
               starterHandIds.add(c.id);
               if (c.primaryElement) representedElements.add(c.primaryElement);
          }
      }
-     // 3. Fill remaining slots with the next closest candidates
+     // 3. Fill remaining slots with the next closest candidates if needed
      for (const c of candidates) {
          if (starterHand.length >= targetHandSize) break;
          if (!starterHandIds.has(c.id)) {
@@ -544,7 +545,7 @@ export function determineStarterHandAndEssence() {
          }
      }
 
-     console.log("Logic: Starter Hand Selected:", starterHand.map(c => c.name));
+     console.log("Logic: Starter Hand Selected:", starterHand.map(c => `${c.name} (Dist: ${c.distance.toFixed(1)})`));
      // Add selected concepts to state
      starterHand.forEach(c => {
          if (State.addDiscoveredConcept(c.id, c)) { // Add to state (will save)
@@ -554,6 +555,7 @@ export function determineStarterHandAndEssence() {
      updateMilestoneProgress('discoveredConcepts.size', State.getDiscoveredConcepts().size); // Check collection milestones
      UI.updateGrimoireCounter(); // Update UI
 }
+
 
 // --- Core Screen Logic Calls ---
 
@@ -587,7 +589,7 @@ export function handleResearchClick({ currentTarget, isFree = false }) {
         console.error("handleResearchClick called with invalid target:", currentTarget);
         return;
     }
-    const elementKey = buttonCard.dataset.elementKey; // 'A', 'I', etc.
+    const elementKey = buttonCard.dataset.elementKey; // 'A', 'I', ..., 'RF'
     const cost = parseFloat(buttonCard.dataset.cost); // Base cost from config
 
     if (!elementKey || isNaN(cost)) {
@@ -638,7 +640,7 @@ export function handleFreeResearchClick() {
     let minAtt = Config.MAX_ATTUNEMENT + 1;
 
     // Find element with the lowest attunement
-    for (const key in attunement) {
+    for (const key in attunement) { // Includes RF
         if (attunement.hasOwnProperty(key) && attunement[key] < minAtt) {
             minAtt = attunement[key];
             targetKey = key;
@@ -662,10 +664,11 @@ export function handleFreeResearchClick() {
 
 /**
  * Performs the actual research logic for a given element.
+ * Includes RoleFocus.
  * @param {string} elementKeyToResearch - The single-letter key ('A'...'RF') for the element.
  */
 export function conductResearch(elementKeyToResearch) {
-    const elementNameKey = elementKeyToFullName[elementKeyToResearch]; // "Attraction", etc.
+    const elementNameKey = elementKeyToFullName[elementKeyToResearch]; // "Attraction", ..., "RoleFocus"
     if (!elementNameKey) {
         console.error(`Invalid element key for research: ${elementKeyToResearch}`);
         return;
@@ -716,10 +719,7 @@ export function conductResearch(elementKeyToResearch) {
         }
     }
 
-    // 2. Find new Concepts if no special item was found OR allow concept finding alongside special finds?
-    // Current logic: Find concepts ONLY if no special find was made. Let's adjust to allow both.
-    // Find concepts regardless of special find status, unless pool is empty.
-
+    // 2. Find new Concepts
     const conceptPool = concepts.filter(c => c.primaryElement === elementKeyToResearch && !discoveredIds.has(c.id));
 
     if (conceptPool.length === 0) {
@@ -793,7 +793,7 @@ export function handleConfirmReflection(nudgeAllowed) {
     switch (currentReflectionContext) {
         case 'Guided':
             rewardAmt = Config.GUIDED_REFLECTION_COST + 3; // Refund cost + bonus
-            // currentReflectionCategory holds the element name key ('Attraction', etc.)
+            // currentReflectionCategory holds the element name key ('Attraction', ..., 'RoleFocus')
             reflectionSourceText = `Guided Reflection (${Utils.getElementShortName(currentReflectionCategory) || 'Unknown'})`;
             // Map name key back to letter key for attunement
             attuneKey = Object.keys(elementKeyToFullName).find(k => elementKeyToFullName[k] === currentReflectionCategory);
@@ -802,13 +802,13 @@ export function handleConfirmReflection(nudgeAllowed) {
             rewardAmt = 8.0;
             const conceptDataRare = State.getDiscoveredConceptData(reflectionTargetConceptId);
             reflectionSourceText = `Rare Reflection (${conceptDataRare?.concept?.name || 'Unknown Concept'})`;
-            attuneKey = conceptDataRare?.concept?.primaryElement || null; // Get element from concept
+            attuneKey = conceptDataRare?.concept?.primaryElement || null; // Get element from concept ('A'...'RF')
             break;
         case 'SceneMeditation':
             const scene = sceneBlueprints.find(s => s.reflectionPromptId === currentPromptId);
             rewardAmt = (scene?.meditationCost || Config.SCENE_MEDITATION_BASE_COST) + 5; // Refund cost + bonus
             reflectionSourceText = `Scene Meditation (${scene?.name || 'Unknown Scene'})`;
-            attuneKey = scene?.element || null; // Get element from scene data
+            attuneKey = scene?.element || null; // Get element from scene data ('A'...'RF')
             break;
         case 'Dissonance':
             milestoneAct = 'completeReflectionDissonance';
@@ -818,18 +818,22 @@ export function handleConfirmReflection(nudgeAllowed) {
             reflectionSourceText = `Dissonance Reflection (${dissonantConcept?.name || 'Unknown Concept'})`;
 
             // Apply score nudge if allowed and target concept exists with valid scores
-            if (nudgeAllowed && reflectionTargetConceptId && dissonantConcept?.elementScores && Object.keys(dissonantConcept.elementScores).length === elementNames.length) {
+            // Strict check for 7 scores
+            const conceptScores = dissonantConcept?.elementScores;
+            const conceptScoresValid = conceptScores && Object.keys(conceptScores).length === elementNames.length;
+
+            if (nudgeAllowed && reflectionTargetConceptId && conceptScoresValid) {
                 console.log("Logic: Processing score nudge for Dissonance...");
                 const currentScores = State.getScores();
                 const newScores = { ...currentScores };
                 let nudged = false;
                 for (const key in currentScores) { // Iterate through 'A'...'RF'
-                    if (currentScores.hasOwnProperty(key) && dissonantConcept.elementScores.hasOwnProperty(key)) {
+                    if (currentScores.hasOwnProperty(key) && conceptScores.hasOwnProperty(key)) {
                         const uScore = currentScores[key];
-                        const cScore = dissonantConcept.elementScores[key];
+                        const cScore = conceptScores[key];
                         const diff = cScore - uScore;
                         // Only nudge if difference is somewhat significant
-                        if (Math.abs(diff) > 0.5) { // Threshold reduced slightly
+                        if (Math.abs(diff) > 0.5) {
                             const nudgeVal = Math.sign(diff) * Config.SCORE_NUDGE_AMOUNT;
                             newScores[key] = Math.max(0, Math.min(10, uScore + nudgeVal)); // Apply nudge and clamp
                             if (newScores[key] !== uScore) nudged = true;
@@ -844,10 +848,13 @@ export function handleConfirmReflection(nudgeAllowed) {
                     gainAttunementForAction('scoreNudge', 'All', 0.5); // Grant small attunement boost for nudge
                     updateMilestoneProgress('scoreNudgeApplied', 1); // Track milestone
                 }
+            } else if (nudgeAllowed && (!conceptScoresValid)) {
+                 console.warn(`Score nudge skipped for ${dissonantConcept?.name}: Concept scores invalid/incomplete.`);
             }
 
             // Add the concept to the Grimoire NOW after reflection is confirmed
             if (reflectionTargetConceptId) {
+                // Use internal function which handles logging, attunement, etc.
                 if (addConceptToGrimoireInternal(reflectionTargetConceptId, 'dissonanceConfirm')) {
                      // Update the research popup item state if it's still open and pending
                      const researchResultsPopup = document.getElementById('researchResultsPopup');
@@ -859,16 +866,18 @@ export function handleConfirmReflection(nudgeAllowed) {
                          UI.handleResearchPopupAction(reflectionTargetConceptId, 'kept_after_dissonance'); // Update UI in popup
                      }
                 } else {
-                     console.warn(`Failed to add concept ${reflectionTargetConceptId} after dissonance confirmation.`);
+                     console.warn(`Failed to add concept ${reflectionTargetConceptId} after dissonance confirmation (might already exist?).`);
                      // Optionally: update research popup to show an error state?
                      // UI.handleResearchPopupAction(reflectionTargetConceptId, 'error_adding');
                 }
+            } else {
+                 console.warn("Dissonance reflection confirmed but no target concept ID found to add.");
             }
             break; // End Dissonance specific handling
 
         default: // Standard or unknown context
             rewardAmt = 5.0;
-            // currentReflectionCategory holds the element name key ('Attraction', etc.)
+            // currentReflectionCategory holds the element name key ('Attraction', ..., 'RoleFocus')
             reflectionSourceText = `Standard Reflection (${Utils.getElementShortName(currentReflectionCategory) || 'General'})`;
             // Map name key back to letter key for attunement
             attuneKey = Object.keys(elementKeyToFullName).find(k => elementKeyToFullName[k] === currentReflectionCategory);
@@ -912,6 +921,14 @@ export function handleResearchPopupChoice(conceptId, action) {
         UI.handleResearchPopupAction(conceptId, 'error_unknown'); // Update UI to show error
         return;
     }
+     // Strict check for 7 scores
+     const conceptScoresValid = concept.elementScores && Object.keys(concept.elementScores).length === elementNames.length;
+     if (!conceptScoresValid) {
+         console.error(`Concept ${conceptId} (${concept.name}) has incomplete scores. Cannot process choice.`);
+         UI.handleResearchPopupAction(conceptId, 'error_unknown');
+         return;
+     }
+
     console.log(`Logic: Processing research choice: ${action} for ${concept.name} (ID: ${conceptId})`);
 
     if (action === 'keep') {
@@ -925,7 +942,7 @@ export function handleResearchPopupChoice(conceptId, action) {
             // Attempt to add to Grimoire directly
             if(addConceptToGrimoireInternal(conceptId, 'researchKeep')) {
                 UI.handleResearchPopupAction(conceptId, 'kept'); // Update UI state to 'kept'
-                // Onboarding check happens inside addConceptToGrimoireInternal
+                // Onboarding check happens inside addConceptToGrimoireInternal via triggerActionAndCheckOnboarding
             } else {
                 // Failed to add (e.g., already exists somehow, though shouldn't happen here)
                  UI.handleResearchPopupAction(conceptId, 'error_adding');
@@ -1060,9 +1077,9 @@ export function addConceptToGrimoireById(conceptId, buttonElement = null) {
          return;
      }
      const concept = concepts.find(c => c.id === conceptId);
-     if (!concept || !concept.elementScores) {
-         console.error("Cannot add concept: Not found or missing scores. ID:", conceptId);
-         UI.showTemporaryMessage("Error: Concept data not found.", 3000);
+     if (!concept || !concept.elementScores || Object.keys(concept.elementScores).length !== elementNames.length) {
+         console.error("Cannot add concept: Not found or missing/incomplete scores. ID:", conceptId);
+         UI.showTemporaryMessage("Error: Concept data invalid.", 3000);
          return;
      }
 
@@ -1104,7 +1121,6 @@ export function handleCardFocusToggle(conceptId) {
         return false;
     }
     const result = State.toggleFocusConcept(conceptId); // Handles state update & saves
-    const conceptName = State.getDiscoveredConceptData(conceptId)?.concept?.name || `ID ${conceptId}`;
 
     if (result === 'not_discovered') {
         UI.showTemporaryMessage("Concept not in Grimoire.", 3000);
@@ -1115,6 +1131,7 @@ export function handleCardFocusToggle(conceptId) {
         return false;
     }
     else { // Successfully added or removed
+        const conceptName = State.getDiscoveredConceptData(conceptId)?.concept?.name || `ID ${conceptId}`;
         const isFocused = result === 'added'; // Check the result string
         if (isFocused) {
             UI.showTemporaryMessage(`${conceptName} marked as Focus!`, 2500);
@@ -1234,12 +1251,9 @@ export function checkTriggerReflectionPrompt(triggerAction = 'other') {
         return;
     }
 
-    // Increment trigger count if adding a card or completing questionnaire
+    // Increment trigger count if adding a card
     if (triggerAction === 'add') { State.incrementReflectionTrigger(); }
-    else if (triggerAction === 'completeQuestionnaire') {
-        // Grant multiple triggers after questionnaire to likely prompt reflection sooner
-        State.incrementReflectionTrigger(); State.incrementReflectionTrigger(); State.incrementReflectionTrigger();
-    }
+    // Note: Questionnaire completion trigger is handled elsewhere to avoid double triggering
 
     const cardsAdded = currentState.cardsAddedSinceLastPrompt;
     const hasPendingRare = currentState.pendingRarePrompts.length > 0;
@@ -1277,15 +1291,16 @@ export function startReflectionCooldown(duration = Config.REFLECTION_COOLDOWN) {
 
 /**
  * Selects and displays a reflection prompt based on the context.
+ * Handles RoleFocus prompts.
  * @param {string} [context='Standard'] - The trigger context ('Standard', 'Dissonance', 'Guided', 'SceneMeditation', 'RareConcept').
  * @param {number | null} [targetId=null] - Relevant ID (Concept ID for Dissonance/Rare, Scene ID for SceneMeditation).
- * @param {string | null} [category=null] - Relevant category (Element Name Key for Guided/Standard).
+ * @param {string | null} [category=null] - Relevant category (Element Name Key for Guided/Standard - e.g., "Attraction", "RoleFocus").
  */
 export function triggerReflectionPrompt(context = 'Standard', targetId = null, category = null) {
     // Reset temporary state for this reflection
     currentReflectionContext = context;
     reflectionTargetConceptId = (context === 'Dissonance' || context === 'RareConcept') ? targetId : null;
-    currentReflectionCategory = (context === 'Guided' || context === 'Standard') ? category : null; // Expects "Attraction", etc.
+    currentReflectionCategory = (context === 'Guided' || context === 'Standard') ? category : null; // Expects "Attraction", "RoleFocus", etc.
     currentPromptId = null; // Will be set when a prompt is chosen
     let selectedPrompt = null;
     let title = "Moment for Reflection";
@@ -1342,10 +1357,10 @@ export function triggerReflectionPrompt(context = 'Standard', targetId = null, c
         reflectionTargetConceptId = targetId; // Ensure target ID is set
         if (promptPool.length === 0) { console.warn("No Dissonance prompts defined!"); context = 'Standard'; } // Fallback if none defined
     }
-    else if (context === 'Guided' && category) { // category is "Attraction", etc.
+    else if (context === 'Guided' && category) { // category is "Attraction", ..., "RoleFocus"
         title = "Guided Reflection";
         promptCatLabel = Utils.getElementShortName(category); // Use short name for display
-        promptPool = reflectionPrompts.Guided?.[category] || []; // Get prompts for this element
+        promptPool = reflectionPrompts[category] || []; // Get prompts using the element name key
         reward = Config.GUIDED_REFLECTION_COST + 3; // Refund cost + bonus
         if (promptPool.length === 0) { console.warn(`No Guided prompts for category: ${category}`); context = 'Standard'; } // Fallback
     }
@@ -1377,24 +1392,27 @@ export function triggerReflectionPrompt(context = 'Standard', targetId = null, c
         currentReflectionContext = 'Standard'; // Ensure context is set correctly
         title = "Standard Reflection";
         reward = 5.0;
-        const attunement = State.getAttunement(); // { A: val, I: val, ... RF: val }
+        const attunement = State.getAttunement(); // { A: val, ..., RF: val }
 
         // Find elements with attunement > 0 and available prompts
-        const validElementKeys = Object.entries(attunement).filter(([key, value]) => {
-             // Map key ('A') to name key ('Attraction')
-             const elementNameKey = elementKeyToFullName[key];
+        // Use elementNames to ensure RF is included
+        const validElementKeys = elementNames.filter(nameKey => {
+             const key = Object.keys(elementKeyToFullName).find(k => elementKeyToFullName[k] === nameKey);
              // Check attunement and if prompts exist for this element name key
-             return value > 0 && elementNameKey && reflectionPrompts[elementNameKey]?.length > 0;
-        }).map(([key]) => key); // Get back the single-letter keys ('A', 'I', etc.)
+             return key && attunement[key] > 0 && reflectionPrompts[nameKey]?.length > 0;
+        });
 
         if (validElementKeys.length > 0) {
             // Select randomly from the top half (most attuned) elements with prompts
-            const sortedKeys = validElementKeys.sort((a, b) => attunement[b] - attunement[a]);
-            const topTierCount = Math.max(1, Math.ceil(sortedKeys.length / 2));
-            const topTierKeys = sortedKeys.slice(0, topTierCount);
-            const selectedKey = topTierKeys[Math.floor(Math.random() * topTierKeys.length)]; // 'A', 'I', etc.
+            const sortedKeysByName = validElementKeys.sort((a, b) => {
+                 const keyA = Object.keys(elementKeyToFullName).find(k => elementKeyToFullName[k] === a);
+                 const keyB = Object.keys(elementKeyToFullName).find(k => elementKeyToFullName[k] === b);
+                 return attunement[keyB] - attunement[keyA]; // Sort by attunement value DESC
+            });
+            const topTierCount = Math.max(1, Math.ceil(sortedKeysByName.length / 2));
+            const topTierNames = sortedKeysByName.slice(0, topTierCount);
+            const selectedElementNameKey = topTierNames[Math.floor(Math.random() * topTierNames.length)]; // "Attraction", ..., "RoleFocus"
 
-            const selectedElementNameKey = elementKeyToFullName[selectedKey]; // "Attraction", etc.
             promptPool = reflectionPrompts[selectedElementNameKey] || [];
             promptCatLabel = Utils.getElementShortName(selectedElementNameKey); // Short name for display
             currentReflectionCategory = selectedElementNameKey; // Store the full name key for reward logic
@@ -1436,14 +1454,22 @@ export function triggerReflectionPrompt(context = 'Standard', targetId = null, c
             // If reflection popup couldn't show, add the concept now
              if (addConceptToGrimoireInternal(reflectionTargetConceptId, 'dissonance_prompt_failed')) {
                   UI.handleResearchPopupAction(reflectionTargetConceptId, 'kept_after_dissonance_fail');
+             } else {
+                  UI.handleResearchPopupAction(reflectionTargetConceptId, 'error_adding');
              }
+             // Ensure popup state is cleared if we bypass the modal
+             clearPopupState();
+             UI.hidePopups(); // Ensure no broken modal stays open
         } else if (context === 'Guided') {
             // Refund insight if guided reflection failed to find prompt
             gainInsight(Config.GUIDED_REFLECTION_COST, "Refund: Guided Reflection Failed");
             UI.showTemporaryMessage("Guided reflection unavailable, Insight refunded.", 3000);
+             clearPopupState(); // Clear temp state as reflection failed
+             UI.hidePopups(); // Ensure no broken modal stays open
+        } else {
+            // Generic failure, ensure state is cleared
+            clearPopupState();
         }
-        clearPopupState(); // Clear temp state as reflection failed
-        UI.hidePopups(); // Ensure no broken modal stays open
     }
 }
 
@@ -1451,17 +1477,18 @@ export function triggerReflectionPrompt(context = 'Standard', targetId = null, c
 
 /**
  * Triggers a guided reflection, selecting a random suitable element.
+ * Includes RoleFocus as a potential element.
  */
 export function triggerGuidedReflection() {
-    // Find elements that have Guided prompts defined
-    const availableElements = elementNames.filter(nameKey => reflectionPrompts.Guided?.[nameKey]?.length > 0);
+    // Find elements that have Guided prompts defined (using elementNames which includes RF)
+    const availableElements = elementNames.filter(nameKey => reflectionPrompts[nameKey]?.length > 0);
 
     if (availableElements.length === 0) {
         UI.showTemporaryMessage("No guided reflections available at this time.", 3000);
         return;
     }
     // Select a random element from those available
-    const randomElementKey = availableElements[Math.floor(Math.random() * availableElements.length)]; // "Attraction", etc.
+    const randomElementKey = availableElements[Math.floor(Math.random() * availableElements.length)]; // "Attraction", ..., "RoleFocus"
     const cost = Config.GUIDED_REFLECTION_COST;
 
     if (spendInsight(cost, `Seek Guidance: ${Utils.getElementShortName(randomElementKey)}`)) {
@@ -1490,7 +1517,7 @@ export function handleSaveNote() {
 export function handleUnlockLibraryLevel(event) {
     const button = event.target.closest('button.unlock-button');
     if (!button || button.disabled) return;
-    const key = button.dataset.elementKey; // 'A', 'I', etc.
+    const key = button.dataset.elementKey; // 'A', 'I', ..., 'RF'
     const level = parseInt(button.dataset.level);
     if (!key || isNaN(level)) {
         console.error("Invalid library unlock button data", {key, level});
@@ -1500,9 +1527,9 @@ export function handleUnlockLibraryLevel(event) {
      // Onboarding check handled by main.js trigger
 }
 
-/** Internal logic for unlocking deep dive levels */
+/** Internal logic for unlocking deep dive levels (Handles RF key) */
 function unlockDeepDiveLevelInternal(elementKey, levelToUnlock) {
-    // Map key 'A' to name key 'Attraction' for data lookup
+    // Map key 'A'...'RF' to name key 'Attraction'...'RoleFocus' for data lookup
     const elementNameKey = elementKeyToFullName[elementKey];
     if (!elementNameKey) {
         console.error(`Invalid element key '${elementKey}' for deep dive unlock.`);
@@ -1525,6 +1552,7 @@ function unlockDeepDiveLevelInternal(elementKey, levelToUnlock) {
                 UI.displayPersonaScreenLogic(); // This will re-render the deep dive section
             }
             updateMilestoneProgress('unlockLibrary', levelToUnlock); // Track milestone
+            updateMilestoneProgress('unlockedDeepDiveLevels', State.getState().unlockedDeepDiveLevels); // Check aggregate milestones
             checkAndUpdateRituals('unlockLibrary'); // Check rituals
             // Onboarding handled by main.js trigger
             return true;
@@ -1567,7 +1595,7 @@ function meditateOnSceneInternal(sceneId) {
             gainInsight(cost, `Refund: Missing prompt for scene ${scene.name}`);
             UI.showTemporaryMessage("Scene has no reflection prompt.", 2500);
         }
-        // Refresh repository if open to potentially update button state (though cost check happens on click)
+        // Refresh repository if open to potentially update button state
          if (document.getElementById('repositoryScreen')?.classList.contains('current')) {
             UI.displayRepositoryContent();
          }
@@ -1583,7 +1611,7 @@ export function handleAttemptExperiment(event) {
     attemptExperimentInternal(expId);
 }
 
-/** Internal logic for attempting an experiment */
+/** Internal logic for attempting an experiment (Checks RF requirements) */
 function attemptExperimentInternal(experimentId) {
     const exp = alchemicalExperiments.find(e => e.id === experimentId);
     if (!exp) {
@@ -1659,14 +1687,14 @@ function attemptExperimentInternal(experimentId) {
     }
 
     // Spend insight and attempt
-    if (!spendInsight(cost, `Attempt Exp: ${exp.name}`)) return; // Abort if spending failed (shouldn't happen due to check above)
+    if (!spendInsight(cost, `Attempt Exp: ${exp.name}`)) return; // Abort if spending failed
 
     console.log(`Logic: Attempting Experiment: ${exp.name}`);
     updateMilestoneProgress('attemptExperiment', 1);
     checkAndUpdateRituals('attemptExperiment');
 
     const roll = Math.random();
-    const successRate = exp.successRate !== undefined ? exp.successRate : 0.5; // Default 50% success if not specified
+    const successRate = exp.successRate !== undefined ? exp.successRate : 0.5;
 
     if (roll < successRate) {
         // --- Success ---
@@ -1686,17 +1714,23 @@ function attemptExperimentInternal(experimentId) {
             }
             // Add more reward types as needed
         }
-        gainAttunementForAction('experimentSuccess', exp.requiredElement, 1.5); // Bonus attunement for success
+        // Grant bonus attunement related to the experiment's element
+        gainAttunementForAction('experimentSuccess', exp.requiredElement, 1.5);
     } else {
         // --- Failure ---
         console.log(`Logic: Experiment '${exp.name}' Failed...`);
         UI.showTemporaryMessage(`Experiment '${exp.name}' Failed... Try again later.`, 3500);
         // Apply consequences if defined
         if (exp.failureConsequence) {
-            // Implement consequences (e.g., insight loss, temporary stat debuff)
-            console.warn(`Failure consequence for experiment ${exp.id} not fully implemented.`);
+            // Example: Apply consequence text or modify state slightly
+            console.warn(`Failure consequence for experiment ${exp.id}: ${exp.failureConsequence}`);
+            // Implement more specific consequences (e.g., insight loss, temporary stat debuff)
+            if(exp.failureConsequence.toLowerCase().includes('insight loss')) {
+                gainInsight(-2, `Exp Fail: ${exp.name}`); // Example small insight loss
+            }
         }
-        gainAttunementForAction('experimentFail', exp.requiredElement, 0.2); // Small attunement for trying
+        // Grant smaller attunement boost for trying
+        gainAttunementForAction('experimentFail', exp.requiredElement, 0.2);
     }
 
     // Refresh repository screen if it's currently visible
@@ -1727,7 +1761,7 @@ export function handleSuggestSceneClick() {
         .filter(([key, score]) => score > 4.0) // Consider elements with moderate+ focus score
         .sort(([, a], [, b]) => b - a); // Sort highest score first
 
-    // Get top 3 dominant element keys ('A', 'I', etc.)
+    // Get top 3 dominant element keys ('A', 'I', ..., 'RF')
     const topElements = sortedElements.slice(0, 3).map(([key]) => key);
 
     if (topElements.length === 0) {
@@ -1789,10 +1823,9 @@ export function handleCategorizeCard(conceptId, categoryId) {
         UI.refreshGrimoireDisplay(); // Update shelf counts and card appearance
         checkCategoryUnlocks(categoryId); // Check if this categorization unlocks anything
         checkAndUpdateRituals('categorizeCard', { categoryId: categoryId, conceptId: conceptId });
-        // Onboarding check handled by triggerActionAndCheckOnboarding in main.js ('categorizeCard', phase 5)
+        // Onboarding check handled by triggerActionAndCheckOnboarding in main.js
     } else {
         console.error(`Failed to set category for card ${conceptId}`);
-        // Optionally show user error
     }
 }
 
@@ -1838,20 +1871,29 @@ function checkCategoryUnlocks(categoryId) {
                         alreadyDone = true;
                         console.log(`Category unlock ${unlock.id} skipped: Lore ${reward.targetConceptId} Lvl ${reward.loreLevelToUnlock} already unlocked.`);
                     }
+                } else if (reward.type === 'attunement') {
+                    // Attunement can always be granted, no 'already done' check needed unless capping.
+                } else if (reward.type === 'insight') {
+                    // Insight can always be granted.
                 }
-                // Add checks for other reward types if they can be 'already done'
 
                 if (!alreadyDone) {
                     // Grant the reward
+                    let message = unlock.description || `Category Synergy!`; // Default message
                     if (reward.type === 'lore') {
-                        if (unlockLoreInternal(reward.targetConceptId, reward.loreLevelToUnlock, `Category Unlock: ${unlock.description || unlock.id}`)) {
-                            UI.showTemporaryMessage(unlock.description || `New Lore Unlocked!`, 4000);
-                        }
+                        if (unlockLoreInternal(reward.targetConceptId, reward.loreLevelToUnlock, `Category Unlock: ${unlock.id}`)) {
+                            message += ` New Lore Unlocked!`;
+                        } else { message = null; } // Don't show message if unlock failed
                     } else if (reward.type === 'insight') {
-                        gainInsight(reward.amount, `Category Unlock: ${unlock.description || unlock.id}`);
-                        UI.showTemporaryMessage(unlock.description || `Gained ${reward.amount} Insight!`, 3500);
+                        gainInsight(reward.amount, `Category Unlock: ${unlock.id}`);
+                        message += ` Gained ${reward.amount} Insight!`;
+                    } else if (reward.type === 'attunement') {
+                         gainAttunementForAction('ritual', reward.element || 'All', reward.amount || 0);
+                         message += ` Gained ${reward.amount} ${Utils.getElementShortName(elementKeyToFullName[reward.element] || reward.element || 'All')} Attunement!`;
                     }
-                    // Add other reward types (attunement, etc.)
+                    // Add other reward types
+
+                    if (message) UI.showTemporaryMessage(message, 4000);
                 }
             }
         }
@@ -1932,7 +1974,7 @@ export function handleExploreSynergyClick() {
     UI.displaySynergyTensionInfo(currentTapestryAnalysis);
 }
 
-/** Calculates the average scores based on currently focused concepts */
+/** Calculates the average scores based on currently focused concepts (Includes RF) */
 export function calculateFocusScores() {
     const scores = { A: 0, I: 0, S: 0, P: 0, C: 0, R: 0, RF: 0 }; // Initialize all 7
     const focused = State.getFocusedConcepts();
@@ -1941,14 +1983,17 @@ export function calculateFocusScores() {
 
     if (count > 0) {
         focused.forEach(id => {
-            const data = disc.get(id);
-            // Use concept scores if available, otherwise add neutral (5.0)
-            if (data?.concept?.elementScores && Object.keys(data.concept.elementScores).length === elementNames.length) {
+            const conceptData = disc.get(id)?.concept;
+            // Use concept scores if available and complete, otherwise add neutral (5.0)
+            const conceptScores = conceptData?.elementScores;
+            const scoresValid = conceptScores && Object.keys(conceptScores).length === elementNames.length;
+
+            if (scoresValid) {
                 for (const key in scores) {
-                    scores[key] += data.concept.elementScores[key];
+                    scores[key] += conceptScores[key] ?? 5.0; // Use 5 if key exists but value is somehow null/undefined
                 }
             } else {
-                 if(data?.concept) console.warn(`Concept ${data.concept.name} (ID: ${id}) in focus has missing/incomplete scores. Using neutral 5.0 for averaging.`);
+                 if(conceptData) console.warn(`Concept ${conceptData.name} (ID: ${id}) in focus has missing/incomplete scores. Using neutral 5.0 for averaging.`);
                 for (const key in scores) { scores[key] += 5.0; } // Add neutral if scores missing/incomplete
             }
         });
@@ -1965,17 +2010,17 @@ export function calculateFocusScores() {
 
 /**
  * Calculates the tapestry narrative, themes, synergies, and tensions based on focused concepts.
- * Uses caching based on focus set hash.
+ * Uses caching based on focus set hash. Includes RF.
  * @param {boolean} [forceRecalculate=false] - Force recalculation even if cache seems valid.
  * @returns {string} The generated HTML narrative string.
  */
 export function calculateTapestryNarrative(forceRecalculate = false) {
-    const stateHash = State.getState().currentFocusSetHash;
     const currentCalculatedHash = _calculateFocusSetHash(); // Calculate hash from current focus
+    const stateHash = State.getState().currentFocusSetHash;
 
     // Use cache if not forcing recalculation and the focus set hasn't changed
     if (currentTapestryAnalysis && !forceRecalculate && currentCalculatedHash === stateHash) {
-        // console.log("Using cached tapestry analysis.");
+        // console.log("Using cached tapestry analysis."); // Reduce noise
         return currentTapestryAnalysis.fullNarrativeHTML;
     }
 
@@ -1997,25 +2042,24 @@ export function calculateTapestryNarrative(forceRecalculate = false) {
     }
 
     const disc = State.getDiscoveredConcepts();
-    const { focusScores } = calculateFocusScores(); // Get averaged scores based on focus
+    const { focusScores } = calculateFocusScores(); // Get averaged scores based on focus (includes RF)
     const analysis = currentTapestryAnalysis; // Work directly on the cached object
 
-    // 1. Determine Dominant Elements
+    // 1. Determine Dominant Elements (Includes RF)
     const sortedElements = Object.entries(focusScores)
         .filter(([key, score]) => score > 3.5) // Consider elements above 'low'
         .sort(([, a], [, b]) => b - a); // Sort highest first
 
     if (sortedElements.length > 0) {
         analysis.dominantElements = sortedElements.map(([key, score]) => ({
-            key: key,
-            // Map key 'A' back to name key 'Attraction' for Utils functions
-            name: Utils.getElementShortName(elementKeyToFullName[key]),
+            key: key, // 'A', 'I', ..., 'RF'
+            name: Utils.getElementShortName(elementKeyToFullName[key]), // Get display name
             score: score
         }));
 
         // Generate Element Theme based on top 1-3 elements
         const topElementKeys = analysis.dominantElements.slice(0, 3).map(e => e.key).sort().join('');
-        // Look for specific interaction theme (e.g., "AIS") or single element theme
+        // Look for specific interaction theme (e.g., "AIS", "IRF") or single element theme
         const themeKey = topElementKeys.length > 1 ? topElementKeys : (topElementKeys.length === 1 ? analysis.dominantElements[0].key : null);
 
         if (themeKey && elementInteractionThemes && elementInteractionThemes[themeKey]) {
@@ -2085,7 +2129,7 @@ export function calculateTapestryNarrative(forceRecalculate = false) {
         });
     });
 
-    // 4. Identify Tensions (Concepts with opposing scores in the same element)
+    // 4. Identify Tensions (Concepts with opposing scores in the same element) (Includes RF)
     const highThreshold = 7.0;
     const lowThreshold = 3.0;
     const focusConceptsData = Array.from(focused).map(id => disc.get(id)?.concept).filter(Boolean); // Get data for focused concepts
@@ -2093,13 +2137,14 @@ export function calculateTapestryNarrative(forceRecalculate = false) {
     if (focusConceptsData.length >= 2) {
         for (const key of Object.keys(elementKeyToFullName)) { // Check each element key ('A'...'RF')
             const elementName = Utils.getElementShortName(elementKeyToFullName[key]);
-            let hasHigh = focusConceptsData.some(c => c.elementScores?.[key] >= highThreshold);
-            let hasLow = focusConceptsData.some(c => c.elementScores?.[key] <= lowThreshold);
+            // Check if concept scores exist and contain the key before accessing
+            let hasHigh = focusConceptsData.some(c => c.elementScores?.[key] !== undefined && c.elementScores[key] >= highThreshold);
+            let hasLow = focusConceptsData.some(c => c.elementScores?.[key] !== undefined && c.elementScores[key] <= lowThreshold);
 
             if (hasHigh && hasLow) {
                 // Tension detected in this element
-                const highConcepts = focusConceptsData.filter(c => c.elementScores?.[key] >= highThreshold).map(c => c.name);
-                const lowConcepts = focusConceptsData.filter(c => c.elementScores?.[key] <= lowThreshold).map(c => c.name);
+                const highConcepts = focusConceptsData.filter(c => c.elementScores?.[key] !== undefined && c.elementScores[key] >= highThreshold).map(c => c.name);
+                const lowConcepts = focusConceptsData.filter(c => c.elementScores?.[key] !== undefined && c.elementScores[key] <= lowThreshold).map(c => c.name);
                 analysis.tensions.push({
                     element: elementName,
                     text: `A potential tension exists within **${elementName}**: concepts like **${highConcepts.join(', ')}** lean high, while **${lowConcepts.join(', ')}** lean low.`
@@ -2144,15 +2189,14 @@ export function calculateTapestryNarrative(forceRecalculate = false) {
     analysis.fullNarrativeRaw = narrative.trim();
     analysis.fullNarrativeHTML = analysis.fullNarrativeRaw.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
 
-    // Update cache and state hash
-    currentTapestryAnalysis = analysis;
+    // Update state hash (cache invalidation marker)
     State.getState().currentFocusSetHash = currentCalculatedHash; // Update hash in state
     console.log("Logic: Recalculated Tapestry Analysis (7 Elements) and updated state hash.");
 
     return analysis.fullNarrativeHTML;
 }
 
-/** Calculates dominant themes based on focused concepts */
+/** Calculates dominant themes based on focused concepts (Includes RF) */
 export function calculateFocusThemes() {
     const focused = State.getFocusedConcepts();
     const disc = State.getDiscoveredConcepts();
@@ -2164,7 +2208,7 @@ export function calculateFocusThemes() {
     focused.forEach(id => {
         const concept = disc.get(id)?.concept;
         if (concept?.elementScores) {
-            for (const key in concept.elementScores) { // key is 'A', 'I', etc.
+            for (const key in concept.elementScores) { // key is 'A', 'I', ..., 'RF'
                 if (counts.hasOwnProperty(key) && concept.elementScores[key] >= threshold) {
                     counts[key]++;
                 }
@@ -2177,7 +2221,7 @@ export function calculateFocusThemes() {
         .filter(([key, count]) => count > 0) // Only include elements with counts > 0
         .sort(([, a], [, b]) => b - a) // Sort by count descending
         .map(([key, count]) => ({
-            key: key,
+            key: key, // 'A', ..., 'RF'
             name: Utils.getElementShortName(elementKeyToFullName[key]), // Get display name
             count: count
         }));
@@ -2186,7 +2230,7 @@ export function calculateFocusThemes() {
 }
 
 // --- Focus Unlocks (Checks RF) ---
-/** Checks if the current focus set unlocks any special items */
+/** Checks if the current focus set unlocks any special items (Handles RF Requirements) */
 export function checkForFocusUnlocks(silent = false) {
      console.log("Logic: Checking focus unlocks...");
      let newlyUnlocked = false;
@@ -2201,6 +2245,7 @@ export function checkForFocusUnlocks(silent = false) {
          // 1. Check required concept IDs
          if (!unlock.requiredFocusIds || unlock.requiredFocusIds.length === 0) {
              met = false; // Must require at least one concept
+             console.warn(`Focus Unlock ${unlock.id} definition issue: No requiredFocusIds specified.`);
          } else {
              for (const reqId of unlock.requiredFocusIds) {
                  if (!focused.has(reqId)) {
@@ -2209,15 +2254,15 @@ export function checkForFocusUnlocks(silent = false) {
                  }
              }
          }
-         // 2. Check RF score requirement (if defined)
+         // 2. Check RF score requirement (above threshold)
          if (met && unlock.requiredRoleFocusScore !== undefined) {
-             if ((scores.RF || 0) < unlock.requiredRoleFocusScore) {
+             if ((scores.RF ?? 0) < unlock.requiredRoleFocusScore) { // Use nullish coalescing for safety
                  met = false; // RF score too low
              }
          }
-         // 3. Check RF score upper bound requirement (if defined)
+         // 3. Check RF score requirement (below threshold)
          if (met && unlock.requiredRoleFocusScoreBelow !== undefined) {
-             if ((scores.RF || 0) >= unlock.requiredRoleFocusScoreBelow) {
+             if ((scores.RF ?? 0) >= unlock.requiredRoleFocusScoreBelow) { // Use nullish coalescing
                  met = false; // RF score too high
              }
          }
@@ -2249,6 +2294,8 @@ export function checkForFocusUnlocks(silent = false) {
                  // Add other unlock types (e.g., direct insight gain) here if needed
 
                  if (!silent) UI.showTemporaryMessage(`Focus Synergy: ${notification}`, 5000);
+                 // Check milestones triggered by this unlock itself
+                 updateMilestoneProgress('unlockedFocusItems', State.getUnlockedFocusItems().size);
              }
          }
      });
@@ -2369,7 +2416,9 @@ function generateFocusedContemplation() {
         // Option 1: Based on Tension
         if (currentTapestryAnalysis.tensions.length > 0) {
              const tension = currentTapestryAnalysis.tensions[Math.floor(Math.random() * currentTapestryAnalysis.tensions.length)];
-             taskOptions.push({ type: "Tension Exploration", text: `Your Tapestry reveals potential tension within **${tension.element}**. ${tension.text} How might you navigate or integrate these opposing forces within yourself?`, reward: { type: 'attunement', element: Object.keys(elementKeyToFullName).find(k => Utils.getElementShortName(elementKeyToFullName[k]) === tension.element) || 'All', amount: 0.5 }, requiresCompletionButton: true });
+             // Find the element key ('A'...'RF') from the short name
+             const tensionElementKey = Object.keys(elementKeyToFullName).find(k => Utils.getElementShortName(elementKeyToFullName[k]) === tension.element);
+             taskOptions.push({ type: "Tension Exploration", text: `Your Tapestry reveals potential tension within **${tension.element}**. ${tension.text} How might you navigate or integrate these opposing forces within yourself?`, reward: { type: 'attunement', element: tensionElementKey || 'All', amount: 0.5 }, requiresCompletionButton: true });
         }
         // Option 2: Based on Synergy
         if (currentTapestryAnalysis.synergies.length > 0) {
@@ -2378,7 +2427,7 @@ function generateFocusedContemplation() {
         }
         // Option 3: Based on Dominant Element
         if (currentTapestryAnalysis.dominantElements.length > 0 && currentTapestryAnalysis.dominantElements[0].score > 7.0) {
-            const domEl = currentTapestryAnalysis.dominantElements[0];
+            const domEl = currentTapestryAnalysis.dominantElements[0]; // { key: 'A', name: 'Attraction', score: ... }
              taskOptions.push({ type: "Dominant Element Focus", text: `Your Tapestry strongly emphasizes **${domEl.name}**. What is the core gift or challenge this dominant element presents in your life right now? How can you embody its energy more consciously?`, reward: { type: 'attunement', element: domEl.key, amount: 0.7 }, requiresCompletionButton: true });
         }
         // Option 4: Based on a specific focused concept (if any exist)
@@ -2404,22 +2453,20 @@ function generateFocusedContemplation() {
 
 /** Handles completing the contemplation task */
 export function handleCompleteContemplation(taskData = null) {
-     // Retrieve task data if not passed (e.g., if called from button listener without context)
-     // This is less robust; ideally, the task data is associated with the button event.
-     // For now, assume taskData might be null and we check the generated task.
-    const task = taskData || generateFocusedContemplation(); // Re-generate if needed, might differ slightly
+     // Try to retrieve task data if not passed directly
+    const currentTask = taskData || generateFocusedContemplation(); // Re-generate if needed, might differ slightly
 
-    if (!task || !task.reward || !task.requiresCompletionButton) {
+    if (!currentTask || !currentTask.reward || !currentTask.requiresCompletionButton) {
          console.warn("Contemplation completion attempted without valid task data.");
          return; // Cannot complete without valid task info
     }
 
-    console.log(`Contemplation task completed: ${task.type}`);
+    console.log(`Contemplation task completed: ${currentTask.type}`);
     // Grant reward
-    if (task.reward.type === 'insight' && task.reward.amount > 0) {
-        gainInsight(task.reward.amount, `Contemplation Task: ${task.type}`);
-    } else if (task.reward.type === 'attunement' && task.reward.amount > 0) {
-        gainAttunementForAction('contemplation', task.reward.element || 'All', task.reward.amount);
+    if (currentTask.reward.type === 'insight' && currentTask.reward.amount > 0) {
+        gainInsight(currentTask.reward.amount, `Contemplation Task: ${currentTask.type}`);
+    } else if (currentTask.reward.type === 'attunement' && currentTask.reward.amount > 0) {
+        gainAttunementForAction('contemplation', currentTask.reward.element || 'All', currentTask.reward.amount);
     }
     // Add other reward types if needed
 
@@ -2471,40 +2518,41 @@ export function handleConfirmDilemma() {
         const newScores = { ...currentScores };
         let nudged = false;
 
-        // Calculate nudge proportions - leaning towards max increases max, decreases min slightly
-        const maxNudgeEffect = Config.SCORE_NUDGE_AMOUNT * 1.5; // Max potential shift
-        const proportionMax = sliderValue / 10; // 0 to 1
-        const proportionMin = (10 - sliderValue) / 10; // 1 to 0
+        // Ensure keys exist in scores before proceeding
+        if (!currentScores.hasOwnProperty(keyMin) || !currentScores.hasOwnProperty(keyMax)) {
+             console.warn(`Dilemma Nudge Error: Invalid element keys: ${keyMin}, ${keyMax}`);
+        } else {
+            // Calculate nudge proportions - leaning towards max increases max, decreases min slightly
+            const maxNudgeEffect = Config.SCORE_NUDGE_AMOUNT * 1.5; // Max potential shift
+            const proportionMax = sliderValue / 10; // 0 to 1
+            const proportionMin = (10 - sliderValue) / 10; // 1 to 0
 
-        // Nudge = Base * Proportion - Dampening * OtherProportion
-        // Reduces the boost slightly based on how much the *other* side is favored
-        const dampeningFactor = 0.3;
-        const nudgeMin = proportionMin * maxNudgeEffect - (proportionMax * maxNudgeEffect * dampeningFactor);
-        const nudgeMax = proportionMax * maxNudgeEffect - (proportionMin * maxNudgeEffect * dampeningFactor);
+            // Nudge = Base * Proportion - Dampening * OtherProportion
+            const dampeningFactor = 0.3;
+            const nudgeMin = (proportionMin * maxNudgeEffect) - (proportionMax * maxNudgeEffect * dampeningFactor);
+            const nudgeMax = (proportionMax * maxNudgeEffect) - (proportionMin * maxNudgeEffect * dampeningFactor);
 
-        // Apply nudge to Min element score
-        if (newScores.hasOwnProperty(keyMin)) {
+            // Apply nudge to Min element score
             const originalMin = newScores[keyMin];
             newScores[keyMin] = Math.max(0, Math.min(10, newScores[keyMin] + nudgeMin)); // Apply and clamp
             if (newScores[keyMin] !== originalMin) nudged = true;
-             console.log(`Dilemma Nudge: ${keyMin} adjusted by ${nudgeMin.toFixed(2)}`);
-        }
-        // Apply nudge to Max element score
-        if (newScores.hasOwnProperty(keyMax)) {
+            console.log(`Dilemma Nudge: ${keyMin} adjusted by ${nudgeMin.toFixed(2)} -> ${newScores[keyMin].toFixed(1)}`);
+
+            // Apply nudge to Max element score
             const originalMax = newScores[keyMax];
             newScores[keyMax] = Math.max(0, Math.min(10, newScores[keyMax] + nudgeMax)); // Apply and clamp
             if (newScores[keyMax] !== originalMax) nudged = true;
-            console.log(`Dilemma Nudge: ${keyMax} adjusted by ${nudgeMax.toFixed(2)}`);
-        }
+            console.log(`Dilemma Nudge: ${keyMax} adjusted by ${nudgeMax.toFixed(2)} -> ${newScores[keyMax].toFixed(1)}`);
 
-        // If any scores actually changed, update state and UI
-        if (nudged) {
-            State.updateScores(newScores); // Save updated scores
-            console.log("Nudged Scores after Dilemma:", State.getScores());
-            if(personaScreen?.classList.contains('current')) UI.displayPersonaScreen(); // Refresh if visible
-            UI.showTemporaryMessage("Dilemma choice influenced core understanding.", 3500);
-            gainAttunementForAction('dilemmaNudge', 'All'); // Small attunement boost
-            updateMilestoneProgress('scoreNudgeApplied', 1); // Track milestone
+            // If any scores actually changed, update state and UI
+            if (nudged) {
+                State.updateScores(newScores); // Save updated scores
+                console.log("Nudged Scores after Dilemma:", State.getScores());
+                if(personaScreen?.classList.contains('current')) UI.displayPersonaScreen(); // Refresh if visible
+                UI.showTemporaryMessage("Dilemma choice influenced core understanding.", 3500);
+                gainAttunementForAction('dilemmaNudge', 'All'); // Small attunement boost
+                updateMilestoneProgress('scoreNudgeApplied', 1); // Track milestone
+            }
         }
     }
 
@@ -2539,6 +2587,9 @@ export function checkForDailyLogin() {
         if(workshopScreen?.classList.contains('current')) {
             UI.displayWorkshopScreenContent();
         }
+         if(repositoryScreen?.classList.contains('current')) {
+             UI.displayDailyRituals(); // Refresh ritual display in case state didn't fully update UI
+        }
     }
 }
 
@@ -2546,6 +2597,7 @@ export function checkForDailyLogin() {
 
 /**
  * Checks if an action triggers progress or completion of any daily or focus rituals.
+ * Includes RoleFocus checks.
  * @param {string} action - The action performed (e.g., 'addToGrimoire', 'completeReflection').
  * @param {object} [details={}] - Additional details about the action (e.g., { conceptId: 1, rarity: 'rare' }).
  */
@@ -2569,27 +2621,36 @@ export function checkAndUpdateRituals(action, details = {}) {
                 }
             }
             // Check RF score requirement (above)
-            if (focusMet && ritual.requiredRoleFocusScore !== undefined && (scores.RF || 0) < ritual.requiredRoleFocusScore) {
+            if (focusMet && ritual.requiredRoleFocusScore !== undefined && (scores.RF ?? 0) < ritual.requiredRoleFocusScore) {
                  focusMet = false;
             }
             // Check RF score requirement (below)
-            if (focusMet && ritual.requiredRoleFocusScoreBelow !== undefined && (scores.RF || 0) >= ritual.requiredRoleFocusScoreBelow) {
+            if (focusMet && ritual.requiredRoleFocusScoreBelow !== undefined && (scores.RF ?? 0) >= ritual.requiredRoleFocusScoreBelow) {
                  focusMet = false;
             }
 
             // If all requirements met, add it to the pool to be checked
             if (focusMet) {
-                 currentRitualPool.push({ ...ritual, isFocusRitual: true, period: 'daily' });
+                 // Use default period 'daily' if not specified in focus ritual data
+                 currentRitualPool.push({ ...ritual, isFocusRitual: true, period: ritual.period || 'daily' });
             }
         });
     }
 
     // Iterate through the combined pool of active rituals
     currentRitualPool.forEach(ritual => {
-        const completedData = completedToday[ritual.id] || { completed: false, progress: 0 };
-        if (completedData.completed) return; // Skip rituals already completed today
+        const period = ritual.period || 'daily'; // Default to daily if period missing
+        const completedPeriodData = currentState.completedRituals[period] || {};
+        const completedData = completedPeriodData[ritual.id] || { completed: false, progress: 0 };
+
+        if (completedData.completed) return; // Skip rituals already completed for their period
 
         const track = ritual.track; // The trigger conditions for this ritual
+        if (!track) {
+             console.warn(`Ritual ${ritual.id} has no tracking conditions defined. Skipping check.`);
+             return;
+        }
+
         let triggerMet = false;
 
         // Check if the action matches the ritual's trigger action
@@ -2611,13 +2672,13 @@ export function checkAndUpdateRituals(action, details = {}) {
         // If all trigger conditions are met, update progress
         if (triggerMet) {
              // Increment progress (returns new progress count)
-             const progress = State.completeRitualProgress(ritual.id, 'daily');
+             const progress = State.completeRitualProgress(ritual.id, period);
              const requiredCount = track.count || 1; // How many times action needs to be done
 
              // Check if progress meets the required count for completion
              if (progress >= requiredCount) {
                  console.log(`Logic: Ritual Completed: ${ritual.description}`);
-                 State.markRitualComplete(ritual.id, 'daily'); // Mark as done for the day
+                 State.markRitualComplete(ritual.id, period); // Mark as done for the period
                  ritualCompletedThisCheck = true;
 
                  // Grant reward if defined
@@ -2644,6 +2705,7 @@ export function checkAndUpdateRituals(action, details = {}) {
 
 /**
  * Updates progress towards milestones based on actions or state changes.
+ * Includes RoleFocus milestone checks.
  * @param {string} trackType - The type of progress being tracked (e.g., 'elementAttunement', 'discoveredConcepts.size', 'completeReflection').
  * @param {any} currentValue - The current value related to the trackType (e.g., specific attunement score, total concepts, or just 1 for action counts).
  */
@@ -2654,10 +2716,8 @@ export function updateMilestoneProgress(trackType, currentValue) {
      // Defensive check: Ensure achievedMilestones is actually a Set
      if (!(achievedSet instanceof Set)) {
           console.error("CRITICAL ERROR: gameState.achievedMilestones is not a Set! Attempting recovery.");
-          // Attempt to recover or default
           gameState.achievedMilestones = new Set(Array.isArray(gameState.achievedMilestones) ? gameState.achievedMilestones : []);
-          // Avoid proceeding further in this potentially corrupted state for this check cycle
-          return;
+          return; // Avoid proceeding further in this potentially corrupted state for this check cycle
      }
 
      milestones.forEach(m => {
@@ -2665,32 +2725,29 @@ export function updateMilestoneProgress(trackType, currentValue) {
 
          let achieved = false;
          const track = m.track;
+         if (!track) {
+             console.warn(`Milestone ${m.id} is missing tracking data. Skipping.`);
+             return;
+         }
 
-         // Determine the threshold: Use config for ms024, otherwise use milestone data
+         // Determine the threshold: Use config for max focus slots milestone, otherwise use milestone data
          const threshold = (m.id === 'ms024') ? Config.MAX_FOCUS_SLOTS : track.threshold;
          const countThreshold = track.count || 1; // For action counts
 
          // --- Check based on track type ---
 
          // 1. Action-based milestones
-         if (track.action === trackType) {
-             // Simple action count check (e.g., completeReflection count: 5)
-             // Assumes currentValue is 1 for each action occurrence
-             // State needs to store the running count for these actions if threshold > 1.
-             // Currently, the logic seems to pass '1' for each action.
-             // We need a way to get the *total count* for the action from state if threshold > 1.
-             // Let's assume for now `currentValue` IS the total count if provided, otherwise it's 1.
-             // *** This needs review based on how action counts are stored/passed ***
-             // Assuming simple trigger for count: 1 for now. More complex count logic would need state integration.
-             if (countThreshold === 1 && currentValue) { // Simple trigger check
-                 achieved = true;
-             } else if (typeof currentValue === 'number' && currentValue >= countThreshold) {
-                 // If the calling function passed the *total* count
+         if (track.action && track.action === trackType) {
+             // Simple action count check (assumes currentValue is the *total* count from state if > 1)
+             // State management needs to maintain these counts if milestones require > 1 action.
+             // Currently, most action counts are tracked simply by triggering '1' here.
+             const currentActionCount = typeof currentValue === 'number' ? currentValue : 1; // Assume 1 if not specified
+             if (currentActionCount >= countThreshold) {
                  achieved = true;
              }
          }
          // 2. State-based milestones
-         else if (track.state === trackType) {
+         else if (track.state && track.state === trackType) {
              const state = State.getState(); // Get current state
              const scores = state.userScores;
              const att = state.elementAttunement;
@@ -2700,7 +2757,7 @@ export function updateMilestoneProgress(trackType, currentValue) {
              // Handle specific state checks
              if (trackType === 'elementAttunement') {
                  // currentValue could be the whole attunement object OR just the changed value {key: value}
-                 const attToCheck = (typeof currentValue === 'object' && currentValue !== null && Object.keys(currentValue).length === elementNames.length) ? currentValue : att; // Use full state if partial not passed
+                 const attToCheck = (typeof currentValue === 'object' && currentValue !== null && !Array.isArray(currentValue) && Object.keys(currentValue).length === elementNames.length) ? currentValue : att; // Use full state if partial not passed
 
                  if (track.element && attToCheck.hasOwnProperty(track.element)) {
                      // Check specific element against threshold
@@ -2712,39 +2769,38 @@ export function updateMilestoneProgress(trackType, currentValue) {
                      // Check if ALL elements meet the threshold
                      const allKeys = Object.keys(att); // Get all 7 keys
                      // Ensure we have scores for all expected elements before checking
-                     achieved = allKeys.length === elementNames.length && allKeys.every(key => attToCheck[key] >= threshold);
+                     achieved = allKeys.length === elementNames.length && allKeys.every(key => attToCheck.hasOwnProperty(key) && attToCheck[key] >= threshold);
                  }
              } else if (trackType === 'unlockedDeepDiveLevels') {
-                  const levelsToCheck = (typeof currentValue === 'object' && currentValue !== null && Object.keys(currentValue).length === elementNames.length) ? currentValue : lvls;
-                  if (track.condition === 'any') achieved = Object.values(levelsToCheck).some(v => v >= threshold);
-                  else if (track.condition === 'all') { const allKeys = Object.keys(lvls); achieved = allKeys.length === elementNames.length && allKeys.every(key => levelsToCheck[key] >= threshold); }
+                  const levelsToCheck = (typeof currentValue === 'object' && currentValue !== null && !Array.isArray(currentValue)) ? currentValue : lvls;
+                  if (track.condition === 'any') {
+                       achieved = Object.values(levelsToCheck).some(v => v >= threshold);
+                  } else if (track.condition === 'all') {
+                       const allKeys = Object.keys(lvls);
+                       achieved = allKeys.length === elementNames.length && allKeys.every(key => levelsToCheck.hasOwnProperty(key) && levelsToCheck[key] >= threshold);
+                  }
              }
              else if (trackType === 'discoveredConcepts.size') checkValue = State.getDiscoveredConcepts().size;
              else if (trackType === 'focusedConcepts.size') checkValue = State.getFocusedConcepts().size;
              else if (trackType === 'repositoryInsightsCount') checkValue = State.getRepositoryItems().insights.size;
              else if (trackType === 'focusSlotsTotal') { // Specifically for ms024 or similar
                   checkValue = State.getFocusSlots();
-                  // Special check for ms024 using config threshold
-                  if (m.id === 'ms024' && checkValue >= threshold) { // threshold = Config.MAX_FOCUS_SLOTS
-                      achieved = true;
-                  }
              }
              else if (trackType === 'repositoryContents' && track.condition === "allTypesPresent") {
                   const i = State.getRepositoryItems();
                   achieved = i.scenes.size > 0 && i.experiments.size > 0 && i.insights.size > 0;
              }
-             else if (trackType === 'unlockLore') { // Handles lore level milestones
-                  if (track.condition === 'anyLevel' && typeof currentValue === 'number' && currentValue >= threshold) achieved = true;
-                  else if (track.condition === 'level3' && typeof currentValue === 'number' && currentValue >= 3) achieved = true;
-             }
-             // RoleFocus Score Checks
-             else if (trackType === 'roleFocusScore' && track.condition === 'above' && scores.RF !== undefined && scores.RF >= threshold) achieved = true;
-             else if (trackType === 'roleFocusScore' && track.condition === 'below' && scores.RF !== undefined && scores.RF <= threshold) achieved = true;
-
-             // Generic check for state variables reaching a threshold (excluding special cases handled above)
-             if (!achieved && checkValue !== null && typeof checkValue === 'number' && threshold !== undefined && m.id !== 'ms024' && checkValue >= threshold) {
+             else if (trackType === 'unlockedFocusItems') checkValue = State.getUnlockedFocusItems().size; // Check count of unlocked items
+             // Check for simple numerical state thresholds
+             if (!achieved && checkValue !== null && typeof checkValue === 'number' && threshold !== undefined && checkValue >= threshold) {
                   achieved = true;
              }
+         }
+         // 3. Lore Level Milestones
+         else if (trackType === 'unlockLore') {
+             const loreLevel = typeof currentValue === 'number' ? currentValue : 0;
+             if (track.condition === 'anyLevel' && loreLevel >= 1) achieved = true; // Trigger on unlocking level 1 or higher
+             else if (track.condition === 'level3' && loreLevel >= 3) achieved = true;
          }
 
          // --- Grant Milestone if Achieved ---
