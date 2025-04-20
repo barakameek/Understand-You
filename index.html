@@ -14,62 +14,47 @@
 </head>
 <body>
 
-    <!-- === ADDED: Drawer Toggle Button === -->
+    <!-- === Drawer Toggle Button === -->
     <button id="drawerToggle"
             class="drawer-toggle"
             aria-label="Open main menu"
             aria-expanded="false"
             aria-controls="sideDrawer">☰</button>
 
-    <!-- === ADDED: Sliding Drawer (Sidebar) === -->
-    <aside id="sideDrawer" class="side-drawer" aria-label="Main menu">
+    <!-- === Sliding Drawer (Sidebar) === -->
+    <aside id="sideDrawer" class="side-drawer" aria-hidden="true"> <!-- Start hidden -->
       <nav class="drawer-nav">
+        <h3>Menu</h3>
         <!-- Links will trigger screen changes via JS -->
         <button data-target="personaScreen" class="drawer-link"><i class="fa-solid fa-user"></i> Persona</button>
-        <button data-target="workshopScreen" class="drawer-link"><i class="fa-solid fa-flask"></i> Workshop (<span id="drawerGrimoireCount">0</span>)</button> <!-- Separate count for drawer -->
-        <button data-target="repositoryScreen" class="drawer-link"><i class="fa-solid fa-book-open"></i> Repository</button>
+        <button data-target="workshopScreen" class="drawer-link hidden-by-flow"><i class="fa-solid fa-flask"></i> Workshop (<span id="drawerGrimoireCount">0</span>)</button> <!-- Separate count for drawer -->
+        <button data-target="repositoryScreen" class="drawer-link hidden-by-flow"><i class="fa-solid fa-book-open"></i> Repository</button>
         <hr>
         <button id="drawerSettings" class="drawer-link"><i class="fa-solid fa-gear"></i> Settings</button>
         <button id="drawerThemeToggle" class="drawer-link"><i class="fa-solid fa-moon"></i> Theme</button>
       </nav>
     </aside>
 
-    <!-- === ADDED: Global Phase Tracker === -->
-    <header id="globalProgress" class="global-progress">
-      <span class="phase" data-phase="welcome" title="Welcome"></span>
-      <span class="phase" data-phase="questionnaire" title="Experimentation"></span>
-      <span class="phase" data-phase="persona" title="Persona Exploration"></span>
-    </header>
-
     <!-- Onboarding Highlight Element -->
     <div id="onboardingHighlight" class="onboarding-highlight hidden"></div>
 
-    <!-- Main Application Container (Now uses CSS grid via style.css) -->
+    <!-- Main Application Container -->
     <div class="app-container">
 
         <!-- Saving Indicator -->
         <div id="saveIndicator" class="save-indicator hidden"><i class="fas fa-save"></i> Saving...</div>
 
-        <!-- Main Navigation Bar (Existing - Kept temporarily, can be removed) -->
-        <nav id="mainNavBar" class="main-nav hidden" aria-label="Main Navigation">
-             <button class="nav-button active" data-target="personaScreen">Persona</button>
-             <button class="nav-button hidden-by-flow" data-target="workshopScreen">Workshop (<span id="grimoireCount">0</span>)</button>
-             <button class="nav-button hidden-by-flow" data-target="repositoryScreen">Repository</button>
-             <button id="settingsButton" class="nav-button settings-button" title="Settings & Save/Load Options" aria-label="Settings"><i class="fas fa-cog"></i></button>
-             <button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode">🌗</button>
-        </nav>
-
         <!-- Welcome Screen -->
-        <div id="welcomeScreen" class="screen current card"> <!-- Added .card -->
+        <div id="welcomeScreen" class="screen current card">
              <h1>Welcome to the Persona Alchemy Lab! <i class="fas fa-info-circle info-icon" title="Discover concepts reflecting your inner self through guided introspection and experimentation."></i></h1>
              <p>Uncover Concept Cards that resonate with your essence and weave your unique Persona Tapestry.</p>
              <button id="startGuidedButton" class="button btn">Begin Experimentation</button>
              <button id="loadButton" class="button secondary-button btn hidden">Load Previous Session</button>
-             <p><small>Version: Enhanced v4.1 + UI Refresh</small></p>
+             <p><small>Version: Enhanced v4.1 + UI Refresh v1.1</small></p>
         </div>
 
         <!-- Questionnaire Screen -->
-        <div id="questionnaireScreen" class="screen hidden card"> <!-- Added .card -->
+        <div id="questionnaireScreen" class="screen hidden card">
              <header>
                  <!-- Progress Header: JS populates this with '.step' divs -->
                  <div id="elementProgressHeader" aria-label="Questionnaire Progress">
@@ -77,7 +62,7 @@
                  </div>
                  <p id="progressText"></p>
                  <!-- Dynamic Feedback Area -->
-                 <div id="dynamicScoreFeedback" style="display: none;">
+                 <div id="dynamicScoreFeedback" style="display: none;" aria-live="polite">
                     Current <span id="feedbackElement">[Element]</span> Score: <span id="feedbackScore">5.0</span><span class="score-label">(Moderate)</span>
                     <i class="fas fa-info-circle info-icon" title="This shows your approximate score for the current element based on your answers so far. Final scores across all 7 elements (including RoleFocus) are calculated at the end."></i>
                     <div class="score-bar-container">
@@ -108,10 +93,10 @@
              <div id="personaDetailedView" class="persona-view current">
                  <div class="persona-overview"> <!-- This inner div uses grid columns specified in CSS -->
                      <!-- Left Column: Core Foundation & Resources -->
-                     <div class="persona-column persona-elements-detailed card"> <!-- Added .card -->
+                     <div class="persona-column persona-elements-detailed card">
                          <h2>Core Foundation <i class="fas fa-info-circle info-icon" title="Your scores across the 7 core elements, based on the initial questionnaire. Expand each for details, interpretations, current Attunement, and unlockable Insights."></i></h2>
                          <p>Your fundamental attributes and elemental attunement. Expand each element below.</p>
-                         <!-- JS will populate this with button/div accordion pairs -->
+                         <!-- JS will populate this with accordion elements -->
                          <div id="personaElementDetails" aria-live="polite"></div>
                          <hr>
                          <!-- Header clickable to toggle log -->
@@ -128,7 +113,7 @@
                          </div>
                      </div>
                      <!-- Right Column: Tapestry Focus -->
-                     <div class="persona-column persona-constellation card"> <!-- Added .card -->
+                     <div class="persona-column persona-constellation card">
                           <h2>Persona Tapestry - Focus <i class="fas fa-info-circle info-icon" title="Mark Concepts from your Workshop as 'Focus' here (using the ☆ icon). This shapes your Tapestry Narrative and may unlock unique content based on combinations."></i></h2>
                           <p>Curate concepts to shape your active Persona.</p>
                           <div class="tapestry-area" id="tapestryArea">
@@ -158,11 +143,16 @@
              </div>
 
              <!-- Summary View -->
-             <div id="personaSummaryView" class="persona-view hidden card"> <!-- Added .card -->
+             <div id="personaSummaryView" class="persona-view hidden card">
                   <h2>Persona Summary <i class="fas fa-info-circle info-icon" title="A concise overview combining your Core Foundation scores, Tapestry Narrative, and Focus Themes, plus a visual profile chart."></i></h2>
                   <div id="summaryContent">
                         <h3>Core Essence</h3><div class="summary-section" id="summaryCoreEssenceText" aria-live="polite"><p>Loading essence details...</p></div> <hr class="popup-hr">
-                        <h3>Elemental Profile</h3><p style="text-align: center; font-size: 0.9em; color: var(--text-muted-color);">Visual representation of your 7 element scores.</p><div class="chart-container"><canvas id="personaScoreChartCanvas" aria-label="Radar chart showing persona scores for the 7 elements"></canvas></div> <hr class="popup-hr">
+                        <h3>Elemental Profile</h3><p style="text-align: center; font-size: 0.9em; color: var(--text-muted-color);">Visual representation of your 7 element scores.</p>
+                        <!-- Chart Container -->
+                        <div class="chart-container">
+                             <canvas id="personaScoreChartCanvas" aria-label="Radar chart showing persona scores for the 7 elements"></canvas>
+                        </div>
+                         <hr class="popup-hr">
                         <h3>Focused Tapestry</h3><div class="summary-section" id="summaryTapestryInfo" aria-live="polite"><p>Loading tapestry details...</p></div>
                   </div>
              </div>
@@ -172,7 +162,7 @@
         <div id="workshopScreen" class="screen hidden workshop-screen"> <!-- Uses grid defined in CSS -->
             <h1>The Workshop <i class="fas fa-info-circle info-icon" title="Conduct research using Insight or Daily Meditation, perform other actions, and manage your permanent Grimoire collection."></i></h1>
             <div class="workshop-insight-display card">Current Insight: <strong id="userInsightDisplayWorkshop">0.0</strong> <i class="fas fa-brain insight-icon"></i></div>
-            <section id="workshop-research-area" class="workshop-section research-area card"> <!-- Uses .card style -->
+            <section id="workshop-research-area" class="workshop-section card"> <!-- Uses .card style -->
                 <h2 id="research-heading">Research Bench <i class="fas fa-info-circle info-icon" title="Select an Element to research or perform daily actions. Results appear in a popup. Research costs Insight unless using Daily Meditation or initial free attempts."></i></h2>
                 <div id="element-research-buttons" class="element-research-buttons-grid" aria-live="polite"><p><i>Loading research options...</i></p></div>
                 <div id="daily-actions" class="daily-actions-area"><button id="freeResearchButtonWorkshop" class="button free-research-button hidden-by-flow btn" title="Once per day, perform free research on your least attuned element.">Perform Daily Meditation ☆</button><button id="seekGuidanceButtonWorkshop" class="button small-button guidance-button hidden-by-flow btn" title="Spend Insight for a Guided Reflection prompt.">Seek Guidance (<span id="guidedReflectionCostDisplayWorkshop">?</span> <i class="fas fa-brain insight-icon"></i>)</button></div>
@@ -185,7 +175,7 @@
                      <i class="fas fa-info-circle info-icon" title="Use these controls to filter and sort the Concepts displayed below. Shelves provide quick category filters (drag cards to categorize)."></i>
                 </div>
                 <div id="grimoire-shelves-workshop" class="grimoire-shelves-area hidden-by-flow" aria-label="Grimoire Shelves"><p><i>Loading shelves...</i></p></div>
-                <div id="grimoire-grid-workshop" class="card-grid grimoire-grid concept-grid" aria-live="polite"><p><i>Loading Grimoire...</i></p></div>
+                <div id="grimoire-grid-workshop" class="grimoire-grid concept-grid" aria-live="polite"><p><i>Loading Grimoire...</i></p></div> <!-- Added concept-grid -->
             </section>
         </div>
 
@@ -197,13 +187,14 @@
                  <section id="repositoryScenes" class="repository-section card" aria-labelledby="scenes-heading"><h2 id="scenes-heading"><i class="fas fa-scroll"></i> Scene Blueprints <i class="fas fa-info-circle info-icon" title="Scenarios discovered via 'Suggest Scenes' or other means. Meditate on them (costs Insight) for unique Reflection prompts."></i></h2><div class="repo-list" aria-live="polite"></div></section>
                  <section id="repositoryExperiments" class="repository-section card" aria-labelledby="experiments-heading"><h2 id="experiments-heading"><i class="fas fa-flask"></i> Alchemical Experiments <i class="fas fa-info-circle info-icon" title="Challenging procedures unlocked by high Attunement. Attempting them costs Insight and may require specific Focused Concepts or RoleFocus scores."></i></h2><div class="repo-list" aria-live="polite"></div></section>
                  <section id="repositoryInsights" class="repository-section card" aria-labelledby="insights-heading"><h2 id="insights-heading"><i class="fas fa-lightbulb"></i> Elemental Insights <i class="fas fa-info-circle info-icon" title="Short, evocative text fragments related to specific Elements, occasionally discovered during Research."></i></h2><div class="repo-list" aria-live="polite"></div></section>
-                 <section id="dailyRitualsSection" class="repository-section card" aria-labelledby="rituals-heading"><h2 id="rituals-heading"><i class="fas fa-clock"></i> Daily Rituals <i class="fas fa-info-circle info-icon" title="Track your progress on daily tasks here. Rituals reset each day. Focus Rituals appear based on your focused Concepts."></i></h2><ul id="dailyRitualsDisplayRepo" aria-live="polite"><li>Loading rituals...</li></ul></section>
-                 <section id="milestonesSection" class="repository-section card" aria-labelledby="milestones-heading"><h2 id="milestones-heading"><i class="fas fa-award"></i> Milestones Achieved <i class="fas fa-info-circle info-icon" title="Significant accomplishments tracked throughout your journey, often granting rewards."></i></h2><ul id="milestonesDisplay" aria-live="polite"></ul></section>
+                 <section id="dailyRitualsSection" class="repository-section card" aria-labelledby="rituals-heading"><h2 id="rituals-heading"><i class="fas fa-clock"></i> Daily Rituals <i class="fas fa-info-circle info-icon" title="Track your progress on daily tasks here. Rituals reset each day. Focus Rituals appear based on your focused Concepts."></i></h2><ul id="dailyRitualsDisplayRepo" class="repo-list" aria-live="polite"><li>Loading rituals...</li></ul></section> <!-- Added repo-list class -->
+                 <section id="milestonesSection" class="repository-section card" aria-labelledby="milestones-heading"><h2 id="milestones-heading"><i class="fas fa-award"></i> Milestones Achieved <i class="fas fa-info-circle info-icon" title="Significant accomplishments tracked throughout your journey, often granting rewards."></i></h2><ul id="milestonesDisplay" class="repo-list" aria-live="polite"></ul></section> <!-- Added repo-list class -->
              </div>
          </div>
 
       <!-- Popups and Modals (Added .card class where appropriate) -->
       <div id="popupOverlay" class="overlay hidden" aria-hidden="true"></div>
+
       <div id="conceptDetailPopup" class="popup hidden card card-popup" role="dialog" aria-modal="true" aria-labelledby="popupConceptName">
         <button id="closePopupButton" class="close-button" aria-label="Close Concept Detail">×</button>
         <div class="popup-header"><span id="popupCardTypeIcon" class="card-type-icon" aria-hidden="true">?</span><h3 id="popupConceptName">Concept Name</h3><p id="popupConceptType">Card Type</p></div>
@@ -211,29 +202,36 @@
         <div class="popup-collapsible-area"><details id="popupLoreSection" class="collapsible-popup-section hidden"><summary>Lore Insights <i class="fas fa-scroll" aria-hidden="true"></i></summary><div id="popupLoreContent" class="collapsible-content" aria-live="polite"></div></details><details id="popupRecipeDetails" class="collapsible-popup-section"><summary>Elemental Recipe <i class="fas fa-flask" aria-hidden="true"></i></summary><div class="collapsible-content"><div id="popupComparisonHighlights" aria-live="polite"></div><details class="element-details"><summary>View Full Score Comparison</summary><div class="profile-comparison"><div class="profile-column"><h5>Concept Scores</h5><div id="popupConceptProfile"></div></div><div class="profile-column"><h5>Your Scores</h5><div id="popupUserComparisonProfile"></div></div></div></details></div></details><details id="myNotesSection" class="collapsible-popup-section my-notes-section hidden"><summary>My Notes <i class="fas fa-pencil-alt" aria-hidden="true"></i></summary><div class="collapsible-content"><label for="myNotesTextarea" class="visually-hidden">Personal Notes</label><textarea id="myNotesTextarea" rows="3" placeholder="Add your personal reflections here..."></textarea><button id="saveMyNoteButton" class="button small-button btn">Save Note</button><span id="noteSaveStatus" class="note-status" aria-live="assertive"></span></div></details></div>
         <div class="popup-actions"><button id="addToGrimoireButton" class="button small-button add-grimoire-button btn" title="Add this Concept to your permanent Grimoire collection.">Add to Grimoire</button><button id="markAsFocusButton" class="button small-button focus-button hidden btn" title="Toggle whether this Concept contributes to your Persona Tapestry.">Mark as Focus</button></div>
       </div>
+
       <div id="researchResultsPopup" class="popup hidden research-results-popup card" role="dialog" aria-modal="true" aria-labelledby="research-results-heading">
         <button id="closeResearchResultsPopupButton" class="close-button" disabled title="Make a choice for all concepts first" aria-label="Close Research Results">×</button>
         <h3 id="research-results-heading">Research Findings</h3><div id="researchPopupContent" class="research-popup-content" aria-live="polite"><p><i>Processing research...</i></p></div>
         <div class="popup-actions research-popup-actions"><small id="researchPopupStatus" aria-live="polite">Choose an action for each finding above.</small><button id="confirmResearchChoicesButton" class="button small-button hidden btn">Confirm & Close</button></div>
       </div>
+
       <div id="reflectionModal" class="popup hidden reflection-modal card" role="dialog" aria-modal="true" aria-labelledby="reflectionModalTitle">
         <button id="closeReflectionModalButton" class="close-button" aria-label="Close Reflection">×</button>
         <h3 id="reflectionModalTitle">Moment for Reflection <i class="fas fa-info-circle info-icon" title="Pause and consider the presented prompt. Check the box once you've genuinely reflected. Confirming grants Insight and potentially Attunement."></i></h3><p>Regarding <strong id="reflectionElement">[Element/Concept]</strong>:</p><p id="reflectionPromptText" class="prompt-text">Prompt text...</p><div class="reflection-confirm form-group"><input type="checkbox" id="reflectionCheckbox"><label for="reflectionCheckbox">I have taken a moment to reflect on this.</label><br><input type="checkbox" id="scoreNudgeCheckbox" class="hidden"><label for="scoreNudgeCheckbox" id="scoreNudgeLabel" class="hidden score-nudge-label" title="If checked (only available for Dissonance reflections), completing this reflection may slightly adjust your Core Foundation scores towards this Concept's profile.">Allow this reflection to potentially nudge your core understanding?</label></div><button id="confirmReflectionButton" class="button small-button btn" disabled>Confirm Reflection (+<span id="reflectionRewardAmount">?</span> <i class="fas fa-brain insight-icon"></i>)</button>
       </div>
+
       <div id="settingsPopup" class="popup hidden settings-popup card" role="dialog" aria-modal="true" aria-labelledby="settings-heading">
         <button id="closeSettingsPopupButton" class="close-button" aria-label="Close Settings">×</button>
         <h3 id="settings-heading">Settings <i class="fas fa-info-circle info-icon" title="Manage your session data. 'Force Save' manually triggers saving. 'Reset All Progress' completely wipes your saved data (use with caution!)."></i></h3><div class="settings-content"><p>Manage your session data.</p><button id="forceSaveButton" class="button small-button btn">Force Save</button><button id="resetAppButton" class="button small-button back-button btn">Reset All Progress</button><p class="reset-warning"><strong>Warning:</strong> Resetting will erase all scores, discovered concepts, insight, and progress permanently.</p></div>
       </div>
+
       <div id="tapestryDeepDiveModal" class="popup hidden resonance-chamber-modal card" role="dialog" aria-modal="true" aria-labelledby="deepDiveTitle">
         <button id="closeDeepDiveButton" class="close-button" aria-label="Close Resonance Chamber">×</button><div class="popup-header"><h3 id="deepDiveTitle">Resonance Chamber</h3></div>
         <div class="resonance-chamber-content"><div class="resonance-chamber-summary"><h4>Weaver's Summary</h4><p id="deepDiveNarrativeP" aria-live="polite">Loading narrative...</p><div class="focused-concepts-icons" id="deepDiveFocusIcons" aria-label="Icons representing focused concepts"></div></div><hr class="popup-hr"><div class="resonance-chamber-main"><nav class="aspects-navigation" id="deepDiveAnalysisNodes" aria-label="Tapestry Aspects"><h4>Aspects of the Weave</h4><button class="aspect-node button small-button btn" data-node-id="elemental" aria-controls="deepDiveDetailContent"><i class="fas fa-atom" aria-hidden="true"></i> Elemental Flow</button><button class="aspect-node button small-button btn" data-node-id="archetype" aria-controls="deepDiveDetailContent"><i class="fas fa-mask" aria-hidden="true"></i> Concept Archetype</button><button class="aspect-node button small-button btn" data-node-id="synergy" aria-controls="deepDiveDetailContent"><i class="fas fa-link" aria-hidden="true"></i> Synergy & Tension</button><button id="contemplationNode" class="aspect-node button small-button contemplation-node btn" data-node-id="contemplation" aria-controls="deepDiveDetailContent"><i class="fas fa-brain" aria-hidden="true"></i> Focusing Lens (<span class="contemplation-cost">?</span> <i class="fas fa-brain insight-icon"></i>)</button></nav><div class="insight-scroll-panel" id="deepDiveDetailContent" role="region" aria-live="polite"><p><i>Select an Aspect to explore...</i></p></div></div></div>
       </div>
+
       <div id="dilemmaModal" class="popup hidden reflection-modal card" role="dialog" aria-modal="true" aria-labelledby="dilemma-heading">
         <button id="closeDilemmaModalButton" class="close-button" aria-label="Close Dilemma">×</button><h3 id="dilemma-heading">Elemental Dilemma</h3><p id="dilemmaSituationText">Situation description...</p><hr class="popup-hr"><p id="dilemmaQuestionText">Question text...</p><div class="slider-container" style="max-width: 90%; margin: 20px auto;"><label for="dilemmaSlider" class="visually-hidden">Dilemma Choice Slider</label><input type="range" id="dilemmaSlider" class="slider" min="0" max="10" step="0.5" value="5"><div class="label-container"><span id="dilemmaSliderMinLabel" class="label-text">Min Label</span><span id="dilemmaSliderMaxLabel" class="label-text">Max Label</span></div><p class="value-text" aria-live="polite">Leaning: <span id="dilemmaSliderValueDisplay">Balanced</span></p></div><div class="reflection-confirm form-group"><input type="checkbox" id="dilemmaNudgeCheckbox"><label for="dilemmaNudgeCheckbox" title="Allow this choice to slightly influence your Core Foundation scores?">Allow Score Nudge?</label></div><button id="confirmDilemmaButton" class="button small-button btn">Confirm Choice (+3 <i class="fas fa-brain insight-icon"></i>)</button>
       </div>
+
       <div id="infoPopup" class="popup hidden info-popup card" role="alertdialog" aria-modal="true" aria-labelledby="info-heading">
         <button id="closeInfoPopupButton" class="close-button" aria-label="Close Information">×</button><div class="popup-header"><h3 id="info-heading">Information</h3></div><div class="popup-content"><p id="infoPopupContent">Info text goes here.</p></div><div class="popup-actions"><button id="confirmInfoPopupButton" class="button small-button btn">OK</button></div>
       </div>
+
       <div id="onboardingOverlay" class="overlay hidden" aria-hidden="true">
         <div id="onboardingPopup" class="popup onboarding-popup hidden card" role="dialog" aria-modal="true" aria-labelledby="onboarding-heading">
             <h2 id="onboarding-heading">Orientation</h2><div id="onboardingContent"><p>Loading orientation steps...</p></div><p class="onboarding-progress"><span id="onboardingProgress">Step ? of ?</span></p><div class="onboarding-nav"><button id="onboardingSkipButton" class="skip-button">Skip Orientation</button><div><button id="onboardingPrevButton" class="button small-button back-button btn" disabled>Previous</button><button id="onboardingNextButton" class="button small-button btn">Next</button></div></div>
@@ -253,7 +251,7 @@
     <script src="js/state.js" type="module"></script>
     <script src="js/ui.js" type="module"></script> <!-- Drawer/Theme JS integrated here -->
     <script src="js/gameLogic.js" type="module"></script>
-    <script src="main.js" type="module"></script> <!-- Old theme IIFE removed from here -->
+    <script src="main.js" type="module"></script>
 
     <!-- Inline Styles (Accessibility & Minimal Layout Helpers) -->
     <style>
@@ -261,9 +259,7 @@
         .log-hidden { display: none; }
         .onboarding-highlight { position: fixed; border: 3px dashed var(--accent-color, #ffd700); border-radius: 5px; box-shadow: 0 0 15px rgba(255, 216, 0, 0.7); pointer-events: none; z-index: 1049; transition: all 0.3s ease-in-out; display: none; }
         #onboardingOverlay.visible { display: flex; opacity: 1; }
-        /* Basic chart container sizing */
-        .chart-container { position: relative; height: 350px; width: 100%; max-width: 600px; margin: var(--spacing) auto; padding: var(--spacing); background-color: rgba(255, 255, 255, 0.3); border-radius: var(--border-radius); box-shadow: var(--box-shadow); border: 1px solid var(--border-color-light); }
-        :root.dark .chart-container { background-color: rgba(68, 68, 68, 0.7); border-color: var(--border-color-dark); }
+        /* Ensure transparent canvas bg for chart */
         canvas#personaScoreChartCanvas { background-color: transparent !important; }
     </style>
 
