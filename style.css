@@ -1612,5 +1612,23 @@ summary.element-detail-header:hover { background-color: var(--background-dark); 
     transition-delay: 0ms !important;
     animation-delay: -0.0001s !important
   }
+
+.screen {
+    grid-column: 1 / -1; /* Span full width */
+    min-width: 0; /* Prevent content from forcing wider columns */
 }
+
+/* ---------- Reduced Motion Override ------------------ */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+    transition-delay: 0ms !important;
+    animation-delay: -0.0001s !important
+  }
+}
+
+/* --- END OF FILE style.css --- */
 
