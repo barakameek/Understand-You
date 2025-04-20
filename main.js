@@ -11,6 +11,10 @@ import { onboardingTasks } from './data.js'; // Import onboarding tasks definiti
 
 console.log("main.js loading... (Enhanced v4.1 + Drawer)");
 
+// --- Helper Function ---
+// Define getElement locally for use in this module
+const getElement = (id) => document.getElementById(id);
+
 // --- Initialization ---
 function initializeApp() {
     console.log("Initializing Persona Alchemy Lab (v4.1)...");
@@ -56,6 +60,7 @@ function initializeApp() {
 
     // Setup General Event Listeners (always needed)
     setupGlobalEventListeners();
+    setupWelcomeScreenListeners(); // Added call
     setupDrawerListeners(); // Setup listeners for the drawer navigation
     setupPopupInteractionListeners();
     setupQuestionnaireListeners();
@@ -141,6 +146,7 @@ function triggerActionAndCheckOnboarding(actionFn, actionName, targetPhase, acti
 // --- Event Listener Setup Functions ---
 
 function setupGlobalEventListeners() {
+    // Now uses the locally defined getElement
     const closeSettingsBtn = getElement('closeSettingsPopupButton');
     const forceSaveBtn = getElement('forceSaveButton');
     const resetBtn = getElement('resetAppButton');
@@ -151,9 +157,6 @@ function setupGlobalEventListeners() {
         if (confirm("Are you SURE you want to reset all progress? This cannot be undone!")) {
             GameLogic.clearPopupState(); // Clear any lingering temp logic state
             State.clearGameState(); // Wipes state and localStorage (will reload)
-            // initializeApp(); // Re-initialize the app state and UI - Handled by reload in clearGameState
-            // UI.hidePopups(); // Ensure popups are hidden after reset - Handled by reload
-            // UI.showTemporaryMessage("Progress Reset.", 2000); // Handled by reload
         }
     });
 
@@ -163,21 +166,17 @@ function setupGlobalEventListeners() {
     const overlay = getElement('popupOverlay');
     if (overlay) {
         overlay.addEventListener('click', (event) => {
-            // Prevent closing general popups if onboarding overlay is active and click is outside onboarding popup
             const onboardingOverlay = getElement('onboardingOverlay');
             const onboardingPopup = getElement('onboardingPopup');
             const isClickInsideOnboardingPopup = onboardingPopup && onboardingPopup.contains(event.target);
-            const isClickOnDrawer = getElement('sideDrawer')?.contains(event.target); // Prevent closing on drawer click
+            const isClickOnDrawer = getElement('sideDrawer')?.contains(event.target);
 
             if (onboardingOverlay?.classList.contains('visible') && !isClickInsideOnboardingPopup) {
-                // If onboarding is visible and click is outside its popup, do nothing
-                return;
+                return; // Onboarding visible, click outside, do nothing
             } else if (getElement('sideDrawer')?.classList.contains('open') && !isClickOnDrawer) {
-                 // If drawer is open and click is outside it, close the drawer BUT NOT other popups
-                 UI.toggleDrawer();
+                 UI.toggleDrawer(); // Drawer open, click outside, close drawer
             } else if (!onboardingOverlay?.classList.contains('visible') && !getElement('sideDrawer')?.classList.contains('open')) {
-                 // If onboarding and drawer are NOT visible, standard behavior: hide general popups
-                 UI.hidePopups();
+                 UI.hidePopups(); // Neither visible, hide general popups
             }
         });
     }
@@ -196,8 +195,8 @@ function setupGlobalEventListeners() {
     document.body.addEventListener('click', (event) => {
         const target = event.target.closest('.info-icon');
         if (target?.title) {
-            event.preventDefault(); // Prevent default tooltip potentially
-            event.stopPropagation(); // Prevent card click etc.
+            event.preventDefault();
+            event.stopPropagation();
             UI.showInfoPopup(target.title);
         }
     });
@@ -205,6 +204,11 @@ function setupGlobalEventListeners() {
 
 // Setup listeners for Drawer navigation and theme toggle
 function setupDrawerListeners() {
+    const drawerToggle = getElement('drawerToggle'); // Use local getElement
+    const sideDrawer = getElement('sideDrawer');
+    const drawerSettingsButton = getElement('drawerSettings');
+    const drawerThemeToggle = getElement('drawerThemeToggle');
+
     if (drawerToggle) {
         drawerToggle.addEventListener('click', UI.toggleDrawer);
     } else { console.warn("Drawer toggle button not found."); }
@@ -242,22 +246,21 @@ function handleDrawerNavClick(event) {
     const canNavigate = isPostQuestionnaire || targetScreen === 'personaScreen';
 
     if (canNavigate) {
-         // Show the target screen first
-         UI.showScreen(targetScreen);
-         UI.toggleDrawer(); // Close drawer after navigation
-
-         // Check if this screen change corresponds to an onboarding step completion
+         // Use triggerActionAndCheckOnboarding to handle screen change and potential onboarding step
          let phaseTarget = null;
-         if(targetScreen === 'personaScreen') phaseTarget = 1; // Target phase 1 (view Persona)
-         else if(targetScreen === 'workshopScreen') phaseTarget = 2; // Target phase 2 (view Workshop)
-         else if(targetScreen === 'repositoryScreen') phaseTarget = 8; // Target phase 8 (view Repository)
+         if(targetScreen === 'personaScreen') phaseTarget = 1;
+         else if(targetScreen === 'workshopScreen') phaseTarget = 2;
+         else if(targetScreen === 'repositoryScreen') phaseTarget = 8;
 
-         if(phaseTarget !== null) {
-              // Use the helper function - pass null actionFn as screen change is the trigger
-              triggerActionAndCheckOnboarding(null, 'showScreen', phaseTarget, targetScreen);
-         }
+         triggerActionAndCheckOnboarding(
+             () => UI.showScreen(targetScreen), // Action: Show the screen
+             'showScreen',
+             phaseTarget !== null ? phaseTarget : -1, // Target phase or -1 if none
+             targetScreen // Pass screen ID as value
+         );
+         UI.toggleDrawer(); // Close drawer after navigation initiated
     } else {
-        // Navigation blocked (likely trying to access Workshop/Repo before questionnaire)
+        // Navigation blocked
         console.log("Navigation blocked: Questionnaire not complete.");
         UI.showTemporaryMessage("Complete the initial Experimentation first!", 2500);
         UI.toggleDrawer(); // Close drawer even if navigation fails
@@ -267,7 +270,7 @@ function handleDrawerNavClick(event) {
 
 function setupWelcomeScreenListeners() {
      // Welcome Screen Buttons
-    const startBtn = getElement('startGuidedButton');
+    const startBtn = getElement('startGuidedButton'); // Use local getElement
     const loadBtn = getElement('loadButton');
     if (startBtn) {
         startBtn.addEventListener('click', () => {
@@ -320,31 +323,30 @@ function setupPersonaScreenListeners() {
     if (personaElementsContainer) {
         personaElementsContainer.addEventListener('click', (event) => {
             const unlockButton = event.target.closest('.unlock-button');
-            const headerButton = event.target.closest('.accordion-header');
+            const headerButton = event.target.closest('.accordion-header'); // Target the accordion button
 
             if (unlockButton) {
-                 // Use helper for onboarding check - target phase 6 for unlocking library/deep dive
-                 // Pass the specific level unlock logic as the action function
-                 const conceptId = parseInt(unlockButton.dataset.conceptId); // Or elementKey? Check data structure
+                // Prevent accordion toggle when clicking unlock button
+                 event.stopPropagation();
+                 const elementKey = unlockButton.dataset.elementKey;
                  const level = parseInt(unlockButton.dataset.level);
                  const cost = parseFloat(unlockButton.dataset.cost);
-                 const elementKey = unlockButton.dataset.elementKey; // Assuming key is stored
 
                  if (elementKey && !isNaN(level) && !isNaN(cost)) {
                     triggerActionAndCheckOnboarding(
-                        () => GameLogic.handleUnlockLibraryLevel(event), // Pass event to handle the unlock
+                        () => GameLogic.handleUnlockLibraryLevel(event), // Pass event for delegation handling
                         'unlockLibrary', // Action name
-                        6 // Target phase for first unlock
+                        6 // Target phase for first unlock (assuming phase 6 involves this)
                     );
                  }
             } else if (headerButton) {
-                 // Accordion toggle logic is handled in UI now based on aria-expanded
-                 // Check if opening this *specific* accordion completes an onboarding step
+                 // Accordion toggle is handled by UI automatically via aria-expanded
+                 // Check if this specific interaction completes an onboarding step
                  const accordionItem = headerButton.closest('.accordion-item');
                  const elementKey = accordionItem?.dataset.elementKey;
-                 // Example: Check if opening the 'Attraction' accordion completes phase 1
-                 if (elementKey === 'A') { // Check the specific key for the task
-                     triggerActionAndCheckOnboarding(null, 'openElementDetails', 1); // Action: open details, Target Phase 1
+                 // Example: Check if opening the 'Attraction' details completes phase 1
+                 if (elementKey === 'A') { // Check the specific key required by the task
+                     triggerActionAndCheckOnboarding(null, 'openElementDetails', 1);
                  }
             }
         });
@@ -374,26 +376,14 @@ function setupPersonaScreenListeners() {
              header.title = 'Click to toggle Insight Log';
              header.addEventListener('click', () => {
                  insightLogContainer.classList.toggle('log-hidden');
-                 // Update header style slightly when open? (optional)
-                 // header.classList.toggle('log-toggled-open', !insightLogContainer.classList.contains('log-hidden'));
+                 // Update display based on class
+                 insightLogContainer.style.display = insightLogContainer.classList.contains('log-hidden') ? 'none' : 'block';
              });
-             // Ensure it's hidden initially if the class is present
-             if (insightLogContainer.classList.contains('log-hidden')) {
-                 insightLogContainer.style.display = 'none';
-             }
-             // Add listener to toggle display style along with class
-             const observer = new MutationObserver(mutations => {
-                mutations.forEach(mutation => {
-                    if (mutation.attributeName === 'class') {
-                        const isHidden = insightLogContainer.classList.contains('log-hidden');
-                        insightLogContainer.style.display = isHidden ? 'none' : 'block';
-                    }
-                });
-             });
-             observer.observe(insightLogContainer, { attributes: true });
-
+             // Ensure correct initial display
+             insightLogContainer.style.display = insightLogContainer.classList.contains('log-hidden') ? 'none' : 'block';
          } else { console.warn("Could not find 'Resources' header to attach Insight Log toggle."); }
-     }
+     } else { console.warn("Insight log container not found."); }
+
 
     // Persona Action Buttons
     const dilemmaBtn = getElement('elementalDilemmaButton');
