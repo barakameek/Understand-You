@@ -1550,7 +1550,10 @@ function unlockDeepDiveLevelInternal(elementKey, levelToUnlock) {
             // Update UI: Refresh Persona screen to show new unlocked level
             if (document.getElementById('personaScreen')?.classList.contains('current')) {
                 // *** FIX: Call the logic function within this module ***
-                displayPersonaScreenLogic(); // Corrected: No UI. prefix
+                 // Check if GameLogic is loaded before calling
+                 if (typeof GameLogic !== 'undefined' && GameLogic.displayPersonaScreenLogic) {
+                      displayPersonaScreenLogic(); // Corrected: No UI. prefix
+                 } else { console.error("GameLogic or displayPersonaScreenLogic not available yet!"); }
             }
             updateMilestoneProgress('unlockLibrary', levelToUnlock); // Track milestone
             updateMilestoneProgress('unlockedDeepDiveLevels', State.getState().unlockedDeepDiveLevels); // Check aggregate milestones
@@ -2550,7 +2553,10 @@ export function handleConfirmDilemma() {
                 console.log("Nudged Scores after Dilemma:", State.getScores());
                 if(personaScreen?.classList.contains('current')) {
                      // Call the logic function to update the persona screen content
-                     displayPersonaScreenLogic();
+                     // Check if displayPersonaScreenLogic exists before calling
+                     if (typeof displayPersonaScreenLogic === 'function') {
+                          displayPersonaScreenLogic();
+                     } else { console.error("displayPersonaScreenLogic not defined!"); }
                 }
                 UI.showTemporaryMessage("Dilemma choice influenced core understanding.", 3500);
                 gainAttunementForAction('dilemmaNudge', 'All'); // Small attunement boost
