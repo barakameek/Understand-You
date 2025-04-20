@@ -1550,7 +1550,7 @@ function unlockDeepDiveLevelInternal(elementKey, levelToUnlock) {
             // Update UI: Refresh Persona screen to show new unlocked level
             if (document.getElementById('personaScreen')?.classList.contains('current')) {
                 // *** FIX: Call the logic function within this module ***
-                displayPersonaScreenLogic();
+                displayPersonaScreenLogic(); // Corrected: No UI. prefix
             }
             updateMilestoneProgress('unlockLibrary', levelToUnlock); // Track milestone
             updateMilestoneProgress('unlockedDeepDiveLevels', State.getState().unlockedDeepDiveLevels); // Check aggregate milestones
@@ -1566,6 +1566,7 @@ function unlockDeepDiveLevelInternal(elementKey, levelToUnlock) {
     }
     return false; // Failed to spend insight
 }
+
 
 
 /** Handles clicking meditate button on a scene */
