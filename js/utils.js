@@ -29,7 +29,7 @@ export function getScoreLabel(score) {
  */
 export function getAffinityLevel(score) {
     if (typeof score !== 'number' || isNaN(score)) return null;
-    if (score >= 8) return "High";
+    if (score >= 8) return "High"; // Adjusted threshold slightly
     if (score >= 5) return "Moderate";
     return null;
 }
@@ -37,20 +37,20 @@ export function getAffinityLevel(score) {
 /**
  * Gets the short display name (e.g., "Attraction") from various possible inputs.
  * Relies on consistent naming in data.js -> elementDetails.
- * @param {string} nameOrKey - Can be short name key ("Attraction"), full descriptive name ("Attraction Focus: ..."), or single letter key ('A').
+ * @param {string} nameOrKey - Can be short name key ("Attraction"), full descriptive name ("Attraction Focus: ..."), or single letter key ('A', 'RF').
  * @returns {string} The short display name or the original input if lookup fails.
  */
 export function getElementShortName(nameOrKey) {
     if (!nameOrKey) return "Unknown";
 
-    // 1. Check if it's a single letter key ('A', 'I', etc.) using elementKeyToFullName map
-    if (nameOrKey.length === 1 && elementKeyToFullName[nameOrKey]) {
-        const shortNameKey = elementKeyToFullName[nameOrKey]; // e.g., "Attraction"
-        // Use the name from elementDetails if available, split, otherwise fallback to shortNameKey
-        return elementDetails[shortNameKey]?.name?.split(':')[0].trim() || shortNameKey;
+    // 1. Check if it's a single letter key ('A', 'I', ..., 'RF') using elementKeyToFullName map
+    if (nameOrKey.length === 1 && nameOrKey.toUpperCase() === nameOrKey && elementKeyToFullName[nameOrKey]) {
+        const elementNameKey = elementKeyToFullName[nameOrKey]; // e.g., "Attraction" or "RoleFocus"
+        // Use the name from elementDetails if available, split, otherwise fallback to elementNameKey
+        return elementDetails[elementNameKey]?.name?.split(':')[0].trim() || elementNameKey;
     }
 
-    // 2. Check if it's already the short name key ("Attraction", etc.) used in elementDetails
+    // 2. Check if it's already the short name key ("Attraction", "RoleFocus", etc.) used in elementDetails
     if (elementDetails[nameOrKey]?.name) {
         return elementDetails[nameOrKey].name.split(':')[0].trim();
     }
@@ -60,8 +60,7 @@ export function getElementShortName(nameOrKey) {
         return nameOrKey.split(':')[0].trim();
     }
 
-    // 4. Final fallback
-    console.warn(`Utils: Could not determine short name for: ${nameOrKey}. Returning input.`);
+    // 4. Final fallback - maybe it's already the short name but not a key in elementDetails?
     return nameOrKey;
 }
 
@@ -75,13 +74,13 @@ export function getElementShortName(nameOrKey) {
 export function getElementColor(elementNameKey) {
     // Colors keyed by the short name ("Attraction", etc.)
     const fallbackColors = {
-        "Attraction": '#FF6347',
-        "Interaction": '#4682B4',
-        "Sensory": '#32CD32',
-        "Psychological": '#FFD700',
-        "Cognitive": '#8A2BE2',
-        "Relational": '#FF8C00',
-        "RoleFocus": '#40E0D0' // Turquoise for RoleFocus
+        "Attraction": '#FF6347', // Tomato
+        "Interaction": '#4682B4', // SteelBlue
+        "Sensory": '#32CD32', // LimeGreen
+        "Psychological": '#FFD700', // Gold
+        "Cognitive": '#8A2BE2', // BlueViolet
+        "Relational": '#FF8C00', // DarkOrange
+        "RoleFocus": '#40E0D0' // Turquoise
     };
      if (fallbackColors[elementNameKey]) {
          return fallbackColors[elementNameKey];
@@ -98,16 +97,24 @@ export function getElementColor(elementNameKey) {
  * @returns {string} The RGBA color string.
  */
 export function hexToRgba(hex, alpha = 1) {
-    if (!hex || typeof hex !== 'string') return `rgba(128,128,128, ${alpha})`;
-    hex = hex.replace('#', '');
-    if (hex.length === 3) hex = hex[0]+hex[0]+hex[1]+hex[1]+hex[2]+hex[2];
-    if (hex.length !== 6) return `rgba(128,128,128, ${alpha})`;
-    const bigint = parseInt(hex, 16);
-    if (isNaN(bigint)) return `rgba(128,128,128, ${alpha})`;
+    if (!hex || typeof hex !== 'string') return `rgba(128,128,128, ${alpha})`; // Return default grey on invalid input
+    let localHex = hex.replace('#', ''); // Use local variable
+    if (localHex.length === 3) {
+        localHex = localHex[0]+localHex[0]+localHex[1]+localHex[1]+localHex[2]+localHex[2];
+    }
+    if (localHex.length !== 6) {
+        console.warn(`Invalid hex code provided to hexToRgba: ${hex}`);
+        return `rgba(128,128,128, ${alpha})`; // Return default grey
+    }
+    const bigint = parseInt(localHex, 16);
+    if (isNaN(bigint)) {
+        console.warn(`Could not parse hex code to integer: ${localHex}`);
+        return `rgba(128,128,128, ${alpha})`;
+    }
     const r = (bigint >> 16) & 255;
     const g = (bigint >> 8) & 255;
     const b = bigint & 255;
-    const validAlpha = Math.max(0, Math.min(1, alpha));
+    const validAlpha = Math.max(0, Math.min(1, alpha)); // Clamp alpha
     return `rgba(${r},${g},${b},${validAlpha})`;
 }
 
@@ -132,18 +139,18 @@ export function getCardTypeIcon(cardType) {
 /**
  * Gets the Font Awesome icon class for a given element.
  * Expects the short name key ("Attraction", "Interaction", etc.) as input.
- * @param {string} elementNameKey - The short name key of the element (e.g., "Attraction").
+ * @param {string} elementNameKey - The short name key of the element (e.g., "Attraction", "RoleFocus").
  * @returns {string} The Font Awesome class string.
  */
 export function getElementIcon(elementNameKey) {
      switch (elementNameKey) {
          case "Attraction": return "fa-solid fa-magnet";
-         case "Interaction": return "fa-solid fa-people-arrows";
+         case "Interaction": return "fa-solid fa-people-arrows"; // Was Interaction Leaning
          case "Sensory": return "fa-solid fa-hand-sparkles";
-         case "Psychological": return "fa-solid fa-comment-dots"; // Changed from brain
+         case "Psychological": return "fa-solid fa-comment-dots";
          case "Cognitive": return "fa-solid fa-lightbulb";
          case "Relational": return "fa-solid fa-link";
-         case "RoleFocus": return "fa-solid fa-gauge-high"; // Gauge icon for RoleFocus
+         case "RoleFocus": return "fa-solid fa-gauge-high"; // Was Role Intensity
          default:
              console.warn(`Utils: Icon not found for element key: ${elementNameKey}. Using default atom.`);
              return "fa-solid fa-atom";
@@ -160,6 +167,7 @@ export function getElementIcon(elementNameKey) {
 export function euclideanDistance(userScoresObj, conceptScoresObj, conceptName = 'Unknown Concept') {
      let sumOfSquares = 0;
      let validDimensions = 0;
+     const expectedDimensions = 7; // Now expecting 7 dimensions including RF
 
      if (!userScoresObj || typeof userScoresObj !== 'object' || !conceptScoresObj || typeof conceptScoresObj !== 'object') {
          console.warn(`Invalid input for euclideanDistance (Concept: ${conceptName})`, { userScoresObj, conceptScoresObj });
@@ -168,13 +176,10 @@ export function euclideanDistance(userScoresObj, conceptScoresObj, conceptName =
 
      const keysToCompare = Object.keys(userScoresObj); // Should include 'A' through 'RF'
 
-     if (keysToCompare.length === 0) {
-         console.warn(`Could not determine keys for comparison in euclideanDistance (Concept: ${conceptName}) - userScoresObj is empty?`);
-         return Infinity;
+     if (keysToCompare.length !== expectedDimensions) {
+          console.warn(`User scores object has ${keysToCompare.length} keys, expected ${expectedDimensions} for distance calculation (Concept: ${conceptName}).`);
+          // Proceed cautiously, but result might be less accurate
      }
-
-     // Expecting 7 keys
-     const expectedDimensions = 7;
 
      for (const key of keysToCompare) {
          const s1 = userScoresObj[key];
@@ -188,15 +193,20 @@ export function euclideanDistance(userScoresObj, conceptScoresObj, conceptName =
              sumOfSquares += Math.pow(s1 - s2, 2);
              validDimensions++;
          } else {
-              // More detailed logging for debugging data issues
-              if (!s2Valid) { console.warn(`DistCalc Warning (Concept: ${conceptName}): Skipping dimension '${key}'. Concept Score Invalid/Missing. Value: ${s2}. User Score: ${s1}`); }
-              else if (!s1Valid) { console.warn(`DistCalc Warning (Concept: ${conceptName}): Skipping dimension '${key}'. User Score Invalid. Value: ${s1}. Concept Score: ${s2}`); }
+             // More detailed logging for debugging data issues
+             if (!conceptScoresObj.hasOwnProperty(key)) {
+                 console.warn(`DistCalc Warning (Concept: ${conceptName}): Skipping dimension '${key}'. Key missing in concept scores.`);
+             } else if (!s2Valid) {
+                 console.warn(`DistCalc Warning (Concept: ${conceptName}): Skipping dimension '${key}'. Concept Score Invalid. Value: ${s2}. User Score: ${s1Valid ? s1 : 'Invalid'}`);
+             } else if (!s1Valid) {
+                 console.warn(`DistCalc Warning (Concept: ${conceptName}): Skipping dimension '${key}'. User Score Invalid. Value: ${s1}. Concept Score: ${s2Valid ? s2 : 'Invalid'}`);
+             }
          }
      }
 
      // If significantly fewer dimensions were compared than expected, warn the user/developer
      if (validDimensions < expectedDimensions) {
-         console.warn(`Potentially inaccurate distance for Concept: ${conceptName}. Only ${validDimensions}/${expectedDimensions} dimensions compared. Check concept's elementScores in data.js.`);
+         console.warn(`Potentially inaccurate distance for Concept: ${conceptName}. Only ${validDimensions}/${expectedDimensions} valid dimensions compared. Check concept's elementScores in data.js.`);
          // If NO dimensions could be compared, return Infinity
          if (validDimensions === 0) return Infinity;
      }
@@ -230,7 +240,10 @@ export function formatTimestamp(timestamp) {
     try {
         const date = new Date(timestamp);
         // Check if the date object is valid after conversion
-        if (isNaN(date.getTime())) return "Invalid Date";
+        if (isNaN(date.getTime())) {
+             console.warn("formatTimestamp received invalid date/timestamp:", timestamp);
+             return "Invalid Date";
+        }
 
         const year = date.getFullYear();
         const month = (date.getMonth() + 1).toString().padStart(2, '0'); // Months are 0-indexed
