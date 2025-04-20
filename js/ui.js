@@ -971,6 +971,7 @@ export function displayPersonaScreen() {
         accordionItemDiv.dataset.elementKey = key;
         accordionItemDiv.style.setProperty('--element-color', color);
 
+        // *** Replaced <details><summary> with <button> and role attributes ***
         const button = document.createElement('button');
         button.classList.add('accordion-header');
         button.setAttribute('aria-expanded', 'false');
@@ -993,6 +994,7 @@ export function displayPersonaScreen() {
         body.id = `accordion-body-${key}`;
         body.setAttribute('role', 'region');
         body.setAttribute('aria-labelledby', `accordion-header-${key}`);
+        // Adjusted body content structure slightly for clarity
         body.innerHTML = `
             <div class="element-description">
                 <p><strong>Core Concept:</strong> ${elementData.coreConcept || ''}</p>
@@ -1014,12 +1016,14 @@ export function displayPersonaScreen() {
         accordionItemDiv.appendChild(body);
         personaElementDetailsDiv.appendChild(accordionItemDiv);
 
-        // Add click listener for the button
+        // Add click listener for the button to toggle aria-expanded and open/close class
         button.addEventListener('click', () => {
             const isExpanded = button.getAttribute('aria-expanded') === 'true';
             button.setAttribute('aria-expanded', !isExpanded);
-            // Body max-height is controlled by CSS based on [aria-expanded]
+            accordionItemDiv.classList.toggle('open', !isExpanded); // Toggle an 'open' class for CSS transitions if needed
+            // Note: Max-height transition should be handled in CSS based on [aria-expanded="true"] or .open class
         });
+
 
         // Populate Deep Dive if applicable
         if (showDeepDiveContainer) {
@@ -1753,7 +1757,7 @@ export function renderCard(concept, context = 'grimoire', discoveredData = null)
     return cardDiv;
 }
 
-// --- Concept Detail Popup UI ---
+// --- Concept Detail Popup UI --- (Includes Resonance Gauge, Related Tags, Recipe Comparison, Lore, Notes, Buttons)
 
 /** Displays the details of a concept in a popup. */
 export function showConceptDetailPopup(conceptId) {
@@ -1767,7 +1771,10 @@ export function showConceptDetailPopup(conceptId) {
         return;
     }
     console.log(`UI: Showing details for concept: ${concept.name}`);
-    GameLogic.setCurrentPopupConcept(conceptId); // Store ID in logic state
+    // Check if GameLogic is loaded before calling
+    if (typeof GameLogic !== 'undefined' && GameLogic.setCurrentPopupConcept) {
+        GameLogic.setCurrentPopupConcept(conceptId); // Store ID in logic state
+    } else { console.error("GameLogic or setCurrentPopupConcept not available."); }
 
     // --- Populate Basic Info ---
     if (popupCardTypeIcon) popupCardTypeIcon.className = `card-type-icon ${Utils.getCardTypeIcon(concept.cardType)}`;
@@ -1895,7 +1902,7 @@ export function handleResearchPopupAction(conceptId, actionResult) { const item 
     let feedbackText = ""; switch (actionResult) { case 'kept': feedbackText = "Added to Grimoire!"; item.classList.add('kept'); break; case 'sold': feedbackText = "Sold for Insight!"; item.classList.add('sold'); break; case 'pending_dissonance': feedbackText = "Dissonance! Reflection needed..."; item.classList.add('pending'); break; case 'kept_after_dissonance': feedbackText = "Kept after reflection."; item.classList.add('kept'); break; case 'kept_after_dissonance_fail': feedbackText = "Kept (Reflection Error)"; item.classList.add('kept'); break; case 'error_adding': feedbackText = "Error adding!"; item.classList.add('error'); break; case 'error_unknown': default: feedbackText = "Error processing choice."; item.classList.add('error'); break; } if (feedbackSpan) feedbackSpan.textContent = feedbackText; // Check if all items are processed to enable close button
     updateResearchPopupState(); }
 /** Updates the status message and close/confirm buttons of the research popup. */
-function updateResearchPopupState() { const items = researchPopupContent?.querySelectorAll('.research-result-item'); if (!items || items.length === 0) { // No items found, or duplicate insight message
+function updateResearchPopupState() { const items = researchPopupContent?.querySelectorAll('.research-result-item'); const duplicateInsightGain = parseFloat(researchPopupContent?.querySelector('.duplicate-insight-info')?.textContent.match(/gained ([\d.]+)/)?.[1] || '0'); if (!items || items.length === 0) { // No items found, or duplicate insight message
         if(researchPopupStatus) researchPopupStatus.textContent = duplicateInsightGain > 0 ? "Insight gained." : "No discoveries."; if(closeResearchResultsPopupButton) closeResearchResultsPopupButton.disabled = false; if(confirmResearchChoicesButton) confirmResearchChoicesButton.classList.add('hidden'); return; } const unprocessedItems = Array.from(items).filter(item => item.dataset.processed === "false" || item.dataset.choiceMade === "pending_dissonance"); const allProcessed = unprocessedItems.length === 0; if(researchPopupStatus) researchPopupStatus.textContent = allProcessed ? "All findings processed." : `Choose an action for the remaining ${unprocessedItems.length} finding(s).`; if(closeResearchResultsPopupButton) closeResearchResultsPopupButton.disabled = !allProcessed; if(confirmResearchChoicesButton) confirmResearchChoicesButton.classList.toggle('hidden', !allProcessed); }
 
 // --- Reflection Modal UI ---
@@ -1908,87 +1915,6 @@ export function displayReflectionPrompt(promptData, context) { if (!reflectionMo
     if (reflectionRewardAmount) reflectionRewardAmount.textContent = reward || '?'; // Show reward amount
     // Show the modal
     reflectionModal.classList.remove('hidden'); if (popupOverlay && !(onboardingOverlay && onboardingOverlay.classList.contains('visible'))) { popupOverlay.classList.remove('hidden'); } }
-
-// --- Integrated Element Deep Dive UI (Inside Persona Screen Accordion) ---
-
-// STUB implementation for displayElementDeepDive
-export function displayElementDeepDive(elementKey, container) {
-     if (!container) return;
-     const elementNameKey = elementKeyToFullName[elementKey];
-     const unlockedLevel = State.getState().unlockedDeepDiveLevels[elementKey] || 0;
-     const deepDiveData = elementDeepDive[elementNameKey] || [];
-
-     container.innerHTML = '<h5 class="deep-dive-section-title">Element Insights</h5>';
-     let canUnlockMore = false;
-
-     if (deepDiveData.length === 0) {
-         container.innerHTML += '<p><em>No insights available for this element yet.</em></p>';
-         return;
-     }
-
-     deepDiveData.forEach(levelData => {
-         if (levelData.level <= unlockedLevel) {
-             // Display unlocked level content
-             const unlockedDiv = document.createElement('div');
-             unlockedDiv.classList.add('deep-dive-level', 'unlocked');
-             unlockedDiv.innerHTML = `
-                <h6><i class="fas fa-lock-open"></i> Level ${levelData.level}: ${levelData.title}</h6>
-                <div>${levelData.content}</div>
-                <hr class="content-hr">
-             `;
-             container.appendChild(unlockedDiv);
-         } else if (levelData.level === unlockedLevel + 1) {
-             // Display button for the next unlockable level
-             canUnlockMore = true;
-             const unlockDiv = document.createElement('div');
-             unlockDiv.classList.add('deep-dive-level', 'locked');
-             const cost = levelData.insightCost || 0;
-             const canAfford = State.getInsight() >= cost;
-             const errorMsg = canAfford ? '' : `<span class="unlock-error" style="font-size:0.8em; color:var(--danger-color); display: block;">Requires ${cost.toFixed(1)} Insight</span>`;
-             unlockDiv.innerHTML = `
-                <h6><i class="fas fa-lock"></i> Level ${levelData.level}: ${levelData.title}</h6>
-                <button class="button tiny-button unlock-button btn"
-                        data-element-key="${elementKey}"
-                        data-level="${levelData.level}"
-                        data-cost="${cost}"
-                        ${canAfford ? '' : 'disabled'}
-                        title="${canAfford ? `Unlock for ${cost} Insight` : `Requires ${cost} Insight`}">
-                    Unlock (${cost} <i class="fas fa-brain insight-icon"></i>)
-                </button>
-                ${errorMsg}
-             `;
-             container.appendChild(unlockDiv);
-         }
-     });
-
-     if (!canUnlockMore && unlockedLevel >= deepDiveData.length && deepDiveData.length > 0) {
-         container.innerHTML += '<p><em>All insights for this element unlocked.</em></p>';
-     } else if (!canUnlockMore && unlockedLevel === 0 && deepDiveData.length > 0) {
-         // Handle case where there *are* insights, but level 1 is not unlocked yet
-         const level1Data = deepDiveData.find(l => l.level === 1);
-         if (level1Data) {
-             const unlockDiv = document.createElement('div');
-             unlockDiv.classList.add('deep-dive-level', 'locked');
-             const cost = level1Data.insightCost || 0;
-             const canAfford = State.getInsight() >= cost;
-             const errorMsg = canAfford ? '' : `<span class="unlock-error" style="font-size:0.8em; color:var(--danger-color); display: block;">Requires ${cost.toFixed(1)} Insight</span>`;
-             unlockDiv.innerHTML = `
-                <h6><i class="fas fa-lock"></i> Level ${level1Data.level}: ${level1Data.title}</h6>
-                <button class="button tiny-button unlock-button btn"
-                        data-element-key="${elementKey}"
-                        data-level="${level1Data.level}"
-                        data-cost="${cost}"
-                        ${canAfford ? '' : 'disabled'}
-                        title="${canAfford ? `Unlock for ${cost} Insight` : `Requires ${cost} Insight`}">
-                    Unlock (${cost} <i class="fas fa-brain insight-icon"></i>)
-                </button>
-                ${errorMsg}
-             `;
-             container.appendChild(unlockDiv);
-         }
-     }
-}
-
 
 // --- Repository UI ---
 
@@ -2006,7 +1932,7 @@ export function displayRepositoryContent() {
     displayDailyRituals(); // Refresh rituals display
 }
 /** Renders a single item for the Repository lists. */
-export function renderRepositoryItem(item, type, cost = 0, canAfford = false, completed = false) { const li = document.createElement('li'); li.classList.add('repository-item'); li.classList.toggle('completed', completed); const itemElement = elementKeyToFullName[item.element] || item.requiredElement || null; const color = itemElement ? Utils.getElementColor(itemElement) : 'var(--secondary-color)'; li.style.borderLeftColor = completed ? 'var(--success-color)' : color; let actionsHTML = ''; let title = item.name; let description = item.description || ''; let requiresText = ""; // Requirements text for experiments
+export function renderRepositoryItem(item, type, cost = 0, canAfford = false, completed = false) { const li = document.createElement('li'); li.classList.add('repository-item'); li.classList.toggle('completed', completed); const itemElementKey = item.element || item.requiredElement || null; const elementName = itemElementKey ? elementKeyToFullName[itemElementKey] : null; const color = elementName ? Utils.getElementColor(elementName) : 'var(--secondary-color)'; li.style.borderLeftColor = completed ? 'var(--success-color)' : color; let actionsHTML = ''; let title = item.name; let description = item.description || ''; let requiresText = ""; // Requirements text for experiments
     switch (type) { case 'scene': title = `<i class="fas fa-scroll" style="color: ${color};"></i> ${item.name}`; if (!completed) { actionsHTML = `<div class="repo-actions"><button class="button tiny-button btn" data-scene-id="${item.id}" ${!canAfford ? 'disabled' : ''} title="${canAfford ? `Meditate on ${item.name}` : `Requires ${cost} Insight`}"><i class="fas fa-brain"></i> Meditate (${cost})</button></div>`; } break; case 'experiment': title = `<i class="fas fa-flask" style="color: ${color};"></i> ${item.name}`; const userAttunement = State.getAttunement(); const userScores = State.getScores(); const userFocus = State.getFocusedConcepts(); const discoveredMap = State.getDiscoveredConcepts(); let otherReqsMet = true; let reqsList = []; if (userAttunement[item.requiredElement] < item.requiredAttunement) { otherReqsMet = false; reqsList.push(`${item.requiredAttunement} ${Utils.getElementShortName(elementKeyToFullName[item.requiredElement])} Att.`); } if (item.requiredRoleFocusScore !== undefined && (userScores.RF ?? 0) < item.requiredRoleFocusScore) { otherReqsMet = false; reqsList.push(`RF Score ≥ ${item.requiredRoleFocusScore}`); } if (item.requiredRoleFocusScoreBelow !== undefined && (userScores.RF ?? 0) >= item.requiredRoleFocusScoreBelow) { otherReqsMet = false; reqsList.push(`RF Score < ${item.requiredRoleFocusScoreBelow}`); } if (item.requiredFocusConceptIds) { for (const reqId of item.requiredFocusConceptIds) { if (!userFocus.has(reqId)) { otherReqsMet = false; const c = concepts.find(c=>c.id === reqId); reqsList.push(c ? `Focus: ${c.name}` : `Focus: ID ${reqId}`); } } } if (item.requiredFocusConceptTypes) { for (const typeReq of item.requiredFocusConceptTypes) { let typeMet = false; for (const fId of userFocus) { const c = discoveredMap.get(fId)?.concept; if (c?.cardType === typeReq) { typeMet = true; break; } } if (!typeMet) { otherReqsMet = false; reqsList.push(`Focus Type: ${typeReq}`); } } } if (!otherReqsMet) { requiresText = `<small class="req-missing">Requires: ${reqsList.join(', ')}</small>`; } if (!completed) { const buttonDisabled = !otherReqsMet || !canAfford; const buttonTitle = completed ? "Already Completed" : (!otherReqsMet ? "Requirements not met" : (!canAfford ? `Requires ${cost} Insight` : `Attempt Experiment`)); actionsHTML = `<div class="repo-actions">${requiresText}<button class="button tiny-button btn" data-experiment-id="${item.id}" ${buttonDisabled ? 'disabled' : ''} title="${buttonTitle}"><i class="fas fa-vial"></i> Attempt (${cost})</button></div>`; } break; case 'insight': title = `<i class="fas fa-lightbulb" style="color: ${color};"></i> Elemental Insight (${Utils.getElementShortName(elementKeyToFullName[item.element])})`; description = `<em>"${item.text}"</em>`; break; case 'focusUnlock': title = `<i class="fas fa-link" style="color: ${color};"></i> Focus Discovery: ${item.unlocks.name}`; description = item.description; break; default: title = item.name; } li.innerHTML = `<h4>${title}</h4><p>${description}</p>${actionsHTML}`; return li; }
 
 // --- Milestones UI ---
@@ -2025,24 +1951,6 @@ export function displayDailyRituals() { if (!dailyRitualsDisplayRepo) return; co
             if (focusMet && ritual.requiredRoleFocusScore !== undefined && (scores.RF ?? 0) < ritual.requiredRoleFocusScore) { focusMet = false; } // Check RF score requirement (below)
             if (focusMet && ritual.requiredRoleFocusScoreBelow !== undefined && (scores.RF ?? 0) >= ritual.requiredRoleFocusScoreBelow) { focusMet = false; } if (focusMet) { const completedData = completedToday[ritual.id] || { completed: false, progress: 0 }; const track = ritual.track; const isComplete = completedData.completed || (track.count && completedData.progress >= track.count); const li = document.createElement('li'); li.classList.add('focus-ritual'); li.classList.toggle('completed', isComplete); let progressText = ''; if (track.count && track.count > 1) { progressText = ` (${completedData.progress}/${track.count})`; } let rewardText = ''; if (ritual.reward) { if (ritual.reward.type === 'insight') rewardText = ` (+${ritual.reward.amount} <i class="fas fa-brain insight-icon"></i>)`; else if (ritual.reward.type === 'attunement') rewardText = ` (+${ritual.reward.amount} Att.)`; } li.innerHTML = `${ritual.description}${progressText}<span class="ritual-reward">${rewardText}</span>`; dailyRitualsDisplayRepo.appendChild(li); displayedRitualCount++; } }); } if (displayedRitualCount === 0) { dailyRitualsDisplayRepo.innerHTML = '<li>No active rituals.</li>'; } }
 
-// --- Settings Popup UI ---
-
-// STUB implementation for showSettings
-export function showSettings() {
-     const settingsPopup = document.getElementById('settingsPopup');
-     if (settingsPopup) {
-         settingsPopup.classList.remove('hidden');
-          // Show the main overlay if onboarding isn't active
-        const onboardingActive = onboardingOverlay && onboardingOverlay.classList.contains('visible');
-        if (popupOverlay && !onboardingActive) {
-             popupOverlay.classList.remove('hidden');
-        }
-     } else {
-         console.error("Settings popup element not found!");
-     }
-}
-
-
 // --- Tapestry Deep Dive / Resonance Chamber UI ---
 
 /** Displays the Tapestry Deep Dive modal with analysis data. */
@@ -2058,31 +1966,6 @@ export function displaySynergyTensionInfo(analysis) { if (!tapestryDeepDiveModal
     // Activate the Synergy node
     deepDiveAnalysisNodesContainer.querySelectorAll('.aspect-node').forEach(btn => btn.classList.remove('active')); const synergyNode = deepDiveAnalysisNodesContainer.querySelector('[data-node-id="synergy"]'); if (synergyNode) synergyNode.classList.add('active'); // Generate and display content
     let content = `<h4>Synergy & Tension</h4>`; if (analysis.synergies.length > 0) { content += `<h5>Synergies Found:</h5><ul>${analysis.synergies.map(s => `<li>${s.text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')}</li>`).join('')}</ul><hr class="popup-hr">`; } else { content += `<p><em>No direct synergies detected between focused concepts.</em></p><hr class="popup-hr">`; } if (analysis.tensions.length > 0) { content += `<h5>Tensions Noted:</h5><ul>${analysis.tensions.map(t => `<li>${t.text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')}</li>`).join('')}</ul>`; } else { content += `<p><em>No significant elemental tensions detected within the focus.</em></p>`; } deepDiveDetailContent.innerHTML = content; }
-/** Updates the contemplation button state (cost, cooldown). */
-// STUB implementation for updateContemplationButtonState
-export function updateContemplationButtonState() {
-     const btn = getElement('contemplationNode');
-     const costDisplay = btn?.querySelector('.contemplation-cost');
-     if (!btn || !costDisplay) return;
-
-     costDisplay.textContent = Config.CONTEMPLATION_COST; // Display base cost
-     const cooldownEnd = State.getContemplationCooldownEnd?.() ?? 0;
-     const now = Date.now();
-
-     if (cooldownEnd && now < cooldownEnd) {
-         const remaining = Math.ceil((cooldownEnd - now) / 1000);
-         btn.disabled = true;
-         btn.title = `Contemplation cooling down (${remaining}s)`;
-         // Optionally update button text to show cooldown
-         // btn.querySelector('i.fa-brain').nextSibling.textContent = ` Focusing Lens (${remaining}s)`;
-     } else {
-         const canAfford = State.getInsight() >= Config.CONTEMPLATION_COST;
-         btn.disabled = !canAfford;
-         btn.title = canAfford ? `Begin focused contemplation (Cost: ${Config.CONTEMPLATION_COST} Insight)` : `Requires ${Config.CONTEMPLATION_COST} Insight`;
-         // Reset text if cooldown was shown previously
-         // btn.querySelector('i.fa-brain').nextSibling.textContent = ` Focusing Lens (${Config.CONTEMPLATION_COST} Insight)`;
-     }
-}
 
 /** Updates the content area of the deep dive modal. */
 export function updateDeepDiveContent(htmlContent, activeNodeId) { if (!deepDiveDetailContent || !deepDiveAnalysisNodesContainer) return; deepDiveDetailContent.innerHTML = htmlContent; // Update button active states
@@ -2093,44 +1976,6 @@ export function displayContemplationTask(task) { if (!deepDiveDetailContent || !
 /** Clears the contemplation task display area. */
 export function clearContemplationTask() { if (!deepDiveDetailContent || !deepDiveAnalysisNodesContainer) return; const contemplationNode = deepDiveAnalysisNodesContainer.querySelector('[data-node-id="contemplation"]'); if (contemplationNode?.classList.contains('active')) { // Only clear if contemplation was active
         deepDiveDetailContent.innerHTML = '<p><i>Select an Aspect to explore...</i></p>'; contemplationNode.classList.remove('active'); } }
-
-// --- Elemental Dilemma Modal Display ---
-
-// STUB implementation for displayElementalDilemma
-export function displayElementalDilemma(dilemmaData) {
-     const modal = getElement('dilemmaModal');
-     const situation = getElement('dilemmaSituationText');
-     const question = getElement('dilemmaQuestionText');
-     const slider = getElement('dilemmaSlider');
-     const minLabel = getElement('dilemmaSliderMinLabel');
-     const maxLabel = getElement('dilemmaSliderMaxLabel');
-     const valueDisplay = getElement('dilemmaSliderValueDisplay');
-     const nudgeCheck = getElement('dilemmaNudgeCheckbox');
-
-     if (!modal || !situation || !question || !slider || !minLabel || !maxLabel || !valueDisplay || !nudgeCheck) {
-          console.error("Dilemma modal elements missing!");
-          return;
-     }
-
-     situation.textContent = dilemmaData?.situation ?? 'Dilemma situation missing.';
-     question.textContent = dilemmaData?.question ?? 'Dilemma question missing.';
-     minLabel.textContent = dilemmaData?.sliderMinLabel ?? 'Option A';
-     maxLabel.textContent = dilemmaData?.sliderMaxLabel ?? 'Option B';
-
-     // Reset slider and display
-     slider.value = 5;
-     valueDisplay.textContent = 'Balanced';
-     nudgeCheck.checked = false; // Default nudge off
-
-     modal.classList.remove('hidden');
-     // Show the main overlay if onboarding isn't active
-     const onboardingActive = onboardingOverlay && onboardingOverlay.classList.contains('visible');
-     if (popupOverlay && !onboardingActive) {
-          popupOverlay.classList.remove('hidden');
-     }
-     console.log(`UI: Displaying dilemma ${dilemmaData?.id}`);
-}
-
 
 // --- Initial UI Setup Helper ---
 /** Sets up the initial state of the UI on load. */
@@ -2273,5 +2118,5 @@ export function showSettings() {
 }
 
 
-console.log("ui.js loaded successfully. (Enhanced v4.10 + Drawer/Accordion/Layout Fixes + Stubs)");
+console.log("ui.js loaded successfully. (Enhanced v4.10 + Drawer/Accordion/Layout Fixes + Stubs + Duplicate Removed)");
 // --- END OF FILE ui.js ---
