@@ -245,7 +245,7 @@ export function gainAttunementForAction(actionType, elementKey = null, amount = 
     });
 
     if (changed) {
-        console.log(`Logic: Attunement updated (${actionType}, Key(s): ${targetKeys.join(',') || 'None'}) by ${baseAmount.toFixed(2)} per element.`);
+        // console.log(`Logic: Attunement updated (${actionType}, Key(s): ${targetKeys.join(',') || 'None'}) by ${baseAmount.toFixed(2)} per element.`); // Reduce noise
         // Refresh UI only if relevant screen is active
         if (document.getElementById('personaScreen')?.classList.contains('current')) {
             // Use requestAnimationFrame to ensure DOM is ready if called rapidly
@@ -380,7 +380,7 @@ export function goToNextElement() {
         const elementNameKey = elementNames[currentIndex];
         const currentAnswers = UI.getQuestionnaireAnswers();
         State.updateAnswers(elementNameKey, currentAnswers);
-        console.log(`Logic: Saved answers for ${elementNameKey}.`);
+        // console.log(`Logic: Saved answers for ${elementNameKey}.`); // Reduce noise
     }
 
     const nextIndex = currentIndex + 1;
@@ -402,7 +402,7 @@ export function goToPrevElement() {
         const elementNameKey = elementNames[currentState.currentElementIndex];
         const currentAnswers = UI.getQuestionnaireAnswers();
         State.updateAnswers(elementNameKey, currentAnswers);
-        console.log(`Logic: Saved answers for ${elementNameKey} before going back.`);
+        // console.log(`Logic: Saved answers for ${elementNameKey} before going back.`); // Reduce noise
 
         const prevIndex = currentState.currentElementIndex - 1;
         State.updateElementIndex(prevIndex);
@@ -597,7 +597,7 @@ export function handleResearchClick({ currentTarget, isFree = false }) {
         return;
     }
     if (buttonCard.classList.contains('disabled')) {
-        console.log("Research button is disabled (likely insufficient insight).");
+        // console.log("Research button is disabled (likely insufficient insight)."); // Reduce noise
         return;
     }
 
@@ -1549,7 +1549,8 @@ function unlockDeepDiveLevelInternal(elementKey, levelToUnlock) {
         if (State.unlockLibraryLevel(elementKey, levelToUnlock)) { // Saves state
             // Update UI: Refresh Persona screen to show new unlocked level
             if (document.getElementById('personaScreen')?.classList.contains('current')) {
-                UI.displayPersonaScreenLogic(); // This will re-render the deep dive section
+                // *** FIX: Call the logic function within this module ***
+                displayPersonaScreenLogic();
             }
             updateMilestoneProgress('unlockLibrary', levelToUnlock); // Track milestone
             updateMilestoneProgress('unlockedDeepDiveLevels', State.getState().unlockedDeepDiveLevels); // Check aggregate milestones
@@ -1565,6 +1566,7 @@ function unlockDeepDiveLevelInternal(elementKey, levelToUnlock) {
     }
     return false; // Failed to spend insight
 }
+
 
 /** Handles clicking meditate button on a scene */
 export function handleMeditateScene(event) {
@@ -1637,11 +1639,11 @@ function attemptExperimentInternal(experimentId) {
         unmetReqs.push(`${exp.requiredAttunement} ${Utils.getElementShortName(elementKeyToFullName[exp.requiredElement])} Attun.`);
     }
     // Check RF score requirements if they exist
-    if (exp.requiredRoleFocusScore !== undefined && (scores.RF || 0) < exp.requiredRoleFocusScore) {
+    if (exp.requiredRoleFocusScore !== undefined && (scores.RF ?? 0) < exp.requiredRoleFocusScore) {
         canAttempt = false;
         unmetReqs.push(`RF Score ≥ ${exp.requiredRoleFocusScore}`);
     }
-    if (exp.requiredRoleFocusScoreBelow !== undefined && (scores.RF || 0) >= exp.requiredRoleFocusScoreBelow) {
+    if (exp.requiredRoleFocusScoreBelow !== undefined && (scores.RF ?? 0) >= exp.requiredRoleFocusScoreBelow) {
         canAttempt = false;
         unmetReqs.push(`RF Score < ${exp.requiredRoleFocusScoreBelow}`);
     }
@@ -1815,7 +1817,7 @@ export function handleSuggestSceneClick() {
 export function handleCategorizeCard(conceptId, categoryId) {
     const currentCategory = State.getCardCategory(conceptId);
     if (currentCategory === categoryId) {
-        console.log(`Card ${conceptId} already in category ${categoryId}.`);
+        // console.log(`Card ${conceptId} already in category ${categoryId}.`); // Reduce noise
         return; // No change needed
     }
     if (State.setCardCategory(conceptId, categoryId)) { // Saves state
@@ -1833,7 +1835,7 @@ export function handleCategorizeCard(conceptId, categoryId) {
 function checkCategoryUnlocks(categoryId) {
     if (!categoryDrivenUnlocks || categoryDrivenUnlocks.length === 0) return;
 
-    console.log(`Logic: Checking category unlocks for category: ${categoryId}`);
+    // console.log(`Logic: Checking category unlocks for category: ${categoryId}`); // Reduce noise
     const discoveredMap = State.getDiscoveredConcepts();
     // Get IDs of all cards currently in this specific category
     const cardsInCategory = Array.from(discoveredMap.entries())
@@ -1869,13 +1871,10 @@ function checkCategoryUnlocks(categoryId) {
                     const currentLoreLevel = State.getUnlockedLoreLevel(reward.targetConceptId);
                     if (reward.loreLevelToUnlock <= currentLoreLevel) {
                         alreadyDone = true;
-                        console.log(`Category unlock ${unlock.id} skipped: Lore ${reward.targetConceptId} Lvl ${reward.loreLevelToUnlock} already unlocked.`);
+                        // console.log(`Category unlock ${unlock.id} skipped: Lore ${reward.targetConceptId} Lvl ${reward.loreLevelToUnlock} already unlocked.`); // Reduce noise
                     }
-                } else if (reward.type === 'attunement') {
-                    // Attunement can always be granted, no 'already done' check needed unless capping.
-                } else if (reward.type === 'insight') {
-                    // Insight can always be granted.
                 }
+                // Add checks for other reward types if they can be 'already done'
 
                 if (!alreadyDone) {
                     // Grant the reward
@@ -2232,7 +2231,7 @@ export function calculateFocusThemes() {
 // --- Focus Unlocks (Checks RF) ---
 /** Checks if the current focus set unlocks any special items (Handles RF Requirements) */
 export function checkForFocusUnlocks(silent = false) {
-     console.log("Logic: Checking focus unlocks...");
+     // console.log("Logic: Checking focus unlocks..."); // Reduce noise
      let newlyUnlocked = false;
      const focused = State.getFocusedConcepts(); // Set of IDs
      const unlocked = State.getUnlockedFocusItems(); // Set of unlock IDs
@@ -2335,7 +2334,7 @@ export function handleDeepDiveNodeClick(nodeId) {
         UI.updateDeepDiveContent("<p>Error: Analysis unavailable.</p>", nodeId);
         return;
     }
-    console.log(`Logic: Handling Deep Dive node click: ${nodeId}`);
+    // console.log(`Logic: Handling Deep Dive node click: ${nodeId}`); // Reduce noise
     let content = `<p><em>Analysis for '${nodeId}'...</em></p>`; // Default/placeholder
 
     try {
@@ -2536,19 +2535,22 @@ export function handleConfirmDilemma() {
             const originalMin = newScores[keyMin];
             newScores[keyMin] = Math.max(0, Math.min(10, newScores[keyMin] + nudgeMin)); // Apply and clamp
             if (newScores[keyMin] !== originalMin) nudged = true;
-            console.log(`Dilemma Nudge: ${keyMin} adjusted by ${nudgeMin.toFixed(2)} -> ${newScores[keyMin].toFixed(1)}`);
+            // console.log(`Dilemma Nudge: ${keyMin} adjusted by ${nudgeMin.toFixed(2)} -> ${newScores[keyMin].toFixed(1)}`); // Reduce noise
 
             // Apply nudge to Max element score
             const originalMax = newScores[keyMax];
             newScores[keyMax] = Math.max(0, Math.min(10, newScores[keyMax] + nudgeMax)); // Apply and clamp
             if (newScores[keyMax] !== originalMax) nudged = true;
-            console.log(`Dilemma Nudge: ${keyMax} adjusted by ${nudgeMax.toFixed(2)} -> ${newScores[keyMax].toFixed(1)}`);
+            // console.log(`Dilemma Nudge: ${keyMax} adjusted by ${nudgeMax.toFixed(2)} -> ${newScores[keyMax].toFixed(1)}`); // Reduce noise
 
             // If any scores actually changed, update state and UI
             if (nudged) {
                 State.updateScores(newScores); // Save updated scores
                 console.log("Nudged Scores after Dilemma:", State.getScores());
-                if(personaScreen?.classList.contains('current')) UI.displayPersonaScreen(); // Refresh if visible
+                if(personaScreen?.classList.contains('current')) {
+                     // Call the logic function to update the persona screen content
+                     displayPersonaScreenLogic();
+                }
                 UI.showTemporaryMessage("Dilemma choice influenced core understanding.", 3500);
                 gainAttunementForAction('dilemmaNudge', 'All'); // Small attunement boost
                 updateMilestoneProgress('scoreNudgeApplied', 1); // Track milestone
@@ -2582,7 +2584,7 @@ export function checkForDailyLogin() {
             UI.displayRepositoryContent(); // Refreshes rituals list
         }
     } else {
-        console.log("Logic: Already logged in today.");
+        // console.log("Logic: Already logged in today."); // Reduce noise
         // Ensure free research button state is correct even if already logged in
         if(workshopScreen?.classList.contains('current')) {
             UI.displayWorkshopScreenContent();
@@ -2692,7 +2694,7 @@ export function checkAndUpdateRituals(action, details = {}) {
                  }
              } else {
                  // Log progress update if not yet complete
-                 console.log(`Logic: Ritual Progress: ${ritual.description} (${progress}/${requiredCount})`);
+                 // console.log(`Logic: Ritual Progress: ${ritual.description} (${progress}/${requiredCount})`); // Reduce noise
              }
         }
     });
