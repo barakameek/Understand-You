@@ -174,8 +174,10 @@
     border-radius: var(--border-radius);
     box-shadow: var(--box-shadow);
     padding: var(--spacing);
-    height: 100%;
+    height: calc(100vh - 4rem);
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
   }
   /* Left column: Core Elements chips */
   .research-bench h2 {
@@ -192,7 +194,6 @@
     flex-direction: column;
     gap: 1rem;
     overflow-y: auto;
-    max-height: calc(100vh - 200px);
   }
   .research-chip {
     background: var(--background-medium);
@@ -221,13 +222,35 @@
     color: var(--text-muted-color);
     margin-top: 0.25rem;
   }
+  /* Right column: Grimoire Library */
+  .grimoire-library h2 {
+    margin: 0 0 var(--spacing) 0;
+    color: var(--primary-color);
+    border-bottom: 1px solid var(--border-color-light);
+    padding-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .library-controls {
+    flex-shrink: 0;
+    margin-bottom: var(--spacing);
+    overflow-x: auto;
+  }
+  #grimoireGrid {
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--spacing);
+    overflow-y: auto;
+  }
   /* Research Findings popup styling */
   #researchPopupContent {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
     gap: var(--spacing);
   }
-  #researchPopupContent .research-popup-card {
+  .research-popup-card {
     background: var(--background-light);
     border-radius: var(--border-radius);
     box-shadow: var(--box-shadow);
@@ -249,7 +272,17 @@
   <!-- Right: Grimoire Library -->
   <main class="panel grimoire-library">
     <h2><i class="fas fa-book-open"></i> Grimoire Library</h2>
-    <!-- existing library controls and grid here -->
+    <!-- Existing filtering controls -->
+    <div class="library-controls" id="libraryControls">
+      <label>Type: <select id="libraryTypeFilter"></select></label>
+      <label>Element: <select id="libraryElementFilter"></select></label>
+      <label>Rarity: <select id="libraryRarityFilter"></select></label>
+      <label>Focus: <select id="libraryFocusFilter"></select></label>
+      <label>Search: <input type="text" id="librarySearchInput" placeholder="Keyword" /></label>
+      <button id="libraryShowAllBtn" class="button btn">Show All</button>
+    </div>
+    <!-- Card grid -->
+    <div id="grimoireGrid"></div>
   </main>
 </div>
 
@@ -286,7 +319,6 @@
       `;
       chip.addEventListener('click', () => {
         if (key && typeof GameLogic.conductResearch === 'function') {
-          // trigger a guidance research on this element
           GameLogic.conductResearch(key);
         }
       });
@@ -294,12 +326,25 @@
     });
   }
 
+  function renderLibrary() {
+    const grid = document.getElementById('grimoireGrid');
+    if (!grid) return;
+    // Delegate to existing UI refresh logic
+    window.refreshGrimoireDisplay();
+  }
+
   document.addEventListener('DOMContentLoaded', () => {
     renderCoreElements();
+    renderLibrary();
     const origShowScreen = window.showScreen;
     window.showScreen = function(id) {
       const res = origShowScreen?.(id);
-      if (id === 'workshopScreen') setTimeout(renderCoreElements, 0);
+      if (id === 'workshopScreen') {
+        setTimeout(() => {
+          renderCoreElements();
+          renderLibrary();
+        }, 0);
+      }
       return res;
     };
   });
