@@ -162,26 +162,97 @@
              </div>
         </div>
 
-<!-- Enhanced Workshop Layout preserving original JS IDs -->
+<!-- Redesigned Workshop Layout: Full-width Research Bench and Compact Library, Text Hidden -->
 <style>
-  #workshopScreen { display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; padding: var(--spacing); }
-  .panel { background: var(--background-light); border-radius: var(--border-radius); box-shadow: var(--box-shadow); padding: var(--spacing); }
-  .research-bench h2,
-  .grimoire-library h2 { margin-top: 0; color: var(--primary-color); border-bottom: 1px solid var(--border-color-light); padding-bottom: 0.5rem; }
-  .cards-row { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(120px, 1fr); gap: 1rem; overflow-x: auto; }
-  .cards-row::-webkit-scrollbar { height: 6px; }
-  .cards-row::-webkit-scrollbar-thumb { background: var(--border-color-dark); border-radius: 3px; }
-  .workshop-controls { display: flex; align-items: center; gap: 1rem; margin-top: 1rem; }
-  .library-controls { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem; }
-  .library-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 1rem; max-height: 70vh; overflow-y: auto; }
+  /* Root layout: two rows */
+  #workshopScreen {
+    display: grid;
+    grid-template-rows: auto 1fr;
+    gap: 2rem;
+    padding: var(--spacing);
+  }
+
+  .panel {
+    background: var(--background-light);
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    padding: var(--spacing);
+  }
+
+  /* Hide descriptive text in Research Bench cards */
+  .research-bench .card-body p,
+  .research-bench .card-description,
+  .research-bench .card-details {
+    display: none !important;
+  }
+
+  .research-bench h2 {
+    margin: 0 0 var(--spacing) 0;
+    color: var(--primary-color);
+    border-bottom: 1px solid var(--border-color-light);
+    padding-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  /* Element icons & titles row */
+  .research-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: var(--spacing);
+  }
+  .research-chip {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--background-medium);
+    border-radius: var(--border-radius);
+    padding: 0.5rem 1rem;
+    box-shadow: var(--box-shadow);
+    font-weight: bold;
+    flex: 1 1 calc(33% - 1rem);
+    justify-content: center;
+  }
+
+  .workshop-controls {
+    display: flex;
+    justify-content: flex-start;
+    gap: 1rem;
+  }
+
+  /* Grimoire Library compact on bottom */
+  .grimoire-library h2 {
+    margin: 0 0 var(--spacing) 0;
+    color: var(--primary-color);
+    border-bottom: 1px solid var(--border-color-light);
+    padding-bottom: 0.5rem;
+  }
+  .library-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+  .library-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 1rem;
+    max-height: 50vh;
+    overflow-y: auto;
+  }
 </style>
 
 <div id="workshopScreen" class="screen workshop-screen">
-  <!-- Research Bench Panel -->
+  <!-- Full-width Research Bench -->
   <section class="panel research-bench">
-    <h2>Research Bench <i class="fas fa-flask info-icon" title="Spend Insight to discover Concepts"></i></h2>
-    <div class="cards-row" id="element-research-buttons"></div>
-    <div class="cards-row" id="daily-actions"></div>
+    <h2><i class="fas fa-flask"></i> Research Bench</h2>
+    <!-- Simplified element summary chips -->
+    <div class="research-chips" id="researchChipsContainer">
+      <!-- JS can populate chips: icon + title + score -->
+    </div>
+    <!-- Controls -->
     <div class="workshop-controls">
       <button id="freeResearchButtonWorkshop" class="button">Use 1 Free 🔍</button>
       <button id="seekGuidanceButtonWorkshop" class="button">Seek Guidance</button>
@@ -189,9 +260,9 @@
     </div>
   </section>
 
-  <!-- Grimoire Library Panel -->
+  <!-- Compact Grimoire Library -->
   <aside class="panel grimoire-library">
-    <h2>Grimoire Library <i class="fas fa-book-open info-icon" title="Browse discovered Concepts"></i></h2>
+    <h2><i class="fas fa-book-open"></i> Grimoire Library</h2>
     <div class="library-controls" id="grimoire-controls-workshop">
       <label>Sort: <select id="grimoireSortOrderWorkshop"></select></label>
       <label>Type: <select id="grimoireTypeFilterWorkshop"></select></label>
@@ -204,6 +275,7 @@
     <div id="grimoire-grid-workshop" class="library-cards"></div>
   </aside>
 </div>
+
 
          <!-- Repository Screen -->
          <div id="repositoryScreen" class="screen hidden repository-screen hidden-by-flow">
