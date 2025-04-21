@@ -300,6 +300,17 @@
   }
 </script>
 
+<!-- Dummy elements and functions to prevent console errors -->
+<!-- Popup resonance gauge section placeholder -->
+<div id="popupResonanceGaugeSection" style="display:none;"></div>
+<script>
+  // Prevent missing popupResonanceGaugeSection errors
+  window.popupResonanceGaugeSection = document.getElementById('popupResonanceGaugeSection');
+  // No-op showTapestryDeepDive to avoid ReferenceError
+  window.showTapestryDeepDive = function() { console.warn('showTapestryDeepDive called but not implemented'); };
+</script>
+
+
 
          <!-- Repository Screen -->
          <div id="repositoryScreen" class="screen hidden repository-screen hidden-by-flow">
