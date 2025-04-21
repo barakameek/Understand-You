@@ -1,38 +1,35 @@
 
 
-// --- START OF FILE ui.js ---
-
-// js/ui.js - User Interface Logic (Enhanced v4.10 + Drawer/Accordion/Layout Fixes - Corrected)
 
 import * as State from './state.js';
 import * as Config from './config.js';
 import * as Utils from './utils.js';
-import * as GameLogic from './gameLogic.js'; // Keep GameLogic import for helper calls like distance/scores
+import * as GameLogic from './gameLogic.js';
 import {
     elementDetails, elementKeyToFullName,
     concepts, questionnaireGuided,
     reflectionPrompts, elementDeepDive, dailyRituals, milestones, focusRituals,
     sceneBlueprints, alchemicalExperiments, elementalInsights, focusDrivenUnlocks,
-    cardTypeKeys, elementNames, // Includes RoleFocus ("Attraction", etc.)
+    cardTypeKeys, elementNames,
     grimoireShelves, elementalDilemmas, onboardingTasks
 } from '../data.js';
 
-console.log("ui.js loading... (Enhanced v4.10 + Drawer/Accordion/Layout Fixes - Corrected)");
+console.log("ui.js loading... (Enhanced v4.10 + Drawer/Accordion/Layout Fixes - Corrected v5)");
 
 // --- Helper Function for Image Errors ---
 function handleImageError(imgElement) {
     console.warn(`Image failed to load: ${imgElement?.src}. Displaying placeholder.`);
     if (imgElement) {
-        imgElement.style.display = 'none'; // Hide broken img
-        const visualContainer = imgElement.closest('.card-visual, .popup-visual'); // Find parent container
+        imgElement.style.display = 'none';
+        const visualContainer = imgElement.closest('.card-visual, .popup-visual');
         const placeholder = visualContainer?.querySelector('.card-visual-placeholder');
         if (placeholder) {
-            placeholder.style.display = 'flex'; // Ensure placeholder is visible (flex for centering icon)
+            placeholder.style.display = 'flex';
             placeholder.title = `Art Placeholder (Load Failed: ${imgElement.src?.split('/')?.pop() || 'unknown'})`;
         }
     }
 }
-window.handleImageError = handleImageError; // Make accessible globally for onerror
+window.handleImageError = handleImageError;
 
 
 // --- DOM Element References ---
@@ -52,7 +49,7 @@ const drawerToggle = getElement('drawerToggle');
 const sideDrawer = getElement('sideDrawer');
 const drawerSettingsButton = getElement('drawerSettings');
 const drawerThemeToggle = getElement('drawerThemeToggle');
-const drawerGrimoireCountSpan = getElement('drawerGrimoireCount'); // Drawer specific count
+const drawerGrimoireCountSpan = getElement('drawerGrimoireCount');
 
 // Welcome Screen
 const welcomeScreen = getElement('welcomeScreen');
@@ -100,8 +97,8 @@ const suggestedSceneContent = getElement('suggestedSceneContent');
 // Workshop Screen
 const workshopScreen = getElement('workshopScreen');
 const userInsightDisplayWorkshop = getElement('userInsightDisplayWorkshop');
-const researchBenchArea = getElement('workshop-research-area'); // Container for research chips
-const elementResearchButtonsContainer = getElement('element-research-buttons'); // Specific container for buttons
+const researchBenchArea = getElement('workshop-research-area');
+const elementResearchButtonsContainer = getElement('element-research-buttons');
 const dailyActionsContainer = getElement('daily-actions');
 const freeResearchButtonWorkshop = getElement('freeResearchButtonWorkshop');
 const seekGuidanceButtonWorkshop = getElement('seekGuidanceButtonWorkshop');
@@ -217,41 +214,38 @@ const onboardingNextButton = getElement('onboardingNextButton');
 const onboardingSkipButton = getElement('onboardingSkipButton');
 const onboardingHighlight = getElement('onboardingHighlight');
 
+
 // --- Module-level Variables ---
-let personaChartInstance = null; // To store the Chart.js instance
-let toastTimeout = null; // For clearing toast timeouts
-let milestoneTimeout = null; // For clearing milestone timeouts
-let insightBoostTimeoutId = null; // For insight boost cooldown timer
-let contemplationTimeoutId = null; // For contemplation cooldown timer
-let previousScreenId = 'welcomeScreen'; // Track previously active screen
+let personaChartInstance = null;
+let toastTimeout = null;
+let milestoneTimeout = null;
+let insightBoostTimeoutId = null;
+let contemplationTimeoutId = null;
+let previousScreenId = 'welcomeScreen';
 
 // --- Utility UI Functions ---
 
 /** Displays a short notification message (toast). */
 export function showTemporaryMessage(message, duration = Config.TOAST_DURATION, isGuidance = false) {
     if (!toastElement || !toastMessageElement) { console.warn("Toast elements missing:", message); return; }
-    console.info(`Toast: ${message}`); // Log message for debugging
+    console.info(`Toast: ${message}`);
     toastMessageElement.textContent = message;
-    toastElement.classList.toggle('guidance-toast', isGuidance); // Optional different style
+    toastElement.classList.toggle('guidance-toast', isGuidance);
 
-    // Clear previous timeout and reset classes for animation replay
     if (toastTimeout) clearTimeout(toastTimeout);
-    toastElement.classList.remove('hidden', 'visible'); // Remove classes
-    void toastElement.offsetWidth; // Trigger reflow to restart animation
+    toastElement.classList.remove('hidden', 'visible');
+    void toastElement.offsetWidth;
 
-    // Show the toast
     toastElement.classList.add('visible');
-    toastElement.classList.remove('hidden'); // Ensure hidden is removed
+    toastElement.classList.remove('hidden');
 
-    // Set timeout to hide the toast
     toastTimeout = setTimeout(() => {
         toastElement.classList.remove('visible');
-        // Add hidden back after transition ends (approx 0.5s based on typical CSS)
         setTimeout(() => {
-            if (toastElement && !toastElement.classList.contains('visible')) { // Check again in case another toast triggered
+            if (toastElement && !toastElement.classList.contains('visible')) {
                  toastElement.classList.add('hidden');
             }
-        }, 500); // Adjust delay based on CSS transition duration
+        }, 500);
         toastTimeout = null;
     }, duration);
 }
@@ -273,44 +267,30 @@ export function hideMilestoneAlert() {
 
 /** Hides all popups and the overlay, except for pending research or active onboarding. */
 export function hidePopups() {
-    // console.log("UI: hidePopups called"); // Reduce noise
     let researchPopupIsOpenAndPending = false;
-    // Check if research popup is open and has unprocessed items
     if (researchResultsPopup && !researchResultsPopup.classList.contains('hidden')) {
         const pendingItems = researchPopupContent?.querySelectorAll('.research-result-item[data-processed="false"], .research-result-item[data-choice-made="pending_dissonance"]');
         if (pendingItems && pendingItems.length > 0) {
             researchPopupIsOpenAndPending = true;
-            // console.log(`UI: Keeping research results popup open (${pendingItems.length} items pending).`); // Reduce noise
         }
     }
 
-    // Hide all popups unless it's the research popup and it's pending, or it's the onboarding popup
     document.querySelectorAll('.popup:not(.onboarding-popup)').forEach(popup => {
         if (!(popup.id === 'researchResultsPopup' && researchPopupIsOpenAndPending)) {
             popup.classList.add('hidden');
         }
     });
 
-    // Check if any general popups are still visible OR if onboarding is active
     const anyGeneralPopupVisible = document.querySelector('.popup:not(.hidden):not(.onboarding-popup)');
-    const onboardingActive = onboardingOverlay && onboardingOverlay.classList.contains('visible'); // Check visibility class
+    const onboardingActive = onboardingOverlay && onboardingOverlay.classList.contains('visible');
 
-    // Hide the main overlay ONLY if no general popups are visible AND onboarding is NOT active
     if (!anyGeneralPopupVisible && popupOverlay && !onboardingActive) {
         popupOverlay.classList.add('hidden');
-        // Clear temporary game logic state associated with popups
         if (typeof GameLogic !== 'undefined' && GameLogic.clearPopupState) {
             GameLogic.clearPopupState();
-            // console.log("UI: All general popups hidden, cleared popup logic state."); // Reduce noise
         }
-    } else if (anyGeneralPopupVisible) {
-         // console.log("UI: Some general popups remain visible, overlay kept."); // Reduce noise
-    } else if (onboardingActive) {
-         // console.log("UI: Onboarding is visible, keeping popup overlay potentially active."); // Reduce noise
-         // Ensure the main overlay IS hidden if onboarding is handling its own overlay
-         if (onboardingOverlay && popupOverlay) {
-             popupOverlay.classList.add('hidden'); // Ensure standard overlay hidden when onboarding has its own
-         }
+    } else if (onboardingActive && popupOverlay) {
+         popupOverlay.classList.add('hidden');
     }
 }
 
@@ -320,29 +300,27 @@ export function showInfoPopup(message) {
     if (infoPopupElement && infoPopupContent) {
         infoPopupContent.textContent = message;
         infoPopupElement.classList.remove('hidden');
-        // Show the main overlay if onboarding isn't active
         const onboardingActive = onboardingOverlay && onboardingOverlay.classList.contains('visible');
         if (popupOverlay && !onboardingActive) {
             popupOverlay.classList.remove('hidden');
         }
     } else {
         console.error("Info popup elements (#infoPopup, #infoPopupContent) not found.");
-        showTemporaryMessage("Error displaying information.", 2000); // Fallback
+        showTemporaryMessage("Error displaying information.", 2000);
     }
 }
 
 
 // --- Screen Management ---
 
-// Helper function to update drawer link visibility based on questionnaire completion
-export function updateDrawerLinks() {
+/** Helper function to update drawer link visibility based on questionnaire completion */
+export function updateDrawerLinks() { // Now exported correctly
   const done = State.getState().questionnaireCompleted;
   if(sideDrawer) {
-      // Toggle visibility for links that require questionnaire completion
       sideDrawer.querySelectorAll('.drawer-link.hidden-by-flow')
         .forEach(btn => btn.classList.toggle('hidden', !done));
   } else {
-      console.warn("Side drawer element not found for updating links.");
+      // console.warn("Side drawer element not found for updating links.");
   }
 }
 
@@ -362,105 +340,61 @@ export function showScreen(screenId) {
             welcomeEl.classList.remove('hidden');
             welcomeEl.classList.add('current');
         }
-        screenId = 'welcomeScreen'; // Update screenId to reflect fallback
+        screenId = 'welcomeScreen';
     } else {
-        // Hide all screens, then show the target
         screens.forEach(screen => {
-            if (screen) {
-                screen.classList.add('hidden');
-                screen.classList.remove('current');
-            }
+            if (screen) { screen.classList.add('hidden'); screen.classList.remove('current'); }
         });
         targetScreenElement.classList.remove('hidden');
         targetScreenElement.classList.add('current');
         console.log(`UI: Screen ${screenId} activated.`);
     }
 
-    // Update Drawer Link States & Visibility
-    updateDrawerLinks(); // Update visibility based on state
+    updateDrawerLinks(); // Ensure visibility is correct
+
     if (sideDrawer) {
         sideDrawer.querySelectorAll('.drawer-link[data-target]').forEach(button => {
             button?.classList.toggle('active', button.dataset.target === screenId);
         });
-    }
+    } else { console.warn("Side drawer element not found for active link update."); }
 
-    // Call specific display logic AFTER the screen is made visible
     try {
         switch (screenId) {
             case 'personaScreen':
                 if (isPostQuestionnaire) {
                     const justFinishedQuestionnaire = previousScreenId === 'questionnaireScreen';
-                    // Determine which view (detailed/summary) was last active or default
-                    const showDetailed = personaDetailedView?.classList.contains('current') ?? true; // Default to detailed
-
-                    if (justFinishedQuestionnaire) {
-                        togglePersonaView(false); // Show summary view first time after questionnaire
-                    } else {
-                        // Refresh content of the currently active view
+                    const showDetailed = personaDetailedView?.classList.contains('current') ?? true;
+                    if (justFinishedQuestionnaire) { togglePersonaView(false); }
+                    else {
                         if (showDetailed) {
-                            if (typeof GameLogic !== 'undefined' && GameLogic.displayPersonaScreenLogic) {
-                                GameLogic.displayPersonaScreenLogic(); // Refreshes detailed content
-                            } else { console.error("GameLogic or displayPersonaScreenLogic not available yet!"); }
-                        } else {
-                            displayPersonaSummary(); // Refreshes summary content
-                        }
+                            if (typeof GameLogic !== 'undefined' && GameLogic.displayPersonaScreenLogic) { GameLogic.displayPersonaScreenLogic(); }
+                            else { console.error("GameLogic or displayPersonaScreenLogic not available."); }
+                        } else { displayPersonaSummary(); }
                     }
-                    displayInsightLog(); // Ensure log is rendered if toggled open
-                } else {
-                    // If trying to access persona before Q is done, redirect
-                    console.warn("Attempted to access Persona screen before questionnaire completion. Redirecting.");
-                    showScreen('welcomeScreen');
-                    return; // Stop further processing for this invalid state
-                }
+                    displayInsightLog();
+                } else { console.warn("Attempted to access Persona screen before questionnaire completion. Redirecting."); showScreen('welcomeScreen'); return; }
                 break;
             case 'workshopScreen':
-                if (isPostQuestionnaire) {
-                    displayWorkshopScreenContent(); // Populate buttons etc.
-                    refreshGrimoireDisplay(); // Display cards
-                } else {
-                    console.warn("Attempted to access Workshop screen before questionnaire completion. Redirecting.");
-                    showScreen('welcomeScreen');
-                    return;
-                }
+                if (isPostQuestionnaire) { displayWorkshopScreenContent(); refreshGrimoireDisplay(); }
+                else { console.warn("Attempted to access Workshop screen before questionnaire completion. Redirecting."); showScreen('welcomeScreen'); return; }
                 break;
             case 'repositoryScreen':
-                if (isPostQuestionnaire) {
-                    displayRepositoryContent(); // Populate lists
-                } else {
-                     console.warn("Attempted to access Repository screen before questionnaire completion. Redirecting.");
-                     showScreen('welcomeScreen');
-                     return;
-                }
+                if (isPostQuestionnaire) { displayRepositoryContent(); }
+                else { console.warn("Attempted to access Repository screen before questionnaire completion. Redirecting."); showScreen('welcomeScreen'); return; }
                 break;
             case 'questionnaireScreen':
                 if (!isPostQuestionnaire) {
                     const index = State.getState().currentElementIndex;
-                    if (index >= 0 && index < elementNames.length) {
-                        displayElementQuestions(index); // Display current question
-                    } else {
-                        console.warn("Questionnaire screen shown but index is invalid:", index);
-                        initializeQuestionnaireUI(); // Reset to start if index bad
-                    }
-                } else {
-                    console.warn("Attempted to show questionnaire screen after completion.");
-                    showScreen('personaScreen'); // Redirect
-                    return;
-                }
+                    if (index >= 0 && index < elementNames.length) { displayElementQuestions(index); }
+                    else { console.warn("Questionnaire screen shown but index is invalid:", index); initializeQuestionnaireUI(); }
+                } else { console.warn("Attempted to show questionnaire screen after completion."); showScreen('personaScreen'); return; }
                 break;
-            case 'welcomeScreen':
-                // Ensure hidden-by-flow buttons are hidden on welcome
-                updateDrawerLinks(); // Call helper to hide unavailable links
-                break;
+            case 'welcomeScreen': updateDrawerLinks(); break;
         }
-    } catch (error) {
-        console.error(`Error during display logic for screen ${screenId}:`, error);
-    }
+    } catch (error) { console.error(`Error during display logic for screen ${screenId}:`, error); }
 
-    // Scroll to top for main content screens
-    if (['questionnaireScreen', 'workshopScreen', 'personaScreen', 'repositoryScreen'].includes(screenId)) {
-        window.scrollTo(0, 0);
-    }
-    previousScreenId = screenId; // Track the last shown screen
+    if (['questionnaireScreen', 'workshopScreen', 'personaScreen', 'repositoryScreen'].includes(screenId)) { window.scrollTo(0, 0); }
+    previousScreenId = screenId;
 }
 
 /** Toggles the side drawer open/closed */
@@ -469,66 +403,45 @@ export function toggleDrawer() {
     const isOpen = sideDrawer.classList.toggle('open');
     drawerToggle.setAttribute('aria-expanded', isOpen);
     sideDrawer.setAttribute('aria-hidden', !isOpen);
-    // Toggle overlay based on drawer state only if onboarding is not active
     const onboardingActive = onboardingOverlay && onboardingOverlay.classList.contains('visible');
-    if (popupOverlay && !onboardingActive) {
-        popupOverlay.classList.toggle('hidden', !isOpen); // Show overlay when drawer is open
-    }
+    if (popupOverlay && !onboardingActive) { popupOverlay.classList.toggle('hidden', !isOpen); }
 }
 
 
 // --- Insight Display & Log ---
-
-/** Updates all Insight display elements across the UI. */
 export function updateInsightDisplays() {
     const insightValue = State.getInsight();
     const insight = insightValue.toFixed(1);
     if (userInsightDisplayPersona) {
         userInsightDisplayPersona.textContent = insight;
-        if (!userInsightDisplayPersona.hasAttribute('aria-live')) {
-             userInsightDisplayPersona.setAttribute('aria-live', 'polite'); // Add for screen readers
-        }
+        if (!userInsightDisplayPersona.hasAttribute('aria-live')) userInsightDisplayPersona.setAttribute('aria-live', 'polite');
     }
     if (userInsightDisplayWorkshop) {
          userInsightDisplayWorkshop.textContent = insight;
-         if (!userInsightDisplayWorkshop.hasAttribute('aria-live')) {
-              userInsightDisplayWorkshop.setAttribute('aria-live', 'polite');
-         }
-    } else {
-         console.warn("Workshop insight display element not found.");
-    }
-    updateInsightBoostButtonState(); // Update cooldown button state
-    updateDependentUI(); // Update UI elements dependent on insight amount
-
-    // Refresh insight log only if it's currently potentially visible
+         if (!userInsightDisplayWorkshop.hasAttribute('aria-live')) userInsightDisplayWorkshop.setAttribute('aria-live', 'polite');
+    } // Removed console warning for missing element
+    updateInsightBoostButtonState();
+    updateDependentUI();
     if (personaScreen?.classList.contains('current') && insightLogContainer && !insightLogContainer.classList.contains('log-hidden')) {
         displayInsightLog();
     }
 }
 
-/** Updates UI elements whose state depends on the current Insight amount. */
 function updateDependentUI() {
     const insightValue = State.getInsight();
-
-    // Workshop Research Buttons (Cost check) - Now targets specific container
     const researchBtnsContainer = getElement('element-research-buttons');
     if (researchBtnsContainer) {
         researchBtnsContainer.querySelectorAll('.initial-discovery-element').forEach(buttonCard => {
             const cost = parseFloat(buttonCard.dataset.cost);
             const canAfford = insightValue >= cost;
-            const isFree = buttonCard.dataset.isFree === 'true'; // Check if it's a free attempt button
+            const isFree = buttonCard.dataset.isFree === 'true';
             const key = buttonCard.dataset.elementKey;
-            const shortName = key ? Utils.getElementShortName(elementKeyToFullName[key]) : 'Element';
-
-            // Disable only if NOT free AND cannot afford
+            const shortName = key && elementKeyToFullName?.[key] ? Utils.getElementShortName(elementKeyToFullName[key]) : 'Element';
             const shouldBeDisabled = !isFree && !canAfford;
             buttonCard.classList.toggle('disabled', shouldBeDisabled);
-            buttonCard.classList.toggle('clickable', !shouldBeDisabled); // Clickable if free OR affordable
-
+            buttonCard.classList.toggle('clickable', !shouldBeDisabled);
             const actionDiv = buttonCard.querySelector('.element-action');
             if (actionDiv) actionDiv.classList.toggle('disabled', shouldBeDisabled);
-
-            // Update title based on state
             if (isFree) {
                 const freeLeft = State.getInitialFreeResearchRemaining();
                 buttonCard.title = `Conduct FREE research on ${shortName}. (${freeLeft} left total)`;
@@ -538,79 +451,56 @@ function updateDependentUI() {
                 buttonCard.title = `Research ${shortName} (Cost: ${cost.toFixed(1)} Insight)`;
             }
         });
-    } else { console.warn("Element research buttons container not found."); }
+    }
 
-    // Workshop Seek Guidance Button
     if (seekGuidanceButtonWorkshop && guidedReflectionCostDisplayWorkshop) {
         const cost = Config.GUIDED_REFLECTION_COST;
         const canAfford = insightValue >= cost;
         seekGuidanceButtonWorkshop.disabled = !canAfford;
-        seekGuidanceButtonWorkshop.title = canAfford ? `Spend ${cost} Insight for a Guided Reflection.` : `Requires ${cost} Insight.`;
-    } else { console.warn("Seek Guidance button or cost display not found."); }
+        seekGuidanceButtonWorkshop.title = canAfford ? `Spend ${cost.toFixed(1)} Insight for a Guided Reflection.` : `Requires ${cost.toFixed(1)} Insight.`;
+    }
 
-    // Persona Screen - Deep Dive Unlock Buttons
     if (personaScreen?.classList.contains('current')) {
         personaElementDetailsDiv?.querySelectorAll('.element-deep-dive-container .unlock-button').forEach(button => {
             const cost = parseFloat(button.dataset.cost);
             const canAfford = insightValue >= cost;
             button.disabled = !canAfford;
             button.title = canAfford ? `Unlock for ${cost.toFixed(1)} Insight` : `Requires ${cost.toFixed(1)} Insight`;
-            // Update error message visibility if present
             const errorMsg = button.parentElement?.querySelector('.unlock-error');
             if (errorMsg) errorMsg.style.display = canAfford ? 'none' : 'block';
         });
-        updateSuggestSceneButtonState(); // Update Suggest Scene button state
+        updateSuggestSceneButtonState();
     }
 
-    // Repository - Meditate/Attempt Buttons
     if (repositoryScreen?.classList.contains('current')) {
         repositoryScreen.querySelectorAll('.repo-actions button').forEach(button => {
              const sceneId = button.dataset.sceneId;
              const experimentId = button.dataset.experimentId;
-             let cost = 0;
-             let baseTitle = "";
-             let actionLabel = "";
-
+             let cost = 0; let baseTitle = ""; let actionLabel = "";
              if (sceneId) {
                  const scene = sceneBlueprints.find(s => s.id === sceneId);
                  cost = scene?.meditationCost || Config.SCENE_MEDITATION_BASE_COST;
                  baseTitle = `Meditate on ${scene?.name || 'Scene'}`;
                  actionLabel = `Meditate (${cost.toFixed(1)})`;
+                 button.disabled = insightValue < cost;
+                 button.title = insightValue >= cost ? baseTitle : `${baseTitle} (Requires ${cost.toFixed(1)} Insight)`;
              } else if (experimentId) {
                   const experiment = alchemicalExperiments.find(e => e.id === experimentId);
                   cost = experiment?.insightCost || Config.EXPERIMENT_BASE_COST;
                   baseTitle = `Attempt ${experiment?.name || 'Experiment'}`;
                   actionLabel = `Attempt (${cost.toFixed(1)})`;
-                  // Don't update experiment button disabled state solely on insight here,
-                  // as other requirements (attunement, focus) also matter.
-                  // Re-rendering the item in displayRepositoryContent handles this better.
-                  // Just update the title part related to cost.
-                  if (button.title && !button.title.includes('Requirements not met')) {
-                       button.title = (insightValue >= cost) ? baseTitle : `${baseTitle} (Requires ${cost.toFixed(1)} Insight)`;
-                       // Only disable based on cost if other reqs were met
+                  const otherReqsMet = button.title ? !button.title.toLowerCase().includes('requires:') : true;
+                  if (otherReqsMet) {
                        button.disabled = insightValue < cost;
+                       button.title = (insightValue >= cost) ? baseTitle : `${baseTitle} (Requires ${cost.toFixed(1)} Insight)`;
                   }
-                  // Update button text if possible
-                  const icon = button.querySelector('i');
-                  if(icon) button.innerHTML = `<i class="${icon.className}"></i> ${actionLabel}`;
-                  else button.textContent = actionLabel;
-
-                  return; // Skip further updates for experiments
-             } else { return; } // Skip if neither scene nor experiment
-
-             button.disabled = insightValue < cost;
-             button.title = insightValue >= cost ? baseTitle : `${baseTitle} (Requires ${cost.toFixed(1)} Insight)`;
-             // Update button text
+             } else { return; }
              const icon = button.querySelector('i');
              if(icon) button.innerHTML = `<i class="${icon.className}"></i> ${actionLabel}`;
              else button.textContent = actionLabel;
         });
     }
-
-    // Deep Dive Contemplation Button
     updateContemplationButtonState();
-
-    // Concept Detail Popup - Lore Unlock Buttons
     if (conceptDetailPopup && !conceptDetailPopup.classList.contains('hidden')) {
         popupLoreContent?.querySelectorAll('.unlock-lore-button').forEach(button => {
             const cost = parseFloat(button.dataset.cost);
@@ -620,7 +510,6 @@ function updateDependentUI() {
         });
     }
 }
-
 
 /** Renders the recent insight log entries. */
 export function displayInsightLog() {
