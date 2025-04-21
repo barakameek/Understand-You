@@ -176,7 +176,7 @@
     padding: var(--spacing);
     height: 100%;
   }
-  /* Left column: vertical list of core elements */
+  /* Left column: Core Elements chips */
   .research-bench h2 {
     margin: 0 0 var(--spacing) 0;
     color: var(--primary-color);
@@ -195,17 +195,32 @@
   }
   .research-chip {
     display: flex;
-    align-items: center;
-    gap: 0.5rem;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
     background: var(--background-medium);
     border-radius: var(--border-radius);
     padding: 0.75rem 1rem;
     box-shadow: var(--box-shadow);
-    font-weight: bold;
     cursor: pointer;
   }
   .research-chip:hover {
     background: var(--background-dark);
+  }
+  .research-chip i {
+    color: var(--accent-color);
+  }
+  .chip-label {
+    font-weight: bold;
+    color: var(--text-color);
+  }
+  .chip-score {
+    font-size: 0.9rem;
+    color: var(--text-muted-color);
+  }
+  .chip-desc {
+    font-size: 0.85rem;
+    color: var(--text-muted-color);
   }
   /* Right column: Grimoire Library */
   .grimoire-library h2 {
@@ -230,15 +245,24 @@
     max-height: calc(100vh - 200px);
     overflow-y: auto;
   }
+  /* Research Findings popup styling */
+  #researchPopupContent > div {
+    background: var(--background-light);
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    padding: var(--spacing);
+    margin: calc(var(--spacing)/2);
+    display: inline-block;
+    vertical-align: top;
+    width: calc(50% - var(--spacing));
+  }
 </style>
 
 <div id="workshopScreen" class="screen workshop-screen">
   <!-- Left: Core Elements List -->
   <aside class="panel research-bench">
     <h2><i class="fas fa-flask"></i> Core Elements</h2>
-    <!-- Element research buttons (auto-populated by ui.js) -->
-    <div id="element-research-buttons" class="research-bench-buttons"></div>
-    <!-- Daily actions (meditation/guidance) -->
+    <div id="researchChipsContainer" class="research-chips"></div>
     <div id="daily-actions" class="daily-actions"></div>
   </aside>
 
@@ -258,10 +282,10 @@
   </main>
 </div>
 
-<!-- Script to populate core element chips -->
+<!-- Script to populate core element chips with concise description -->
 <script type="module">
   import * as State from './js/state.js';
-  import { elementNames, elementKeyToFullName } from './data.js';
+  import { elementDetails, elementNames, elementKeyToFullName } from './data.js';
   import { getElementShortName } from './js/utils.js';
 
   function renderCoreElements() {
@@ -272,42 +296,48 @@
     elementNames.forEach(name => {
       const key = Object.entries(elementKeyToFullName).find(([, full]) => full === name)?.[0];
       const score = key && scores[key] !== undefined ? scores[key].toFixed(1) : '0.0';
+      // take first sentence of coreQuestion as description
+      const fullQ = elementDetails[name]?.coreQuestion || '';
+      const desc = fullQ.split('. ')[0] + (fullQ.includes('.') ? '.' : '');
       const chip = document.createElement('div');
       chip.className = 'research-chip';
       chip.innerHTML = `
-        <i class=\"fas fa-circle-notch\"></i>
-        <span>${getElementShortName(name)}</span>
-        <span class=\"chip-score\">${score}</span>
+        <span class="chip-label"><i class="fas fa-circle-notch"></i> ${getElementShortName(name)}</span>
+        <span class="chip-score">${score}</span>
+        <div class="chip-desc">${desc}</div>
       `;
+      chip.addEventListener('click', () => {
+        // trigger the original research button click for this element
+        const btn = document.querySelector(`[data-key="${key}"]`);
+        if (btn) btn.click();
+      });
       container.appendChild(chip);
     });
   }
 
-  // Initial render
+  // Initial render when workshop screen loads
   window.addEventListener('DOMContentLoaded', () => {
     renderCoreElements();
   });
 
-  // Re-render whenever workshop screen is shown via clicking drawer links
-  const originalShowScreen = window.showScreen;
-  if (originalShowScreen) {
-    window.showScreen = function(screenId) {
-      const result = originalShowScreen(screenId);
-      if (screenId === 'workshopScreen') renderCoreElements();
-      return result;
+  // Re-render on screen switch
+  const origShowScreen = window.showScreen;
+  if (origShowScreen) {
+    window.showScreen = function(id) {
+      const res = origShowScreen(id);
+      if (id === 'workshopScreen') renderCoreElements();
+      return res;
     };
   }
 </script>
 
-<!-- Dummy elements and functions to prevent console errors -->
-<!-- Popup resonance gauge section placeholder -->
+<!-- Dummy fixes for console errors -->
 <div id="popupResonanceGaugeSection" style="display:none;"></div>
 <script>
-  // Prevent missing popupResonanceGaugeSection errors
   window.popupResonanceGaugeSection = document.getElementById('popupResonanceGaugeSection');
-  // No-op showTapestryDeepDive to avoid ReferenceError
-  window.showTapestryDeepDive = function() { console.warn('showTapestryDeepDive called but not implemented'); };
+  window.showTapestryDeepDive = window.showTapestryDeepDive || function(){};
 </script>
+
 
          <!-- Repository Screen -->
          <div id="repositoryScreen" class="screen hidden repository-screen hidden-by-flow">
