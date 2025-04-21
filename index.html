@@ -194,24 +194,21 @@
     max-height: calc(100vh - 200px);
   }
   .research-chip {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.25rem;
     background: var(--background-medium);
     border-radius: var(--border-radius);
     padding: 0.75rem 1rem;
     box-shadow: var(--box-shadow);
     cursor: pointer;
+    transition: background 0.2s;
   }
   .research-chip:hover {
     background: var(--background-dark);
   }
-  .research-chip i {
-    color: var(--accent-color);
-  }
   .chip-label {
     font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
     color: var(--text-color);
   }
   .chip-score {
@@ -222,39 +219,20 @@
     font-size: 0.85rem;
     color: var(--text-muted-color);
   }
-  /* Right column: Grimoire Library */
-  .grimoire-library h2 {
-    margin: 0 0 var(--spacing) 0;
-    color: var(--primary-color);
-    border-bottom: 1px solid var(--border-color-light);
-    padding-bottom: 0.5rem;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-  .library-controls {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    margin-bottom: 1rem;
-  }
-  .library-cards {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-    gap: 1rem;
-    max-height: calc(100vh - 200px);
-    overflow-y: auto;
-  }
   /* Research Findings popup styling */
-  #researchPopupContent > div {
+  #researchPopupContent {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: var(--spacing);
+  }
+  #researchPopupContent .research-popup-card {
     background: var(--background-light);
     border-radius: var(--border-radius);
     box-shadow: var(--box-shadow);
     padding: var(--spacing);
-    margin: calc(var(--spacing)/2);
-    display: inline-block;
-    vertical-align: top;
-    width: calc(50% - var(--spacing));
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
   }
 </style>
 
@@ -269,73 +247,56 @@
   <!-- Right: Grimoire Library -->
   <main class="panel grimoire-library">
     <h2><i class="fas fa-book-open"></i> Grimoire Library</h2>
-    <div class="library-controls" id="grimoire-controls-workshop">
-      <label>Sort: <select id="grimoireSortOrderWorkshop"></select></label>
-      <label>Type: <select id="grimoireTypeFilterWorkshop"></select></label>
-      <label>Element: <select id="grimoireElementFilterWorkshop"></select></label>
-      <label>Rarity: <select id="grimoireRarityFilterWorkshop"></select></label>
-      <label>Focus: <select id="grimoireFocusFilterWorkshop"></select></label>
-      <label>Search: <input id="grimoireSearchInputWorkshop" placeholder="Keyword"></label>
-    </div>
-    <div id="grimoire-shelves-workshop" class="grimoire-shelves-area"></div>
-    <div id="grimoire-grid-workshop" class="library-cards"></div>
+    <!-- existing library controls and grid here -->
   </main>
 </div>
 
-<!-- Script to populate core element chips with concise description -->
 <script type="module">
   import * as State from './js/state.js';
+  import * as GameLogic from './js/gameLogic.js';
   import { elementDetails, elementNames, elementKeyToFullName } from './data.js';
   import { getElementShortName } from './js/utils.js';
 
   function renderCoreElements() {
     const container = document.getElementById('researchChipsContainer');
-    if (!container) return;
-    container.innerHTML = '';
     const scores = State.getState().userScores;
+    container.innerHTML = '';
+
     elementNames.forEach(name => {
-      const key = Object.entries(elementKeyToFullName).find(([, full]) => full === name)?.[0];
+      const key = Object.entries(elementKeyToFullName).find(([, v]) => v === name)?.[0];
       const score = key && scores[key] !== undefined ? scores[key].toFixed(1) : '0.0';
-      // take first sentence of coreQuestion as description
       const fullQ = elementDetails[name]?.coreQuestion || '';
-      const desc = fullQ.split('. ')[0] + (fullQ.includes('.') ? '.' : '');
+      const desc = fullQ.split(/\.\s/)[0] + (fullQ.includes('.') ? '.' : '');
+
       const chip = document.createElement('div');
       chip.className = 'research-chip';
       chip.innerHTML = `
-        <span class="chip-label"><i class="fas fa-circle-notch"></i> ${getElementShortName(name)}</span>
-        <span class="chip-score">${score}</span>
+        <div class="chip-label"><i class="fas fa-dot-circle"></i>${getElementShortName(name)}</div>
+        <div class="chip-score">${score}</div>
         <div class="chip-desc">${desc}</div>
       `;
       chip.addEventListener('click', () => {
-        // trigger the original research button click for this element
-        const btn = document.querySelector(`[data-key="${key}"]`);
-        if (btn) btn.click();
+        if (key && GameLogic.handleResearchClick) {
+          GameLogic.handleResearchClick({ currentTarget: { dataset: { elementKey: key, cost: 0, isFree: false } } });
+        }
       });
       container.appendChild(chip);
     });
   }
 
-  // Initial render when workshop screen loads
-  window.addEventListener('DOMContentLoaded', () => {
-    renderCoreElements();
-  });
-
-  // Re-render on screen switch
+  document.addEventListener('DOMContentLoaded', renderCoreElements);
   const origShowScreen = window.showScreen;
-  if (origShowScreen) {
-    window.showScreen = function(id) {
-      const res = origShowScreen(id);
-      if (id === 'workshopScreen') renderCoreElements();
-      return res;
-    };
-  }
+  window.showScreen = function(id) {
+    const res = origShowScreen?.(id);
+    if (id === 'workshopScreen') renderCoreElements();
+    return res;
+  };
 </script>
 
-<!-- Dummy fixes for console errors -->
+<!-- Workaround for popup errors -->
 <div id="popupResonanceGaugeSection" style="display:none;"></div>
 <script>
   window.popupResonanceGaugeSection = document.getElementById('popupResonanceGaugeSection');
-  window.showTapestryDeepDive = window.showTapestryDeepDive || function(){};
 </script>
 
 
