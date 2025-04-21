@@ -162,26 +162,108 @@
              </div>
         </div>
 
-        <!-- Workshop Screen -->
-        <div id="workshopScreen" class="screen hidden workshop-screen"> <!-- Uses grid defined in CSS -->
-            <h1>The Workshop <i class="fas fa-info-circle info-icon" title="Conduct research using Insight or Daily Meditation, perform other actions, and manage your permanent Grimoire collection."></i></h1>
-            <div class="workshop-insight-display card">Current Insight: <strong id="userInsightDisplayWorkshop">0.0</strong> <i class="fas fa-brain insight-icon"></i></div>
-            <section id="workshop-research-area" class="workshop-section card"> <!-- Uses .card style -->
-                <h2 id="research-heading">Research Bench <i class="fas fa-info-circle info-icon" title="Select an Element to research or perform daily actions. Results appear in a popup. Research costs Insight unless using Daily Meditation or initial free attempts."></i></h2>
-                <div id="element-research-buttons" class="element-research-buttons-grid" aria-live="polite"><p><i>Loading research options...</i></p></div>
-                <div id="daily-actions" class="daily-actions-area"><button id="freeResearchButtonWorkshop" class="button free-research-button hidden-by-flow btn" title="Once per day, perform free research on your least attuned element.">Perform Daily Meditation ☆</button><button id="seekGuidanceButtonWorkshop" class="button small-button guidance-button hidden-by-flow btn" title="Spend Insight for a Guided Reflection prompt.">Seek Guidance (<span id="guidedReflectionCostDisplayWorkshop">?</span> <i class="fas fa-brain insight-icon"></i>)</button></div>
-            </section>
-            <section id="workshop-library-area" class="workshop-section library-area"> <!-- Doesn't use card, contains cards -->
-                <h2 id="library-heading">Grimoire Library <i class="fas fa-info-circle info-icon" title="Your permanent collection of discovered Concepts. Filter, sort, categorize using shelves (drag cards onto shelves!), and manage focus (☆ icon)."></i></h2>
-                <div id="grimoire-controls-workshop" class="grimoire-controls card"> <!-- Controls are a card -->
-                     <label for="grimoireSortOrderWorkshop">Sort:</label><select id="grimoireSortOrderWorkshop" aria-label="Sort Grimoire Concepts"><option value="discovered">Date Added</option><option value="name">Name</option><option value="type">Type</option><option value="rarity">Rarity</option><option value="resonance">Resonance</option></select>
-                     <span class="filter-controls hidden-by-flow"><label for="grimoireTypeFilterWorkshop">Type:</label><select id="grimoireTypeFilterWorkshop" aria-label="Filter by Concept Type"><option value="All">All Types</option></select><label for="grimoireElementFilterWorkshop">Element:</label><select id="grimoireElementFilterWorkshop" aria-label="Filter by Element"><option value="All">All Elements</option></select><label for="grimoireRarityFilterWorkshop">Rarity:</label><select id="grimoireRarityFilterWorkshop" aria-label="Filter by Rarity"><option value="All">All Rarities</option><option value="common">Common</option><option value="uncommon">Uncommon</option><option value="rare">Rare</option></select><label for="grimoireFocusFilterWorkshop">Focus:</label><select id="grimoireFocusFilterWorkshop" aria-label="Filter by Focus Status"><option value="All">All</option><option value="Focused">Focused</option><option value="Not Focused">Not Focused</option></select><label for="grimoireSearchInputWorkshop">Search:</label><input type="text" id="grimoireSearchInputWorkshop" placeholder="Name/Keyword..." aria-label="Search Grimoire Concepts" /></span>
-                     <i class="fas fa-info-circle info-icon" title="Use these controls to filter and sort the Concepts displayed below. Shelves provide quick category filters (drag cards to categorize)."></i>
-                </div>
-                <div id="grimoire-shelves-workshop" class="grimoire-shelves-area hidden-by-flow" aria-label="Grimoire Shelves"><p><i>Loading shelves...</i></p></div>
-                <div id="grimoire-grid-workshop" class="grimoire-grid concept-grid" aria-live="polite"><p><i>Loading Grimoire...</i></p></div> <!-- Added concept-grid -->
-            </section>
-        </div>
+<!-- WorkshopScreen Redesign: split layout into Research Bench and Grimoire Library side-by-side -->
+
+<style>
+  /* Container grid for the Workshop */
+  #workshopScreen {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 2rem;
+    padding: var(--spacing);
+    align-items: start;
+    background: var(--background-medium);
+  }
+
+  /* Panel styling */
+  #workshopScreen .panel {
+    background: var(--background-light);
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    padding: var(--spacing);
+  }
+
+  /* Research bench: horizontal scroll of element cards */
+  .research-bench {
+    display: flex;
+    flex-direction: column;
+  }
+  .research-bench h2 {
+    margin-top: 0;
+    color: var(--primary-color);
+  }
+  .research-cards {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 1fr;
+    gap: 1rem;
+    overflow-x: auto;
+    padding-bottom: 1rem;
+  }
+  .research-cards::-webkit-scrollbar {
+    height: 6px;
+  }
+  .research-cards::-webkit-scrollbar-thumb {
+    background: var(--border-color-dark);
+    border-radius: 3px;
+  }
+
+  /* Action buttons under bench */
+  .workshop-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: auto;
+  }
+  .workshop-actions .button {
+    flex: 1;
+  }
+
+  /* Grimoire library: filters and card grid */
+  .grimoire-library h2 {
+    margin-top: 0;
+    color: var(--primary-color);
+  }
+  .library-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+  .library-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 1rem;
+    max-height: 70vh;
+    overflow-y: auto;
+  }
+</style>
+
+<div id="workshopScreen" class="screen">
+  <!-- Research Bench Panel -->
+  <section class="panel research-bench">
+    <h2>Research Bench</h2>
+    <div class="research-cards">
+      <!-- JS-populated element cards (e.g., use 1 FREE, costs, etc.) -->
+      <!-- Example: -->
+      <!-- <div class="concept-card">...</div> -->
+    </div>
+    <div class="workshop-actions">
+      <button class="button">Perform Daily Meditation</button>
+      <button class="button">Seek Guidance</button>
+    </div>
+  </section>
+
+  <!-- Grimoire Library Panel -->
+  <aside class="panel grimoire-library">
+    <h2>Grimoire Library</h2>
+    <div class="library-controls">
+      <!-- Filter controls here (Type, Element, Rarity, Focus, Search) -->
+    </div>
+    <div class="library-cards">
+      <!-- JS-populated concept cards -->
+    </div>
+  </aside>
+</div>
 
          <!-- Repository Screen -->
          <div id="repositoryScreen" class="screen hidden repository-screen hidden-by-flow">
