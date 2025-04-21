@@ -335,7 +335,7 @@ export function showInfoPopup(message) {
 // --- Screen Management ---
 
 // Helper function to update drawer link visibility based on questionnaire completion
-function updateDrawerLinks() {
+export function updateDrawerLinks() {
   const done = State.getState().questionnaireCompleted;
   if(sideDrawer) {
       // Toggle visibility for links that require questionnaire completion
