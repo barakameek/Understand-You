@@ -7,7 +7,7 @@ import * as State from './js/state.js';
 import * as GameLogic from './js/gameLogic.js';
 import * as Utils from './js/utils.js';
 import * as Config from './js/config.js';
-import { onboardingTasks, elementKeyToFullName } from '../data.js'; // Import onboarding tasks & element map
+import { onboardingTasks, elementKeyToFullName } from './data.js'; // Import onboarding tasks & element map
 
 console.log("main.js loading... (Enhanced v4.1 + Drawer - Fixed)");
 
