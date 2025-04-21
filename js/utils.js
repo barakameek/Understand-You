@@ -1,11 +1,11 @@
 // --- START OF FILE utils.js ---
 
-// js/utils.js - Utility Functions (Enhanced for 7 Elements + v4.8)
+// js/utils.js - Utility Functions (Enhanced for 7 Elements + v4.8 - Fixed)
 
 // Import elementDetails (for getElementShortName) and elementKeyToFullName (for reverse lookup)
 import { elementDetails, elementKeyToFullName } from '../data.js';
 
-console.log("utils.js loading... (Enhanced v4.8 - Consistent Keying)");
+console.log("utils.js loading... (Enhanced v4.8 - Fixed & Robustness)");
 
 /**
  * Returns a descriptive label for a score (0-10).
@@ -41,17 +41,17 @@ export function getAffinityLevel(score) {
  * @returns {string} The short display name or the original input if lookup fails.
  */
 export function getElementShortName(nameOrKey) {
-    if (!nameOrKey) return "Unknown";
+    if (!nameOrKey || typeof nameOrKey !== 'string') return "Unknown";
 
-    // 1. Check if it's a single letter key ('A', 'I', ..., 'RF') using elementKeyToFullName map
-    if (nameOrKey.length === 1 && nameOrKey.toUpperCase() === nameOrKey && elementKeyToFullName[nameOrKey]) {
+    // 1. Check if it's a single letter key ('A', 'I', ..., 'RF')
+    if (nameOrKey.length === 1 && nameOrKey.toUpperCase() === nameOrKey && elementKeyToFullName?.[nameOrKey]) {
         const elementNameKey = elementKeyToFullName[nameOrKey]; // e.g., "Attraction" or "RoleFocus"
         // Use the name from elementDetails if available, split, otherwise fallback to elementNameKey
-        return elementDetails[elementNameKey]?.name?.split(':')[0].trim() || elementNameKey;
+        return elementDetails?.[elementNameKey]?.name?.split(':')[0].trim() || elementNameKey;
     }
 
     // 2. Check if it's already the short name key ("Attraction", "RoleFocus", etc.) used in elementDetails
-    if (elementDetails[nameOrKey]?.name) {
+    if (elementDetails?.[nameOrKey]?.name) {
         return elementDetails[nameOrKey].name.split(':')[0].trim();
     }
 
@@ -61,6 +61,7 @@ export function getElementShortName(nameOrKey) {
     }
 
     // 4. Final fallback - maybe it's already the short name but not a key in elementDetails?
+    // Or maybe it's an invalid input. Return the input itself.
     return nameOrKey;
 }
 
@@ -82,7 +83,8 @@ export function getElementColor(elementNameKey) {
         "Relational": '#FF8C00', // DarkOrange
         "RoleFocus": '#40E0D0' // Turquoise
     };
-     if (fallbackColors[elementNameKey]) {
+     // Check if elementNameKey is a valid key in our color map
+     if (fallbackColors.hasOwnProperty(elementNameKey)) {
          return fallbackColors[elementNameKey];
      }
     console.warn(`Utils: Color not found for element key: ${elementNameKey}. Using default grey.`);
@@ -145,12 +147,12 @@ export function getCardTypeIcon(cardType) {
 export function getElementIcon(elementNameKey) {
      switch (elementNameKey) {
          case "Attraction": return "fa-solid fa-magnet";
-         case "Interaction": return "fa-solid fa-people-arrows"; // Was Interaction Leaning
+         case "Interaction": return "fa-solid fa-people-arrows";
          case "Sensory": return "fa-solid fa-hand-sparkles";
          case "Psychological": return "fa-solid fa-comment-dots";
          case "Cognitive": return "fa-solid fa-lightbulb";
          case "Relational": return "fa-solid fa-link";
-         case "RoleFocus": return "fa-solid fa-gauge-high"; // Was Role Intensity
+         case "RoleFocus": return "fa-solid fa-gauge-high";
          default:
              console.warn(`Utils: Icon not found for element key: ${elementNameKey}. Using default atom.`);
              return "fa-solid fa-atom";
@@ -168,20 +170,15 @@ export function euclideanDistance(userScoresObj, conceptScoresObj, conceptName =
      let sumOfSquares = 0;
      let validDimensions = 0;
      const expectedDimensions = 7; // Now expecting 7 dimensions including RF
+     const expectedKeys = elementKeyToFullName ? Object.keys(elementKeyToFullName) : ['A','I','S','P','C','R','RF']; // Fallback if map isn't loaded yet
 
      if (!userScoresObj || typeof userScoresObj !== 'object' || !conceptScoresObj || typeof conceptScoresObj !== 'object') {
-         console.warn(`Invalid input for euclideanDistance (Concept: ${conceptName})`, { userScoresObj, conceptScoresObj });
+         console.warn(`Invalid input objects for euclideanDistance (Concept: ${conceptName})`, { userScoresObj, conceptScoresObj });
          return Infinity;
      }
 
-     const keysToCompare = Object.keys(userScoresObj); // Should include 'A' through 'RF'
-
-     if (keysToCompare.length !== expectedDimensions) {
-          console.warn(`User scores object has ${keysToCompare.length} keys, expected ${expectedDimensions} for distance calculation (Concept: ${conceptName}).`);
-          // Proceed cautiously, but result might be less accurate
-     }
-
-     for (const key of keysToCompare) {
+     // Iterate over expected keys to ensure all dimensions are considered
+     for (const key of expectedKeys) {
          const s1 = userScoresObj[key];
          const s2 = conceptScoresObj[key];
 
@@ -193,22 +190,27 @@ export function euclideanDistance(userScoresObj, conceptScoresObj, conceptName =
              sumOfSquares += Math.pow(s1 - s2, 2);
              validDimensions++;
          } else {
-             // More detailed logging for debugging data issues
+             // Log details about the missing/invalid score
+             if (!s1Valid) {
+                 console.warn(`DistCalc Warning (Concept: ${conceptName}): Invalid User Score for dimension '${key}'. Value: ${s1}.`);
+             }
              if (!conceptScoresObj.hasOwnProperty(key)) {
-                 console.warn(`DistCalc Warning (Concept: ${conceptName}): Skipping dimension '${key}'. Key missing in concept scores.`);
+                 console.warn(`DistCalc Warning (Concept: ${conceptName}): Missing Concept Score for dimension '${key}'.`);
              } else if (!s2Valid) {
-                 console.warn(`DistCalc Warning (Concept: ${conceptName}): Skipping dimension '${key}'. Concept Score Invalid. Value: ${s2}. User Score: ${s1Valid ? s1 : 'Invalid'}`);
-             } else if (!s1Valid) {
-                 console.warn(`DistCalc Warning (Concept: ${conceptName}): Skipping dimension '${key}'. User Score Invalid. Value: ${s1}. Concept Score: ${s2Valid ? s2 : 'Invalid'}`);
+                 console.warn(`DistCalc Warning (Concept: ${conceptName}): Invalid Concept Score for dimension '${key}'. Value: ${s2}.`);
              }
          }
      }
 
-     // If significantly fewer dimensions were compared than expected, warn the user/developer
+     // If NO valid dimensions could be compared, return Infinity
+     if (validDimensions === 0) {
+         console.error(`FATAL DistCalc (Concept: ${conceptName}): Could not compare any dimensions. Check data.`);
+         return Infinity;
+     }
+
+     // Warn if fewer dimensions were compared than expected
      if (validDimensions < expectedDimensions) {
          console.warn(`Potentially inaccurate distance for Concept: ${conceptName}. Only ${validDimensions}/${expectedDimensions} valid dimensions compared. Check concept's elementScores in data.js.`);
-         // If NO dimensions could be compared, return Infinity
-         if (validDimensions === 0) return Infinity;
      }
 
      return Math.sqrt(sumOfSquares);
@@ -259,5 +261,5 @@ export function formatTimestamp(timestamp) {
 }
 
 
-console.log("utils.js loaded successfully.");
+console.log("utils.js loaded successfully. (Fixed)");
 // --- END OF FILE utils.js ---
