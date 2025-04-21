@@ -259,6 +259,40 @@
   </main>
 </div>
 
+<!-- Script to populate core element chips -->
+<script type="module">
+  import * as State from './js/state.js';
+  import { elementNames, elementKeyToFullName } from './data.js';
+  import { getElementShortName } from './js/utils.js';
+
+  function renderCoreElements() {
+    const container = document.getElementById('researchChipsContainer');
+    container.innerHTML = '';
+    const scores = State.getState().userScores;
+    elementNames.forEach(name => {
+      // find single-letter key for this element name
+      const key = Object.entries(elementKeyToFullName).find(([, full]) => full === name)?.[0];
+      const score = key && scores[key] !== undefined ? scores[key].toFixed(1) : '0.0';
+      const chip = document.createElement('div');
+      chip.className = 'research-chip';
+      chip.innerHTML = `
+        <span>${getElementShortName(name)}</span>
+        <span class="chip-score">${score}</span>
+      `;
+      container.appendChild(chip);
+    });
+  }
+
+  // Render whenever workshop screen is shown
+  document.addEventListener('screenChanged', evt => {
+    if (evt.detail.screenId === 'workshopScreen') renderCoreElements();
+  });
+
+  // also initial render if already on workshop
+  if (document.getElementById('workshopScreen').classList.contains('current')) {
+    renderCoreElements();
+  }
+</script>
 
          <!-- Repository Screen -->
          <div id="repositoryScreen" class="screen hidden repository-screen hidden-by-flow">
