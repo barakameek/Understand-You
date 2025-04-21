@@ -1,956 +1,480 @@
-// --- START OF FILE main.js ---
-
-// js/main.js - Application Entry Point & Event Listener Setup (Enhanced v4.1 + Drawer)
-
-import * as UI from './js/ui.js';
-import * as State from './js/state.js';
-import * as GameLogic from './js/gameLogic.js';
-import * as Utils from './js/utils.js';
-import * as Config from './js/config.js';
-import { onboardingTasks } from './data.js'; // Import onboarding tasks definitions
-
-console.log("main.js loading... (Enhanced v4.1 + Drawer)");
-
-// --- Helper Function ---
-// Define getElement locally for use in this module
-const getElement = (id) => document.getElementById(id);
-
-// --- Initialization ---
-function initializeApp() {
-    console.log("Initializing Persona Alchemy Lab (v4.1)...");
-    const loaded = State.loadGameState(); // Load state first
-    UI.setupInitialUI(); // Sets initial screen visibility, theme etc. BEFORE showing content
-
-    // Determine starting screen based on loaded state and onboarding status
-    const currentState = State.getState();
-    const onboardingPhase = currentState.onboardingPhase;
-    const onboardingComplete = currentState.onboardingComplete;
-
-    console.log(`Initial State: Onboarding Phase ${onboardingPhase}, Complete: ${onboardingComplete}, Questionnaire Complete: ${currentState.questionnaireCompleted}`);
-
-    // Decide initial screen and onboarding state
-    if (Config.ONBOARDING_ENABLED && !onboardingComplete && onboardingPhase >= 1 && onboardingPhase <= Config.MAX_ONBOARDING_PHASE) {
-        // Resume onboarding if it's enabled, incomplete, and within valid phase range
-        console.log(`Resuming onboarding at phase ${onboardingPhase}.`);
-        // Show the underlying screen required by the onboarding phase first
-        const currentTask = onboardingTasks.find(t => t.phaseRequired === onboardingPhase);
-        // FIX: Determine required screen more robustly based on questionnaire state too
-        let requiredScreen = 'welcomeScreen'; // Default
-        if (currentTask?.highlightElementId) {
-             const targetElement = getElement(currentTask.highlightElementId);
-             const screenElement = targetElement?.closest('.screen');
-             if (screenElement?.id) {
-                 requiredScreen = screenElement.id;
-                 // Ensure screen is accessible based on questionnaire state
-                 if (!currentState.questionnaireCompleted && ['workshopScreen', 'repositoryScreen'].includes(requiredScreen)) {
-                     requiredScreen = currentState.currentElementIndex > -1 ? 'questionnaireScreen' : 'welcomeScreen';
-                     console.warn(`Onboarding task ${currentTask.id} target ${currentTask.highlightElementId} is on screen ${screenElement.id}, but questionnaire not complete. Showing ${requiredScreen}.`);
-                 } else if (currentState.questionnaireCompleted && requiredScreen === 'questionnaireScreen') {
-                     requiredScreen = 'personaScreen'; // Shouldn't be on Q screen if done
-                 }
-             } else if (currentState.questionnaireCompleted) {
-                 requiredScreen = 'personaScreen'; // Fallback to persona if target missing and Q done
-             } else if (currentState.currentElementIndex > -1) {
-                  requiredScreen = 'questionnaireScreen'; // Fallback to Q if in progress
-             }
-        } else if (currentState.questionnaireCompleted) {
-             requiredScreen = 'personaScreen';
-        } else if (currentState.currentElementIndex > -1) {
-             requiredScreen = 'questionnaireScreen';
-        }
-
-        UI.showScreen(requiredScreen); // Show the screen needed for context
-        UI.showOnboarding(onboardingPhase); // Then show the onboarding overlay/highlight
-    } else if (loaded && currentState.questionnaireCompleted) {
-        // Standard load: Questionnaire done, show Persona screen
-        console.log("Loaded completed state. Showing Persona screen.");
-        UI.showScreen('personaScreen');
-        // Check if GameLogic is loaded before calling
-        if (typeof GameLogic !== 'undefined' && GameLogic.checkForDailyLogin) {
-             GameLogic.checkForDailyLogin(); // Check daily login after loading state
-        } else { console.error("GameLogic or checkForDailyLogin not available yet!"); }
-        // UI updates happen within showScreen or GameLogic calls
-    } else if (loaded && !currentState.questionnaireCompleted && currentState.currentElementIndex > -1) {
-        // Loaded incomplete questionnaire state
-        console.log("Loaded incomplete questionnaire state. Resuming questionnaire.");
-        UI.showScreen('questionnaireScreen');
-    } else {
-        // No saved state or starting completely fresh.
-        console.log("No saved state or starting fresh. Showing welcome screen.");
-        UI.showScreen('welcomeScreen');
-        // If onboarding is enabled and should start (phase 1), trigger it
-        if (Config.ONBOARDING_ENABLED && !onboardingComplete && onboardingPhase === 1) {
-             console.log("Starting onboarding automatically from phase 1.");
-             UI.showOnboarding(1); // Show onboarding overlay
-        }
-    }
-
-    // Setup General Event Listeners (always needed)
-    setupGlobalEventListeners();
-    setupWelcomeScreenListeners(); // Added call
-    setupDrawerListeners(); // Setup listeners for the drawer navigation
-    setupPopupInteractionListeners();
-    setupQuestionnaireListeners();
-    setupPersonaScreenListeners();
-    setupWorkshopScreenListeners();
-    setupRepositoryListeners();
-    setupOnboardingListeners(); // Add listeners for onboarding controls
-
-    // Initial UI updates based on loaded/initial state (some might be redundant if called within showScreen)
-    UI.updateInsightDisplays();
-    UI.updateFocusSlotsDisplay();
-    UI.updateGrimoireCounter();
-
-    console.log("Initialization complete.");
-}
-
-// --- Helper to potentially advance onboarding after an action ---
-// actionFn: The main game logic function to execute (can be null if only checking).
-// actionName: A string identifier for the action (must match onboardingTasks[phase].track.action).
-// targetPhase: The onboarding phase this action is expected to complete.
-// actionValue: Optional value associated with the action (must match onboardingTasks[phase].track.value).
-// Returns the result of actionFn if it was called, otherwise null.
-function triggerActionAndCheckOnboarding(actionFn, actionName, targetPhase, actionValue = null) {
-    console.log(`Action Triggered: '${actionName}' (Target Phase: ${targetPhase}, Value: ${actionValue})`);
-
-    let actionResult = null;
-    // Execute the primary game action if provided
-    if (actionFn && typeof actionFn === 'function') {
-        try {
-            actionResult = actionFn(); // Store the result if needed
-        } catch (error) {
-            console.error(`Error executing action function for '${actionName}':`, error);
-            // Decide if onboarding check should still proceed or not
-            // return actionResult; // Option: Stop if the action failed, return potential partial result
-        }
-    }
-
-    // Check onboarding status AFTER the action (or if no actionFn)
-    const currentPhase = State.getOnboardingPhase();
-    const onboardingComplete = State.isOnboardingComplete();
-
-    // Only proceed if onboarding is active, not complete, and matches the target phase
-    if (Config.ONBOARDING_ENABLED && !onboardingComplete && currentPhase === targetPhase) {
-        const task = onboardingTasks.find(t => t.phaseRequired === targetPhase);
-
-        if (!task) {
-            console.warn(`Onboarding task definition missing for phase ${targetPhase}. Cannot check trigger conditions.`);
-            return actionResult; // Return action result even if task definition missing
-        }
-
-        let meetsCondition = false;
-        // Check if the specific action condition is met (if provided in the task's track object)
-        if (task.track) {
-            if (task.track.action === actionName) {
-                 // Condition met if action names match AND either no value is tracked,
-                 // or the tracked value matches the provided actionValue.
-                 meetsCondition = (!task.track.value || task.track.value === actionValue);
-                 console.log(`Onboarding Check: Action '${actionName}' matches task action. Value check needed: ${!!task.track.value}. Provided: ${actionValue}. Condition met: ${meetsCondition}`);
-            }
-            // TODO: Add checks for task.track.state here if needed later
-            // else if (task.track.state === ...) { meetsCondition = ...; }
-        } else {
-            // If no track object in data, assume the action itself is the trigger (less specific)
-            console.log(`Onboarding Check: No specific track conditions for phase ${targetPhase}. Assuming action '${actionName}' is the trigger.`);
-            meetsCondition = true;
-        }
-
-        if (meetsCondition) {
-             console.log(`Action '${actionName}' meets criteria for phase ${targetPhase}. Advancing onboarding.`);
-             const nextPhase = State.advanceOnboardingPhase(); // Advance state (returns new phase)
-             UI.showOnboarding(nextPhase); // Show the next onboarding step UI
-        } else {
-             console.log(`Action '${actionName}' triggered, but condition not met for phase ${targetPhase}. Onboarding not advanced.`);
-        }
-    } else if (Config.ONBOARDING_ENABLED && !onboardingComplete && currentPhase !== targetPhase){
-        // Log if the action happened but wasn't for the current phase
-        // console.log(`Action '${actionName}' triggered, but current onboarding phase (${currentPhase}) doesn't match target (${targetPhase}).`);
-    }
-    return actionResult; // Return the result of the original action function
-}
-
-
-// --- Event Listener Setup Functions ---
-
-function setupGlobalEventListeners() {
-    // Now uses the locally defined getElement
-    const closeSettingsBtn = getElement('closeSettingsPopupButton');
-    const forceSaveBtn = getElement('forceSaveButton');
-    const resetBtn = getElement('resetAppButton');
-
-    if (closeSettingsBtn) closeSettingsBtn.addEventListener('click', UI.hidePopups);
-    if (forceSaveBtn) forceSaveBtn.addEventListener('click', () => { State.saveGameState(true); UI.showTemporaryMessage("Game Saved!", 1500); });
-    if (resetBtn) resetBtn.addEventListener('click', () => {
-        if (confirm("Are you SURE you want to reset all progress? This cannot be undone!")) {
-            // Check if GameLogic is loaded before calling
-            if (typeof GameLogic !== 'undefined' && GameLogic.clearPopupState) {
-                 GameLogic.clearPopupState(); // Clear any lingering temp logic state
-            } else { console.error("GameLogic or clearPopupState not available."); }
-            State.clearGameState(); // Wipes state and localStorage (will reload)
-        }
-    });
-
-    const closeMilestoneBtn = getElement('closeMilestoneAlertButton');
-    if (closeMilestoneBtn) closeMilestoneBtn.addEventListener('click', UI.hideMilestoneAlert);
-
-    const overlay = getElement('popupOverlay');
-    if (overlay) {
-        overlay.addEventListener('click', (event) => {
-            const onboardingOverlay = getElement('onboardingOverlay');
-            const onboardingPopup = getElement('onboardingPopup');
-            const isClickInsideOnboardingPopup = onboardingPopup && onboardingPopup.contains(event.target);
-            const isClickOnDrawer = getElement('sideDrawer')?.contains(event.target);
-
-            if (onboardingOverlay?.classList.contains('visible') && !isClickInsideOnboardingPopup) {
-                return; // Onboarding visible, click outside, do nothing
-            } else if (getElement('sideDrawer')?.classList.contains('open') && !isClickOnDrawer) {
-                 UI.toggleDrawer(); // Drawer open, click outside, close drawer
-            } else if (!onboardingOverlay?.classList.contains('visible') && !getElement('sideDrawer')?.classList.contains('open')) {
-                 UI.hidePopups(); // Neither visible, hide general popups
-            }
-        });
-    }
-
-     const closeInfoBtn = getElement('closeInfoPopupButton');
-     const confirmInfoBtn = getElement('confirmInfoPopupButton');
-     if (closeInfoBtn) closeInfoBtn.addEventListener('click', UI.hidePopups);
-     if (confirmInfoBtn) confirmInfoBtn.addEventListener('click', UI.hidePopups);
-
-    const addInsightBtn = getElement('addInsightButton');
-    if(addInsightBtn) {
-        addInsightBtn.addEventListener('click', () => {
-             // Check if GameLogic is loaded before calling
-             if (typeof GameLogic !== 'undefined' && GameLogic.handleInsightBoostClick) {
-                  GameLogic.handleInsightBoostClick();
-             } else { console.error("GameLogic or handleInsightBoostClick not available."); }
-        });
-    } else { console.warn("Add Insight button not found."); }
-
-    // Global listener for info icons
-    document.body.addEventListener('click', (event) => {
-        const target = event.target.closest('.info-icon');
-        if (target?.title) {
-            event.preventDefault();
-            event.stopPropagation();
-            UI.showInfoPopup(target.title);
-        }
-    });
-}
-
-// Setup listeners for Drawer navigation and theme toggle
-function setupDrawerListeners() {
-    const drawerToggle = getElement('drawerToggle'); // Use local getElement
-    const sideDrawer = getElement('sideDrawer');
-    const drawerSettingsButton = getElement('drawerSettings');
-    const drawerThemeToggle = getElement('drawerThemeToggle');
-
-    if (drawerToggle) {
-        drawerToggle.addEventListener('click', UI.toggleDrawer);
-    } else { console.warn("Drawer toggle button not found."); }
-
-    if (sideDrawer) {
-        sideDrawer.addEventListener('click', handleDrawerNavClick); // Use delegation
-    } else { console.warn("Side drawer element not found."); }
-
-    // Specific buttons inside drawer
-    if (drawerSettingsButton) {
-        drawerSettingsButton.addEventListener('click', () => {
-            UI.showSettings(); // Uses stub function now
-            UI.toggleDrawer(); // Close drawer after opening settings
-        });
-    }
-    if (drawerThemeToggle) {
-         drawerThemeToggle.addEventListener('click', UI.toggleTheme);
-         // No need to close drawer for theme toggle
-    }
-}
-
-// Handle clicks within the drawer nav
-function handleDrawerNavClick(event) {
-    const button = event.target.closest('.drawer-link[data-target]');
-    if (!button) return; // Ignore clicks not on actual nav links with targets
-
-    const targetScreen = button.dataset.target;
-    if (!targetScreen) {
-         console.warn("Drawer link clicked without target screen:", button);
-         return;
-    }
-
-    const isPostQuestionnaire = State.getState().questionnaireCompleted;
-    // Allow access only if questionnaire complete OR target is persona (always accessible after Q)
-    const canNavigate = isPostQuestionnaire || targetScreen === 'personaScreen';
-
-    if (canNavigate) {
-         // Determine onboarding phase target based on the screen
-         let phaseTarget = null;
-         if(targetScreen === 'personaScreen') phaseTarget = 6; // Phase 6 involves returning to Persona
-         else if(targetScreen === 'workshopScreen') phaseTarget = 2; // Phase 2 is visiting Workshop
-         else if(targetScreen === 'repositoryScreen') phaseTarget = 8; // Phase 8 is visiting Repository
-
-         triggerActionAndCheckOnboarding(
-             () => UI.showScreen(targetScreen), // Action: Show the screen
-             'showScreen', // Action name used for tracking
-             phaseTarget !== null ? phaseTarget : -1, // Target phase or -1 if none explicitly linked
-             targetScreen // Pass screen ID as value for potential finer tracking
-         );
-         UI.toggleDrawer(); // Close drawer after navigation initiated
-    } else {
-        // Navigation blocked
-        console.log("Navigation blocked: Questionnaire not complete.");
-        UI.showTemporaryMessage("Complete the initial Experimentation first!", 2500);
-        UI.toggleDrawer(); // Close drawer even if navigation fails
-    }
-}
-
-
-function setupWelcomeScreenListeners() {
-     // Welcome Screen Buttons
-    const startBtn = getElement('startGuidedButton'); // Use local getElement
-    const loadBtn = getElement('loadButton');
-    if (startBtn) {
-        startBtn.addEventListener('click', () => {
-            const currentPhase = State.getOnboardingPhase();
-            const onboardingComplete = State.isOnboardingComplete();
-             // Start questionnaire only if onboarding is done or disabled, or past max phase
-             if (!Config.ONBOARDING_ENABLED || onboardingComplete || currentPhase > Config.MAX_ONBOARDING_PHASE) {
-                 UI.initializeQuestionnaireUI();
-                 UI.showScreen('questionnaireScreen');
-             } else {
-                  // If onboarding isn't finished, prompt user to finish it
-                  UI.showOnboarding(currentPhase); // Ensure current onboarding step is visible
-                  UI.showTemporaryMessage("Let's finish the quick orientation first!", Config.TOAST_DURATION);
-             }
-        });
-    }
-    if (loadBtn) {
-        loadBtn.addEventListener('click', () => {
-            if (State.loadGameState()) { // loadGameState returns true/false
-                 initializeApp(); // Re-run initialization to show correct screen based on loaded state
-                 UI.showTemporaryMessage("Session Loaded.", 2000);
-            } else {
-                // Load failed (error likely logged in State.loadGameState)
-                UI.showTemporaryMessage("Failed to load session. Starting fresh.", 3000);
-            }
-        });
-    }
-}
-
-
-function setupQuestionnaireListeners() {
-    const nextBtn = getElement('nextElementButton');
-    const prevBtn = getElement('prevElementButton');
-    // Check if GameLogic is loaded before adding listeners that call it
-    if (typeof GameLogic !== 'undefined' && GameLogic.goToNextElement && GameLogic.goToPrevElement) {
-         if (nextBtn) nextBtn.addEventListener('click', GameLogic.goToNextElement);
-         if (prevBtn) prevBtn.addEventListener('click', GameLogic.goToPrevElement);
-    } else {
-         console.error("GameLogic not available for questionnaire listeners.");
-    }
-    // Input listeners are added dynamically by UI.displayElementQuestions
-}
-
-function setupPersonaScreenListeners() {
-    // View Toggle Buttons
-    const detailedViewBtn = getElement('showDetailedViewBtn');
-    const summaryViewBtn = getElement('showSummaryViewBtn');
-    if (detailedViewBtn && summaryViewBtn) {
-        detailedViewBtn.addEventListener('click', () => UI.togglePersonaView(true));
-        summaryViewBtn.addEventListener('click', () => UI.togglePersonaView(false));
-    }
-
-    // Event Delegation for Element Details (Accordion Toggles, Unlock Buttons)
-    const personaElementsContainer = getElement('personaElementDetails');
-    if (personaElementsContainer) {
-        personaElementsContainer.addEventListener('click', (event) => {
-            const unlockButton = event.target.closest('.unlock-button');
-            const headerButton = event.target.closest('.accordion-header'); // Target the accordion button
-
-            if (unlockButton) {
-                // Prevent accordion toggle when clicking unlock button
-                 event.stopPropagation();
-                 const elementKey = unlockButton.dataset.elementKey;
-                 const level = parseInt(unlockButton.dataset.level);
-                 const cost = parseFloat(unlockButton.dataset.cost);
-
-                 if (elementKey && !isNaN(level) && !isNaN(cost)) {
-                     // Check if GameLogic is loaded before calling
-                     if (typeof GameLogic !== 'undefined' && GameLogic.handleUnlockLibraryLevel) {
-                         triggerActionAndCheckOnboarding(
-                             () => GameLogic.handleUnlockLibraryLevel(event), // Pass event for delegation handling
-                             'unlockLibrary', // Action name
-                             6 // Target phase for first unlock (assuming phase 6 involves this)
-                         );
-                     } else { console.error("GameLogic or handleUnlockLibraryLevel not available."); }
-                 }
-            } else if (headerButton) {
-                 // Accordion toggle is handled by UI automatically via aria-expanded
-                 // Check if this specific interaction completes an onboarding step
-                 const accordionItem = headerButton.closest('.accordion-item');
-                 const elementKey = accordionItem?.dataset.elementKey;
-                 // Example: Check if opening the 'Attraction' details completes phase 1
-                 // Adjust phase target based on your onboarding flow
-                 if (elementKey === 'A') { // Check the specific key required by the task (assuming 'Attraction' is for phase 1)
-                      triggerActionAndCheckOnboarding(null, 'openElementDetails', 1); // Adjust phase target if needed
-                 } else {
-                      // Trigger generic check if any accordion is opened, might be needed for a later phase
-                      // triggerActionAndCheckOnboarding(null, 'openElementDetails', DESIRED_PHASE_HERE);
-                 }
-            }
-        });
-    }
-
-    // Event Delegation for Focused Concepts (Click to view details)
-    const focusedConceptsContainer = getElement('focusedConceptsDisplay');
-    if (focusedConceptsContainer) {
-        focusedConceptsContainer.addEventListener('click', (event) => {
-            const targetItem = event.target.closest('.focus-concept-item[data-concept-id]');
-            if (targetItem) {
-                const conceptId = parseInt(targetItem.dataset.conceptId);
-                if (!isNaN(conceptId)) {
-                    UI.showConceptDetailPopup(conceptId);
-                }
-            }
-        });
-    }
-
-     // Insight Log Toggle
-     const insightLogContainer = getElement('insightLogContainer');
-     if (insightLogContainer) {
-         // Target the "Resources" H2 more reliably
-         const header = document.querySelector('#personaDetailedView .persona-elements-detailed h2:nth-of-type(2)');
-         if (header && header.textContent.includes("Resources")) {
-             header.style.cursor = 'pointer';
-             header.title = 'Click to toggle Insight Log';
-             header.addEventListener('click', () => {
-                 insightLogContainer.classList.toggle('log-hidden');
-                 // Update display based on class
-                 insightLogContainer.style.display = insightLogContainer.classList.contains('log-hidden') ? 'none' : 'block';
-             });
-             // Ensure correct initial display
-             insightLogContainer.style.display = insightLogContainer.classList.contains('log-hidden') ? 'none' : 'block';
-         } else { console.warn("Could not find 'Resources' header to attach Insight Log toggle."); }
-     } else { console.warn("Insight log container not found."); }
-
-
-    // Persona Action Buttons
-    const dilemmaBtn = getElement('elementalDilemmaButton');
-    const synergyBtn = getElement('exploreSynergyButton');
-    const suggestSceneBtn = getElement('suggestSceneButton');
-    const deepDiveBtn = getElement('deepDiveTriggerButton');
-
-     // Check if GameLogic is loaded before adding listeners
-     if (typeof GameLogic !== 'undefined') {
-         if (dilemmaBtn && GameLogic.handleElementalDilemmaClick) dilemmaBtn.addEventListener('click', GameLogic.handleElementalDilemmaClick);
-         if (synergyBtn && GameLogic.handleExploreSynergyClick) synergyBtn.addEventListener('click', GameLogic.handleExploreSynergyClick);
-         if (suggestSceneBtn && GameLogic.handleSuggestSceneClick) suggestSceneBtn.addEventListener('click', GameLogic.handleSuggestSceneClick);
-         if (deepDiveBtn && GameLogic.showTapestryDeepDive) deepDiveBtn.addEventListener('click', GameLogic.showTapestryDeepDive);
-     } else {
-         console.error("GameLogic not available for persona action button listeners.");
-     }
-
-
-    // Event Delegation for Suggested Scene Meditate Button
-    const suggestedSceneContainer = getElement('suggestedSceneContent');
-     if (suggestedSceneContainer) {
-         suggestedSceneContainer.addEventListener('click', (event) => {
-            const meditateButton = event.target.closest('.button[data-scene-id]');
-             if (meditateButton && !meditateButton.disabled) {
-                 // Check if GameLogic is loaded before calling
-                 if (typeof GameLogic !== 'undefined' && GameLogic.handleMeditateScene) {
-                      GameLogic.handleMeditateScene(event);
-                 } else { console.error("GameLogic or handleMeditateScene not available."); }
-             }
-         });
-     }
-}
-
-function setupWorkshopScreenListeners() {
-    const workshopScreen = getElement('workshopScreen');
-    if (!workshopScreen) return;
-
-    // --- Research Bench --- (Event Delegation)
-    const researchButtonsContainer = getElement('element-research-buttons');
-    if (researchButtonsContainer) {
-        researchButtonsContainer.addEventListener('click', (event) => {
-            // Target the clickable element card, not just the button inside
-            const buttonCard = event.target.closest('.initial-discovery-element.clickable');
-            if (buttonCard?.dataset.elementKey) {
-                const isFreeClick = buttonCard.dataset.isFree === 'true';
-                 // Check if GameLogic is loaded before calling
-                 if (typeof GameLogic !== 'undefined' && GameLogic.handleResearchClick) {
-                      triggerActionAndCheckOnboarding(
-                          () => GameLogic.handleResearchClick({ currentTarget: buttonCard, isFree: isFreeClick }),
-                          'conductResearch', // Action name matches onboarding task
-                          3 // Target phase
-                      );
-                 } else { console.error("GameLogic or handleResearchClick not available."); }
-            }
-        });
-    }
-
-    // --- Daily Actions ---
-    const freeResearchBtn = getElement('freeResearchButtonWorkshop');
-    const seekGuidanceBtn = getElement('seekGuidanceButtonWorkshop');
-    if (freeResearchBtn) {
-        freeResearchBtn.addEventListener('click', () => {
-             // Check if GameLogic is loaded before calling
-             if (typeof GameLogic !== 'undefined' && GameLogic.handleFreeResearchClick) {
-                 triggerActionAndCheckOnboarding(GameLogic.handleFreeResearchClick, 'conductResearch', 3);
-             } else { console.error("GameLogic or handleFreeResearchClick not available."); }
-        });
-    }
-    if (seekGuidanceBtn) {
-        seekGuidanceBtn.addEventListener('click', () => {
-             // Check if GameLogic is loaded before calling
-             if (typeof GameLogic !== 'undefined' && GameLogic.triggerGuidedReflection) {
-                  triggerActionAndCheckOnboarding(GameLogic.triggerGuidedReflection, 'triggerReflection', 7);
-             } else { console.error("GameLogic or triggerGuidedReflection not available."); }
-        });
-    }
-
-    // --- Library Area ---
-    const controls = getElement('grimoire-controls-workshop');
-    const shelves = getElement('grimoire-shelves-workshop');
-    const grid = getElement('grimoire-grid-workshop');
-
-    // Filter/Sort Controls
-    if (controls) {
-        const searchInput = getElement('grimoireSearchInputWorkshop');
-        if (searchInput) {
-             const debouncedRefresh = Utils.debounce(() => UI.refreshGrimoireDisplay(), 350);
-             searchInput.addEventListener('input', debouncedRefresh);
-        }
-        // Refresh immediately on other control changes (select dropdowns)
-        controls.addEventListener('change', (event) => {
-             if (event.target.tagName === 'SELECT') {
-                 UI.refreshGrimoireDisplay();
-             }
-        });
-    }
-
-    // Shelf Clicks (Filtering & Potential Onboarding Check for Categorization - handled on drop)
-    if (shelves) {
-        shelves.addEventListener('click', (event) => {
-            const shelf = event.target.closest('.grimoire-shelf');
-            if (shelf?.dataset.categoryId) {
-                // Visually activate the clicked shelf
-                shelves.querySelectorAll('.grimoire-shelf').forEach(s => s.classList.remove('active-shelf'));
-                shelf.classList.add('active-shelf');
-                // Refresh the display filtered by this category
-                UI.refreshGrimoireDisplay({ filterCategory: shelf.dataset.categoryId });
-            }
-        });
-    }
-
-    // Grimoire Grid Interactions (Details, Focus, Sell, Drag/Drop) - Using Event Delegation
-    if (grid) {
-        // Click Actions
-        grid.addEventListener('click', (event) => {
-            const focusButton = event.target.closest('.card-focus-button');
-            const sellButton = event.target.closest('.card-sell-button');
-            const card = event.target.closest('.concept-card');
-
-            if (focusButton?.dataset.conceptId && !focusButton.disabled) {
-                event.stopPropagation(); // Prevent card click from firing
-                const conceptId = parseInt(focusButton.dataset.conceptId);
-                 // Check if GameLogic is loaded before calling
-                 if (typeof GameLogic !== 'undefined' && GameLogic.handleCardFocusToggle) {
-                      triggerActionAndCheckOnboarding(() => {
-                          if(GameLogic.handleCardFocusToggle(conceptId)) {
-                              const isFocused = State.getFocusedConcepts().has(conceptId);
-                              focusButton.classList.toggle('marked', isFocused);
-                              focusButton.innerHTML = `<i class="fas ${isFocused ? 'fa-star' : 'fa-regular fa-star'}"></i>`;
-                              focusButton.title = isFocused ? 'Remove Focus' : 'Mark as Focus';
-                          }
-                      }, 'markFocus', 5);
-                 } else { console.error("GameLogic or handleCardFocusToggle not available."); }
-            } else if (sellButton?.dataset.conceptId) {
-                 event.stopPropagation(); // Prevent card click
-                  // Check if GameLogic is loaded before calling
-                  if (typeof GameLogic !== 'undefined' && GameLogic.handleSellConcept) {
-                       GameLogic.handleSellConcept(event); // Sell logic handles confirmation etc.
-                  } else { console.error("GameLogic or handleSellConcept not available."); }
-            } else if (card?.dataset.conceptId && !event.target.closest('button')) {
-                // If the click was on the card itself, not a button inside
-                 UI.showConceptDetailPopup(parseInt(card.dataset.conceptId));
-            }
-        });
-
-        // Drag and Drop Logic
-        let draggedCardId = null;
-        grid.addEventListener('dragstart', (event) => {
-            const card = event.target.closest('.concept-card[draggable="true"]');
-            if (card?.dataset.conceptId) {
-                draggedCardId = parseInt(card.dataset.conceptId);
-                event.dataTransfer.effectAllowed = 'move';
-                try { event.dataTransfer.setData('text/plain', draggedCardId.toString()); } catch (e) { event.dataTransfer.setData('Text', draggedCardId.toString()); }
-                setTimeout(() => card.classList.add('dragging'), 0);
-            } else {
-                event.preventDefault(); // Prevent dragging if not a valid card
-            }
-        });
-
-        grid.addEventListener('dragend', (event) => {
-            const card = event.target.closest('.concept-card');
-            if (card) { card.classList.remove('dragging'); }
-            draggedCardId = null;
-            shelves?.querySelectorAll('.grimoire-shelf').forEach(shelf => shelf.classList.remove('drag-over'));
-        });
-
-        // Shelf Drag Listeners (for dropping cards onto shelves)
-        if (shelves) {
-            shelves.addEventListener('dragover', (event) => {
-                event.preventDefault(); // Necessary to allow dropping
-                const shelf = event.target.closest('.grimoire-shelf:not(.show-all-shelf)');
-                if (shelf) {
-                    event.dataTransfer.dropEffect = 'move';
-                    shelves.querySelectorAll('.grimoire-shelf').forEach(s => s.classList.remove('drag-over'));
-                    shelf.classList.add('drag-over');
-                } else {
-                    event.dataTransfer.dropEffect = 'none';
-                    shelves.querySelectorAll('.grimoire-shelf').forEach(s => s.classList.remove('drag-over'));
-                }
-            });
-
-            shelves.addEventListener('dragleave', (event) => {
-                const shelf = event.target.closest('.grimoire-shelf');
-                 if (shelf && !shelf.contains(event.relatedTarget)) { shelf.classList.remove('drag-over'); }
-                 if (event.currentTarget === shelves && !shelves.contains(event.relatedTarget)){
-                     shelves.querySelectorAll('.grimoire-shelf').forEach(s => s.classList.remove('drag-over'));
-                 }
-            });
-
-            shelves.addEventListener('drop', (event) => {
-                event.preventDefault();
-                shelves.querySelectorAll('.grimoire-shelf').forEach(shelf => shelf.classList.remove('drag-over'));
-                const shelf = event.target.closest('.grimoire-shelf:not(.show-all-shelf)');
-
-                let droppedCardIdFromData = null;
-                try { droppedCardIdFromData = parseInt(event.dataTransfer.getData('text/plain')); } catch (e) { try { droppedCardIdFromData = parseInt(event.dataTransfer.getData('Text')); } catch (e2) { /* ignore */ } }
-                const finalCardId = !isNaN(droppedCardIdFromData) ? droppedCardIdFromData : draggedCardId;
-
-                if (shelf?.dataset.categoryId && finalCardId !== null) {
-                    const categoryId = shelf.dataset.categoryId;
-                    // Check if GameLogic is loaded before calling
-                    if (typeof GameLogic !== 'undefined' && GameLogic.handleCategorizeCard) {
-                         triggerActionAndCheckOnboarding(
-                             () => GameLogic.handleCategorizeCard(finalCardId, categoryId),
-                             'categorizeCard',
-                             5 // Target phase (Mark Focus/Categorize share a phase target? Check onboardingTasks)
-                         );
-                    } else { console.error("GameLogic or handleCategorizeCard not available."); }
-                } else {
-                    console.log("Drop failed: Invalid target shelf or missing card ID.");
-                }
-                draggedCardId = null; // Reset dragged ID after drop attempt
-            });
-        }
-    }
-}
-
-function setupRepositoryListeners() {
-    const repoContainer = getElement('repositoryScreen');
-    if (!repoContainer) return;
-
-    // Event delegation for action buttons within repository lists
-    repoContainer.addEventListener('click', (event) => {
-        const meditateButton = event.target.closest('.button[data-scene-id]');
-        const experimentButton = event.target.closest('.button[data-experiment-id]');
-
-        // Check if GameLogic is loaded before calling
-        if (typeof GameLogic !== 'undefined') {
-             if (meditateButton && !meditateButton.disabled && GameLogic.handleMeditateScene) {
-                 GameLogic.handleMeditateScene(event);
-             }
-             else if (experimentButton && !experimentButton.disabled && GameLogic.handleAttemptExperiment) {
-                 GameLogic.handleAttemptExperiment(event);
-             }
-        } else {
-             console.error("GameLogic not available for repository button listeners.");
-        }
-    });
-}
-
-function setupPopupInteractionListeners() {
-    // Generic Close Buttons (for all popups except Onboarding)
-    document.querySelectorAll('.popup:not(.onboarding-popup) .close-button').forEach(button => {
-         button.addEventListener('click', UI.hidePopups);
-    });
-
-    // Setup listeners specific to each popup type
-    setupConceptDetailPopupListeners();
-    setupResearchPopupListeners();
-    setupReflectionPopupListeners();
-    setupDeepDivePopupListeners();
-    setupDilemmaPopupListeners();
-    // Settings popup listeners are in setupGlobalEventListeners
-    // Info popup listeners are in setupGlobalEventListeners
-}
-
-function setupConceptDetailPopupListeners() {
-    const popup = getElement('conceptDetailPopup');
-    if (!popup) return;
-
-    const addBtn = getElement('addToGrimoireButton');
-    const focusBtn = getElement('markAsFocusButton');
-    const saveNoteBtn = getElement('saveMyNoteButton');
-    const loreContent = getElement('popupLoreContent');
-    const actionsContainer = popup.querySelector('.popup-actions'); // For sell button delegation
-
-    if (addBtn) {
-        addBtn.addEventListener('click', () => {
-            // Check if GameLogic is loaded before calling
-            if (typeof GameLogic !== 'undefined' && GameLogic.getCurrentPopupConceptId && GameLogic.addConceptToGrimoireById) {
-                const conceptId = GameLogic.getCurrentPopupConceptId();
-                if (conceptId !== null) {
-                    triggerActionAndCheckOnboarding(
-                        () => GameLogic.addConceptToGrimoireById(conceptId, addBtn), // Pass button to update UI
-                        'addToGrimoire',
-                        4
-                    );
-                }
-            } else { console.error("GameLogic functions for AddToGrimoire not available."); }
-        });
-    }
-
-    if (focusBtn) {
-        focusBtn.addEventListener('click', () => {
-             // Check if GameLogic is loaded before calling
-             if (typeof GameLogic !== 'undefined' && GameLogic.handleToggleFocusConcept) {
-                 triggerActionAndCheckOnboarding(
-                     () => GameLogic.handleToggleFocusConcept(), // Calls logic which updates state and UI
-                     'markFocus',
-                     5
-                 );
-             } else { console.error("GameLogic function handleToggleFocusConcept not available."); }
-        });
-    }
-
-    if (saveNoteBtn) {
-        saveNoteBtn.addEventListener('click', () => {
-             // Check if GameLogic is loaded before calling
-             if (typeof GameLogic !== 'undefined' && GameLogic.handleSaveNote) {
-                  GameLogic.handleSaveNote();
-             } else { console.error("GameLogic function handleSaveNote not available."); }
-        });
-    }
-
-    // Event delegation for Unlock Lore buttons
-    if (loreContent) {
-        loreContent.addEventListener('click', (event) => {
-            const button = event.target.closest('.unlock-lore-button');
-            if (button?.dataset.conceptId && button.dataset.loreLevel && button.dataset.cost && !button.disabled) {
-                 // Check if GameLogic is loaded before calling
-                 if (typeof GameLogic !== 'undefined' && GameLogic.handleUnlockLore) {
-                      triggerActionAndCheckOnboarding(
-                          () => GameLogic.handleUnlockLore(parseInt(button.dataset.conceptId), parseInt(button.dataset.loreLevel), parseFloat(button.dataset.cost)),
-                          'unlockLore',
-                          6 // Check onboardingTasks for correct phase target
-                      );
-                 } else { console.error("GameLogic function handleUnlockLore not available."); }
-            }
-        });
-    }
-
-    // Event delegation for dynamically added Sell button
-    if (actionsContainer) {
-        actionsContainer.addEventListener('click', (event) => {
-            const sellButton = event.target.closest('.popup-sell-button');
-            if (sellButton?.dataset.conceptId) {
-                 // Check if GameLogic is loaded before calling
-                 if (typeof GameLogic !== 'undefined' && GameLogic.handleSellConcept) {
-                      GameLogic.handleSellConcept(event); // Sell logic handles confirmation
-                 } else { console.error("GameLogic function handleSellConcept not available."); }
-            }
-        });
-    }
-}
-
-
-function setupResearchPopupListeners() {
-    const popup = getElement('researchResultsPopup');
-    if (!popup) return;
-
-    const closeBtn = getElement('closeResearchResultsPopupButton');
-    const confirmBtn = getElement('confirmResearchChoicesButton');
-    const contentArea = getElement('researchPopupContent');
-
-    if (closeBtn) closeBtn.addEventListener('click', UI.hidePopups);
-    if (confirmBtn) confirmBtn.addEventListener('click', UI.hidePopups); // Confirm button just closes if enabled
-
-    // Event delegation for Keep/Sell buttons within the research results
-    if (contentArea) {
-        contentArea.addEventListener('click', (event) => {
-            const actionButton = event.target.closest('.card-actions .button[data-action]');
-            if (actionButton?.dataset.conceptId) {
-                const conceptId = parseInt(actionButton.dataset.conceptId);
-                const action = actionButton.dataset.action; // 'keep' or 'sell'
-                 // Check if GameLogic is loaded before calling
-                 if (typeof GameLogic !== 'undefined' && GameLogic.handleResearchPopupChoice) {
-                      if (action === 'keep') {
-                          triggerActionAndCheckOnboarding(
-                              () => GameLogic.handleResearchPopupChoice(conceptId, action),
-                              'addToGrimoire', // 'keep' action ultimately calls addConceptToGrimoireInternal
-                              4 // Target phase for adding first concept
-                          );
-                      } else {
-                           GameLogic.handleResearchPopupChoice(conceptId, action); // Handle sell directly
-                      }
-                 } else { console.error("GameLogic function handleResearchPopupChoice not available."); }
-            }
-        });
-    }
-}
-
-function setupReflectionPopupListeners() {
-    const popup = getElement('reflectionModal');
-    if (!popup) return;
-
-    const reflectionCheck = getElement('reflectionCheckbox');
-    const confirmBtn = getElement('confirmReflectionButton');
-    const nudgeCheck = getElement('scoreNudgeCheckbox');
-
-    if (reflectionCheck && confirmBtn) {
-        // Enable confirm button only when the checkbox is checked
-        reflectionCheck.addEventListener('change', () => {
-            confirmBtn.disabled = !reflectionCheck.checked;
-        });
-
-        confirmBtn.addEventListener('click', () => {
-             // Check if GameLogic is loaded before calling
-             if (typeof GameLogic !== 'undefined' && GameLogic.handleConfirmReflection) {
-                  triggerActionAndCheckOnboarding(
-                      () => GameLogic.handleConfirmReflection(nudgeCheck?.checked || false),
-                      'completeReflection',
-                      7 // Target phase
-                  );
-             } else { console.error("GameLogic function handleConfirmReflection not available."); }
-        });
-    }
-}
-
-function setupDeepDivePopupListeners() {
-    const popup = getElement('tapestryDeepDiveModal');
-    if (!popup) return;
-
-    const nodesContainer = getElement('deepDiveAnalysisNodes');
-    const detailContent = getElement('deepDiveDetailContent');
-
-    if (nodesContainer) {
-        nodesContainer.addEventListener('click', (event) => {
-            const nodeButton = event.target.closest('.aspect-node[data-node-id]');
-            if (nodeButton && !nodeButton.disabled) {
-                 const nodeId = nodeButton.dataset.nodeId;
-                 // Check if GameLogic is loaded before calling
-                 if (typeof GameLogic !== 'undefined') {
-                      if (nodeId === 'contemplation' && GameLogic.handleContemplationNodeClick) {
-                          GameLogic.handleContemplationNodeClick();
-                      } else if (GameLogic.handleDeepDiveNodeClick) {
-                          GameLogic.handleDeepDiveNodeClick(nodeId);
-                      } else { console.error("GameLogic deep dive handlers not available."); }
-                 } else { console.error("GameLogic not available for deep dive node clicks."); }
-            }
-        });
-    }
-
-     // Listener for dynamically added contemplation completion button
-     if (detailContent) {
-         detailContent.addEventListener('click', (event) => {
-             const completeButton = event.target.closest('#completeContemplationBtn');
-             if (completeButton) {
-                 // Check if GameLogic is loaded before calling
-                 if (typeof GameLogic !== 'undefined' && GameLogic.handleCompleteContemplation) {
-                     GameLogic.handleCompleteContemplation();
-                 } else { console.error("GameLogic function handleCompleteContemplation not available."); }
-             }
-         });
-     }
-}
-
-function setupDilemmaPopupListeners() {
-    const popup = getElement('dilemmaModal');
-    if (!popup) return;
-
-    const confirmBtn = getElement('confirmDilemmaButton');
-    if (confirmBtn) {
-         // Check if GameLogic is loaded before calling
-         if (typeof GameLogic !== 'undefined' && GameLogic.handleConfirmDilemma) {
-              confirmBtn.addEventListener('click', GameLogic.handleConfirmDilemma);
-         } else { console.error("GameLogic function handleConfirmDilemma not available."); }
-    }
-
-    // Add listener for slider to update display text
-    const slider = getElement('dilemmaSlider');
-    const valueDisplay = getElement('dilemmaSliderValueDisplay');
-    const minLabel = getElement('dilemmaSliderMinLabel');
-    const maxLabel = getElement('dilemmaSliderMaxLabel');
-    if (slider && valueDisplay && minLabel && maxLabel) {
-        slider.addEventListener('input', () => {
-            const val = parseFloat(slider.value);
-            let leaning;
-            if (val < 1.5) leaning = `Strongly ${minLabel.textContent}`;
-            else if (val < 4.5) leaning = `Towards ${minLabel.textContent}`;
-            else if (val > 8.5) leaning = `Strongly ${maxLabel.textContent}`;
-            else if (val > 5.5) leaning = `Towards ${maxLabel.textContent}`;
-            else leaning = "Balanced";
-            valueDisplay.textContent = leaning;
-        });
-    }
-}
-
-function setupOnboardingListeners() {
-    const overlay = getElement('onboardingOverlay');
-    if (!overlay) return; // No onboarding elements, no listeners needed
-
-    const nextBtn = getElement('onboardingNextButton');
-    const prevBtn = getElement('onboardingPrevButton');
-    const skipBtn = getElement('onboardingSkipButton');
-
-    if (nextBtn) {
-        nextBtn.addEventListener('click', () => {
-            const currentPhase = State.getOnboardingPhase();
-            if (currentPhase === Config.MAX_ONBOARDING_PHASE) {
-                 // Last step, finish onboarding
-                 console.log("Onboarding: Finishing...");
-                 State.markOnboardingComplete();
-                 UI.hideOnboarding();
-                 // Ensure main UI reflects the now-unlocked state
-                 UI.showScreen(State.getState().questionnaireCompleted ? 'personaScreen' : 'welcomeScreen'); // Show appropriate screen
-            } else {
-                 // Advance to the next phase
-                 const nextPhase = State.advanceOnboardingPhase();
-                 UI.showOnboarding(nextPhase);
-            }
-        });
-    }
-
-    if (prevBtn) {
-        prevBtn.addEventListener('click', () => {
-            const currentPhase = State.getOnboardingPhase();
-            if (currentPhase > 1) { // Can't go back from phase 1
-                 const prevPhase = currentPhase - 1;
-                 State.updateOnboardingPhase(prevPhase); // Use the function to set specific phase
-                 UI.showOnboarding(prevPhase);
-            }
-        });
-    }
-
-    if (skipBtn) {
-        skipBtn.addEventListener('click', () => {
-            if (confirm("Are you sure you want to skip the rest of the orientation? You can't restart it later.")) {
-                 console.log("Onboarding: Skipping...");
-                 State.markOnboardingComplete();
-                 UI.hideOnboarding();
-                 // Ensure main UI is correctly shown after skipping
-                  UI.showScreen(State.getState().questionnaireCompleted ? 'personaScreen' : 'welcomeScreen'); // Show appropriate screen
-            }
-        });
-    }
-}
-
-
-// --- App Start ---
-document.addEventListener('DOMContentLoaded', initializeApp);
-
-console.log("main.js loaded successfully. (Enhanced v4.1 + Drawer)");
-// --- END OF FILE main.js ---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Persona Alchemy Lab</title>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <!-- Chart.js Library -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" crossorigin="anonymous" defer></script>
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="style.css"> <!-- Contains merged styles -->
+    <link rel="icon" href="data:,"> <!-- Prevent favicon 404 error -->
+
+    <!-- Integrated Workshop Layout Styles (Ideally move to style.css) -->
+    <style>
+      #workshopScreen {
+        display: grid;
+        grid-template-columns: minmax(300px, 320px) 1fr; /* Fixed left column */
+        gap: var(--spacing);
+        /* Removed padding here, applied by .screen */
+      }
+      /* Responsive stacking for workshop */
+      @media (max-width: 950px) {
+          #workshopScreen {
+              grid-template-columns: 1fr; /* Stack columns */
+          }
+          /* Allow panels to grow naturally when stacked */
+           #workshopScreen > .panel {
+             height: auto; /* Override fixed height */
+             max-height: none;
+             overflow: visible; /* Allow content to determine height */
+           }
+      }
+
+      .panel {
+        background: var(--background-light);
+        border-radius: var(--border-radius);
+        box-shadow: var(--box-shadow);
+        padding: var(--spacing);
+        height: calc(100vh - 4rem - (2 * var(--spacing))); /* Adjust height based on parent padding */
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+      }
+      :root.dark .panel { background: var(--background-medium); }
+
+      /* Left column: Research Bench */
+      .research-bench h2 {
+        margin: 0 0 var(--spacing) 0;
+        color: var(--primary-color);
+        border-bottom: 1px solid var(--border-color-light);
+        padding-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        flex-shrink: 0; /* Prevent shrinking */
+      }
+      .research-chips { /* Container for element buttons */
+        display: grid; /* Changed to grid */
+        grid-template-columns: 1fr; /* Single column */
+        gap: 1rem;
+        overflow-y: auto; /* Allow scrolling if needed */
+        flex-grow: 1; /* Allow to take remaining space */
+        padding-right: 5px; /* Space for scrollbar */
+      }
+       /* Daily Actions Container */
+      .daily-actions {
+         margin-top: var(--spacing);
+         padding-top: var(--spacing);
+         border-top: 1px dashed var(--border-color-light);
+         display: flex;
+         flex-direction: column;
+         gap: 0.75rem;
+         flex-shrink: 0; /* Prevent shrinking */
+      }
+      .daily-actions .button { width: 100%; text-align: center; } /* Make buttons full width */
+
+
+      /* Right column: Grimoire Library */
+      .grimoire-library { overflow: hidden; display: flex; flex-direction: column; } /* Ensure column layout */
+      .grimoire-library .library-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: var(--spacing);
+          border-bottom: 1px solid var(--border-color-light);
+          padding-bottom: 0.5rem;
+          flex-shrink: 0; /* Prevent shrinking */
+      }
+      .grimoire-library .library-header h2 {
+          margin: 0;
+          color: var(--primary-color);
+          border: none;
+          padding: 0;
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+      }
+      /* Workshop Insight Display (Moved within library header) */
+      .workshop-insight-display {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          padding: 4px 10px; /* Smaller padding */
+          border-radius: 9999px;
+          background: var(--secondary-color);
+          border: 1px solid var(--primary-color);
+          color: var(--primary-color);
+          font-weight: bold;
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+          font-size: 0.9em;
+      }
+     :root.dark .workshop-insight-display { background: var(--secondary-color); color: var(--background-dark); border-color: var(--accent-color); }
+
+
+      .library-controls {
+        flex-shrink: 0; /* Prevent controls from shrinking */
+        margin-bottom: var(--spacing);
+        padding-bottom: 8px;
+        overflow-x: auto; /* Allow horizontal scroll if needed */
+        display: flex;
+        flex-wrap: wrap; /* Allow wrapping on smaller screens */
+        gap: 10px;
+        align-items: center;
+      }
+      .library-controls label { display: inline-flex; align-items: center; gap: 4px; font-size: 0.9em; }
+      .library-controls select, .library-controls input { padding: 4px 8px; font-size: 0.9em; }
+
+       /* Grimoire Shelves Area */
+      .grimoire-shelves-area {
+          margin-bottom: var(--spacing);
+          display: flex;
+          flex-wrap: wrap;
+          gap: 8px;
+          padding-bottom: 8px;
+          border-bottom: 1px dashed var(--border-color-light);
+          flex-shrink: 0; /* Prevent shrinking */
+      }
+       /* Individual Shelf Styling (Copy from style.css if needed) */
+      .grimoire-shelf { /* ... Add styles from style.css if not global ... */ }
+
+      /* Card Grid */
+      #grimoire-grid-workshop { /* Changed ID */
+        flex-grow: 1; /* Takes remaining space */
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: var(--spacing);
+        overflow-y: auto; /* Scroll only the grid */
+        padding: 5px; /* Padding inside grid */
+      }
+
+      /* Research Findings popup card styling (if needed specifically here) */
+      #researchPopupContent {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: var(--spacing);
+      }
+      .research-result-item { /* Renamed from .research-popup-card */
+        background: var(--background-light);
+        border-radius: var(--border-radius);
+        box-shadow: var(--box-shadow);
+        /* Removed padding, handled by nested card */
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        overflow: hidden; /* Ensure content fits */
+        border: 1px solid transparent; /* Base border for state indication */
+      }
+      :root.dark .research-result-item { background-color: var(--background-medium); }
+    </style>
+</head>
+<body>
+
+    <!-- === Drawer Toggle Button === -->
+    <button id="drawerToggle"
+            class="drawer-toggle"
+            aria-label="Open main menu"
+            aria-expanded="false"
+            aria-controls="sideDrawer">☰</button>
+
+    <!-- === Sliding Drawer (Sidebar) === -->
+    <aside id="sideDrawer" class="side-drawer" aria-hidden="true"> <!-- Start hidden -->
+      <nav class="drawer-nav">
+        <h3>Menu</h3>
+        <!-- Links will trigger screen changes via JS -->
+        <button data-target="personaScreen" class="drawer-link"><i class="fa-solid fa-user"></i> Persona</button>
+        <button data-target="workshopScreen" class="drawer-link hidden-by-flow">
+             <i class="fa-solid fa-flask"></i> Workshop (<span id="drawerGrimoireCount">0</span>)
+        </button>
+        <button data-target="repositoryScreen" class="drawer-link hidden-by-flow">
+             <i class="fa-solid fa-book-open"></i> Repository
+        </button>
+        <hr>
+        <button id="drawerSettings" class="drawer-link"><i class="fa-solid fa-gear"></i> Settings</button>
+        <button id="drawerThemeToggle" class="drawer-link"><i class="fa-solid fa-moon"></i> Theme</button>
+      </nav>
+    </aside>
+
+    <!-- Onboarding Highlight Element -->
+    <div id="onboardingHighlight" class="onboarding-highlight hidden"></div>
+
+    <!-- Main Application Container -->
+    <div class="app-container">
+
+        <!-- Saving Indicator -->
+        <div id="saveIndicator" class="save-indicator hidden"><i class="fas fa-save"></i> Saving...</div>
+
+        <!-- Welcome Screen -->
+        <div id="welcomeScreen" class="screen current card">
+             <h1>Welcome to the Persona Alchemy Lab! <i class="fas fa-info-circle info-icon" title="Discover concepts reflecting your inner self through guided introspection and experimentation."></i></h1>
+             <p>Uncover Concept Cards that resonate with your essence and weave your unique Persona Tapestry.</p>
+             <button id="startGuidedButton" class="button btn">Begin Experimentation</button>
+             <button id="loadButton" class="button secondary-button btn hidden">Load Previous Session</button>
+             <p><small>Version: Enhanced v4.1 + UI Refresh v1.1</small></p>
+        </div>
+
+        <!-- Questionnaire Screen -->
+        <div id="questionnaireScreen" class="screen hidden card">
+             <header>
+                 <!-- Progress Header -->
+                 <div id="elementProgressHeader" aria-label="Questionnaire Progress">
+                     <!-- Steps added by JS -->
+                 </div>
+                 <p id="progressText"></p>
+                 <!-- Dynamic Feedback Area -->
+                 <div id="dynamicScoreFeedback" style="display: none;" aria-live="polite">
+                    Current <span id="feedbackElement">[Element]</span> Score: <span id="feedbackScore">5.0</span><span class="score-label">(Moderate)</span>
+                    <i class="fas fa-info-circle info-icon" title="This shows your approximate score for the current element based on your answers so far. Final scores across all 7 elements (including RoleFocus) are calculated at the end."></i>
+                    <div class="score-bar-container">
+                        <div id="feedbackScoreBar" style="width: 50%;"></div>
+                    </div>
+                 </div>
+             </header>
+             <main id="questionContent">
+                 <!-- Questions added by JS -->
+             </main>
+             <footer>
+                 <button id="prevElementButton" class="button back-button btn" style="visibility: hidden;">Previous Element</button>
+                 <button id="nextElementButton" class="button next-button btn">Next Element</button>
+             </footer>
+        </div>
+
+        <!-- Persona Screen -->
+        <div id="personaScreen" class="screen hidden persona-screen">
+             <div class="persona-header">
+                 <h1>My Persona Tapestry <i class="fas fa-info-circle info-icon" title="This screen summarizes your calculated persona based on the questionnaire and focused Concepts. Use the Workshop to discover more Concepts."></i></h1>
+                 <div class="view-toggle-buttons">
+                     <button id="showDetailedViewBtn" class="button small-button view-toggle-btn active btn" aria-pressed="true">Detailed View</button>
+                     <button id="showSummaryViewBtn" class="button small-button view-toggle-btn btn" aria-pressed="false">Summary View</button>
+                 </div>
+             </div>
+
+             <!-- Detailed View -->
+             <div id="personaDetailedView" class="persona-view current">
+                 <div class="persona-overview">
+                     <!-- Left Column: Core Foundation & Resources -->
+                     <div class="persona-column persona-elements-detailed card">
+                         <h2>Core Foundation <i class="fas fa-info-circle info-icon" title="Your scores across the 7 core elements, based on the initial questionnaire. Expand each for details, interpretations, current Attunement, and unlockable Insights."></i></h2>
+                         <p>Your fundamental attributes and elemental attunement. Expand each element below.</p>
+                         <div id="personaElementDetails" aria-live="polite">
+                            <!-- Accordion items added by JS -->
+                         </div>
+                         <hr>
+                         <!-- Header clickable to toggle log -->
+                         <h2 style="cursor: pointer; display: inline-block;" title="Click to toggle Insight Log">Resources <i class="fas fa-info-circle info-icon" title="Insight is the primary currency, earned through discovery, reflection, and rituals. Spend it in The Workshop to research new Concepts or unlock deeper knowledge."></i></h2>
+                         <p>
+                             Current Insight: <strong id="userInsightDisplayPersona">0.0</strong> <i class="fas fa-brain insight-icon"></i>
+                             <button id="addInsightButton" class="button tiny-button btn" title="Get an Insight boost (cooldown applies)">
+                                  <i class="fas fa-plus"></i> <span class="visually-hidden">Add Insight</span>
+                             </button>
+                         </p>
+                         <!-- Insight Log (Initially hidden by class) -->
+                         <div id="insightLogContainer" class="log-hidden" aria-live="polite">
+                            <h5>Recent Insight Changes:</h5><p><i>Loading log...</i></p>
+                         </div>
+                     </div>
+                     <!-- Right Column: Tapestry Focus -->
+                     <div class="persona-column persona-constellation card">
+                          <h2>Persona Tapestry - Focus <i class="fas fa-info-circle info-icon" title="Mark Concepts from your Workshop as 'Focus' here (using the ☆ icon). This shapes your Tapestry Narrative and may unlock unique content based on combinations."></i></h2>
+                          <p>Curate concepts to shape your active Persona.</p>
+                          <div class="tapestry-area" id="tapestryArea">
+                               <h4 id="focusedConceptsHeader">Focused Concepts (0 / X) <i class="fas fa-info-circle info-icon" title="The number of Concepts currently marked as Focus out of your total available slots. Slots can be increased via Milestones."></i></h4>
+                               <div id="focusedConceptsDisplay" class="focus-concepts-grid concept-grid" aria-live="polite">
+                                   <div class="focus-placeholder">Focus Concepts from your Workshop Library (tap the ☆)</div>
+                               </div>
+                          </div>
+                           <div class="grimoire-insights">
+                              <h3>Focus Themes <i class="fas fa-info-circle info-icon" title="Highlights the dominant Elements based on your Focused Concepts."></i></h3>
+                              <p>Dominant elemental themes emerging from your focus.</p>
+                              <ul id="personaThemesList" aria-live="polite"><li>Mark Focused Concepts...</li></ul>
+                          </div>
+                          <div class="tapestry-narrative-section">
+                              <h3>Tapestry Narrative <i class="fas fa-info-circle info-icon" title="A dynamically generated interpretation based on your Focused Concepts, highlighting dominant elements and potential synergies/tensions between them."></i></h3>
+                              <p id="tapestryNarrative" aria-live="polite">Mark concepts as "Focus" to generate narrative...</p>
+                              <div class="tapestry-actions">
+                                  <button id="elementalDilemmaButton" class="button small-button hidden-by-flow btn" title="Engage with an Elemental Dilemma for Insight.">Elemental Dilemma</button>
+                                  <button id="exploreSynergyButton" class="button small-button hidden-by-flow btn" disabled title="Focus concepts to explore synergies...">Explore Synergy</button>
+                                  <button id="suggestSceneButton" class="button small-button hidden-by-flow btn" title="Suggest resonant scenes (Cost Insight)">Suggest Scenes (<span id="sceneSuggestCostDisplay">?</span> <i class="fas fa-brain insight-icon"></i>)</button>
+                                  <button id="deepDiveTriggerButton" class="button small-button hidden-by-flow btn" title="Explore your focused Tapestry in the Resonance Chamber">Resonance Chamber</button>
+                              </div>
+                              <div id="sceneSuggestionOutput" class="scene-suggestion-output hidden"><h4>Scene Suggestion:</h4><p>Based on your current focus, this scene may resonate:</p><div id="suggestedSceneContent"></div></div>
+                          </div>
+                     </div>
+                 </div>
+             </div>
+
+             <!-- Summary View -->
+             <div id="personaSummaryView" class="persona-view hidden card">
+                  <h2>Persona Summary <i class="fas fa-info-circle info-icon" title="A concise overview combining your Core Foundation scores, Tapestry Narrative, and Focus Themes, plus a visual profile chart."></i></h2>
+                  <div id="summaryContent">
+                        <h3>Core Essence</h3><div class="summary-section" id="summaryCoreEssenceText" aria-live="polite"><p>Loading essence details...</p></div> <hr class="popup-hr">
+                        <h3>Elemental Profile</h3><p style="text-align: center; font-size: 0.9em; color: var(--text-muted-color);">Visual representation of your 7 element scores.</p>
+                        <!-- ** ADDED CANVAS HERE ** -->
+                        <div class="chart-container">
+                             <canvas id="personaScoreChartCanvas" aria-label="Radar chart showing persona scores for the 7 elements"></canvas>
+                        </div>
+                         <hr class="popup-hr">
+                        <h3>Focused Tapestry</h3><div class="summary-section" id="summaryTapestryInfo" aria-live="polite"><p>Loading tapestry details...</p></div>
+                  </div>
+             </div>
+        </div>
+
+        <!-- Workshop Screen (Revised Layout) -->
+        <div id="workshopScreen" class="screen hidden workshop-screen hidden-by-flow">
+          <!-- Left: Core Elements List -->
+          <aside class="panel research-bench" id="workshop-research-area">
+            <h2><i class="fas fa-flask"></i> Research Bench</h2>
+            <div id="element-research-buttons" class="research-chips">
+                <!-- Element buttons added by JS -->
+            </div>
+            <div id="daily-actions" class="daily-actions">
+                 <!-- Daily action buttons added by JS -->
+                 <button id="freeResearchButtonWorkshop" class="button free-research-button btn" disabled title="Daily meditation already performed today.">Perform Daily Meditation ☆</button>
+                 <button id="seekGuidanceButtonWorkshop" class="button guidance-button btn" disabled title="Requires Insight">Seek Guidance (<span id="guidedReflectionCostDisplayWorkshop">?</span> <i class="fas fa-brain insight-icon"></i>)</button>
+            </div>
+          </aside>
+
+          <!-- Right: Grimoire Library -->
+          <main class="panel grimoire-library" id="workshop-library-area">
+            <div class="library-header">
+                <h2><i class="fas fa-book-open"></i> Grimoire Library</h2>
+                <span class="workshop-insight-display">Insight: <strong id="userInsightDisplayWorkshop">0.0</strong> <i class="fas fa-brain insight-icon"></i></span>
+            </div>
+            <!-- Filtering controls -->
+            <div class="library-controls" id="grimoire-controls-workshop">
+                <div class="filter-controls">
+                  <label>Type: <select id="grimoireTypeFilterWorkshop"></select></label>
+                  <label>Element: <select id="grimoireElementFilterWorkshop"></select></label>
+                  <label>Rarity: <select id="grimoireRarityFilterWorkshop"></select></label>
+                  <label>Focus: <select id="grimoireFocusFilterWorkshop"><option value="All">All Focus</option><option value="Focused">Focused ★</option><option value="Not Focused">Not Focused</option></select></label>
+                  <label>Search: <input type="text" id="grimoireSearchInputWorkshop" placeholder="Keyword" /></label>
+                  <label>Sort: <select id="grimoireSortOrderWorkshop"><option value="discovered">Newest First</option><option value="name">Name (A-Z)</option><option value="type">Type</option><option value="rarity">Rarity</option><option value="resonance">Resonance</option></select></label>
+                  </div>
+                <!-- Add Show All button if needed -->
+                <!-- <button id="libraryShowAllBtn" class="button btn">Show All</button> -->
+            </div>
+             <!-- Shelves Area -->
+            <div id="grimoire-shelves-workshop" class="grimoire-shelves-area">
+                <!-- Shelves added by JS -->
+            </div>
+            <!-- Card grid -->
+            <div id="grimoire-grid-workshop">
+                <!-- Cards added by JS -->
+            </div>
+          </main>
+        </div>
+
+        <!-- Repository Screen -->
+         <div id="repositoryScreen" class="screen hidden repository-screen">
+             <h1>Repository <i class="fas fa-info-circle info-icon" title="A collection of rare discoveries, daily tasks, and milestones achieved."></i></h1><p>Track your progress and review unique findings.</p>
+             <div class="repository-layout">
+                 <section id="repositoryFocusUnlocks" class="repository-section card" aria-labelledby="focus-unlocks-heading"><h2 id="focus-unlocks-heading"><i class="fas fa-link"></i> Focus-Driven Discoveries <i class="fas fa-info-circle info-icon" title="Special items unlocked automatically by having specific combinations of Concepts marked as 'Focus'."></i></h2><div class="repo-list focus-unlocks-list" aria-live="polite"></div></section>
+                 <section id="repositoryScenes" class="repository-section card" aria-labelledby="scenes-heading"><h2 id="scenes-heading"><i class="fas fa-scroll"></i> Scene Blueprints <i class="fas fa-info-circle info-icon" title="Scenarios discovered via 'Suggest Scenes' or other means. Meditate on them (costs Insight) for unique Reflection prompts."></i></h2><div class="repo-list" aria-live="polite"></div></section>
+                 <section id="repositoryExperiments" class="repository-section card" aria-labelledby="experiments-heading"><h2 id="experiments-heading"><i class="fas fa-flask"></i> Alchemical Experiments <i class="fas fa-info-circle info-icon" title="Challenging procedures unlocked by high Attunement. Attempting them costs Insight and may require specific Focused Concepts or RoleFocus scores."></i></h2><div class="repo-list" aria-live="polite"></div></section>
+                 <section id="repositoryInsights" class="repository-section card" aria-labelledby="insights-heading"><h2 id="insights-heading"><i class="fas fa-lightbulb"></i> Elemental Insights <i class="fas fa-info-circle info-icon" title="Short, evocative text fragments related to specific Elements, occasionally discovered during Research."></i></h2><div class="repo-list" aria-live="polite"></div></section>
+                 <section id="dailyRitualsSection" class="repository-section card" aria-labelledby="rituals-heading"><h2 id="rituals-heading"><i class="fas fa-clock"></i> Daily Rituals <i class="fas fa-info-circle info-icon" title="Track your progress on daily tasks here. Rituals reset each day. Focus Rituals appear based on your focused Concepts."></i></h2><ul id="dailyRitualsDisplayRepo" class="repo-list" aria-live="polite"><li>Loading rituals...</li></ul></section>
+                 <section id="milestonesSection" class="repository-section card" aria-labelledby="milestones-heading"><h2 id="milestones-heading"><i class="fas fa-award"></i> Milestones Achieved <i class="fas fa-info-circle info-icon" title="Significant accomplishments tracked throughout your journey, often granting rewards."></i></h2><ul id="milestonesDisplay" class="repo-list" aria-live="polite"></ul></section>
+             </div>
+         </div>
+
+      <!-- Popups and Modals (Added .card class where appropriate) -->
+      <div id="popupOverlay" class="overlay hidden" aria-hidden="true"></div>
+
+      <!-- Concept Detail Popup -->
+      <div id="conceptDetailPopup" class="popup hidden card card-popup" role="dialog" aria-modal="true" aria-labelledby="popupConceptName">
+        <button id="closePopupButton" class="close-button" aria-label="Close Concept Detail">×</button>
+        <div class="popup-header"><span id="popupCardTypeIcon" class="card-type-icon" aria-hidden="true">?</span><h3 id="popupConceptName">Concept Name</h3><p id="popupConceptType">Card Type</p></div>
+        <div class="popup-main-content">
+            <div class="popup-visual-area"><div id="popupVisualContainer" class="popup-visual" role="img" aria-label="Concept Art"><i class="fas fa-image card-visual-placeholder" title="Visual Placeholder"></i></div></div>
+            <div class="popup-info-area">
+                <section id="popupResonanceGaugeSection" class="popup-section popup-resonance-gauge-section hidden" aria-labelledby="resonance-heading"><h4 id="resonance-heading">Resonance <i class="fas fa-info-circle info-icon" title="How closely this Concept aligns with your Core Foundation scores."></i></h4><div id="popupResonanceGaugeContainer" role="meter" aria-valuemin="0" aria-valuemax="10" aria-valuenow="5" aria-labelledby="resonance-label-text"><div id="popupResonanceGaugeBar" style="width: 50%;"></div><span id="popupResonanceGaugeLabel" class="popup-resonance-gauge-label" aria-hidden="true">Moderate</span></div><small id="popupResonanceGaugeText" aria-describedby="resonance-heading">Some similarities.</small></section>
+                <section class="popup-section" aria-labelledby="overview-heading"><h4 id="overview-heading">Overview</h4><p id="popupBriefDescription" class="popup-brief-desc">Brief flavour text here...</p></section>
+                <section class="popup-section" aria-labelledby="elaboration-heading"><h4 id="elaboration-heading">Elaboration</h4><p id="popupDetailedDescription" class="popup-detailed-desc">Loading description...</p></section>
+                <section class="popup-section popup-related-concepts-section" aria-labelledby="related-heading"><h4 id="related-heading">Synergies / Related <i class="fas fa-info-circle info-icon" title="Concepts with thematic/functional relationships. Focusing synergistic concepts may unlock content."></i></h4><div id="popupRelatedConceptsTags" class="related-concepts-tags"><p><i>None specified.</i></p></div></section>
+            </div>
+        </div>
+        <div class="popup-collapsible-area">
+            <details id="popupLoreSection" class="collapsible-popup-section hidden"><summary>Lore Insights <i class="fas fa-scroll" aria-hidden="true"></i></summary><div id="popupLoreContent" class="collapsible-content" aria-live="polite"></div></details>
+            <details id="popupRecipeDetails" class="collapsible-popup-section"><summary>Elemental Recipe <i class="fas fa-flask" aria-hidden="true"></i></summary><div class="collapsible-content"><div id="popupComparisonHighlights" aria-live="polite"></div><details class="element-details"><summary>View Full Score Comparison</summary><div class="profile-comparison"><div class="profile-column"><h5>Concept Scores</h5><div id="popupConceptProfile"></div></div><div class="profile-column"><h5>Your Scores</h5><div id="popupUserComparisonProfile"></div></div></div></details></div></details>
+            <details id="myNotesSection" class="collapsible-popup-section my-notes-section"><summary>My Notes <i class="fas fa-pencil-alt" aria-hidden="true"></i></summary><div class="collapsible-content"><label for="myNotesTextarea" class="visually-hidden">Personal Notes</label><textarea id="myNotesTextarea" rows="3" placeholder="Add your personal reflections here..."></textarea><button id="saveMyNoteButton" class="button small-button btn">Save Note</button><span id="noteSaveStatus" class="note-status" aria-live="assertive"></span></div></details>
+        </div>
+        <div class="popup-actions"><button id="addToGrimoireButton" class="button small-button add-grimoire-button btn hidden" title="Add this Concept to your permanent Grimoire collection.">Add to Grimoire</button><button id="markAsFocusButton" class="button small-button focus-button hidden btn" title="Toggle whether this Concept contributes to your Persona Tapestry.">Mark as Focus</button> <!-- Sell button added dynamically by JS --></div>
+      </div>
+
+      <!-- Research Results Popup -->
+      <div id="researchResultsPopup" class="popup hidden research-results-popup card" role="dialog" aria-modal="true" aria-labelledby="research-results-heading">
+        <button id="closeResearchResultsPopupButton" class="close-button" disabled title="Make a choice for all concepts first" aria-label="Close Research Results">×</button>
+        <h3 id="research-results-heading">Research Findings</h3><div id="researchPopupContent" class="research-popup-content" aria-live="polite"><p><i>Processing research...</i></p></div>
+        <div class="popup-actions research-popup-actions"><small id="researchPopupStatus" aria-live="polite">Choose an action for each finding above.</small><button id="confirmResearchChoicesButton" class="button small-button hidden btn">Confirm & Close</button></div>
+      </div>
+
+      <!-- Reflection Modal -->
+      <div id="reflectionModal" class="popup hidden reflection-modal card" role="dialog" aria-modal="true" aria-labelledby="reflectionModalTitle">
+        <button id="closeReflectionModalButton" class="close-button" aria-label="Close Reflection">×</button>
+        <h3 id="reflectionModalTitle">Moment for Reflection <i class="fas fa-info-circle info-icon" title="Pause and consider the presented prompt. Check the box once you've genuinely reflected. Confirming grants Insight and potentially Attunement."></i></h3><p>Regarding <strong id="reflectionElement">[Element/Concept]</strong>:</p><p id="reflectionPromptText" class="prompt-text">Prompt text...</p><div class="reflection-confirm form-group"><input type="checkbox" id="reflectionCheckbox"><label for="reflectionCheckbox">I have taken a moment to reflect on this.</label><br><input type="checkbox" id="scoreNudgeCheckbox" class="hidden"><label for="scoreNudgeCheckbox" id="scoreNudgeLabel" class="hidden score-nudge-label" title="If checked (only available for Dissonance reflections), completing this reflection may slightly adjust your Core Foundation scores towards this Concept's profile.">Allow this reflection to potentially nudge your core understanding?</label></div><button id="confirmReflectionButton" class="button small-button btn" disabled>Confirm Reflection (+<span id="reflectionRewardAmount">?</span> <i class="fas fa-brain insight-icon"></i>)</button>
+      </div>
+
+      <!-- Settings Popup -->
+      <div id="settingsPopup" class="popup hidden settings-popup card" role="dialog" aria-modal="true" aria-labelledby="settings-heading">
+        <button id="closeSettingsPopupButton" class="close-button" aria-label="Close Settings">×</button>
+        <h3 id="settings-heading">Settings <i class="fas fa-info-circle info-icon" title="Manage your session data. 'Force Save' manually triggers saving. 'Reset All Progress' completely wipes your saved data (use with caution!)."></i></h3><div class="settings-content"><p>Manage your session data.</p><button id="forceSaveButton" class="button small-button btn">Force Save</button><button id="resetAppButton" class="button small-button back-button btn">Reset All Progress</button><p class="reset-warning"><strong>Warning:</strong> Resetting will erase all scores, discovered concepts, insight, and progress permanently.</p></div>
+      </div>
+
+       <!-- Tapestry Deep Dive Modal -->
+      <div id="tapestryDeepDiveModal" class="popup hidden resonance-chamber-modal card" role="dialog" aria-modal="true" aria-labelledby="deepDiveTitle">
+        <button id="closeDeepDiveButton" class="close-button" aria-label="Close Resonance Chamber">×</button><div class="popup-header"><h3 id="deepDiveTitle">Resonance Chamber</h3></div>
+        <div class="resonance-chamber-content"><div class="resonance-chamber-summary"><h4>Weaver's Summary</h4><p id="deepDiveNarrativeP" aria-live="polite">Loading narrative...</p><div class="focused-concepts-icons" id="deepDiveFocusIcons" aria-label="Icons representing focused concepts"></div></div><hr class="popup-hr"><div class="resonance-chamber-main"><nav class="aspects-navigation" id="deepDiveAnalysisNodes" aria-label="Tapestry Aspects"><h4>Aspects of the Weave</h4><button class="aspect-node button small-button btn" data-node-id="elemental" aria-controls="deepDiveDetailContent"><i class="fas fa-atom" aria-hidden="true"></i> Elemental Flow</button><button class="aspect-node button small-button btn" data-node-id="archetype" aria-controls="deepDiveDetailContent"><i class="fas fa-mask" aria-hidden="true"></i> Concept Archetype</button><button class="aspect-node button small-button btn" data-node-id="synergy" aria-controls="deepDiveDetailContent"><i class="fas fa-link" aria-hidden="true"></i> Synergy & Tension</button><button id="contemplationNode" class="aspect-node button small-button contemplation-node btn" data-node-id="contemplation" aria-controls="deepDiveDetailContent"><i class="fas fa-brain" aria-hidden="true"></i> Focusing Lens (<span class="contemplation-cost">?</span> <i class="fas fa-brain insight-icon"></i>)</button></nav><div class="insight-scroll-panel" id="deepDiveDetailContent" role="region" aria-live="polite"><p><i>Select an Aspect to explore...</i></p></div></div></div>
+      </div>
+
+      <!-- Dilemma Modal -->
+      <div id="dilemmaModal" class="popup hidden reflection-modal card" role="dialog" aria-modal="true" aria-labelledby="dilemma-heading">
+        <button id="closeDilemmaModalButton" class="close-button" aria-label="Close Dilemma">×</button><h3 id="dilemma-heading">Elemental Dilemma</h3><p id="dilemmaSituationText">Situation description...</p><hr class="popup-hr"><p id="dilemmaQuestionText">Question text...</p><div class="slider-container" style="max-width: 90%; margin: 20px auto;"><label for="dilemmaSlider" class="visually-hidden">Dilemma Choice Slider</label><input type="range" id="dilemmaSlider" class="slider" min="0" max="10" step="0.5" value="5"><div class="label-container"><span id="dilemmaSliderMinLabel" class="label-text">Min Label</span><span id="dilemmaSliderMaxLabel" class="label-text">Max Label</span></div><p class="value-text" aria-live="polite">Leaning: <span id="dilemmaSliderValueDisplay">Balanced</span></p></div><div class="reflection-confirm form-group"><input type="checkbox" id="dilemmaNudgeCheckbox"><label for="dilemmaNudgeCheckbox" title="Allow this choice to slightly influence your Core Foundation scores?">Allow Score Nudge?</label></div><button id="confirmDilemmaButton" class="button small-button btn">Confirm Choice (+3 <i class="fas fa-brain insight-icon"></i>)</button>
+      </div>
+
+      <!-- Info Popup -->
+      <div id="infoPopup" class="popup hidden info-popup card" role="alertdialog" aria-modal="true" aria-labelledby="info-heading">
+        <button id="closeInfoPopupButton" class="close-button" aria-label="Close Information">×</button><div class="popup-header"><h3 id="info-heading">Information</h3></div><div class="popup-content"><p id="infoPopupContent">Info text goes here.</p></div><div class="popup-actions"><button id="confirmInfoPopupButton" class="button small-button btn">OK</button></div>
+      </div>
+
+      <!-- Onboarding Popup -->
+      <div id="onboardingOverlay" class="overlay hidden" aria-hidden="true">
+        <div id="onboardingPopup" class="popup onboarding-popup hidden card" role="dialog" aria-modal="true" aria-labelledby="onboarding-heading">
+            <h2 id="onboarding-heading">Orientation</h2><div id="onboardingContent"><p>Loading orientation steps...</p></div><p class="onboarding-progress"><span id="onboardingProgress">Step ? of ?</span></p><div class="onboarding-nav"><button id="onboardingSkipButton" class="skip-button">Skip Orientation</button><div><button id="onboardingPrevButton" class="button small-button back-button btn" disabled>Previous</button><button id="onboardingNextButton" class="button small-button btn">Next</button></div></div>
+        </div>
+      </div>
+
+      <!-- Alerts & Toasts -->
+      <div id="milestoneAlert" class="milestone-alert hidden card" role="alert"><span id="milestoneAlertText">Milestone Reached!</span><button id="closeMilestoneAlertButton" aria-label="Close Milestone Alert">×</button></div>
+      <div id="toastNotification" class="toast hidden card" role="status" aria-live="polite"><span id="toastMessage">Message text here</span></div>
+
+    </div> <!-- End App Container -->
+
+    <!-- Placeholder for popup error workaround -->
+    <div id="popupResonanceGaugeSection" style="display:none;"></div>
+    <script> window.popupResonanceGaugeSection = document.getElementById('popupResonanceGaugeSection'); </script>
+
+    <!-- Load Scripts (Type Module) -->
+    <script src="data.js" type="module" defer></script>
+    <script src="js/config.js" type="module" defer></script>
+    <script src="js/utils.js" type="module" defer></script>
+    <script src="js/state.js" type="module" defer></script>
+    <script src="js/ui.js" type="module" defer></script> <!-- Drawer/Theme JS integrated here -->
+    <script src="js/gameLogic.js" type="module" defer></script>
+    <script src="main.js" type="module" defer></script>
+
+    <!-- Inline Styles (Accessibility & Minimal Layout Helpers) -->
+    <style>
+        .visually-hidden { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0, 0, 0, 0); border: 0; }
+        .log-hidden { display: none; }
+        .onboarding-highlight { position: fixed; border: 3px dashed var(--accent-color, #ffd700); border-radius: 5px; box-shadow: 0 0 15px rgba(255, 216, 0, 0.7); pointer-events: none; z-index: 1049; transition: all 0.3s ease-in-out; display: none; }
+        #onboardingOverlay.visible { display: flex; opacity: 1; }
+        /* Ensure transparent canvas bg for chart */
+        canvas#personaScoreChartCanvas { background-color: transparent !important; }
+        .hidden-by-flow { display: none; } /* Class to hide elements based on game flow (e.g., questionnaire completion) */
+        .clickable { cursor: pointer; }
+    </style>
+
+</body>
+</html>
