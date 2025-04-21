@@ -1,25 +1,5 @@
-Understood. Skipping `data.js`.
 
-Here is the corrected and complete content for **`ui.js`**.
 
-**Changes Made:**
-
-1.  **DOM Element Checks:** Added `if (!element)` checks after `getElementById` calls for critical UI elements (popups, containers, buttons) to prevent errors if an element ID is mistyped or the element isn't rendered yet. Logged warnings if elements are missing.
-2.  **`displayPersonaScreen` Logic:** Corrected the internal call to `displayElementDeepDive` (it was calling `GameLogic.displayPersonaScreenLogic` recursively). Ensured the accordion header button listener correctly toggles the necessary attributes/classes.
-3.  **`updateDependentUI`:** Improved robustness by adding checks for the existence of button elements and containers before attempting to modify their properties or query children.
-4.  **`displayGrimoire`:** Ensured `elementKeyToFullName` map is checked before use. Added validation for the `filterElement` parameter.
-5.  **`renderCard`:** Included checks for `elementKeyToFullName` and `elementDetails` maps before using them. Added `try...catch` around `setData` in drag/drop listeners for robustness (though errors here are less common). Added `draggable="true"` attribute directly in `displayGrimoire` when appending the card.
-6.  **`displayPopupLore`:** Added validation to ensure `loreData` is an array before iterating.
-7.  **`showConceptDetailPopup`:** Included checks for `elementDetails` map before calculating resonance.
-8.  **`displayTapestryDeepDive`:** Added checks for `elementDetails` and `elementKeyToFullName` maps before using them in icon/tooltip generation.
-9.  **`displayElementalDilemma`:** Added checks for the existence of all required modal elements before attempting to populate them.
-10. **Onboarding UI:** Added checks for the existence of onboarding UI elements before manipulating them in `showOnboarding` and `hideOnboarding`. Added error handling in `showOnboarding` if the task definition is missing.
-11. **Null Checks for State:** Added checks in functions like `refreshGrimoireDisplay` and `setupInitialUI` to ensure state-dependent elements (like filter dropdowns) exist before accessing their values.
-12. **Accordion Accessibility:** Ensured the accordion button (`.accordion-header`) correctly manages `aria-expanded` and the body (`.accordion-body`) has `role="region"` and `aria-labelledby`.
-13. **Clearer Logging:** Added more specific console warnings/errors when elements are missing.
-14. **Removed Duplicate Function:** Removed the duplicated `updateSuggestSceneButtonState` function.
-
-```javascript
 // --- START OF FILE ui.js ---
 
 // js/ui.js - User Interface Logic (Enhanced v4.10 + Drawer/Accordion/Layout Fixes - Corrected)
