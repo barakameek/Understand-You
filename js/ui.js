@@ -1,36 +1,34 @@
-// --- START OF FILE ui.js ---
-
-// js/ui.js - User Interface Logic (Enhanced v4.10 + Drawer/Accordion/Layout Fixes - Corrected v2)
+// js/ui.js - User Interface Logic (Enhanced v4.10 + Drawer/Accordion/Layout Fixes - Corrected v3)
 
 import * as State from './state.js';
 import * as Config from './config.js';
 import * as Utils from './utils.js';
-import * as GameLogic from './gameLogic.js'; // Keep GameLogic import for helper calls like distance/scores
+import * as GameLogic from './gameLogic.js';
 import {
     elementDetails, elementKeyToFullName,
     concepts, questionnaireGuided,
     reflectionPrompts, elementDeepDive, dailyRituals, milestones, focusRituals,
     sceneBlueprints, alchemicalExperiments, elementalInsights, focusDrivenUnlocks,
-    cardTypeKeys, elementNames, // Includes RoleFocus ("Attraction", etc.)
+    cardTypeKeys, elementNames,
     grimoireShelves, elementalDilemmas, onboardingTasks
 } from '../data.js';
 
-console.log("ui.js loading... (Enhanced v4.10 + Drawer/Accordion/Layout Fixes - Corrected v2)");
+console.log("ui.js loading... (Enhanced v4.10 + Drawer/Accordion/Layout Fixes - Corrected v3)");
 
 // --- Helper Function for Image Errors ---
 function handleImageError(imgElement) {
     console.warn(`Image failed to load: ${imgElement?.src}. Displaying placeholder.`);
     if (imgElement) {
-        imgElement.style.display = 'none'; // Hide broken img
-        const visualContainer = imgElement.closest('.card-visual, .popup-visual'); // Find parent container
+        imgElement.style.display = 'none';
+        const visualContainer = imgElement.closest('.card-visual, .popup-visual');
         const placeholder = visualContainer?.querySelector('.card-visual-placeholder');
         if (placeholder) {
-            placeholder.style.display = 'flex'; // Ensure placeholder is visible (flex for centering icon)
+            placeholder.style.display = 'flex';
             placeholder.title = `Art Placeholder (Load Failed: ${imgElement.src?.split('/')?.pop() || 'unknown'})`;
         }
     }
 }
-window.handleImageError = handleImageError; // Make accessible globally for onerror
+window.handleImageError = handleImageError;
 
 
 // --- DOM Element References ---
@@ -50,14 +48,12 @@ const drawerToggle = getElement('drawerToggle');
 const sideDrawer = getElement('sideDrawer');
 const drawerSettingsButton = getElement('drawerSettings');
 const drawerThemeToggle = getElement('drawerThemeToggle');
-const drawerGrimoireCountSpan = getElement('drawerGrimoireCount'); // Drawer specific count
+const drawerGrimoireCountSpan = getElement('drawerGrimoireCount');
 
-// Welcome Screen
+// ... (rest of DOM element references remain the same) ...
 const welcomeScreen = getElement('welcomeScreen');
 const loadButton = getElement('loadButton');
 const startGuidedButton = getElement('startGuidedButton');
-
-// Questionnaire Screen
 const questionnaireScreen = getElement('questionnaireScreen');
 const elementProgressHeader = getElement('elementProgressHeader');
 const questionContent = getElement('questionContent');
@@ -68,8 +64,6 @@ const feedbackScoreSpan = getElement('feedbackScore');
 const feedbackScoreBar = getElement('feedbackScoreBar');
 const prevElementButton = getElement('prevElementButton');
 const nextElementButton = getElement('nextElementButton');
-
-// Persona Screen
 const personaScreen = getElement('personaScreen');
 const personaDetailedView = getElement('personaDetailedView');
 const personaSummaryView = getElement('personaSummaryView');
@@ -94,12 +88,10 @@ const sceneSuggestCostDisplay = getElement('sceneSuggestCostDisplay');
 const deepDiveTriggerButton = getElement('deepDiveTriggerButton');
 const sceneSuggestionOutput = getElement('sceneSuggestionOutput');
 const suggestedSceneContent = getElement('suggestedSceneContent');
-
-// Workshop Screen
 const workshopScreen = getElement('workshopScreen');
 const userInsightDisplayWorkshop = getElement('userInsightDisplayWorkshop');
-const researchBenchArea = getElement('workshop-research-area'); // Container for research chips
-const elementResearchButtonsContainer = getElement('element-research-buttons'); // Specific container for buttons
+const researchBenchArea = getElement('workshop-research-area');
+const elementResearchButtonsContainer = getElement('element-research-buttons');
 const dailyActionsContainer = getElement('daily-actions');
 const freeResearchButtonWorkshop = getElement('freeResearchButtonWorkshop');
 const seekGuidanceButtonWorkshop = getElement('seekGuidanceButtonWorkshop');
@@ -115,8 +107,6 @@ const grimoireSearchInputWorkshop = getElement('grimoireSearchInputWorkshop');
 const grimoireFocusFilterWorkshop = getElement('grimoireFocusFilterWorkshop');
 const grimoireShelvesWorkshop = getElement('grimoire-shelves-workshop');
 const grimoireGridWorkshop = getElement('grimoire-grid-workshop');
-
-// Repository Screen
 const repositoryScreen = getElement('repositoryScreen');
 const repositoryFocusUnlocksDiv = getElement('repositoryFocusUnlocks')?.querySelector('.repo-list');
 const repositoryScenesDiv = getElement('repositoryScenes')?.querySelector('.repo-list');
@@ -124,8 +114,6 @@ const repositoryExperimentsDiv = getElement('repositoryExperiments')?.querySelec
 const repositoryInsightsDiv = getElement('repositoryInsights')?.querySelector('.repo-list');
 const milestonesDisplay = getElement('milestonesDisplay');
 const dailyRitualsDisplayRepo = getElement('dailyRitualsDisplayRepo');
-
-// Concept Detail Popup
 const conceptDetailPopup = getElement('conceptDetailPopup');
 const popupCardTypeIcon = getElement('popupCardTypeIcon');
 const popupConceptName = getElement('popupConceptName');
@@ -151,15 +139,11 @@ const saveMyNoteButton = getElement('saveMyNoteButton');
 const noteSaveStatusSpan = getElement('noteSaveStatus');
 const addToGrimoireButton = getElement('addToGrimoireButton');
 const markAsFocusButton = getElement('markAsFocusButton');
-
-// Research Results Popup
 const researchResultsPopup = getElement('researchResultsPopup');
 const researchPopupContent = getElement('researchPopupContent');
 const closeResearchResultsPopupButton = getElement('closeResearchResultsPopupButton');
 const researchPopupStatus = getElement('researchPopupStatus');
 const confirmResearchChoicesButton = getElement('confirmResearchChoicesButton');
-
-// Reflection Modal
 const reflectionModal = getElement('reflectionModal');
 const reflectionModalTitle = getElement('reflectionModalTitle');
 const closeReflectionModalButton = getElement('closeReflectionModalButton');
@@ -170,14 +154,10 @@ const scoreNudgeCheckbox = getElement('scoreNudgeCheckbox');
 const scoreNudgeLabel = getElement('scoreNudgeLabel');
 const confirmReflectionButton = getElement('confirmReflectionButton');
 const reflectionRewardAmount = getElement('reflectionRewardAmount');
-
-// Settings Popup
 const settingsPopup = getElement('settingsPopup');
 const closeSettingsPopupButton = getElement('closeSettingsPopupButton');
 const forceSaveButton = getElement('forceSaveButton');
 const resetAppButton = getElement('resetAppButton');
-
-// Tapestry Deep Dive Modal
 const tapestryDeepDiveModal = getElement('tapestryDeepDiveModal');
 const deepDiveTitle = getElement('deepDiveTitle');
 const closeDeepDiveButton = getElement('closeDeepDiveButton');
@@ -186,8 +166,6 @@ const deepDiveFocusIcons = getElement('deepDiveFocusIcons');
 const deepDiveAnalysisNodesContainer = getElement('deepDiveAnalysisNodes');
 const deepDiveDetailContent = getElement('deepDiveDetailContent');
 const contemplationNodeButton = getElement('contemplationNode');
-
-// Dilemma Modal
 const dilemmaModal = getElement('dilemmaModal');
 const closeDilemmaModalButton = getElement('closeDilemmaModalButton');
 const dilemmaSituationText = getElement('dilemmaSituationText');
@@ -198,14 +176,10 @@ const dilemmaSliderMaxLabel = getElement('dilemmaSliderMaxLabel');
 const dilemmaSliderValueDisplay = getElement('dilemmaSliderValueDisplay');
 const dilemmaNudgeCheckbox = getElement('dilemmaNudgeCheckbox');
 const confirmDilemmaButton = getElement('confirmDilemmaButton');
-
-// Info Popup
 const infoPopupElement = getElement('infoPopup');
 const infoPopupContent = getElement('infoPopupContent');
 const closeInfoPopupButton = getElement('closeInfoPopupButton');
 const confirmInfoPopupButton = getElement('confirmInfoPopupButton');
-
-// Onboarding Elements
 const onboardingOverlay = getElement('onboardingOverlay');
 const onboardingPopup = getElement('onboardingPopup');
 const onboardingContent = getElement('onboardingContent');
@@ -215,41 +189,38 @@ const onboardingNextButton = getElement('onboardingNextButton');
 const onboardingSkipButton = getElement('onboardingSkipButton');
 const onboardingHighlight = getElement('onboardingHighlight');
 
+
 // --- Module-level Variables ---
-let personaChartInstance = null; // To store the Chart.js instance
-let toastTimeout = null; // For clearing toast timeouts
-let milestoneTimeout = null; // For clearing milestone timeouts
-let insightBoostTimeoutId = null; // For insight boost cooldown timer
-let contemplationTimeoutId = null; // For contemplation cooldown timer
-let previousScreenId = 'welcomeScreen'; // Track previously active screen
+let personaChartInstance = null;
+let toastTimeout = null;
+let milestoneTimeout = null;
+let insightBoostTimeoutId = null;
+let contemplationTimeoutId = null;
+let previousScreenId = 'welcomeScreen';
 
 // --- Utility UI Functions ---
 
 /** Displays a short notification message (toast). */
 export function showTemporaryMessage(message, duration = Config.TOAST_DURATION, isGuidance = false) {
     if (!toastElement || !toastMessageElement) { console.warn("Toast elements missing:", message); return; }
-    console.info(`Toast: ${message}`); // Log message for debugging
+    console.info(`Toast: ${message}`);
     toastMessageElement.textContent = message;
-    toastElement.classList.toggle('guidance-toast', isGuidance); // Optional different style
+    toastElement.classList.toggle('guidance-toast', isGuidance);
 
-    // Clear previous timeout and reset classes for animation replay
     if (toastTimeout) clearTimeout(toastTimeout);
-    toastElement.classList.remove('hidden', 'visible'); // Remove classes
-    void toastElement.offsetWidth; // Trigger reflow to restart animation
+    toastElement.classList.remove('hidden', 'visible');
+    void toastElement.offsetWidth;
 
-    // Show the toast
     toastElement.classList.add('visible');
-    toastElement.classList.remove('hidden'); // Ensure hidden is removed
+    toastElement.classList.remove('hidden');
 
-    // Set timeout to hide the toast
     toastTimeout = setTimeout(() => {
         toastElement.classList.remove('visible');
-        // Add hidden back after transition ends (approx 0.5s based on typical CSS)
         setTimeout(() => {
-            if (toastElement && !toastElement.classList.contains('visible')) { // Check again in case another toast triggered
+            if (toastElement && !toastElement.classList.contains('visible')) {
                  toastElement.classList.add('hidden');
             }
-        }, 500); // Adjust delay based on CSS transition duration
+        }, 500);
         toastTimeout = null;
     }, duration);
 }
@@ -271,44 +242,30 @@ export function hideMilestoneAlert() {
 
 /** Hides all popups and the overlay, except for pending research or active onboarding. */
 export function hidePopups() {
-    // console.log("UI: hidePopups called"); // Reduce noise
     let researchPopupIsOpenAndPending = false;
-    // Check if research popup is open and has unprocessed items
     if (researchResultsPopup && !researchResultsPopup.classList.contains('hidden')) {
         const pendingItems = researchPopupContent?.querySelectorAll('.research-result-item[data-processed="false"], .research-result-item[data-choice-made="pending_dissonance"]');
         if (pendingItems && pendingItems.length > 0) {
             researchPopupIsOpenAndPending = true;
-            // console.log(`UI: Keeping research results popup open (${pendingItems.length} items pending).`); // Reduce noise
         }
     }
 
-    // Hide all popups unless it's the research popup and it's pending, or it's the onboarding popup
     document.querySelectorAll('.popup:not(.onboarding-popup)').forEach(popup => {
         if (!(popup.id === 'researchResultsPopup' && researchPopupIsOpenAndPending)) {
             popup.classList.add('hidden');
         }
     });
 
-    // Check if any general popups are still visible OR if onboarding is active
     const anyGeneralPopupVisible = document.querySelector('.popup:not(.hidden):not(.onboarding-popup)');
-    const onboardingActive = onboardingOverlay && onboardingOverlay.classList.contains('visible'); // Check visibility class
+    const onboardingActive = onboardingOverlay && onboardingOverlay.classList.contains('visible');
 
-    // Hide the main overlay ONLY if no general popups are visible AND onboarding is NOT active
     if (!anyGeneralPopupVisible && popupOverlay && !onboardingActive) {
         popupOverlay.classList.add('hidden');
-        // Clear temporary game logic state associated with popups
         if (typeof GameLogic !== 'undefined' && GameLogic.clearPopupState) {
             GameLogic.clearPopupState();
-            // console.log("UI: All general popups hidden, cleared popup logic state."); // Reduce noise
         }
-    } else if (anyGeneralPopupVisible) {
-         // console.log("UI: Some general popups remain visible, overlay kept."); // Reduce noise
-    } else if (onboardingActive) {
-         // console.log("UI: Onboarding is visible, keeping popup overlay potentially active."); // Reduce noise
-         // Ensure the main overlay IS hidden if onboarding is handling its own overlay
-         if (onboardingOverlay && popupOverlay) {
-             popupOverlay.classList.add('hidden'); // Ensure standard overlay hidden when onboarding has its own
-         }
+    } else if (onboardingActive && popupOverlay) {
+         popupOverlay.classList.add('hidden');
     }
 }
 
@@ -318,26 +275,24 @@ export function showInfoPopup(message) {
     if (infoPopupElement && infoPopupContent) {
         infoPopupContent.textContent = message;
         infoPopupElement.classList.remove('hidden');
-        // Show the main overlay if onboarding isn't active
         const onboardingActive = onboardingOverlay && onboardingOverlay.classList.contains('visible');
         if (popupOverlay && !onboardingActive) {
             popupOverlay.classList.remove('hidden');
         }
     } else {
         console.error("Info popup elements (#infoPopup, #infoPopupContent) not found.");
-        showTemporaryMessage("Error displaying information.", 2000); // Fallback
+        showTemporaryMessage("Error displaying information.", 2000);
     }
 }
 
 
 // --- Screen Management ---
 
-// ** MOVED updateDrawerLinks FUNCTION HERE **
+// ** ADDED export HERE **
 /** Helper function to update drawer link visibility */
-function updateDrawerLinks() {
+export function updateDrawerLinks() {
   const done = State.getState().questionnaireCompleted;
   if(sideDrawer) {
-      // Toggle visibility for links that require questionnaire completion
       sideDrawer.querySelectorAll('.drawer-link.hidden-by-flow')
         .forEach(btn => btn.classList.toggle('hidden', !done));
   } else {
@@ -363,7 +318,6 @@ export function showScreen(screenId) {
         }
         screenId = 'welcomeScreen'; // Update screenId to reflect fallback
     } else {
-        // Hide all screens, then show the target
         screens.forEach(screen => {
             if (screen) {
                 screen.classList.add('hidden');
@@ -375,23 +329,20 @@ export function showScreen(screenId) {
         console.log(`UI: Screen ${screenId} activated.`);
     }
 
-    // Update Drawer Link States & Visibility
-    updateDrawerLinks(); // Call the function now defined in this scope
+    updateDrawerLinks(); // Ensure visibility is correct
+
     if (sideDrawer) {
         sideDrawer.querySelectorAll('.drawer-link[data-target]').forEach(button => {
             button?.classList.toggle('active', button.dataset.target === screenId);
         });
     } else { console.warn("Side drawer element not found for active link update."); }
 
-
-    // Call specific display logic AFTER the screen is made visible
     try {
         switch (screenId) {
             case 'personaScreen':
                 if (isPostQuestionnaire) {
                     const justFinishedQuestionnaire = previousScreenId === 'questionnaireScreen';
                     const showDetailed = personaDetailedView?.classList.contains('current') ?? true;
-
                     if (justFinishedQuestionnaire) {
                         togglePersonaView(false);
                     } else {
@@ -405,7 +356,7 @@ export function showScreen(screenId) {
                     displayInsightLog();
                 } else {
                     console.warn("Attempted to access Persona screen before questionnaire completion. Redirecting.");
-                    showScreen('welcomeScreen'); // Recursively call showScreen safely
+                    showScreen('welcomeScreen');
                     return;
                 }
                 break;
@@ -563,9 +514,11 @@ function updateDependentUI() {
                   cost = experiment?.insightCost || Config.EXPERIMENT_BASE_COST;
                   baseTitle = `Attempt ${experiment?.name || 'Experiment'}`;
                   actionLabel = `Attempt (${cost.toFixed(1)})`;
-                  if (button.title && !button.title.includes('Requirements not met')) {
-                       button.title = (insightValue >= cost) ? baseTitle : `${baseTitle} (Requires ${cost.toFixed(1)} Insight)`;
+                  // Check if other reqs are met (crudely based on title not containing "Requires")
+                  const otherReqsMet = button.title ? !button.title.toLowerCase().includes('requires:') : true;
+                  if (otherReqsMet) {
                        button.disabled = insightValue < cost;
+                       button.title = (insightValue >= cost) ? baseTitle : `${baseTitle} (Requires ${cost.toFixed(1)} Insight)`;
                   }
              } else { return; }
              const icon = button.querySelector('i');
@@ -593,12 +546,9 @@ export function displayInsightLog() {
     const logEntries = State.getInsightLog();
     insightLogContainer.innerHTML = '<h5>Recent Insight Changes:</h5>';
     if (!insightLogContainer.hasAttribute('aria-live')) insightLogContainer.setAttribute('aria-live', 'polite');
-
     if (logEntries.length === 0) {
-        insightLogContainer.innerHTML += '<p><i>No recent changes logged.</i></p>';
-        return;
+        insightLogContainer.innerHTML += '<p><i>No recent changes logged.</i></p>'; return;
     }
-
     logEntries.slice().reverse().forEach(entry => {
         const entryDiv = document.createElement('div');
         entryDiv.classList.add('insight-log-entry');
@@ -608,8 +558,7 @@ export function displayInsightLog() {
         entryDiv.innerHTML = `
             <span class="log-timestamp">${entry.timestamp}</span>
             <span class="log-source">${sourceText}</span>
-            <span class="log-amount ${amountClass}">${sign}${entry.amount.toFixed(1)}</span>
-        `;
+            <span class="log-amount ${amountClass}">${sign}${entry.amount.toFixed(1)}</span>`;
         insightLogContainer.appendChild(entryDiv);
     });
 }
@@ -639,11 +588,11 @@ export function updateInsightBoostButtonState() {
 /** Sets up the UI for starting the questionnaire. */
 export function initializeQuestionnaireUI() {
     console.log("UI: Initializing Questionnaire UI");
-    State.updateElementIndex(0); // Ensure state starts at index 0
-    displayElementQuestions(0); // Display first set of questions
-    if (dynamicScoreFeedback) dynamicScoreFeedback.style.display = 'none'; // Hide feedback initially
+    State.updateElementIndex(0);
+    displayElementQuestions(0);
+    if (dynamicScoreFeedback) dynamicScoreFeedback.style.display = 'none';
     else { console.warn("Dynamic score feedback element not found."); }
-    document.documentElement.style.setProperty('--progress-pct', `${(1 / elementNames.length) * 100}%`); // Set initial progress
+    document.documentElement.style.setProperty('--progress-pct', `${(1 / elementNames.length) * 100}%`);
     console.log("UI: Questionnaire UI initialized.");
 }
 
@@ -651,7 +600,7 @@ export function initializeQuestionnaireUI() {
 export function updateElementProgressHeader(activeIndex) {
     if (!elementProgressHeader) { console.error("Element progress header not found."); return; }
     elementProgressHeader.innerHTML = '';
-    elementNames.forEach((elementNameKey, index) => { // Includes RF
+    elementNames.forEach((elementNameKey, index) => {
         const stepDiv = document.createElement('div');
         stepDiv.classList.add('step');
         const elementData = elementDetails[elementNameKey] || {};
@@ -668,19 +617,17 @@ export function updateElementProgressHeader(activeIndex) {
 /** Displays the questions for the element at the given index. */
 export function displayElementQuestions(index) {
     const actualIndex = State.getState().currentElementIndex;
-    // Use actualIndex from state if valid, otherwise use passed index (e.g., for initialization)
     const displayIndex = (actualIndex >= 0 && actualIndex < elementNames.length) ? actualIndex : index;
     console.log(`UI: Displaying Qs for index ${displayIndex}`);
 
     if (displayIndex >= elementNames.length) {
         console.warn(`displayElementQuestions called with index ${displayIndex} >= element count ${elementNames.length}. Finalizing.`);
-        if (typeof GameLogic !== 'undefined' && GameLogic.finalizeQuestionnaire) {
-            GameLogic.finalizeQuestionnaire();
-        } else { console.error("GameLogic or finalizeQuestionnaire not available yet!"); }
+        if (typeof GameLogic !== 'undefined' && GameLogic.finalizeQuestionnaire) { GameLogic.finalizeQuestionnaire(); }
+        else { console.error("GameLogic or finalizeQuestionnaire not available yet!"); }
         return;
     }
 
-    const elementNameKey = elementNames[displayIndex]; // "Attraction", ..., "RoleFocus"
+    const elementNameKey = elementNames[displayIndex];
     const elementData = elementDetails[elementNameKey] || {};
     const fullName = elementData.name || elementNameKey;
     const questions = questionnaireGuided[elementNameKey] || [];
@@ -688,7 +635,6 @@ export function displayElementQuestions(index) {
     if (!questionContent) { console.error("Question content area #questionContent missing!"); return; }
     const elementAnswers = State.getState().userAnswers?.[elementNameKey] || {};
 
-    // --- Build HTML ---
     questionContent.innerHTML = `
         <div class="element-intro">
             <h2>${fullName}</h2>
@@ -708,10 +654,7 @@ export function displayElementQuestions(index) {
                     <div class="slider-container">
                         <label for="${q.qId}" class="visually-hidden">${q.text}</label>
                         <input type="range" id="${q.qId}" class="slider q-input" min="${q.minValue}" max="${q.maxValue}" step="${q.step || 0.5}" value="${sliderValue}" data-question-id="${q.qId}" data-type="slider">
-                        <div class="label-container">
-                            <span class="label-text">${q.minLabel}</span>
-                            <span class="label-text">${q.maxLabel}</span>
-                        </div>
+                        <div class="label-container"><span>${q.minLabel}</span><span>${q.maxLabel}</span></div>
                         <p class="value-text" aria-live="polite">Selected: <span id="display_${q.qId}">${parseFloat(sliderValue).toFixed(1)}</span></p>
                         <p class="slider-feedback" id="feedback_${q.qId}"></p>
                     </div>`;
@@ -719,7 +662,6 @@ export function displayElementQuestions(index) {
                 questionsHTML += `<fieldset class="radio-options"><legend class="visually-hidden">${q.text}</legend>`;
                 q.options.forEach(opt => {
                     const checked = savedAnswer === opt.value ? 'checked' : '';
-                    // Wrap input and label text in a label for better clickability
                     questionsHTML += `<label class="form-group ${checked}" for="${q.qId}_${opt.value}"><input type="radio" id="${q.qId}_${opt.value}" class="q-input" name="${q.qId}" value="${opt.value}" ${checked} data-question-id="${q.qId}" data-type="radio"><span>${opt.value}</span></label>`;
                 });
                 questionsHTML += `</fieldset>`;
@@ -727,22 +669,17 @@ export function displayElementQuestions(index) {
                 questionsHTML += `<fieldset class="checkbox-options"><legend class="visually-hidden">${q.text} (Max ${q.maxChoices || 2})</legend>`;
                 q.options.forEach(opt => {
                     const checked = Array.isArray(savedAnswer) && savedAnswer.includes(opt.value) ? 'checked' : '';
-                    // Wrap input and label text in a label
                     questionsHTML += `<label class="form-group ${checked}" for="${q.qId}_${opt.value}"><input type="checkbox" id="${q.qId}_${opt.value}" class="q-input" name="${q.qId}" value="${opt.value}" ${checked} data-question-id="${q.qId}" data-max-choices="${q.maxChoices || 2}" data-type="checkbox"><span>${opt.value}</span></label>`;
                 });
                 questionsHTML += `</fieldset>`;
             }
             questionsHTML += `</div></div>`;
         });
-    } else {
-        questionsHTML = '<p><i>(Assessment based on general understanding.)</i></p>';
-    }
+    } else { questionsHTML = '<p><i>(Assessment based on general understanding.)</i></p>'; }
     questionContent.innerHTML += questionsHTML;
 
-    // --- Add Listeners Dynamically ---
     questionContent.querySelectorAll('.q-input').forEach(input => {
         const eventType = (input.type === 'range') ? 'input' : 'change';
-        // Remove existing listeners before adding new ones to prevent duplicates
         input.removeEventListener(eventType, handleQuestionnaireInput);
         input.addEventListener(eventType, handleQuestionnaireInput);
     });
@@ -750,82 +687,48 @@ export function displayElementQuestions(index) {
         checkbox.removeEventListener('change', handleCheckboxInput);
         checkbox.addEventListener('change', handleCheckboxInput);
     });
-    // Add listeners to radio/checkbox labels to update their own 'checked' class for styling
      questionContent.querySelectorAll('.radio-options label.form-group, .checkbox-options label.form-group').forEach(label => {
          const input = label.querySelector('input');
          if (input) {
-             // Define named listener function for removal
              const updateLabelClass = () => {
-                 // For radio, remove 'checked' from siblings' labels in the same fieldset
                  if (input.type === 'radio') {
                      const fieldset = label.closest('fieldset');
                      fieldset?.querySelectorAll('label.form-group').forEach(l => l.classList.remove('checked'));
                  }
-                 // Toggle class on the specific label based on input's checked state
                  label.classList.toggle('checked', input.checked);
              };
-             // Remove previous listener if any, then add
              input.removeEventListener('change', updateLabelClass);
              input.addEventListener('change', updateLabelClass);
-             // Initial check state
              label.classList.toggle('checked', input.checked);
          }
      });
 
-    // Initial update for slider feedback text
-    questionContent.querySelectorAll('.slider.q-input').forEach(slider => {
-        updateSliderFeedbackText(slider, elementNameKey);
-    });
+    questionContent.querySelectorAll('.slider.q-input').forEach(slider => { updateSliderFeedbackText(slider, elementNameKey); });
 
-    // --- Update Surrounding UI ---
-    updateDynamicFeedback(elementNameKey, elementAnswers); // Update score preview
-    updateElementProgressHeader(displayIndex); // Update progress bar steps
+    updateDynamicFeedback(elementNameKey, elementAnswers);
+    updateElementProgressHeader(displayIndex);
     if (progressText) progressText.textContent = `Element ${displayIndex + 1} / ${elementNames.length}: ${fullName}`;
     else { console.warn("Progress text element not found."); }
-
     if (prevElementButton) prevElementButton.style.visibility = (displayIndex > 0) ? 'visible' : 'hidden';
     else { console.warn("Previous element button not found."); }
-
     if (nextElementButton) nextElementButton.textContent = (displayIndex === elementNames.length - 1) ? "View Initial Discoveries" : "Next Element";
     else { console.warn("Next element button not found."); }
 
-    // Update progress bar CSS variable
     const pct = ((displayIndex + 1) / elementNames.length) * 100;
     document.documentElement.style.setProperty('--progress-pct', `${pct}%`);
 }
-
-// Named handler functions for adding/removing listeners correctly
-function handleQuestionnaireInput(event) {
-    if (typeof GameLogic !== 'undefined' && GameLogic.handleQuestionnaireInputChange) {
-        GameLogic.handleQuestionnaireInputChange(event);
-    } else { console.error("GameLogic or handleQuestionnaireInputChange not available."); }
-}
-function handleCheckboxInput(event) {
-     if (typeof GameLogic !== 'undefined' && GameLogic.handleCheckboxChange) {
-        GameLogic.handleCheckboxChange(event);
-     } else { console.error("GameLogic or handleCheckboxChange not available."); }
-}
-
 
 /** Updates the descriptive text below a slider based on its value. */
 export function updateSliderFeedbackText(sliderElement, elementNameKey) {
     if (!sliderElement || sliderElement.type !== 'range') return;
     const qId = sliderElement.dataset.questionId;
     const feedbackElement = getElement(`feedback_${qId}`);
-    const display = getElement(`display_${qId}`); // Get value display span
-    if (!feedbackElement || !display) {
-        console.warn(`Feedback or display element missing for slider ${qId}`);
-        return;
-    }
+    const display = getElement(`display_${qId}`);
+    if (!feedbackElement || !display) { console.warn(`Feedback or display element missing for slider ${qId}`); return; }
     const currentValue = parseFloat(sliderElement.value);
-    display.textContent = currentValue.toFixed(1); // Update numerical display
-
+    display.textContent = currentValue.toFixed(1);
     const elementData = elementDetails?.[elementNameKey];
-    if (!elementData?.scoreInterpretations) {
-        console.warn(`Interpretations missing for element: ${elementNameKey}`);
-        feedbackElement.textContent = `(Score: ${currentValue.toFixed(1)})`;
-        return;
-    }
+    if (!elementData?.scoreInterpretations) { console.warn(`Interpretations missing for element: ${elementNameKey}`); feedbackElement.textContent = `(Score: ${currentValue.toFixed(1)})`; return; }
     const interpretations = elementData.scoreInterpretations;
     const scoreLabel = Utils.getScoreLabel(currentValue);
     const interpretationText = interpretations[scoreLabel] || `Interpretation for "${scoreLabel}" not found.`;
@@ -837,43 +740,20 @@ export function updateSliderFeedbackText(sliderElement, elementNameKey) {
 export function updateDynamicFeedback(elementNameKey, currentAnswers) {
     if (!dynamicScoreFeedback || !feedbackElementSpan || !feedbackScoreSpan || !feedbackScoreBar) {
         if(dynamicScoreFeedback) dynamicScoreFeedback.style.display = 'none';
-        console.warn("Dynamic score feedback elements missing.");
-        return;
+        console.warn("Dynamic score feedback elements missing."); return;
     }
     const elementData = elementDetails?.[elementNameKey];
-    if (!elementData) {
-        dynamicScoreFeedback.style.display = 'none';
-        console.warn(`Element data missing for dynamic feedback: ${elementNameKey}`);
-        return;
-    }
-
-    if (typeof GameLogic === 'undefined' || !GameLogic.calculateElementScore) {
-         console.error("GameLogic or calculateElementScore not available for dynamic feedback.");
-         dynamicScoreFeedback.style.display = 'none';
-         return;
-    }
+    if (!elementData) { dynamicScoreFeedback.style.display = 'none'; console.warn(`Element data missing for dynamic feedback: ${elementNameKey}`); return; }
+    if (typeof GameLogic === 'undefined' || !GameLogic.calculateElementScore) { console.error("GameLogic or calculateElementScore not available."); dynamicScoreFeedback.style.display = 'none'; return; }
     const tempScore = GameLogic.calculateElementScore(elementNameKey, currentAnswers);
     const scoreLabel = Utils.getScoreLabel(tempScore);
     const shortName = Utils.getElementShortName(elementData.name || elementNameKey);
-
     feedbackElementSpan.textContent = shortName;
     feedbackScoreSpan.textContent = tempScore.toFixed(1);
-
-    // Ensure the label span exists and update it
-    let labelSpan = feedbackScoreSpan.nextElementSibling; // Assuming label span is immediately after
-    if (!labelSpan || !labelSpan.classList.contains('score-label')) {
-        // If not found or incorrect, try querying more robustly
-        labelSpan = dynamicScoreFeedback.querySelector('.score-label');
-        // If still not found, create and insert it
-        if (!labelSpan) {
-             labelSpan = document.createElement('span');
-             labelSpan.classList.add('score-label');
-             feedbackScoreSpan.parentNode?.insertBefore(labelSpan, feedbackScoreSpan.nextSibling);
-        }
-    }
+    let labelSpan = feedbackScoreSpan.nextElementSibling;
+    if (!labelSpan || !labelSpan.classList.contains('score-label')) { labelSpan = dynamicScoreFeedback.querySelector('.score-label'); if (!labelSpan) { labelSpan = document.createElement('span'); labelSpan.classList.add('score-label'); feedbackScoreSpan.parentNode?.insertBefore(labelSpan, feedbackScoreSpan.nextSibling); } }
     if (labelSpan) labelSpan.textContent = ` (${scoreLabel})`;
-
-    feedbackScoreBar.style.width = `${Math.max(0, Math.min(100, tempScore * 10))}%`; // Clamp width
+    feedbackScoreBar.style.width = `${Math.max(0, Math.min(100, tempScore * 10))}%`;
     dynamicScoreFeedback.style.display = 'block';
 }
 
@@ -881,20 +761,14 @@ export function updateDynamicFeedback(elementNameKey, currentAnswers) {
 /** Reads and returns the current answers from the questionnaire UI. */
 export function getQuestionnaireAnswers() {
     const answers = {};
-    if (!questionContent) {
-        console.error("Cannot get answers: #questionContent missing.");
-        return answers;
-    }
+    if (!questionContent) { console.error("Cannot get answers: #questionContent missing."); return answers; }
     const inputs = questionContent.querySelectorAll('.q-input');
     inputs.forEach(input => {
-        const qId = input.dataset.questionId;
-        const type = input.dataset.type;
-        if (!qId) return;
+        const qId = input.dataset.questionId; const type = input.dataset.type; if (!qId) return;
         if (type === 'slider') { answers[qId] = parseFloat(input.value); }
         else if (type === 'radio') { if (input.checked) { answers[qId] = input.value; } }
         else if (type === 'checkbox') { if (!answers[qId]) { answers[qId] = []; } if (input.checked) { answers[qId].push(input.value); } }
     });
-    // Ensure checkbox arrays exist even if no boxes are checked
     questionContent.querySelectorAll('.checkbox-options').forEach(container => {
         const name = container.querySelector('input[type="checkbox"]')?.name;
         if(name && !answers[name]) { answers[name] = []; }
@@ -903,41 +777,10 @@ export function getQuestionnaireAnswers() {
 }
 
 // --- Persona Action Buttons State ---
-export function updateElementalDilemmaButtonState() {
-    const btn = getElement('elementalDilemmaButton');
-    if (!btn) { console.warn("UI: Elemental Dilemma Button not found!"); return; }
-    const questionnaireCompleted = State.getState().questionnaireCompleted;
-    btn.disabled = !questionnaireCompleted;
-    btn.title = btn.disabled ? "Complete the initial Experimentation first" : "Engage with an Elemental Dilemma for Insight.";
-}
-export function updateExploreSynergyButtonStatus(status) {
-    const btn = getElement('exploreSynergyButton');
-    if (!btn) { console.warn("UI: Explore Synergy Button not found!"); return; }
-    const hasFocus = State.getFocusedConcepts().size >= 2;
-    btn.disabled = !hasFocus;
-    btn.classList.remove('highlight-synergy', 'highlight-tension');
-    btn.textContent = "Explore Synergy";
-    if (!hasFocus) {
-        btn.title = "Focus at least 2 concepts to explore";
-    } else {
-        btn.title = "Explore synergies and tensions between focused concepts";
-        if (status === 'synergy') { btn.classList.add('highlight-synergy'); btn.title += " (Synergy detected!)"; btn.textContent = "Explore Synergy ✨"; }
-        else if (status === 'tension') { btn.classList.add('highlight-tension'); btn.title += " (Tension detected!)"; btn.textContent = "Explore Synergy ⚡"; }
-        else if (status === 'both') { btn.classList.add('highlight-synergy', 'highlight-tension'); btn.title += " (Synergy & Tension detected!)"; btn.textContent = "Explore Synergy 💥"; }
-    }
-}
-export function updateSuggestSceneButtonState() {
-    const btn = getElement('suggestSceneButton');
-    if (!btn) { console.warn("UI: Suggest Scene Button not found!"); return; }
-    const costDisplay = getElement('sceneSuggestCostDisplay');
-    const hasFocus = State.getFocusedConcepts().size > 0;
-    const canAfford = State.getInsight() >= Config.SCENE_SUGGESTION_COST;
-    btn.disabled = !hasFocus || !canAfford;
-    if (!hasFocus) btn.title = "Focus on concepts first";
-    else if (!canAfford) btn.title = `Requires ${Config.SCENE_SUGGESTION_COST.toFixed(1)} Insight`;
-    else btn.title = `Suggest resonant scenes (${Config.SCENE_SUGGESTION_COST.toFixed(1)} Insight)`;
-    if(costDisplay) costDisplay.textContent = Config.SCENE_SUGGESTION_COST.toFixed(1);
-}
+export function updateElementalDilemmaButtonState() { const btn = getElement('elementalDilemmaButton'); if (!btn) { /*console.warn("UI: Elemental Dilemma Button not found!");*/ return; } const questionnaireCompleted = State.getState().questionnaireCompleted; btn.disabled = !questionnaireCompleted; btn.title = btn.disabled ? "Complete the initial Experimentation first" : "Engage with an Elemental Dilemma for Insight."; }
+export function updateExploreSynergyButtonStatus(status) { const btn = getElement('exploreSynergyButton'); if (!btn) return; const hasFocus = State.getFocusedConcepts().size >= 2; btn.disabled = !hasFocus; btn.classList.remove('highlight-synergy', 'highlight-tension'); btn.textContent = "Explore Synergy"; if (!hasFocus) { btn.title = "Focus at least 2 concepts to explore"; } else { btn.title = "Explore synergies and tensions between focused concepts"; if (status === 'synergy') { btn.classList.add('highlight-synergy'); btn.title += " (Synergy detected!)"; btn.textContent = "Explore Synergy ✨"; } else if (status === 'tension') { btn.classList.add('highlight-tension'); btn.title += " (Tension detected!)"; btn.textContent = "Explore Synergy ⚡"; } else if (status === 'both') { btn.classList.add('highlight-synergy', 'highlight-tension'); btn.title += " (Synergy & Tension detected!)"; btn.textContent = "Explore Synergy 💥"; } } }
+export function updateSuggestSceneButtonState() { const btn = getElement('suggestSceneButton'); if (!btn) return; const costDisplay = getElement('sceneSuggestCostDisplay'); const hasFocus = State.getFocusedConcepts().size > 0; const canAfford = State.getInsight() >= Config.SCENE_SUGGESTION_COST; btn.disabled = !hasFocus || !canAfford; if (!hasFocus) btn.title = "Focus on concepts first"; else if (!canAfford) btn.title = `Requires ${Config.SCENE_SUGGESTION_COST.toFixed(1)} Insight`; else btn.title = `Suggest resonant scenes (${Config.SCENE_SUGGESTION_COST.toFixed(1)} Insight)`; if(costDisplay) costDisplay.textContent = Config.SCENE_SUGGESTION_COST.toFixed(1); }
+
 
 // --- Persona Screen UI ---
 
