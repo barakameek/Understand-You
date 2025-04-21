@@ -2,13 +2,12 @@
 
 // js/main.js - Application Entry Point & Event Listener Setup (Enhanced v4.1 + Drawer - Fixed v2)
 
-import * as UI from './js/ui.js';
-import * as State from './js/state.js';
-import * as GameLogic from './js/gameLogic.js';
-import * as Utils from './js/utils.js';
-import * as Config from './js/config.js';
-import { onboardingTasks } from './data.js'; // Import onboarding tasks definitions
-//import { onboardingTasks, elementKeyToFullName } from './data.js'; // Import onboarding tasks & element map
++ import * as UI from './js/ui.js'; // ui.js is inside js/
++ import * as State from './js/state.js'; // state.js is inside js/
++ import * as GameLogic from './js/gameLogic.js'; // gameLogic.js is inside js/
++ import * as Utils from './js/utils.js'; // utils.js is inside js/
++ import * as Config from './js/config.js'; // config.js is inside js/
++ import { onboardingTasks, elementKeyToFullName } from './data.js'; // data.js is at the root (same level as main.js)
 
 console.log("main.js loading... (Enhanced v4.1 + Drawer - Fixed v2)");
 
