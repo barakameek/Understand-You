@@ -1,6 +1,6 @@
 // --- START OF FILE ui.js ---
 
-// js/ui.js - User Interface Logic (Enhanced v4.10 + Drawer/Accordion/Layout Fixes - Corrected)
+// js/ui.js - User Interface Logic (Enhanced v4.10 + Drawer/Accordion/Layout Fixes - Corrected v2)
 
 import * as State from './state.js';
 import * as Config from './config.js';
@@ -15,7 +15,7 @@ import {
     grimoireShelves, elementalDilemmas, onboardingTasks
 } from '../data.js';
 
-console.log("ui.js loading... (Enhanced v4.10 + Drawer/Accordion/Layout Fixes - Corrected)");
+console.log("ui.js loading... (Enhanced v4.10 + Drawer/Accordion/Layout Fixes - Corrected v2)");
 
 // --- Helper Function for Image Errors ---
 function handleImageError(imgElement) {
@@ -332,7 +332,8 @@ export function showInfoPopup(message) {
 
 // --- Screen Management ---
 
-// Helper function to update drawer link visibility based on questionnaire completion
+// ** MOVED updateDrawerLinks FUNCTION HERE **
+/** Helper function to update drawer link visibility */
 function updateDrawerLinks() {
   const done = State.getState().questionnaireCompleted;
   if(sideDrawer) {
@@ -340,7 +341,7 @@ function updateDrawerLinks() {
       sideDrawer.querySelectorAll('.drawer-link.hidden-by-flow')
         .forEach(btn => btn.classList.toggle('hidden', !done));
   } else {
-      console.warn("Side drawer element not found for updating links.");
+      // console.warn("Side drawer element not found for updating links."); // Keep log minimal
   }
 }
 
@@ -375,12 +376,13 @@ export function showScreen(screenId) {
     }
 
     // Update Drawer Link States & Visibility
-    updateDrawerLinks(); // Update visibility based on state
+    updateDrawerLinks(); // Call the function now defined in this scope
     if (sideDrawer) {
         sideDrawer.querySelectorAll('.drawer-link[data-target]').forEach(button => {
             button?.classList.toggle('active', button.dataset.target === screenId);
         });
-    }
+    } else { console.warn("Side drawer element not found for active link update."); }
+
 
     // Call specific display logic AFTER the screen is made visible
     try {
@@ -388,33 +390,29 @@ export function showScreen(screenId) {
             case 'personaScreen':
                 if (isPostQuestionnaire) {
                     const justFinishedQuestionnaire = previousScreenId === 'questionnaireScreen';
-                    // Determine which view (detailed/summary) was last active or default
-                    const showDetailed = personaDetailedView?.classList.contains('current') ?? true; // Default to detailed
+                    const showDetailed = personaDetailedView?.classList.contains('current') ?? true;
 
                     if (justFinishedQuestionnaire) {
-                        togglePersonaView(false); // Show summary view first time after questionnaire
+                        togglePersonaView(false);
                     } else {
-                        // Refresh content of the currently active view
                         if (showDetailed) {
-                            if (typeof GameLogic !== 'undefined' && GameLogic.displayPersonaScreenLogic) {
-                                GameLogic.displayPersonaScreenLogic(); // Refreshes detailed content
-                            } else { console.error("GameLogic or displayPersonaScreenLogic not available yet!"); }
+                            if (typeof GameLogic !== 'undefined' && GameLogic.displayPersonaScreenLogic) { GameLogic.displayPersonaScreenLogic(); }
+                            else { console.error("GameLogic or displayPersonaScreenLogic not available."); }
                         } else {
-                            displayPersonaSummary(); // Refreshes summary content
+                            displayPersonaSummary();
                         }
                     }
-                    displayInsightLog(); // Ensure log is rendered if toggled open
+                    displayInsightLog();
                 } else {
-                    // If trying to access persona before Q is done, redirect
                     console.warn("Attempted to access Persona screen before questionnaire completion. Redirecting.");
-                    showScreen('welcomeScreen');
-                    return; // Stop further processing for this invalid state
+                    showScreen('welcomeScreen'); // Recursively call showScreen safely
+                    return;
                 }
                 break;
             case 'workshopScreen':
                 if (isPostQuestionnaire) {
-                    displayWorkshopScreenContent(); // Populate buttons etc.
-                    refreshGrimoireDisplay(); // Display cards
+                    displayWorkshopScreenContent();
+                    refreshGrimoireDisplay();
                 } else {
                     console.warn("Attempted to access Workshop screen before questionnaire completion. Redirecting.");
                     showScreen('welcomeScreen');
@@ -423,7 +421,7 @@ export function showScreen(screenId) {
                 break;
             case 'repositoryScreen':
                 if (isPostQuestionnaire) {
-                    displayRepositoryContent(); // Populate lists
+                    displayRepositoryContent();
                 } else {
                      console.warn("Attempted to access Repository screen before questionnaire completion. Redirecting.");
                      showScreen('welcomeScreen');
@@ -434,31 +432,29 @@ export function showScreen(screenId) {
                 if (!isPostQuestionnaire) {
                     const index = State.getState().currentElementIndex;
                     if (index >= 0 && index < elementNames.length) {
-                        displayElementQuestions(index); // Display current question
+                        displayElementQuestions(index);
                     } else {
                         console.warn("Questionnaire screen shown but index is invalid:", index);
-                        initializeQuestionnaireUI(); // Reset to start if index bad
+                        initializeQuestionnaireUI();
                     }
                 } else {
                     console.warn("Attempted to show questionnaire screen after completion.");
-                    showScreen('personaScreen'); // Redirect
+                    showScreen('personaScreen');
                     return;
                 }
                 break;
             case 'welcomeScreen':
-                // Ensure hidden-by-flow buttons are hidden on welcome
-                updateDrawerLinks(); // Call helper to hide unavailable links
+                updateDrawerLinks();
                 break;
         }
     } catch (error) {
         console.error(`Error during display logic for screen ${screenId}:`, error);
     }
 
-    // Scroll to top for main content screens
     if (['questionnaireScreen', 'workshopScreen', 'personaScreen', 'repositoryScreen'].includes(screenId)) {
         window.scrollTo(0, 0);
     }
-    previousScreenId = screenId; // Track the last shown screen
+    previousScreenId = screenId;
 }
 
 /** Toggles the side drawer open/closed */
@@ -467,10 +463,9 @@ export function toggleDrawer() {
     const isOpen = sideDrawer.classList.toggle('open');
     drawerToggle.setAttribute('aria-expanded', isOpen);
     sideDrawer.setAttribute('aria-hidden', !isOpen);
-    // Toggle overlay based on drawer state only if onboarding is not active
     const onboardingActive = onboardingOverlay && onboardingOverlay.classList.contains('visible');
     if (popupOverlay && !onboardingActive) {
-        popupOverlay.classList.toggle('hidden', !isOpen); // Show overlay when drawer is open
+        popupOverlay.classList.toggle('hidden', !isOpen);
     }
 }
 
@@ -484,7 +479,7 @@ export function updateInsightDisplays() {
     if (userInsightDisplayPersona) {
         userInsightDisplayPersona.textContent = insight;
         if (!userInsightDisplayPersona.hasAttribute('aria-live')) {
-             userInsightDisplayPersona.setAttribute('aria-live', 'polite'); // Add for screen readers
+             userInsightDisplayPersona.setAttribute('aria-live', 'polite');
         }
     }
     if (userInsightDisplayWorkshop) {
@@ -493,12 +488,10 @@ export function updateInsightDisplays() {
               userInsightDisplayWorkshop.setAttribute('aria-live', 'polite');
          }
     } else {
-         console.warn("Workshop insight display element not found.");
+         // console.warn("Workshop insight display element not found."); // Reduce noise
     }
-    updateInsightBoostButtonState(); // Update cooldown button state
-    updateDependentUI(); // Update UI elements dependent on insight amount
-
-    // Refresh insight log only if it's currently potentially visible
+    updateInsightBoostButtonState();
+    updateDependentUI();
     if (personaScreen?.classList.contains('current') && insightLogContainer && !insightLogContainer.classList.contains('log-hidden')) {
         displayInsightLog();
     }
@@ -507,26 +500,22 @@ export function updateInsightDisplays() {
 /** Updates UI elements whose state depends on the current Insight amount. */
 function updateDependentUI() {
     const insightValue = State.getInsight();
-
-    // Workshop Research Buttons (Cost check) - Now targets specific container
     const researchBtnsContainer = getElement('element-research-buttons');
     if (researchBtnsContainer) {
         researchBtnsContainer.querySelectorAll('.initial-discovery-element').forEach(buttonCard => {
             const cost = parseFloat(buttonCard.dataset.cost);
             const canAfford = insightValue >= cost;
-            const isFree = buttonCard.dataset.isFree === 'true'; // Check if it's a free attempt button
+            const isFree = buttonCard.dataset.isFree === 'true';
             const key = buttonCard.dataset.elementKey;
-            const shortName = key ? Utils.getElementShortName(elementKeyToFullName[key]) : 'Element';
+            const shortName = key && elementKeyToFullName?.[key] ? Utils.getElementShortName(elementKeyToFullName[key]) : 'Element';
 
-            // Disable only if NOT free AND cannot afford
             const shouldBeDisabled = !isFree && !canAfford;
             buttonCard.classList.toggle('disabled', shouldBeDisabled);
-            buttonCard.classList.toggle('clickable', !shouldBeDisabled); // Clickable if free OR affordable
+            buttonCard.classList.toggle('clickable', !shouldBeDisabled);
 
             const actionDiv = buttonCard.querySelector('.element-action');
             if (actionDiv) actionDiv.classList.toggle('disabled', shouldBeDisabled);
 
-            // Update title based on state
             if (isFree) {
                 const freeLeft = State.getInitialFreeResearchRemaining();
                 buttonCard.title = `Conduct FREE research on ${shortName}. (${freeLeft} left total)`;
@@ -536,79 +525,57 @@ function updateDependentUI() {
                 buttonCard.title = `Research ${shortName} (Cost: ${cost.toFixed(1)} Insight)`;
             }
         });
-    } else { console.warn("Element research buttons container not found."); }
+    }
 
-    // Workshop Seek Guidance Button
     if (seekGuidanceButtonWorkshop && guidedReflectionCostDisplayWorkshop) {
         const cost = Config.GUIDED_REFLECTION_COST;
         const canAfford = insightValue >= cost;
         seekGuidanceButtonWorkshop.disabled = !canAfford;
-        seekGuidanceButtonWorkshop.title = canAfford ? `Spend ${cost} Insight for a Guided Reflection.` : `Requires ${cost} Insight.`;
-    } else { console.warn("Seek Guidance button or cost display not found."); }
+        seekGuidanceButtonWorkshop.title = canAfford ? `Spend ${cost.toFixed(1)} Insight for a Guided Reflection.` : `Requires ${cost.toFixed(1)} Insight.`;
+    }
 
-    // Persona Screen - Deep Dive Unlock Buttons
     if (personaScreen?.classList.contains('current')) {
         personaElementDetailsDiv?.querySelectorAll('.element-deep-dive-container .unlock-button').forEach(button => {
             const cost = parseFloat(button.dataset.cost);
             const canAfford = insightValue >= cost;
             button.disabled = !canAfford;
             button.title = canAfford ? `Unlock for ${cost.toFixed(1)} Insight` : `Requires ${cost.toFixed(1)} Insight`;
-            // Update error message visibility if present
             const errorMsg = button.parentElement?.querySelector('.unlock-error');
             if (errorMsg) errorMsg.style.display = canAfford ? 'none' : 'block';
         });
-        updateSuggestSceneButtonState(); // Update Suggest Scene button state
+        updateSuggestSceneButtonState();
     }
 
-    // Repository - Meditate/Attempt Buttons
     if (repositoryScreen?.classList.contains('current')) {
         repositoryScreen.querySelectorAll('.repo-actions button').forEach(button => {
              const sceneId = button.dataset.sceneId;
              const experimentId = button.dataset.experimentId;
-             let cost = 0;
-             let baseTitle = "";
-             let actionLabel = "";
-
+             let cost = 0; let baseTitle = ""; let actionLabel = "";
              if (sceneId) {
                  const scene = sceneBlueprints.find(s => s.id === sceneId);
                  cost = scene?.meditationCost || Config.SCENE_MEDITATION_BASE_COST;
                  baseTitle = `Meditate on ${scene?.name || 'Scene'}`;
                  actionLabel = `Meditate (${cost.toFixed(1)})`;
+                 button.disabled = insightValue < cost;
+                 button.title = insightValue >= cost ? baseTitle : `${baseTitle} (Requires ${cost.toFixed(1)} Insight)`;
              } else if (experimentId) {
                   const experiment = alchemicalExperiments.find(e => e.id === experimentId);
                   cost = experiment?.insightCost || Config.EXPERIMENT_BASE_COST;
                   baseTitle = `Attempt ${experiment?.name || 'Experiment'}`;
                   actionLabel = `Attempt (${cost.toFixed(1)})`;
-                  // Don't update experiment button disabled state solely on insight here,
-                  // as other requirements (attunement, focus) also matter.
-                  // Re-rendering the item in displayRepositoryContent handles this better.
-                  // Just update the title part related to cost.
                   if (button.title && !button.title.includes('Requirements not met')) {
                        button.title = (insightValue >= cost) ? baseTitle : `${baseTitle} (Requires ${cost.toFixed(1)} Insight)`;
-                       // Only disable based on cost if other reqs were met
                        button.disabled = insightValue < cost;
                   }
-                  // Update button text if possible
-                  const icon = button.querySelector('i');
-                  if(icon) button.innerHTML = `<i class="${icon.className}"></i> ${actionLabel}`;
-                  else button.textContent = actionLabel;
-
-                  return; // Skip further updates for experiments
-             } else { return; } // Skip if neither scene nor experiment
-
-             button.disabled = insightValue < cost;
-             button.title = insightValue >= cost ? baseTitle : `${baseTitle} (Requires ${cost.toFixed(1)} Insight)`;
-             // Update button text
+             } else { return; }
              const icon = button.querySelector('i');
              if(icon) button.innerHTML = `<i class="${icon.className}"></i> ${actionLabel}`;
              else button.textContent = actionLabel;
         });
     }
 
-    // Deep Dive Contemplation Button
     updateContemplationButtonState();
 
-    // Concept Detail Popup - Lore Unlock Buttons
     if (conceptDetailPopup && !conceptDetailPopup.classList.contains('hidden')) {
         popupLoreContent?.querySelectorAll('.unlock-lore-button').forEach(button => {
             const cost = parseFloat(button.dataset.cost);
@@ -623,8 +590,8 @@ function updateDependentUI() {
 /** Renders the recent insight log entries. */
 export function displayInsightLog() {
     if (!insightLogContainer) { console.warn("Insight log container not found."); return; }
-    const logEntries = State.getInsightLog(); // Gets a copy
-    insightLogContainer.innerHTML = '<h5>Recent Insight Changes:</h5>'; // Clear and add header
+    const logEntries = State.getInsightLog();
+    insightLogContainer.innerHTML = '<h5>Recent Insight Changes:</h5>';
     if (!insightLogContainer.hasAttribute('aria-live')) insightLogContainer.setAttribute('aria-live', 'polite');
 
     if (logEntries.length === 0) {
@@ -632,15 +599,12 @@ export function displayInsightLog() {
         return;
     }
 
-    // Display newest entries first
     logEntries.slice().reverse().forEach(entry => {
         const entryDiv = document.createElement('div');
         entryDiv.classList.add('insight-log-entry');
         const amountClass = entry.amount > 0 ? 'log-amount-gain' : 'log-amount-loss';
         const sign = entry.amount > 0 ? '+' : '';
-        // Basic sanitization for display
-        const sourceText = entry.source?.replace(/</g, "&lt;").replace(/>/g, "&gt;") || 'Unknown Source';
-
+        const sourceText = entry.source?.replace(/</g, "<").replace(/>/g, ">") || 'Unknown Source';
         entryDiv.innerHTML = `
             <span class="log-timestamp">${entry.timestamp}</span>
             <span class="log-source">${sourceText}</span>
@@ -654,21 +618,17 @@ export function displayInsightLog() {
 export function updateInsightBoostButtonState() {
     const btn = getElement('addInsightButton');
     if (!btn) return;
-
     const cooldownEnd = State.getInsightBoostCooldownEnd();
     const now = Date.now();
-
     if (insightBoostTimeoutId) { clearTimeout(insightBoostTimeoutId); insightBoostTimeoutId = null; }
-
     if (cooldownEnd && now < cooldownEnd) {
         const remaining = Math.ceil((cooldownEnd - now) / 1000);
         btn.disabled = true;
         btn.innerHTML = `<i class="fas fa-hourglass-half"></i> ${remaining}s`;
         btn.title = `Insight boost available in ${remaining} seconds.`;
-        insightBoostTimeoutId = setTimeout(updateInsightBoostButtonState, 1000); // Schedule next update
+        insightBoostTimeoutId = setTimeout(updateInsightBoostButtonState, 1000);
     } else {
         btn.disabled = false;
-        // Ensure visually hidden text is present for accessibility
         btn.innerHTML = `<i class="fas fa-plus"></i> <span class="visually-hidden">Add Insight</span>`;
         btn.title = `Get an Insight boost (${Config.INSIGHT_BOOST_AMOUNT} Insight, ${Config.INSIGHT_BOOST_COOLDOWN / 60000} min cooldown)`;
     }
@@ -2271,136 +2231,103 @@ export function toggleTheme() {
 // --- STUB FUNCTIONS NEEDED BY LOGIC ---
 /** STUB: Displays the Element Deep Dive content within an accordion body. */
 export function displayElementDeepDive(elementKey, container) {
-    if (!container) { console.warn(`Deep dive container missing for element ${elementKey}`); return; }
-    // TODO: Implement the actual rendering of deep dive levels based on unlocked state.
-    const unlockedLevel = State.getState().unlockedDeepDiveLevels[elementKey] || 0;
-    const deepDiveLevels = elementDeepDive[elementKeyToFullName[elementKey]] || [];
-    container.innerHTML = `<h6><i class="fas fa-book-open"></i> Element Insights</h6>`;
-    if (deepDiveLevels.length === 0) {
-        container.innerHTML += '<p><i>No deep dive insights defined for this element.</i></p>';
-        return;
-    }
-
-    deepDiveLevels.forEach(levelData => {
-        const levelDiv = document.createElement('div');
-        levelDiv.classList.add('deep-dive-level');
-        if (levelData.level <= unlockedLevel) {
-            levelDiv.classList.add('unlocked');
-            levelDiv.innerHTML = `
-                <h6><i class="fas fa-lock-open"></i> Level ${levelData.level}: ${levelData.title || ''}</h6>
-                <p>${levelData.content || ''}</p>
-            `;
-        } else if (levelData.level === unlockedLevel + 1) {
-            levelDiv.classList.add('locked');
-            const cost = levelData.insightCost || 0;
-            const canAfford = State.getInsight() >= cost;
-            const errorMsg = canAfford ? '' : `<span class="unlock-error">Requires ${cost.toFixed(1)} Insight</span>`;
-            levelDiv.innerHTML = `
-                <h6><i class="fas fa-lock"></i> Level ${levelData.level}: ${levelData.title || 'Next Insight'}</h6>
-                <button class="button tiny-button unlock-button btn"
-                        data-element-key="${elementKey}"
-                        data-level="${levelData.level}"
-                        data-cost="${cost}"
-                        ${canAfford ? '' : 'disabled'}
-                        title="${canAfford ? `Unlock for ${cost.toFixed(1)} Insight` : `Requires ${cost.toFixed(1)} Insight`}">
-                    Unlock (${cost.toFixed(1)} <i class="fas fa-brain insight-icon"></i>)
-                </button>
-                ${errorMsg}
-            `;
-        } else {
-            // Future locked levels (don't show button)
-            levelDiv.classList.add('locked');
+     if (!container) { /* console.warn(`Deep dive container missing for element ${elementKey}`);*/ return; }
+     const unlockedLevel = State.getState().unlockedDeepDiveLevels[elementKey] || 0;
+     const deepDiveLevels = elementDeepDive[elementKeyToFullName[elementKey]] || [];
+     container.innerHTML = `<h6><i class="fas fa-book-open"></i> Element Insights</h6>`;
+     if (deepDiveLevels.length === 0) {
+         container.innerHTML += '<p><i>No deep dive insights defined for this element.</i></p>';
+         return;
+     }
+     deepDiveLevels.forEach(levelData => {
+         const levelDiv = document.createElement('div');
+         levelDiv.classList.add('deep-dive-level');
+         if (levelData.level <= unlockedLevel) {
+             levelDiv.classList.add('unlocked');
+             levelDiv.innerHTML = `<h6><i class="fas fa-lock-open"></i> Level ${levelData.level}: ${levelData.title || ''}</h6><p>${levelData.content || ''}</p>`;
+         } else if (levelData.level === unlockedLevel + 1) {
+             levelDiv.classList.add('locked');
+             const cost = levelData.insightCost || 0;
+             const canAfford = State.getInsight() >= cost;
+             const errorMsg = canAfford ? '' : `<span class="unlock-error">Requires ${cost.toFixed(1)} Insight</span>`;
+             levelDiv.innerHTML = `<h6><i class="fas fa-lock"></i> Level ${levelData.level}: ${levelData.title || 'Next Insight'}</h6><button class="button tiny-button unlock-button btn" data-element-key="${elementKey}" data-level="${levelData.level}" data-cost="${cost}" ${canAfford ? '' : 'disabled'} title="${canAfford ? `Unlock for ${cost.toFixed(1)} Insight` : `Requires ${cost.toFixed(1)} Insight`}">Unlock (${cost.toFixed(1)} <i class="fas fa-brain insight-icon"></i>)</button>${errorMsg}`;
+         } else {
+             levelDiv.classList.add('locked');
              levelDiv.innerHTML = `<h6><i class="fas fa-lock"></i> Level ${levelData.level} (Locked)</h6>`;
              levelDiv.style.opacity = '0.6';
-        }
-        container.appendChild(levelDiv);
-    });
-}
+         }
+         container.appendChild(levelDiv);
+     });
+ }
 
-
-/** STUB: Updates the state of the contemplation button in the Deep Dive modal. */
+/** Updates the state of the contemplation button in the Deep Dive modal. */
 export function updateContemplationButtonState() {
-    const btn = document.getElementById('contemplationNode');
-    if (!btn) { /*console.warn("Contemplation button not found for state update.");*/ return; } // Might not be rendered
-    const costDisplay = btn.querySelector('.contemplation-cost');
-    if (costDisplay) costDisplay.textContent = Config.CONTEMPLATION_COST;
+     const btn = document.getElementById('contemplationNode');
+     if (!btn) { return; }
+     const costDisplay = btn.querySelector('.contemplation-cost');
+     if (costDisplay) costDisplay.textContent = Config.CONTEMPLATION_COST;
 
-    const cooldownEnd = State.getContemplationCooldownEnd?.() ?? null;
-    const now = Date.now();
+     const cooldownEnd = State.getContemplationCooldownEnd?.() ?? null;
+     const now = Date.now();
+     if (contemplationTimeoutId) clearTimeout(contemplationTimeoutId);
 
-    if (contemplationTimeoutId) clearTimeout(contemplationTimeoutId); // Clear previous timer
+     if (cooldownEnd && now < cooldownEnd) {
+         const remaining = Math.ceil((cooldownEnd - now) / 1000);
+         btn.disabled = true;
+         btn.title = `Contemplation cooling down (${remaining}s)`;
+         const icon = btn.querySelector('i.fa-brain');
+         if (icon?.nextSibling?.nodeType === Node.TEXT_NODE) { icon.nextSibling.textContent = ` Focusing Lens (${remaining}s)`; }
+         contemplationTimeoutId = setTimeout(updateContemplationButtonState, 1000);
+     } else {
+         const canAfford = State.getInsight() >= Config.CONTEMPLATION_COST;
+         btn.disabled = !canAfford;
+         btn.title = canAfford ? `Begin focused contemplation (Cost: ${Config.CONTEMPLATION_COST} Insight)` : `Requires ${Config.CONTEMPLATION_COST} Insight`;
+         const icon = btn.querySelector('i.fa-brain');
+         const costSpan = btn.querySelector('.contemplation-cost');
+         if (icon?.nextSibling?.nodeType === Node.TEXT_NODE && costSpan) {
+             icon.nextSibling.textContent = ` Focusing Lens (${costSpan.outerHTML} <i class="fas fa-brain insight-icon"></i>)`;
+         }
+     }
+ }
 
-    if (cooldownEnd && now < cooldownEnd) {
-        const remaining = Math.ceil((cooldownEnd - now) / 1000);
-        btn.disabled = true;
-        btn.title = `Contemplation cooling down (${remaining}s)`;
-        // Optionally update text visually - Find the text node after the icon
-        const icon = btn.querySelector('i.fa-brain');
-        if (icon && icon.nextSibling && icon.nextSibling.nodeType === Node.TEXT_NODE) {
-            icon.nextSibling.textContent = ` Focusing Lens (${remaining}s)`;
-        }
-        contemplationTimeoutId = setTimeout(updateContemplationButtonState, 1000); // Check again in 1s
-    } else {
-        const canAfford = State.getInsight() >= Config.CONTEMPLATION_COST;
-        btn.disabled = !canAfford;
-        btn.title = canAfford ? `Begin focused contemplation (Cost: ${Config.CONTEMPLATION_COST} Insight)` : `Requires ${Config.CONTEMPLATION_COST} Insight`;
-        // Reset text
-        const icon = btn.querySelector('i.fa-brain');
-        if (icon && icon.nextSibling && icon.nextSibling.nodeType === Node.TEXT_NODE) {
-            icon.nextSibling.textContent = ` Focusing Lens (${Config.CONTEMPLATION_COST} `;
-            // Re-add insight icon inside text if needed, or adjust structure
-            // For simplicity, maybe just reset to base text?
-            // icon.nextSibling.textContent = ` Focusing Lens (${Config.CONTEMPLATION_COST} Insight)`;
-             // Or adjust innerHTML if structure is more complex:
-             const costSpan = btn.querySelector('.contemplation-cost');
-             if(costSpan) icon.nextSibling.textContent = ` Focusing Lens (${costSpan.outerHTML} <i class="fas fa-brain insight-icon"></i>)`;
-
-        }
-    }
-}
-
-
-/** STUB: Displays the Elemental Dilemma modal. */
+/** Displays the Elemental Dilemma modal. */
 export function displayElementalDilemma(dilemmaData) {
-    if (!dilemmaModal || !dilemmaSituationText || !dilemmaQuestionText || !dilemmaSlider || !dilemmaMinLabel || !dilemmaMaxLabel || !dilemmaValueDisplay || !dilemmaNudgeCheckbox) {
-        console.error("Dilemma modal elements missing!");
-        return;
-    }
+     const modal = getElement('dilemmaModal');
+     const situation = getElement('dilemmaSituationText');
+     const question = getElement('dilemmaQuestionText');
+     const slider = getElement('dilemmaSlider');
+     const minLabel = getElement('dilemmaSliderMinLabel');
+     const maxLabel = getElement('dilemmaSliderMaxLabel');
+     const valueDisplay = getElement('dilemmaSliderValueDisplay');
+     const nudgeCheck = getElement('dilemmaNudgeCheckbox');
 
-    situation.textContent = dilemmaData?.situation ?? 'Dilemma situation missing.';
-    question.textContent = dilemmaData?.question ?? 'Dilemma question missing.';
-    minLabel.textContent = dilemmaData?.sliderMinLabel ?? 'Option A';
-    maxLabel.textContent = dilemmaData?.sliderMaxLabel ?? 'Option B';
+     if (!modal || !situation || !question || !slider || !minLabel || !maxLabel || !valueDisplay || !nudgeCheck) {
+          console.error("Dilemma modal elements missing!");
+          return;
+     }
+     situation.textContent = dilemmaData?.situation ?? 'Dilemma situation missing.';
+     question.textContent = dilemmaData?.question ?? 'Dilemma question missing.';
+     minLabel.textContent = dilemmaData?.sliderMinLabel ?? 'Option A';
+     maxLabel.textContent = dilemmaData?.sliderMaxLabel ?? 'Option B';
+     slider.value = 5;
+     valueDisplay.textContent = 'Balanced';
+     nudgeCheck.checked = false;
+     modal.classList.remove('hidden');
+     const onboardingActive = onboardingOverlay && onboardingOverlay.classList.contains('visible');
+     if (popupOverlay && !onboardingActive) { popupOverlay.classList.remove('hidden'); }
+     console.log(`UI: Displaying dilemma ${dilemmaData?.id}`);
+ }
 
-    // Reset slider and display
-    slider.value = 5;
-    valueDisplay.textContent = 'Balanced';
-    nudgeCheck.checked = false; // Default nudge off
-
-    dilemmaModal.classList.remove('hidden');
-    // Show the main overlay if onboarding isn't active
-    const onboardingActive = onboardingOverlay && onboardingOverlay.classList.contains('visible');
-    if (popupOverlay && !onboardingActive) {
-        popupOverlay.classList.remove('hidden');
-    }
-    console.log(`UI: Displaying dilemma ${dilemmaData?.id}`);
-}
-
-/** STUB: Shows the settings popup. */
+/** Shows the settings popup. */
 export function showSettings() {
+     const settingsPopup = document.getElementById('settingsPopup');
      if (settingsPopup) {
          settingsPopup.classList.remove('hidden');
-         // Show the main overlay if onboarding isn't active
          const onboardingActive = onboardingOverlay && onboardingOverlay.classList.contains('visible');
-         if (popupOverlay && !onboardingActive) {
-             popupOverlay.classList.remove('hidden');
-         }
+         if (popupOverlay && !onboardingActive) { popupOverlay.classList.remove('hidden'); }
          console.log("UI: Showing Settings Popup");
-     } else {
-         console.error("Settings popup element not found!");
-     }
-}
+     } else { console.error("Settings popup element not found!"); }
+ }
 
 
-console.log("ui.js loaded successfully. (Enhanced v4.10 + Drawer/Accordion/Layout Fixes - Corrected)");
-// --- END OF FILE ui.js ---
+console.log("ui.js loaded successfully. (Enhanced v4.10 + Drawer/Accordion/Layout Fixes - Corrected v2)");
