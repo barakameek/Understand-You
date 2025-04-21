@@ -2,7 +2,7 @@
 
 /* =========================================================
    Persona Alchemy Lab – Merged Styles
-   (Enhanced v4.1 + UI Refresh v1.1 + Layout Fixes)
+   (Enhanced v4.1 + UI Refresh v1.1 + Layout Fixes - Corrected)
    ========================================================= */
 
 /* ---------- 0. Design Tokens (Variables) ------------- */
@@ -106,11 +106,11 @@
   --category-liked-border        : #90ee90; /* LightGreen */
   --category-dislikedLimit-border: #f08080; /* LightCoral */
   --category-coreIdentity-border : #ffd700; /* Gold (Keep original accent) */
-  /* Backgrounds might not be needed if base card bg changes */
-  --category-wantToTry-bg       : rgba(135, 206, 250, 0.05);
-  --category-liked-bg           : rgba(144, 238, 144, 0.05);
-  --category-dislikedLimit-bg   : rgba(240, 128, 128, 0.05);
-  --category-coreIdentity-bg    : rgba(255, 215, 0, 0.05);
+  /* Adjust category backgrounds slightly for dark mode */
+  --category-wantToTry-bg       : rgba(135, 206, 250, 0.08);
+  --category-liked-bg           : rgba(144, 238, 144, 0.08);
+  --category-dislikedLimit-bg   : rgba(240, 128, 128, 0.08);
+  --category-coreIdentity-bg    : rgba(255, 215, 0, 0.08);
 
   /* Adjust Status Colors */
    --success-color      : #5fd9a6; /* MediumAquamarine */
@@ -200,14 +200,17 @@ h2 {
   margin-bottom: 1em;
 }
 /* Remove border/center for specific section titles */
-.persona-column h2, /* Updated selector */
+.persona-column h2,
 .repository-section h2,
-.workshop-section h2 {
+.research-bench h2, /* Added workshop titles */
+.grimoire-library .library-header h2 { /* Added workshop titles */
   border: none;
   text-align: left;
   margin-bottom: 0.5em;
   padding-bottom: 0;
 }
+.grimoire-library .library-header h2 { margin-bottom: 0; } /* Remove margin for header h2 */
+
 
 h3 {
   font-size: 1.25rem;
@@ -265,6 +268,7 @@ h5 {
   font-size: 0.9em;
   transition: color 0.2s ease;
   border-bottom: 1px dotted transparent; /* Subtle indicator */
+  vertical-align: middle; /* Better alignment */
 }
 .info-icon:hover {
   color: var(--info-icon-hover-color);
@@ -336,9 +340,6 @@ h5 {
     margin-right: 8px;
     vertical-align: middle;
 }
-/* Style the input itself, not needed if wrapped in label */
-/* .form-group input[type="checkbox"] + label,
-.form-group input[type="radio"] + label { ... } */
 
 /* Hover/Checked states for Radio/Checkbox container labels */
 .radio-options label.form-group:hover,
@@ -350,11 +351,8 @@ h5 {
    /* Style the text within the checked label if needed */
    /* font-weight: bold; */
 }
-.radio-options input[type="radio"]:checked ~ label, /* This won't work with current structure */
-.checkbox-options input[type="checkbox"]:checked ~ label { /* This won't work */
-    /* Needs JS or parent selector (:has) */
-}
-/* Use JS to add a class to the label when its input is checked, or rely on :has if browser support allows */
+
+/* Use JS to add a class to the label when its input is checked */
 .radio-options label.form-group.checked,
 .checkbox-options label.form-group.checked {
     background-color: var(--secondary-color);
@@ -386,7 +384,6 @@ h5 {
   max-width: 1600px; /* Allow wider max */
   margin: var(--spacing) auto;
   padding: calc(var(--spacing) + 44px) var(--spacing) var(--spacing) var(--spacing); /* Top padding for fixed drawer toggle */
-  /* Remove border/bg from container itself */
   background: transparent;
   border: none;
   box-shadow: none;
@@ -405,7 +402,18 @@ h5 {
     overflow-y: auto; /* Allow internal scroll if needed */
 }
 .hidden { display: none !important; }
-.current { display: block; } /* Simple visibility toggle */
+/* .current { display: block; } - Removed as specific screen layouts use grid now */
+.screen.current { /* Ensure screens using grid display correctly */
+   display: grid; /* Apply grid display when current */
+   /* Keep other screen styles */
+}
+/* Default screen display for non-grid screens */
+#welcomeScreen.current, #questionnaireScreen.current {
+    display: block;
+}
+#repositoryScreen.current { display: block; } /* Repo uses internal grid */
+#personaScreen.current { display: block; } /* Persona uses internal grid */
+
 
 /* Specific Screen Layouts using Grid */
 .persona-screen .persona-overview {
@@ -413,35 +421,37 @@ h5 {
   grid-template-columns: minmax(320px, 35%) 1fr; /* Flexible left rail, min 320px */
   gap: calc(var(--spacing) * 1.5); /* Slightly larger gap */
 }
-#workshopScreen { /* Use ID for specificity */
-  display: grid;
-  grid-template-columns: minmax(300px, 320px) 1fr; /* Fixed left column */
-  gap: var(--spacing);
-}
+
+/* Workshop Screen Layout moved to inline styles in HTML head for now */
+/* But the selectors are here for reference / potential migration */
+/* #workshopScreen { display: grid; ... } */
+/* .panel { ... } */
+/* .research-bench { ... } */
+/* .research-chips { ... } */
+/* .daily-actions { ... } */
+/* .grimoire-library { ... } */
+/* .library-header { ... } */
+/* .workshop-insight-display { ... } */
+/* .library-controls { ... } */
+/* #grimoire-grid-workshop { ... } */
+
+
 .repository-layout {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: var(--spacing);
 }
 
-/* Responsive Stacking */
-@media (max-width: 950px) { /* Adjust breakpoint as needed */
-    .persona-screen .persona-overview,
-    #workshopScreen {
+/* Responsive Stacking for Persona Screen */
+@media (max-width: 950px) {
+    .persona-screen .persona-overview {
         grid-template-columns: 1fr; /* Stack columns */
     }
-    /* Remove max-width from workshop sidebar when stacked */
-    #workshop-research-area { max-width: none; }
-    /* Allow natural height when stacked */
-    .persona-elements-detailed,
-    #workshop-research-area,
-    #workshop-library-area {
+     /* Allow natural height when stacked */
+    .persona-elements-detailed {
         max-height: none !important;
         overflow-y: visible !important;
     }
-     /* Re-center insight badge when stacked */
-    .workshop-insight-display { position: static; display: block; width: fit-content; margin: 0 auto var(--spacing) auto; text-align: center;}
-    #workshopScreen h1 { margin-bottom: var(--spacing); } /* Reset margin */
 }
 
 
@@ -584,7 +594,7 @@ h5 {
   backdrop-filter: blur(4px);
   z-index: 890; box-shadow: 0 3px 8px rgba(0,0,0,0.1);
 }
-:root.dark #questionnaireScreen header { background: rgba(62, 59, 55, 0.95); border-color: var(--border-color-light); } /* Darker sticky header */
+:root.dark #questionnaireScreen header { background: rgba(62, 59, 55, 0.95); border-color: var(--border-color-light); }
 
 #elementProgressHeader {
   display: flex; position: relative; counter-reset: step; margin-bottom: 1rem;
@@ -671,7 +681,7 @@ h5 {
 
 /* Generic Grid Layout (Used by Grimoire, Focus Shelf, etc.) */
 .concept-grid,
-#grimoire-grid-workshop,
+#grimoire-grid-workshop, /* Updated ID */
 .focus-concepts-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); /* Responsive columns */
@@ -693,8 +703,10 @@ h5 {
     background: linear-gradient(160deg, #fffefa, #f5f0e1);
     box-shadow: 0 4px 8px rgba(80, 50, 20, 0.1), inset 0 0 1px rgba(255, 255, 255, 0.5);
     transition: all 0.25s ease-in-out;
+    border-radius: var(--border-radius); /* Apply border-radius */
 }
-.concept-card::before { /* Category Indicator */
+/* Category Indicator */
+.concept-card::before {
     content: '';
     position: absolute;
     left: 0; top: 0; bottom: 0;
@@ -702,6 +714,7 @@ h5 {
     background-color: var(--category-uncategorized-border); /* Default */
     border-radius: var(--border-radius) 0 0 var(--border-radius);
     transition: background-color 0.2s ease;
+    z-index: 1; /* Ensure it's above background gradient */
 }
 .concept-card.category-wantToTry::before { background-color: var(--category-wantToTry-border); }
 .concept-card.category-liked::before { background-color: var(--category-liked-border); }
@@ -730,28 +743,24 @@ h5 {
 .card-header {
   display: grid;
   grid-template-columns: auto 1fr auto; /* Icon | Name | Right side */
-  grid-template-rows: auto auto;
   align-items: center;
-  grid-template-areas:
-    "icon name right"
-    "icon name right";
   padding: 5px 8px 4px 8px;
   min-height: 55px;
   border-bottom: 1px solid var(--border-color-light);
+  gap: 0 8px; /* Gap between columns */
 }
 :root.dark .card-header { border-color: var(--border-color-light); }
 
-.card-header .card-type-icon-area { grid-area: icon; font-size: 1.3em; color: var(--primary-color); flex-shrink: 0; padding-right: 8px; }
+.card-header .card-type-icon-area { font-size: 1.3em; color: var(--primary-color); flex-shrink: 0; }
 :root.dark .card-header .card-type-icon-area { color: var(--primary-color); }
 
 .card-header .card-name {
-    grid-area: name;
     font-size: 1.0em;
     color: var(--primary-color);
     font-family: var(--font-heading);
     font-weight: 700;
     line-height: 1.2;
-    padding: 3px 5px;
+    padding: 3px 0; /* Removed side padding */
     margin-bottom: 3px;
     text-align: center;
     text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
@@ -761,7 +770,6 @@ h5 {
 :root.dark .card-header .card-name { color: var(--text-color); text-shadow: none; }
 
 .card-header .card-header-right {
-    grid-area: right;
     display: flex;
     flex-direction: column; /* Stack rarity and stamps */
     align-items: flex-end;
@@ -786,7 +794,7 @@ h5 {
 .card-visual {
     flex-grow: 1;
     background-color: #ede8d8;
-    margin: 8px 0; /* Removed side margin */
+    margin: 8px 12px; /* Re-added side margin */
     border-radius: 6px;
     min-height: 100px;
     overflow: hidden;
@@ -804,9 +812,12 @@ h5 {
 .card-footer {
     font-size: 0.85em;
     color: var(--text-color);
-    padding: 8px 0 40px 0; /* Reduced side padding, add bottom padding for actions */
+    padding: 8px 12px 40px 12px; /* Adjust bottom padding */
     min-height: 70px;
     position: relative; /* For absolute positioning actions */
+    display: flex; /* Enable flex for alignment */
+    flex-direction: column;
+    justify-content: space-between; /* Push content and actions apart */
 }
 :root.dark .card-footer { color: var(--text-color); }
 
@@ -848,8 +859,8 @@ h5 {
 .card-actions {
     position: absolute;
     bottom: 8px; /* Position actions at the bottom */
-    left: 0px; /* Align within footer padding */
-    right: 0px;
+    left: 6px; /* Align within card, respecting category border */
+    right: 12px; /* Adjust for padding */
     display: flex;
     justify-content: center;
     gap: 10px;
@@ -881,7 +892,6 @@ h5 {
     overflow: hidden;
     color: var(--text-color);
     text-shadow: 0 0 3px rgba(255, 255, 255, 0.6);
-    /* Removed margin-bottom, handled by grid gap */
 }
 :root.dark .focus-concept-item { background-color: var(--background-medium); border-color: var(--border-color-light); color: var(--text-color); text-shadow: none;}
 
@@ -1127,7 +1137,9 @@ h5 {
     padding: 3px 8px;
     border-radius: 12px;
     font-size: 0.85em;
+    cursor: default; /* Default cursor */
 }
+.related-concept-tag[title*="View details"] { cursor: pointer; } /* Pointer only if clickable */
 :root.dark .related-concept-tag { background-color: var(--secondary-color); color: var(--background-dark); border-color: transparent; }
 
 /* Collapsible Sections */
@@ -1148,7 +1160,7 @@ h5 {
 }
 .collapsible-popup-section summary::-webkit-details-marker { display: none; }
 :root.dark .collapsible-popup-section summary { background-color: var(--background-dark); color: var(--primary-color); border-color: var(--border-color-light); }
-.collapsible-popup-section[open] summary { border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
+.collapsible-popup-section[open] > summary { border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
 .collapsible-popup-section .collapsible-content {
     background-color: rgba(255, 250, 240, 0.8);
     padding: 12px;
@@ -1178,14 +1190,19 @@ h5 {
 .research-popup-content { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: var(--spacing); }
 .research-result-item { border: 1px solid var(--border-color-light); border-radius: var(--border-radius); overflow: hidden; background: var(--background-light); display: flex; flex-direction: column; }
 :root.dark .research-result-item { border-color: var(--border-color-dark); background: var(--background-medium); }
-.research-result-item .concept-card { box-shadow: none; border: none; min-height: unset; flex-grow: 1; margin-bottom: 0; }
+.research-result-item .concept-card { box-shadow: none; border: none; min-height: unset; flex-grow: 1; margin-bottom: 0; border-radius: 0; } /* Remove card radius */
 .research-result-item .card-actions { position: static; opacity: 1; pointer-events: auto; padding: 10px; background: var(--background-medium); border-top: 1px solid var(--border-color-light); justify-content: space-around; }
 :root.dark .research-result-item .card-actions { background: var(--background-dark); border-color: var(--border-color-light); }
 .research-result-item .action-feedback { font-size: 0.8em; font-style: italic; text-align: center; display: block; margin-top: 5px; min-height: 1.2em; }
+/* Result item state borders */
 .research-result-item[data-choice-made="pending_dissonance"] { border-left: 4px solid var(--info-color); }
 .research-result-item[data-choice-made="kept"],
-.research-result-item[data-choice-made="kept_after_dissonance"] { border-left: 4px solid var(--success-color); }
+.research-result-item[data-choice-made="kept_after_dissonance"],
+.research-result-item[data-choice-made="kept_after_dissonance_fail"] { border-left: 4px solid var(--success-color); }
 .research-result-item[data-choice-made="sold"] { border-left: 4px solid var(--warning-color); }
+.research-result-item[data-choice-made="error_adding"],
+.research-result-item[data-choice-made="error_unknown"] { border-left: 4px solid var(--danger-color); }
+
 .duplicate-insight-info { text-align: center; font-style: italic; color: var(--text-muted-color); grid-column: 1 / -1; }
 .research-popup-actions { display: flex; justify-content: space-between; align-items: center; }
 .research-popup-actions small { flex-grow: 1; text-align: left; } /* Give status more space */
@@ -1349,9 +1366,9 @@ h5 {
 }
 :root.dark .insight-log-entry { border-color: var(--border-color-dark); }
 .insight-log-entry:last-child { border-bottom: none; }
-.insight-log-entry .log-timestamp { color: var(--text-muted-color); font-size: 0.9em; }
-.insight-log-entry .log-source { color: var(--text-color); flex-grow: 1; margin: 0 5px; }
-.insight-log-entry .log-amount { font-weight: bold; }
+.insight-log-entry .log-timestamp { color: var(--text-muted-color); font-size: 0.9em; white-space: nowrap; }
+.insight-log-entry .log-source { color: var(--text-color); flex-grow: 1; margin: 0 5px; word-break: break-word; }
+.insight-log-entry .log-amount { font-weight: bold; white-space: nowrap; }
 .insight-log-entry .log-amount-gain { color: var(--success-color); }
 .insight-log-entry .log-amount-loss { color: var(--danger-color); }
 
@@ -1412,13 +1429,12 @@ canvas#personaScoreChartCanvas { background-color: transparent !important; } /* 
     color: var(--success-color);
     font-weight: bold;
 }
-.focus-ritual { font-style: italic; border-left-color: var(--accent-color); } /* Highlight focus rituals */
-:root.dark .focus-ritual { border-left-color: var(--accent-color); }
+.focus-ritual { font-style: italic; border-left-color: var(--accent-color) !important; } /* Highlight focus rituals */
+:root.dark .focus-ritual { border-left-color: var(--accent-color) !important; }
 .ritual-reward { font-size: 0.85em; color: var(--text-muted-color); margin-left: 10px; }
 
 
 /* ---------- 11. Persona Screen Accordion Refinement ------------ */
-/* Style the existing details/summary as an accordion */
 .element-detail-entry {
     background-color: var(--background-light);
     border: 1px solid var(--border-color-light);
@@ -1446,8 +1462,8 @@ canvas#personaScoreChartCanvas { background-color: transparent !important; } /* 
 }
 .accordion-header::-webkit-details-marker { display: none; }
 :root.dark .accordion-header { background-color: var(--background-dark); }
-.accordion-header:hover { background-color: var(--background-dark); }
-:root.dark .accordion-header:hover { background-color: var(--background-light); }
+.accordion-header:hover { background-color: var(--background-dark); color: var(--background-light); } /* Darken on hover */
+:root.dark .accordion-header:hover { background-color: var(--background-light); color: var(--text-color); }
 
 /* Add accordion icon */
 .accordion-header::after {
@@ -1461,7 +1477,8 @@ canvas#personaScoreChartCanvas { background-color: transparent !important; } /* 
 }
 :root.dark .accordion-header::after { color: var(--primary-color); }
 
-.accordion-item[open] > .accordion-header::after {
+.accordion-item[open] > .accordion-header::after,
+.accordion-item.open > .accordion-header::after { /* Support class-based toggle */
     content: '−'; /* Change to minus sign when open */
     transform: rotate(180deg);
 }
@@ -1473,53 +1490,62 @@ canvas#personaScoreChartCanvas { background-color: transparent !important; } /* 
     gap: 8px; /* Space between icon, name, score */
     font-weight: bold;
     color: var(--primary-color);
+    flex-grow: 1; /* Allow header to take space */
+    overflow: hidden; /* Prevent long names breaking layout */
 }
+:root.dark .element-summary-header { color: var(--primary-color); }
+
 .element-summary-header .element-icon-indicator { font-size: 1.1em; }
-.element-summary-header .score-label { font-size: 0.9em; color: var(--text-muted-color); font-weight: normal; }
-.accordion-header .score-bar-container { width: 100px; height: 8px; background-color: var(--border-color-light); border-radius: 4px; overflow: hidden; margin-left: 15px; /* Add space between score and bar */ }
+.element-summary-header .score-label { font-size: 0.9em; color: var(--text-muted-color); font-weight: normal; white-space: nowrap; }
+.accordion-header .score-bar-container { width: 100px; height: 8px; background-color: var(--border-color-light); border-radius: 4px; overflow: hidden; margin-left: 15px; /* Add space between score and bar */ flex-shrink: 0; }
 .accordion-header .score-bar-container div { height: 100%; }
 
 /* Accordion Body */
 .accordion-body {
     max-height: 0; /* Start hidden */
     overflow: hidden;
-    transition: max-height 0.3s ease-out;
+    transition: max-height 0.3s ease-out, padding 0.3s ease-out;
+    padding: 0 var(--spacing); /* Remove padding when closed */
     border-top: 1px solid transparent; /* For transition */
 }
-.accordion-item[open] > .accordion-body {
-    max-height: 1000px; /* Allow it to expand - adjust if needed */
+.accordion-item[open] > .accordion-body,
+.accordion-item.open > .accordion-body { /* Support class-based toggle */
+    max-height: 1500px; /* Allow it to expand - adjust if needed */
+    padding: var(--spacing); /* Add padding back when open */
     border-top-color: var(--border-color-light); /* Show border when open */
 }
-:root.dark .accordion-item[open] > .accordion-body { border-top-color: var(--border-color-dark); }
+:root.dark .accordion-item[open] > .accordion-body,
+:root.dark .accordion-item.open > .accordion-body { border-top-color: var(--border-color-dark); }
 
 /* Style the content body */
 .element-detail-entry .element-description {
-    padding: var(--spacing);
+    /* Padding applied to accordion-body now */
 }
 .element-elaboration summary {
      font-weight: bold;
      cursor: pointer;
      color: var(--link-color);
      margin-top: 10px;
+     list-style: none; /* Hide default marker */
 }
+.element-elaboration summary::-webkit-details-marker { display: none; }
 .element-elaboration .collapsible-content { padding-left: 15px; font-size: 0.95em; }
 
-/* Remove max-height to allow natural flow */
-.persona-elements-detailed {
-  /* max-height: none !important; */ /* Removed */
-  /* overflow: visible !important; */ /* Removed */
-  padding-right: 0; /* Remove scrollbar padding */
-}
 /* Keep Resources header sticky */
 .persona-elements-detailed h2[title*="Insight"] {
   position: sticky;
-  top: -1px;
+  top: -1px; /* Stick to top inside scroll container */
   background: var(--background-light); /* Use card background */
   z-index: 1;
   padding-top: 5px;
   padding-bottom: 5px;
+  margin-left: calc(-1 * var(--spacing)); /* Offset padding */
+  margin-right: calc(-1 * var(--spacing));
+  padding-left: var(--spacing);
+  padding-right: var(--spacing);
+  border-bottom: 1px solid var(--border-color-light); /* Add border for clarity */
 }
-:root.dark .persona-elements-detailed h2[title*="Insight"] { background: var(--background-medium); }
+:root.dark .persona-elements-detailed h2[title*="Insight"] { background: var(--background-medium); border-color: var(--border-color-light); }
 
 /* Deep Dive Container within Accordion */
 .element-deep-dive-container { margin-top: var(--spacing); }
@@ -1532,6 +1558,7 @@ canvas#personaScoreChartCanvas { background-color: transparent !important; } /* 
 .deep-dive-level h6 i { font-size: 0.9em; }
 .deep-dive-level p, .deep-dive-level div { font-size: 0.9em; }
 .deep-dive-level .unlock-button { margin-top: 8px; }
+.unlock-error { font-size:0.8em; color:var(--danger-color); display: block; margin-top: 4px;}
 
 /* Attunement Bar styling */
 .attunement-display { margin-top: 10px; font-size: 0.9em; }
@@ -1543,42 +1570,17 @@ canvas#personaScoreChartCanvas { background-color: transparent !important; } /* 
 
 
 /* ---------- 12. Workshop Screen Layout Tweaks ----------- */
-/* Workshop Insight Display - Top Right */
-.workshop-insight-display {
-  position: absolute;
-  top: calc(var(--spacing) * 0.5); /* Position relative to workshop screen padding */
-  right: var(--spacing);
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 14px;
-  border-radius: 9999px; /* Pill shape */
-  background: var(--secondary-color);
-  border: 1px solid var(--primary-color);
-  color: var(--primary-color);
-  font-weight: bold;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-  z-index: 10; /* Above content */
-  backdrop-filter: blur(4px); /* Frosted glass */
-}
-:root.dark .workshop-insight-display { background: var(--secondary-color); color: var(--background-dark); border-color: var(--accent-color); }
+/* Styles integrated from head */
 
-/* Adjust workshop title positioning */
-#workshopScreen > h1 { margin-right: 150px; } /* Add space for the insight badge */
-@media (max-width: 950px) {
-    #workshopScreen > h1 { margin-right: 0; } /* Remove adjustment when stacked */
-}
-
-/* Research Element Buttons Grid */
-.element-research-buttons-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-bottom: var(--spacing); }
-.element-research-buttons-grid .initial-discovery-element {
+/* Workshop Element Research Buttons */
+.research-chips .initial-discovery-element { /* Renamed class for Workshop element buttons */
   display: flex;
   flex-direction: column;
   align-items: stretch;
   gap: 6px;
   padding: 10px 14px;
   border-radius: var(--border-radius);
-  background: var(--background-medium);
+  background: var(--background-light); /* Lighter than panel */
   border: 1px solid var(--border-color-light);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
   cursor: pointer;
@@ -1586,18 +1588,18 @@ canvas#personaScoreChartCanvas { background-color: transparent !important; } /* 
   text-align: center;
   position: relative;
 }
-:root.dark .element-research-buttons-grid .initial-discovery-element { background: var(--background-dark); border-color: var(--border-color-light); }
+:root.dark .research-chips .initial-discovery-element { background: var(--background-light); border-color: var(--border-color-light); }
 
-.element-research-buttons-grid .initial-discovery-element:hover:not(.disabled) {
-  background: var(--background-dark);
+.research-chips .initial-discovery-element:hover:not(.disabled) {
+  background: var(--background-medium); /* Slightly darker on hover */
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
   transform: translateY(-1px);
 }
-:root.dark .element-research-buttons-grid .initial-discovery-element:hover:not(.disabled) { background: var(--background-light); }
+:root.dark .research-chips .initial-discovery-element:hover:not(.disabled) { background: var(--background-dark); }
 
-.element-research-buttons-grid .initial-discovery-element:active:not(.disabled) { transform: scale(0.97); }
-.element-research-buttons-grid .initial-discovery-element.disabled { opacity: 0.6; cursor: not-allowed; background-color: #e0e0e0; }
-:root.dark .element-research-buttons-grid .initial-discovery-element.disabled { background-color: #444; }
+.research-chips .initial-discovery-element:active:not(.disabled) { transform: scale(0.97); }
+.research-chips .initial-discovery-element.disabled { opacity: 0.6; cursor: not-allowed; background-color: #e0e0e0; }
+:root.dark .research-chips .initial-discovery-element.disabled { background-color: #444; }
 
 /* Element Button Content */
 .initial-discovery-element .element-header { display: flex; align-items: center; justify-content: center; gap: 5px; font-weight: bold; color: var(--primary-color); font-size: 1.1em; margin-bottom: 4px; }
@@ -1633,7 +1635,7 @@ canvas#personaScoreChartCanvas { background-color: transparent !important; } /* 
 
 
 /* Grimoire Shelves */
-.grimoire-shelves-area { margin: var(--spacing) 0; display: flex; flex-wrap: wrap; gap: 10px; }
+.grimoire-shelves-area { margin-bottom: var(--spacing); display: flex; flex-wrap: wrap; gap: 10px; }
 .grimoire-shelf {
     border: 1px solid var(--border-color-light);
     margin-bottom: 0; /* Remove margin as gap is used */
@@ -1676,23 +1678,8 @@ canvas#personaScoreChartCanvas { background-color: transparent !important; } /* 
     transition-delay: 0ms !important;
     animation-delay: -0.0001s !important
   }
-
-.screen {
-    grid-column: 1 / -1; /* Span full width */
-    min-width: 0; /* Prevent content from forcing wider columns */
 }
 
-/* ---------- Reduced Motion Override ------------------ */
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
-    transition-delay: 0ms !important;
-    animation-delay: -0.0001s !important
-  }
-}
 /* Save Indicator Styling */
 .save-indicator {
   position: fixed;
@@ -1715,5 +1702,24 @@ canvas#personaScoreChartCanvas { background-color: transparent !important; } /* 
 .save-indicator i {
   margin-right: 5px;
 }
+
+
+/* ---------- 14. Visually Hidden Class ------------------ */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+/* ---------- 15. Clickable Class ------------------------ */
+.clickable {
+  cursor: pointer;
+}
+
 
 /* --- END OF FILE style.css --- */
