@@ -1721,5 +1721,94 @@ canvas#personaScoreChartCanvas { background-color: transparent !important; } /* 
   cursor: pointer;
 }
 
+.research-result-item {
+  border: 1px solid var(--border-color-light);
+  border-radius: var(--border-radius);
+  overflow: hidden;
+  background: var(--background-light);
+  display: flex;
+  flex-direction: column; /* Stack card and actions */
+  padding: 8px; /* Padding around the card+actions */
+  /* Add state border styling */
+   border-left-width: 4px; /* Make space for state border */
+   border-left-style: solid;
+   border-left-color: transparent; /* Default */
+   transition: border-left-color 0.3s ease;
+}
+:root.dark .research-result-item {
+    background: var(--background-medium);
+    border-color: var(--border-color-dark);
+}
 
+/* State borders for research items */
+.research-result-item[data-choice-made="pending_dissonance"] { border-left-color: var(--info-color); }
+.research-result-item[data-choice-made="kept"],
+.research-result-item[data-choice-made="kept_after_dissonance"],
+.research-result-item[data-choice-made="kept_after_dissonance_fail"] { border-left-color: var(--success-color); }
+.research-result-item[data-choice-made="sold"] { border-left-color: var(--warning-color); }
+.research-result-item[data-choice-made="error_adding"],
+.research-result-item[data-choice-made="error_unknown"] { border-left-color: var(--danger-color); }
+
+
+/* Style the embedded concept card inside the result item */
+.research-result-item .concept-card {
+  box-shadow: none; /* Remove shadow from card inside wrapper */
+  border: none; /* Remove border from card inside wrapper */
+  flex-grow: 1; /* Allow card to fill space */
+  margin: 0 0 8px 0; /* Margin below card before actions */
+  cursor: default; /* Not clickable itself */
+  /* Reset category border added by renderCard */
+  border-left: none !important;
+}
+.research-result-item .concept-card::before {
+     display: none; /* Hide the ::before pseudo-element used for category */
+}
+ .research-result-item .concept-card:hover {
+     transform: none; /* Disable hover transform */
+ }
+ /* Ensure internals still have correct left margin if ::before is hidden */
+ .research-result-item .concept-card .card-header,
+ .research-result-item .concept-card .card-visual,
+ .research-result-item .concept-card .card-footer {
+     margin-left: 0; /* Reset margin as category border is hidden */
+ }
+
+
+/* Style the action buttons area below the card */
+.research-result-item .card-actions {
+  position: static; /* Override absolute positioning from standard card */
+  opacity: 1; /* Always visible */
+  pointer-events: auto; /* Always interactive */
+  padding: 10px 0 5px 0; /* Padding around buttons */
+  background: transparent; /* No separate background for actions div */
+  border-top: 1px solid var(--border-color-light);
+  display: flex;
+  justify-content: space-around; /* Space out buttons */
+  align-items: center; /* Align feedback span */
+  flex-wrap: wrap; /* Allow wrapping if needed */
+  width: 100%; /* Ensure it takes full width */
+}
+:root.dark .research-result-item .card-actions {
+    border-top-color: var(--border-color-dark);
+}
+
+ .research-result-item .action-feedback {
+     font-size: 0.8em;
+     font-style: italic;
+     text-align: center;
+     display: block;
+     margin-top: 5px; /* Space feedback text */
+     min-height: 1.2em;
+     flex-basis: 100%; /* Make feedback take full width if needed */
+     order: 3; /* Put feedback below buttons */
+ }
+ .research-result-item .card-actions button {
+      order: 1; /* Ensure buttons come first */
+ }
+
+/* Adjust research popup grid layout if needed */
+ #researchPopupContent {
+     grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); /* Adjust min width slightly */
+     align-items: start; /* Align items to top */
+ }
 /* --- END OF FILE style.css --- */
