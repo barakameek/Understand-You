@@ -1,6 +1,6 @@
 // --- START OF FILE gameLogic.js ---
 
-// js/gameLogic.js - Application Logic (Enhanced v4.1 - RF, Onboarding, Logging)
+// js/gameLogic.js - Application Logic (Enhanced v4.1 - RF, Onboarding, Logging - Fixed)
 
 import * as State from './state.js';
 import * as Config from './config.js';
@@ -8,7 +8,7 @@ import * as Utils from './utils.js';
 import * as UI from './ui.js';
 // Import updated data structures (now including RoleFocus, onboardingTasks)
 import {
-    elementDetails, elementKeyToFullName, // elementNameToKey removed
+    elementDetails, elementKeyToFullName,
     concepts, questionnaireGuided,
     reflectionPrompts, elementDeepDive, dailyRituals, milestones, focusRituals,
     sceneBlueprints, alchemicalExperiments, elementalInsights, focusDrivenUnlocks,
@@ -17,7 +17,7 @@ import {
     categoryDrivenUnlocks, grimoireShelves, elementalDilemmas, onboardingTasks // Include onboarding
 } from '../data.js';
 
-console.log("gameLogic.js loading... (Enhanced v4.1 - RF, Onboarding, Logging)");
+console.log("gameLogic.js loading... (Enhanced v4.1 - RF, Onboarding, Logging - Fixed)");
 
 // --- Temporary State (Cleared by UI.hidePopups calling clearPopupState) ---
 let currentlyDisplayedConceptId = null; // ID of concept in the detail popup
@@ -106,7 +106,7 @@ function checkOnboardingInternal(actionName, targetPhase, conditionValue = null)
  * @param {string} [source="Unknown"] - Describes where the insight came from (for logging).
  */
 export function gainInsight(amount, source = "Unknown") {
-    if (typeof amount !== 'number' || isNaN(amount) || amount === 0) {
+    if (typeof amount !== 'number' || isNaN(amount)) { // Allow amount === 0 for consistency if needed
         if (amount !== 0) console.warn(`gainInsight called with invalid amount: ${amount}`);
         return;
     }
@@ -247,7 +247,8 @@ export function gainAttunementForAction(actionType, elementKey = null, amount = 
     if (changed) {
         // console.log(`Logic: Attunement updated (${actionType}, Key(s): ${targetKeys.join(',') || 'None'}) by ${baseAmount.toFixed(2)} per element.`); // Reduce noise
         // Refresh UI only if relevant screen is active
-        if (document.getElementById('personaScreen')?.classList.contains('current')) {
+        const personaScreen = document.getElementById('personaScreen');
+        if (personaScreen?.classList.contains('current')) {
             // Use requestAnimationFrame to ensure DOM is ready if called rapidly
             requestAnimationFrame(UI.displayElementAttunement);
         }
@@ -281,8 +282,8 @@ export function handleQuestionnaireInputChange(event) {
     const type = input.dataset.type; // 'slider', 'radio', 'checkbox'
     const currentState = State.getState();
 
-    if (currentState.currentElementIndex < 0 || currentState.currentElementIndex >= elementNames.length) {
-        console.warn("Questionnaire input change outside valid element index.");
+    if (!currentState || currentState.currentElementIndex < 0 || currentState.currentElementIndex >= elementNames.length) {
+        console.warn("Questionnaire input change outside valid element index or state missing.");
         return;
     }
     // elementNames contains the keys like "Attraction", "Interaction", ..., "RoleFocus"
@@ -342,7 +343,7 @@ export function calculateElementScore(elementNameKey, answersForElement) {
     let score = 5.0; // Start at neutral
 
     questions.forEach(q => {
-        const answer = answersForElement[q.qId];
+        const answer = answersForElement?.[q.qId]; // Use optional chaining for safety
         let pointsToAdd = 0;
         const weight = q.scoreWeight || 1.0;
 
@@ -419,7 +420,16 @@ export function goToPrevElement() {
 export function finalizeQuestionnaire() {
     console.log("Logic: Finalizing scores for 7 elements...");
     const finalScores = {};
-    const allAnswers = State.getState().userAnswers;
+    const currentState = State.getState(); // Get current state, including potentially unsaved answers
+    const allAnswers = currentState.userAnswers; // Use answers from state
+
+    // Save answers for the *last* element before calculating scores
+     if (currentState.currentElementIndex >= 0 && currentState.currentElementIndex < elementNames.length) {
+         const lastElementNameKey = elementNames[currentState.currentElementIndex];
+         const currentUIAnswers = UI.getQuestionnaireAnswers(); // Get potentially updated answers from UI
+         State.updateAnswers(lastElementNameKey, currentUIAnswers); // Update state without saving yet
+         allAnswers[lastElementNameKey] = currentUIAnswers; // Ensure allAnswers has the latest
+     }
 
     // Iterate using the element name keys which are used in answers and questionnaireGuided
     elementNames.forEach(elementNameKey => { // "Attraction", "Interaction", ..., "RoleFocus"
@@ -474,17 +484,17 @@ export function determineStarterHandAndEssence() {
      // Calculate distance for all concepts that have valid scores for ALL 7 elements
      let conceptsWithDistance = concepts.map(c => {
          const conceptScores = c.elementScores;
-         // Strict check: Ensure elementScores exists and has exactly 7 keys
-         const conceptScoresValid = conceptScores && Object.keys(conceptScores).length === elementNames.length &&
-                                    elementNames.every(nameKey => {
-                                        const key = Object.keys(elementKeyToFullName).find(k => elementKeyToFullName[k] === nameKey);
-                                        return key && conceptScores.hasOwnProperty(key) && typeof conceptScores[key] === 'number';
-                                    });
+         // Strict check: Ensure elementScores exists and has exactly 7 keys matching elementNames
+         const expectedKeys = Object.keys(elementKeyToFullName); // A, I, S, P, C, R, RF
+         const conceptScoresValid = conceptScores &&
+                                    typeof conceptScores === 'object' &&
+                                    expectedKeys.length === Object.keys(conceptScores).length && // Check count first
+                                    expectedKeys.every(key => conceptScores.hasOwnProperty(key) && typeof conceptScores[key] === 'number' && !isNaN(conceptScores[key])); // Check existence and type
 
          const distance = conceptScoresValid ? Utils.euclideanDistance(userScores, conceptScores, c.name) : Infinity;
 
          if (!conceptScoresValid) {
-             console.warn(`Concept ${c.name} (ID: ${c.id}) missing or has incomplete/invalid scores (${Object.keys(conceptScores || {}).length}/7). Excluding from starter hand calculation.`);
+             console.warn(`Concept ${c.name} (ID: ${c.id}) missing or has incomplete/invalid scores (${Object.keys(conceptScores || {}).length}/${expectedKeys.length}). Excluding from starter hand calculation.`);
          }
          return { ...c, distance };
      }).filter(c => c.distance !== Infinity && !isNaN(c.distance)); // Filter out concepts with calculation errors or missing scores
@@ -621,7 +631,8 @@ export function handleResearchClick({ currentTarget, isFree = false }) {
     if (conducted) {
         // Onboarding check handled by triggerActionAndCheckOnboarding in main.js
         // Update button states if still on workshop screen
-        if (document.getElementById('workshopScreen')?.classList.contains('current')) {
+        const workshopScreen = document.getElementById('workshopScreen');
+        if (workshopScreen?.classList.contains('current')) {
             UI.displayWorkshopScreenContent(); // Refresh button states (cost/free text)
         }
     }
@@ -641,7 +652,7 @@ export function handleFreeResearchClick() {
 
     // Find element with the lowest attunement
     for (const key in attunement) { // Includes RF
-        if (attunement.hasOwnProperty(key) && attunement[key] < minAtt) {
+        if (attunement.hasOwnProperty(key) && typeof attunement[key] === 'number' && attunement[key] < minAtt) {
             minAtt = attunement[key];
             targetKey = key;
         }
@@ -827,7 +838,8 @@ export function handleConfirmReflection(nudgeAllowed) {
                 const currentScores = State.getScores();
                 const newScores = { ...currentScores };
                 let nudged = false;
-                for (const key in currentScores) { // Iterate through 'A'...'RF'
+                const expectedKeys = Object.keys(elementKeyToFullName); // A, I, S, P, C, R, RF
+                for (const key of expectedKeys) { // Iterate through 'A'...'RF'
                     if (currentScores.hasOwnProperty(key) && conceptScores.hasOwnProperty(key)) {
                         const uScore = currentScores[key];
                         const cScore = conceptScores[key];
@@ -845,7 +857,7 @@ export function handleConfirmReflection(nudgeAllowed) {
                     console.log("Logic: Nudged Scores:", State.getScores());
                     if (personaScreen?.classList.contains('current')) { UI.displayPersonaScreen(); } // Refresh persona screen if visible
                     UI.showTemporaryMessage("Core understanding shifted slightly.", 3500);
-                    gainAttunementForAction('scoreNudge', 'All', 0.5); // Grant small attunement boost for nudge
+                    gainAttunementForAction('scoreNudge', 'All'); // Updated call
                     updateMilestoneProgress('scoreNudgeApplied', 1); // Track milestone
                 }
             } else if (nudgeAllowed && (!conceptScoresValid)) {
@@ -922,9 +934,14 @@ export function handleResearchPopupChoice(conceptId, action) {
         return;
     }
      // Strict check for 7 scores
-     const conceptScoresValid = concept.elementScores && Object.keys(concept.elementScores).length === elementNames.length;
+     const expectedKeys = Object.keys(elementKeyToFullName);
+     const conceptScoresValid = concept.elementScores &&
+                                typeof concept.elementScores === 'object' &&
+                                expectedKeys.length === Object.keys(concept.elementScores).length &&
+                                expectedKeys.every(key => concept.elementScores.hasOwnProperty(key) && typeof concept.elementScores[key] === 'number' && !isNaN(concept.elementScores[key]));
+
      if (!conceptScoresValid) {
-         console.error(`Concept ${conceptId} (${concept.name}) has incomplete scores. Cannot process choice.`);
+         console.error(`Concept ${conceptId} (${concept.name}) has incomplete/invalid scores. Cannot process choice.`);
          UI.handleResearchPopupAction(conceptId, 'error_unknown');
          return;
      }
@@ -1077,7 +1094,13 @@ export function addConceptToGrimoireById(conceptId, buttonElement = null) {
          return;
      }
      const concept = concepts.find(c => c.id === conceptId);
-     if (!concept || !concept.elementScores || Object.keys(concept.elementScores).length !== elementNames.length) {
+     const expectedKeys = Object.keys(elementKeyToFullName);
+     const conceptScoresValid = concept?.elementScores &&
+                                typeof concept.elementScores === 'object' &&
+                                expectedKeys.length === Object.keys(concept.elementScores).length &&
+                                expectedKeys.every(key => concept.elementScores.hasOwnProperty(key) && typeof concept.elementScores[key] === 'number' && !isNaN(concept.elementScores[key]));
+
+     if (!concept || !conceptScoresValid) {
          console.error("Cannot add concept: Not found or missing/incomplete scores. ID:", conceptId);
          UI.showTemporaryMessage("Error: Concept data invalid.", 3000);
          return;
@@ -1154,7 +1177,8 @@ export function handleCardFocusToggle(conceptId) {
         calculateTapestryNarrative(true); // Recalculate narrative immediately
         checkSynergyTensionStatus(); // Update synergy button status
         // Update Persona screen elements if it's the current view
-        if (document.getElementById('personaScreen')?.classList.contains('current')) {
+        const personaScreen = document.getElementById('personaScreen');
+        if (personaScreen?.classList.contains('current')) {
             UI.displayFocusedConceptsPersona();
             UI.generateTapestryNarrative();
             UI.synthesizeAndDisplayThemesPersona();
@@ -1219,7 +1243,8 @@ export function handleSellConcept(event) {
         if (focusChanged) {
             calculateTapestryNarrative(true);
             checkSynergyTensionStatus();
-            if (document.getElementById('personaScreen')?.classList.contains('current')) {
+            const personaScreen = document.getElementById('personaScreen');
+            if (personaScreen?.classList.contains('current')) {
                 UI.displayFocusedConceptsPersona();
                 UI.generateTapestryNarrative();
                 UI.synthesizeAndDisplayThemesPersona();
@@ -1407,7 +1432,10 @@ export function triggerReflectionPrompt(context = 'Standard', targetId = null, c
             const sortedKeysByName = validElementKeys.sort((a, b) => {
                  const keyA = Object.keys(elementKeyToFullName).find(k => elementKeyToFullName[k] === a);
                  const keyB = Object.keys(elementKeyToFullName).find(k => elementKeyToFullName[k] === b);
-                 return attunement[keyB] - attunement[keyA]; // Sort by attunement value DESC
+                 // Ensure keys exist before accessing attunement
+                 const attA = keyA ? attunement[keyA] : 0;
+                 const attB = keyB ? attunement[keyB] : 0;
+                 return attB - attA; // Sort by attunement value DESC
             });
             const topTierCount = Math.max(1, Math.ceil(sortedKeysByName.length / 2));
             const topTierNames = sortedKeysByName.slice(0, topTierCount);
@@ -1548,12 +1576,10 @@ function unlockDeepDiveLevelInternal(elementKey, levelToUnlock) {
     if (spendInsight(cost, `Unlock Insight: ${Utils.getElementShortName(elementNameKey)} Lv ${levelToUnlock}`)) {
         if (State.unlockLibraryLevel(elementKey, levelToUnlock)) { // Saves state
             // Update UI: Refresh Persona screen to show new unlocked level
-            if (document.getElementById('personaScreen')?.classList.contains('current')) {
-                // *** FIX: Call the logic function within this module ***
-                 // Check if GameLogic is loaded before calling
-                 if (typeof GameLogic !== 'undefined' && GameLogic.displayPersonaScreenLogic) {
-                      displayPersonaScreenLogic(); // Corrected: No UI. prefix
-                 } else { console.error("GameLogic or displayPersonaScreenLogic not available yet!"); }
+            const personaScreen = document.getElementById('personaScreen');
+            if (personaScreen?.classList.contains('current')) {
+                // Call the logic function within this module to update the screen
+                displayPersonaScreenLogic(); // Corrected: No UI. prefix
             }
             updateMilestoneProgress('unlockLibrary', levelToUnlock); // Track milestone
             updateMilestoneProgress('unlockedDeepDiveLevels', State.getState().unlockedDeepDiveLevels); // Check aggregate milestones
@@ -1569,7 +1595,6 @@ function unlockDeepDiveLevelInternal(elementKey, levelToUnlock) {
     }
     return false; // Failed to spend insight
 }
-
 
 
 /** Handles clicking meditate button on a scene */
@@ -1602,7 +1627,8 @@ function meditateOnSceneInternal(sceneId) {
             UI.showTemporaryMessage("Scene has no reflection prompt.", 2500);
         }
         // Refresh repository if open to potentially update button state
-         if (document.getElementById('repositoryScreen')?.classList.contains('current')) {
+         const repositoryScreen = document.getElementById('repositoryScreen');
+         if (repositoryScreen?.classList.contains('current')) {
             UI.displayRepositoryContent();
          }
     }
@@ -1640,7 +1666,7 @@ function attemptExperimentInternal(experimentId) {
     // Check Requirements
     if (attunement[exp.requiredElement] < exp.requiredAttunement) {
         canAttempt = false;
-        unmetReqs.push(`${exp.requiredAttunement} ${Utils.getElementShortName(elementKeyToFullName[exp.requiredElement])} Attun.`);
+        unmetReqs.push(`${exp.requiredAttunement} ${Utils.getElementShortName(elementKeyToFullName[exp.requiredElement])} Att.`);
     }
     // Check RF score requirements if they exist
     if (exp.requiredRoleFocusScore !== undefined && (scores.RF ?? 0) < exp.requiredRoleFocusScore) {
@@ -1740,7 +1766,8 @@ function attemptExperimentInternal(experimentId) {
     }
 
     // Refresh repository screen if it's currently visible
-    if(document.getElementById('repositoryScreen')?.classList.contains('current')) {
+    const repositoryScreen = document.getElementById('repositoryScreen');
+    if(repositoryScreen?.classList.contains('current')) {
         UI.displayRepositoryContent();
     }
 }
@@ -1802,7 +1829,8 @@ export function handleSuggestSceneClick() {
             }
             UI.showTemporaryMessage(`Scene Suggested: '${selectedScene.name}'!`, 4000);
             // Refresh Repository if open
-            if (document.getElementById('repositoryScreen')?.classList.contains('current')) {
+            const repositoryScreen = document.getElementById('repositoryScreen');
+            if (repositoryScreen?.classList.contains('current')) {
                 UI.displayRepositoryContent();
             }
         } else {
@@ -1979,7 +2007,10 @@ export function handleExploreSynergyClick() {
 
 /** Calculates the average scores based on currently focused concepts (Includes RF) */
 export function calculateFocusScores() {
-    const scores = { A: 0, I: 0, S: 0, P: 0, C: 0, R: 0, RF: 0 }; // Initialize all 7
+    const expectedKeys = Object.keys(elementKeyToFullName); // A, I, S, P, C, R, RF
+    const scores = {};
+    expectedKeys.forEach(key => scores[key] = 0); // Initialize all 7
+
     const focused = State.getFocusedConcepts();
     const disc = State.getDiscoveredConcepts();
     const count = focused.size;
@@ -1989,24 +2020,27 @@ export function calculateFocusScores() {
             const conceptData = disc.get(id)?.concept;
             // Use concept scores if available and complete, otherwise add neutral (5.0)
             const conceptScores = conceptData?.elementScores;
-            const scoresValid = conceptScores && Object.keys(conceptScores).length === elementNames.length;
+             const scoresValid = conceptScores &&
+                                typeof conceptScores === 'object' &&
+                                expectedKeys.length === Object.keys(conceptScores).length &&
+                                expectedKeys.every(key => conceptScores.hasOwnProperty(key) && typeof conceptScores[key] === 'number' && !isNaN(conceptScores[key]));
 
             if (scoresValid) {
-                for (const key in scores) {
-                    scores[key] += conceptScores[key] ?? 5.0; // Use 5 if key exists but value is somehow null/undefined
-                }
+                expectedKeys.forEach(key => {
+                    scores[key] += conceptScores[key];
+                });
             } else {
                  if(conceptData) console.warn(`Concept ${conceptData.name} (ID: ${id}) in focus has missing/incomplete scores. Using neutral 5.0 for averaging.`);
-                for (const key in scores) { scores[key] += 5.0; } // Add neutral if scores missing/incomplete
+                 expectedKeys.forEach(key => { scores[key] += 5.0; }); // Add neutral if scores missing/incomplete
             }
         });
         // Average the scores
-        for (const key in scores) {
+        expectedKeys.forEach(key => {
             scores[key] /= count;
-        }
+        });
     } else {
         // If no concepts focused, return neutral scores
-        Object.keys(scores).forEach(key => scores[key] = 5.0);
+        expectedKeys.forEach(key => scores[key] = 5.0);
     }
     return { focusScores: scores, focusCount: count };
 }
@@ -2138,7 +2172,8 @@ export function calculateTapestryNarrative(forceRecalculate = false) {
     const focusConceptsData = Array.from(focused).map(id => disc.get(id)?.concept).filter(Boolean); // Get data for focused concepts
 
     if (focusConceptsData.length >= 2) {
-        for (const key of Object.keys(elementKeyToFullName)) { // Check each element key ('A'...'RF')
+        const expectedKeys = Object.keys(elementKeyToFullName); // A, I, S, P, C, R, RF
+        for (const key of expectedKeys) { // Check each element key ('A'...'RF')
             const elementName = Utils.getElementShortName(elementKeyToFullName[key]);
             // Check if concept scores exist and contain the key before accessing
             let hasHigh = focusConceptsData.some(c => c.elementScores?.[key] !== undefined && c.elementScores[key] >= highThreshold);
@@ -2205,7 +2240,10 @@ export function calculateFocusThemes() {
     const disc = State.getDiscoveredConcepts();
     if (focused.size === 0) return [];
 
-    const counts = { A: 0, I: 0, S: 0, P: 0, C: 0, R: 0, RF: 0 }; // Initialize all 7
+    const expectedKeys = Object.keys(elementKeyToFullName); // A, I, S, P, C, R, RF
+    const counts = {};
+    expectedKeys.forEach(key => counts[key] = 0); // Initialize all 7
+
     const threshold = 7.0; // Consider 'High' or 'Very High' scores as contributing to a theme
 
     focused.forEach(id => {
@@ -2306,10 +2344,12 @@ export function checkForFocusUnlocks(silent = false) {
      // Refresh relevant UI sections if unlocks happened
      if (newlyUnlocked && !silent) {
          console.log("Logic: New Focus Unlocks achieved:", Array.from(State.getUnlockedFocusItems()));
-         if (document.getElementById('repositoryScreen')?.classList.contains('current')) {
+         const repositoryScreen = document.getElementById('repositoryScreen');
+         const personaScreen = document.getElementById('personaScreen');
+         if (repositoryScreen?.classList.contains('current')) {
              UI.displayRepositoryContent(); // Refresh repo if open
          }
-         if (document.getElementById('personaScreen')?.classList.contains('current')) {
+         if (personaScreen?.classList.contains('current')) {
              UI.generateTapestryNarrative(); // Narrative might mention unlocks implicitly
          }
      }
@@ -2457,7 +2497,10 @@ function generateFocusedContemplation() {
 /** Handles completing the contemplation task */
 export function handleCompleteContemplation(taskData = null) {
      // Try to retrieve task data if not passed directly
-    const currentTask = taskData || generateFocusedContemplation(); // Re-generate if needed, might differ slightly
+     // Note: Regenerating task might lead to inconsistency if analysis changed.
+     // Ideally, the task data should be stored temporarily when displayed.
+     // For now, we keep the re-generation as a fallback.
+    const currentTask = taskData || generateFocusedContemplation();
 
     if (!currentTask || !currentTask.reward || !currentTask.requiresCompletionButton) {
          console.warn("Contemplation completion attempted without valid task data.");
@@ -2553,10 +2596,7 @@ export function handleConfirmDilemma() {
                 console.log("Nudged Scores after Dilemma:", State.getScores());
                 if(personaScreen?.classList.contains('current')) {
                      // Call the logic function to update the persona screen content
-                     // Check if displayPersonaScreenLogic exists before calling
-                     if (typeof displayPersonaScreenLogic === 'function') {
-                          displayPersonaScreenLogic();
-                     } else { console.error("displayPersonaScreenLogic not defined!"); }
+                     displayPersonaScreenLogic(); // Call internal logic function directly
                 }
                 UI.showTemporaryMessage("Dilemma choice influenced core understanding.", 3500);
                 gainAttunementForAction('dilemmaNudge', 'All'); // Small attunement boost
@@ -2613,14 +2653,17 @@ export function checkForDailyLogin() {
 export function checkAndUpdateRituals(action, details = {}) {
     let ritualCompletedThisCheck = false;
     const currentState = State.getState();
-    const completedToday = currentState.completedRituals.daily || {}; // Get completed status for daily rituals
+    const completedRitualsData = currentState.completedRituals || { daily: {}, weekly: {} };
     const focused = currentState.focusedConcepts;
     const scores = currentState.userScores; // Needed for RF checks in focus rituals
 
     // Combine standard daily rituals and applicable focus rituals
     let currentRitualPool = [...dailyRituals];
-    if (focusRituals) {
+    if (focusRituals && Array.isArray(focusRituals)) {
         focusRituals.forEach(ritual => {
+            // Basic validation of ritual structure
+            if (!ritual || !ritual.id) return;
+
             // Check if requirements for this focus ritual are met
             let focusMet = true;
             // Check specific focused concept IDs
@@ -2648,18 +2691,19 @@ export function checkAndUpdateRituals(action, details = {}) {
 
     // Iterate through the combined pool of active rituals
     currentRitualPool.forEach(ritual => {
+        // Validate ritual structure again
+        if (!ritual || !ritual.id || !ritual.track) {
+             console.warn(`Skipping invalid ritual structure:`, ritual);
+             return;
+        }
+
         const period = ritual.period || 'daily'; // Default to daily if period missing
-        const completedPeriodData = currentState.completedRituals[period] || {};
+        const completedPeriodData = completedRitualsData[period] || {};
         const completedData = completedPeriodData[ritual.id] || { completed: false, progress: 0 };
 
         if (completedData.completed) return; // Skip rituals already completed for their period
 
         const track = ritual.track; // The trigger conditions for this ritual
-        if (!track) {
-             console.warn(`Ritual ${ritual.id} has no tracking conditions defined. Skipping check.`);
-             return;
-        }
-
         let triggerMet = false;
 
         // Check if the action matches the ritual's trigger action
@@ -2707,7 +2751,8 @@ export function checkAndUpdateRituals(action, details = {}) {
     });
 
     // If any ritual was completed, refresh the display if the Repository is visible
-    if (ritualCompletedThisCheck && document.getElementById('repositoryScreen')?.classList.contains('current')) {
+    const repositoryScreen = document.getElementById('repositoryScreen');
+    if (ritualCompletedThisCheck && repositoryScreen?.classList.contains('current')) {
         UI.displayDailyRituals();
     }
 }
@@ -2725,8 +2770,9 @@ export function updateMilestoneProgress(trackType, currentValue) {
      // Defensive check: Ensure achievedMilestones is actually a Set
      if (!(achievedSet instanceof Set)) {
           console.error("CRITICAL ERROR: gameState.achievedMilestones is not a Set! Attempting recovery.");
-          gameState.achievedMilestones = new Set(Array.isArray(gameState.achievedMilestones) ? gameState.achievedMilestones : []);
-          return; // Avoid proceeding further in this potentially corrupted state for this check cycle
+          State.getState().achievedMilestones = new Set(Array.isArray(achievedSet) ? achievedSet : []);
+          // We should probably return here to avoid potential infinite loops or further errors
+          return;
      }
 
      milestones.forEach(m => {
@@ -2747,12 +2793,15 @@ export function updateMilestoneProgress(trackType, currentValue) {
 
          // 1. Action-based milestones
          if (track.action && track.action === trackType) {
-             // Simple action count check (assumes currentValue is the *total* count from state if > 1)
-             // State management needs to maintain these counts if milestones require > 1 action.
-             // Currently, most action counts are tracked simply by triggering '1' here.
-             const currentActionCount = typeof currentValue === 'number' ? currentValue : 1; // Assume 1 if not specified
+             // Simple action count check
+             // If currentValue is provided and represents the total count, use it.
+             // Otherwise, assume this call represents one increment towards the count.
+             // For milestones requiring counts > 1, the *calling* function needs to track the total count
+             // and pass it as currentValue, or we need a separate state variable for the milestone count.
+             // Assuming for now that action-based milestones mostly track the first occurrence (count=1).
+             const currentActionCount = (typeof currentValue === 'number' && currentValue > 0) ? currentValue : 1;
              if (currentActionCount >= countThreshold) {
-                 achieved = true;
+                  achieved = true;
              }
          }
          // 2. State-based milestones
@@ -2862,7 +2911,8 @@ export function updateMilestoneProgress(trackType, currentValue) {
      }); // end forEach milestone
 
      // Refresh Repository UI if a milestone was achieved and the screen is visible
-     if (milestoneAchievedThisUpdate && document.getElementById('repositoryScreen')?.classList.contains('current')) {
+     const repositoryScreen = document.getElementById('repositoryScreen');
+     if (milestoneAchievedThisUpdate && repositoryScreen?.classList.contains('current')) {
           UI.displayRepositoryContent(); // Refreshes milestones list
      }
 }
@@ -2877,5 +2927,5 @@ function _calculateFocusSetHash() {
 }
 
 
-console.log("gameLogic.js loaded successfully. (Enhanced v4.1)");
+console.log("gameLogic.js loaded successfully. (Enhanced v4.1 - Fixed)");
 // --- END OF FILE gameLogic.js ---
