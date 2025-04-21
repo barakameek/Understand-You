@@ -320,202 +320,50 @@
                   </div>
              </div>
         </div>
+   <!-- Workshop Screen (Revised Layout) -->
+        <div id="workshopScreen" class="screen hidden workshop-screen hidden-by-flow">
+          <!-- Left: Core Elements List -->
+          <aside class="panel research-bench" id="workshop-research-area">
+            <h2><i class="fas fa-flask"></i> Research Bench</h2>
+            <div id="element-research-buttons" class="research-chips">
+                <!-- Element buttons added by JS -->
+            </div>
+            <div id="daily-actions" class="daily-actions">
+                 <!-- Daily action buttons added by JS -->
+                 <button id="freeResearchButtonWorkshop" class="button free-research-button btn" disabled title="Daily meditation already performed today.">Perform Daily Meditation ☆</button>
+                 <button id="seekGuidanceButtonWorkshop" class="button guidance-button btn" disabled title="Requires Insight">Seek Guidance (<span id="guidedReflectionCostDisplayWorkshop">?</span> <i class="fas fa-brain insight-icon"></i>)</button>
+            </div>
+          </aside>
 
-    <!-- Workshop Layout: Left Panel for Core Elements, Right Panel for Library -->
-<style>
-  #workshopScreen {
-    display: grid;
-    grid-template-columns: 1fr 3fr;
-    gap: 2rem;
-    padding: var(--spacing);
-  }
-  .panel {
-    background: var(--background-light);
-    border-radius: var(--border-radius);
-    box-shadow: var(--box-shadow);
-    padding: var(--spacing);
-    height: calc(100vh - 4rem);
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-  }
-  /* Left column: Core Elements chips */
-  .research-bench h2 {
-    margin: 0 0 var(--spacing) 0;
-    color: var(--primary-color);
-    border-bottom: 1px solid var(--border-color-light);
-    padding-bottom: 0.5rem;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-  .research-chips {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    overflow-y: auto;
-  }
-  .research-chip {
-    background: var(--background-medium);
-    border-radius: var(--border-radius);
-    padding: 0.75rem 1rem;
-    box-shadow: var(--box-shadow);
-    cursor: pointer;
-    transition: background 0.2s;
-  }
-  .research-chip:hover {
-    background: var(--background-dark);
-  }
-  .chip-label {
-    font-weight: bold;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    color: var(--text-color);
-  }
-  .chip-score {
-    font-size: 0.9rem;
-    color: var(--text-muted-color);
-  }
-  .chip-desc {
-    font-size: 0.85rem;
-    color: var(--text-muted-color);
-    margin-top: 0.25rem;
-  }
-  /* Right column: Grimoire Library */
-  .grimoire-library h2 {
-    margin: 0 0 var(--spacing) 0;
-    color: var(--primary-color);
-    border-bottom: 1px solid var(--border-color-light);
-    padding-bottom: 0.5rem;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-  .library-controls {
-    flex-shrink: 0;
-    margin-bottom: var(--spacing);
-    overflow-x: auto;
-  }
-  #grimoireGrid {
-    flex: 1;
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: var(--spacing);
-    overflow-y: auto;
-  }
-  /* Research Findings popup styling */
-  #researchPopupContent {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    gap: var(--spacing);
-  }
-  .research-popup-card {
-    background: var(--background-light);
-    border-radius: var(--border-radius);
-    box-shadow: var(--box-shadow);
-    padding: var(--spacing);
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-  }
-</style>
-
-<div id="workshopScreen" class="screen workshop-screen">
-  <!-- Left: Core Elements List -->
-  <aside class="panel research-bench">
-    <h2><i class="fas fa-flask"></i> Core Elements</h2>
-    <div id="researchChipsContainer" class="research-chips"></div>
-    <div id="daily-actions" class="daily-actions"></div>
-  </aside>
-
-  <!-- Right: Grimoire Library -->
-  <main class="panel grimoire-library">
-    <h2><i class="fas fa-book-open"></i> Grimoire Library</h2>
-    <!-- Existing filtering controls -->
-    <div class="library-controls" id="libraryControls">
-      <label>Type: <select id="libraryTypeFilter"></select></label>
-      <label>Element: <select id="libraryElementFilter"></select></label>
-      <label>Rarity: <select id="libraryRarityFilter"></select></label>
-      <label>Focus: <select id="libraryFocusFilter"></select></label>
-      <label>Search: <input type="text" id="librarySearchInput" placeholder="Keyword" /></label>
-      <button id="libraryShowAllBtn" class="button btn">Show All</button>
-    </div>
-    <!-- Card grid -->
-    <div id="grimoireGrid"></div>
-  </main>
-</div>
-
-<script type="module">
-  import * as State from './js/state.js';
-  import * as GameLogic from './js/gameLogic.js';
-  import { elementDetails, elementNames, elementKeyToFullName } from './data.js';
-  import { getElementShortName } from './js/utils.js';
-
-  function renderCoreElements() {
-    const container = document.getElementById('researchChipsContainer');
-    if (!container) return;
-    const scores = State.getState().userScores || {};
-    container.innerHTML = '';
-
-    elementNames.forEach(name => {
-      const keyEntry = Object.entries(elementKeyToFullName)
-        .find(([, v]) => v === name);
-      const key = keyEntry && keyEntry[0];
-      const score = (key && scores[key] !== undefined)
-        ? scores[key].toFixed(1)
-        : '0.0';
-      const fullQ = elementDetails[name]?.coreQuestion || '';
-      const desc = fullQ.split(/[\.\?!]\s/)[0] + '.';
-
-      const chip = document.createElement('div');
-      chip.className = 'research-chip';
-      chip.innerHTML = `
-        <div class="chip-label">
-          <i class="fas fa-atom"></i>&nbsp;${getElementShortName(name)}
+          <!-- Right: Grimoire Library -->
+          <main class="panel grimoire-library" id="workshop-library-area">
+            <div class="library-header">
+                <h2><i class="fas fa-book-open"></i> Grimoire Library</h2>
+                <span class="workshop-insight-display">Insight: <strong id="userInsightDisplayWorkshop">0.0</strong> <i class="fas fa-brain insight-icon"></i></span>
+            </div>
+            <!-- Filtering controls -->
+            <div class="library-controls" id="grimoire-controls-workshop">
+                <div class="filter-controls">
+                  <label>Type: <select id="grimoireTypeFilterWorkshop"></select></label>
+                  <label>Element: <select id="grimoireElementFilterWorkshop"></select></label>
+                  <label>Rarity: <select id="grimoireRarityFilterWorkshop"></select></label>
+                  <label>Focus: <select id="grimoireFocusFilterWorkshop"><option value="All">All Focus</option><option value="Focused">Focused ★</option><option value="Not Focused">Not Focused</option></select></label>
+                  <label>Search: <input type="text" id="grimoireSearchInputWorkshop" placeholder="Keyword" /></label>
+                  <label>Sort: <select id="grimoireSortOrderWorkshop"><option value="discovered">Newest First</option><option value="name">Name (A-Z)</option><option value="type">Type</option><option value="rarity">Rarity</option><option value="resonance">Resonance</option></select></label>
+                  </div>
+                <!-- Add Show All button if needed -->
+                <!-- <button id="libraryShowAllBtn" class="button btn">Show All</button> -->
+            </div>
+             <!-- Shelves Area -->
+            <div id="grimoire-shelves-workshop" class="grimoire-shelves-area">
+                <!-- Shelves added by JS -->
+            </div>
+            <!-- Card grid -->
+            <div id="grimoire-grid-workshop">
+                <!-- Cards added by JS -->
+            </div>
+          </main>
         </div>
-        <div class="chip-score">${score}</div>
-        <div class="chip-desc">${desc}</div>
-      `;
-      chip.addEventListener('click', () => {
-        if (key && typeof GameLogic.conductResearch === 'function') {
-          GameLogic.conductResearch(key);
-        }
-      });
-      container.appendChild(chip);
-    });
-  }
-
-  function renderLibrary() {
-    const grid = document.getElementById('grimoireGrid');
-    if (!grid) return;
-    // Delegate to existing UI refresh logic
-    window.refreshGrimoireDisplay();
-  }
-
-  document.addEventListener('DOMContentLoaded', () => {
-    renderCoreElements();
-    renderLibrary();
-    const origShowScreen = window.showScreen;
-    window.showScreen = function(id) {
-      const res = origShowScreen?.(id);
-      if (id === 'workshopScreen') {
-        setTimeout(() => {
-          renderCoreElements();
-          renderLibrary();
-        }, 0);
-      }
-      return res;
-    };
-  });
-</script>
-
-<!-- Workaround for popup errors -->
-<div id="popupResonanceGaugeSection" style="display:none;"></div>
-<script>
-  window.popupResonanceGaugeSection = document.getElementById('popupResonanceGaugeSection');
-</script>
-
 
         <!-- Repository Screen -->
          <div id="repositoryScreen" class="screen hidden repository-screen">
