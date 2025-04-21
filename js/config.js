@@ -1,6 +1,6 @@
 // --- START OF FILE config.js ---
 
-// js/config.js - Constants and Configuration (Inner Cosmos Theme - 7 Elements + Enhancements v4.1)
+// js/config.js - Constants and Configuration (Inner Cosmos Theme - 7 Elements + Enhancements v4.1 - Fixed)
 
 console.log("config.js loading... (Acknowledging 7 Elements + Enhancements v4.1)");
 
@@ -63,5 +63,5 @@ export const INSIGHT_LOG_MAX_ENTRIES = 15; // How many recent Insight changes to
 // Keep for consistency with placeholder image loading, assuming '.jpg' is the common extension.
 export const UNLOCKED_ART_EXTENSION = '.jpg';
 
-console.log("config.js loaded successfully. (v4.1)");
+console.log("config.js loaded successfully. (v4.1 - Fixed)");
 // --- END OF FILE config.js ---
