@@ -236,14 +236,10 @@
   <!-- Left: Core Elements List -->
   <aside class="panel research-bench">
     <h2><i class="fas fa-flask"></i> Core Elements</h2>
-    <!-- Container for core element chips -->
-    <div class="research-chips" id="researchChipsContainer"></div>
-    <!-- Hidden research area for UI scripts -->
-    <div id="workshop-research-area" style="display:none;">
-      <div id="element-research-buttons"></div>
-      <div id="daily-actions"></div>
-    </div></div>
-    <div id="daily-actions" style="display:none;"></div>
+    <!-- Element research buttons (auto-populated by ui.js) -->
+    <div id="element-research-buttons" class="research-bench-buttons"></div>
+    <!-- Daily actions (meditation/guidance) -->
+    <div id="daily-actions" class="daily-actions"></div>
   </aside>
 
   <!-- Right: Grimoire Library -->
@@ -312,8 +308,6 @@
   // No-op showTapestryDeepDive to avoid ReferenceError
   window.showTapestryDeepDive = function() { console.warn('showTapestryDeepDive called but not implemented'); };
 </script>
-
-
 
          <!-- Repository Screen -->
          <div id="repositoryScreen" class="screen hidden repository-screen hidden-by-flow">
