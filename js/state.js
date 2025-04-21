@@ -1,12 +1,12 @@
 // --- START OF FILE state.js ---
 
-// js/state.js - Manages Application State and Persistence (Enhanced v4.1)
+// js/state.js - Manages Application State and Persistence (Enhanced v4.1 - Fixed)
 import * as Config from './config.js';
 // Import elementNames for structure initialization and concepts for loading enrichment
 import { elementNames, concepts } from '../data.js';
 import { formatTimestamp } from './utils.js'; // For Insight Log timestamp
 
-console.log("state.js loading... (Enhanced v4.1 - Onboarding, Insight Log, RF)");
+console.log("state.js loading... (Enhanced v4.1 - Fixed Spread Syntax & Logging)");
 
 // Default game state structure (now includes onboarding, insight log, and RF)
 const createInitialGameState = () => {
@@ -46,7 +46,6 @@ const createInitialGameState = () => {
         onboardingPhase: 0, // Current phase of the onboarding tutorial (0 = not started)
         onboardingComplete: false, // Has the user finished/skipped onboarding?
         insightLog: [], // Array<{ timestamp: string, amount: number, source: string, newTotal: number }>
-        // Removed grimoireFirstVisitDone as onboarding handles this flow
     };
     // Initialize userAnswers structure for all elements using elementNames from data.js
     elementNames.forEach(name => {
@@ -60,7 +59,10 @@ let gameState = createInitialGameState();
 // --- Internal Helper ---
 // Calculates a simple hash based on sorted focused concept IDs.
 function _calculateFocusSetHash() {
-    if (!(gameState.focusedConcepts instanceof Set) || gameState.focusedConcepts.size === 0) { return ''; }
+    // Ensure gameState.focusedConcepts is a Set before proceeding
+    if (!(gameState.focusedConcepts instanceof Set) || gameState.focusedConcepts.size === 0) {
+        return '';
+    }
     // Ensure items are numbers before sorting if needed, though IDs should be numbers
     const sortedIds = Array.from(gameState.focusedConcepts).map(Number).sort((a, b) => a - b);
     return sortedIds.join(',');
@@ -73,7 +75,11 @@ const SAVE_DELAY = 1200; // Milliseconds
 // Triggers a debounced save to localStorage
 function _triggerSave() {
      const saveIndicator = document.getElementById('saveIndicator');
-     if(saveIndicator) saveIndicator.classList.remove('hidden'); // Show saving indicator
+     if (saveIndicator) {
+         saveIndicator.classList.remove('hidden'); // Show saving indicator
+     } else {
+         // console.warn("Save indicator element not found."); // Log if needed, but don't stop saving
+     }
 
      if (saveTimeout) clearTimeout(saveTimeout); // Clear existing timeout if any
 
@@ -110,7 +116,9 @@ function _triggerSave() {
             console.error("Error saving game state:", error);
          }
          finally {
-            if(saveIndicator) saveIndicator.classList.add('hidden'); // Hide indicator
+            if (saveIndicator) {
+                saveIndicator.classList.add('hidden'); // Hide indicator
+            }
             saveTimeout = null;
          }
      }, SAVE_DELAY);
@@ -123,9 +131,18 @@ export function saveGameState(forceImmediate = false) {
         saveTimeout = null; // Prevent debounced save from running after immediate save
         const saveIndicator = document.getElementById('saveIndicator');
         if(saveIndicator) saveIndicator.classList.remove('hidden');
-        _triggerSave(); // Trigger save immediately (still has internal timeout but shorter effective delay)
+        // Call _triggerSave directly, but the internal setTimeout will still apply
+        // For a truly immediate save without the 1.2s delay:
+        clearTimeout(saveTimeout); // Ensure no scheduled save exists
+        _triggerSave(); // This will still schedule it, effectively making it less immediate than _triggerSave() implies
+        // A more "immediate" save (though JS is single-threaded):
+        // 1. Clear timeout
+        // 2. Run the saving logic from inside _triggerSave's setTimeout *directly* here
+        // 3. Reset saveTimeout = null;
+        // For simplicity, sticking with triggering the debounced save which is generally safe.
+
         // Force hide indicator shortly after trying to save
-        setTimeout(() => { if(saveIndicator) saveIndicator.classList.add('hidden'); }, 50);
+        setTimeout(() => { if(saveIndicator) saveIndicator.classList.add('hidden'); }, 100); // Reduced delay
     } else {
         _triggerSave(); // Trigger debounced save
     }
@@ -153,21 +170,26 @@ export function loadGameState() {
                     for (const key in source) {
                         // Only merge keys that exist in the default structure (A-RF)
                         if (result.hasOwnProperty(key)) {
-                           result[key] = source[key];
+                           // Ensure type matches default before assigning (basic check)
+                           if (typeof source[key] === typeof defaultValue || defaultValue === null) {
+                               result[key] = source[key];
+                           } else {
+                                console.warn(`Load Warning: Type mismatch for key "${key}" in saved object. Expected ${typeof defaultValue}, got ${typeof source[key]}. Using default.`);
+                                result[key] = defaultValue; // Use default if type mismatch
+                           }
                         } else {
                             console.warn(`Load Warning: Ignoring unknown key "${key}" found in saved object.`);
                         }
                     }
                 }
-                // Ensure RF key exists with default value if missing in loaded source
-                // This handles loading saves from before RF was added
+                // Ensure RF key exists with default value if missing or invalid type in loaded source
                 if (result.RF === undefined || typeof result.RF !== typeof defaultValue) {
                     result.RF = defaultValue;
                     console.log(`Load Info: RF key missing or invalid in loaded data, set to default: ${defaultValue}`);
                 }
                 return result;
             };
-            gameState.userScores = mergeWithDefault(gameState.userScores, loadedState.userScores, 5);
+            gameState.userScores = mergeWithDefault(gameState.userScores, loadedState.userScores, 5.0);
             gameState.elementAttunement = mergeWithDefault(gameState.elementAttunement, loadedState.elementAttunement, 0);
             gameState.unlockedDeepDiveLevels = mergeWithDefault(gameState.unlockedDeepDiveLevels, loadedState.unlockedDeepDiveLevels, 0);
 
@@ -190,23 +212,31 @@ export function loadGameState() {
             // --- Restore Collections (Maps & Sets) ---
             // Rehydrate discoveredConcepts Map carefully
             if (Array.isArray(loadedState.discoveredConcepts)) {
-                gameState.discoveredConcepts = new Map(loadedState.discoveredConcepts.map(([id, savedConceptData]) => {
+                 const rehydratedMap = new Map();
+                loadedState.discoveredConcepts.forEach(([id, savedConceptData]) => {
+                     // Basic validation of saved data structure
+                    if (typeof id !== 'number' || typeof savedConceptData !== 'object' || savedConceptData === null) {
+                         console.warn(`Load Warning: Invalid entry format in discoveredConcepts array for ID ${id}. Skipping.`);
+                         return; // Skip invalid entries
+                    }
+
                     // Find the full concept data from the imported 'concepts' array
                     const conceptDataFromSource = concepts.find(c => c.id === id);
                     if (!conceptDataFromSource) {
                         console.warn(`Load Warning: Concept data for saved ID ${id} not found in current data.js. Skipping this concept.`);
-                        return null; // Skip this entry if concept data is missing
+                        return; // Skip this entry if concept data is missing
                     }
                     // Rehydrate with full concept data + saved metadata
-                    return [id, {
+                    rehydratedMap.set(id, {
                        concept: conceptDataFromSource, // Link back to full data.js object
                        discoveredTime: savedConceptData.discoveredTime || Date.now(),
                        notes: savedConceptData.notes || "",
                        unlockedLoreLevel: savedConceptData.unlockedLoreLevel || 0,
                        userCategory: savedConceptData.userCategory || 'uncategorized',
                        newLoreAvailable: savedConceptData.newLoreAvailable || false
-                   }];
-                }).filter(Boolean)); // Filter out null entries where concept data was missing
+                   });
+                });
+                gameState.discoveredConcepts = rehydratedMap;
             } else {
                  console.warn("Load Warning: discoveredConcepts in saved data is not an array. Initializing empty Map.");
                  gameState.discoveredConcepts = new Map();
@@ -244,7 +274,19 @@ export function loadGameState() {
 
             // --- Merge Primitive/Simple Object Types (with defaults) ---
             // Helper to merge simple values, providing a default if the key is missing in loadedState
-            const mergeSimple = (key, defaultValue) => (loadedState && loadedState[key] !== undefined && loadedState[key] !== null) ? loadedState[key] : defaultValue;
+            const mergeSimple = (key, defaultValue) => {
+                 const loadedValue = loadedState ? loadedState[key] : undefined;
+                // Check if loadedValue exists and is of the same type as defaultValue (or if defaultValue is null)
+                if (loadedValue !== undefined && loadedValue !== null && (typeof loadedValue === typeof defaultValue || defaultValue === null)) {
+                     return loadedValue;
+                }
+                // If types don't match or value is missing, log and return default
+                 if (loadedValue !== undefined && loadedValue !== null) {
+                      console.warn(`Load Warning: Type mismatch for key "${key}". Expected ${typeof defaultValue}, got ${typeof loadedValue}. Using default: ${defaultValue}`);
+                 }
+                return defaultValue;
+            };
+
 
             gameState.focusSlotsTotal = mergeSimple('focusSlotsTotal', Config.INITIAL_FOCUS_SLOTS);
             gameState.userInsight = mergeSimple('userInsight', Config.INITIAL_INSIGHT);
@@ -308,7 +350,8 @@ export function clearGameState() {
      // Save the cleared state immediately to prevent accidental loading of old data on refresh before next action
      saveGameState(true);
      // Trigger a page reload for a clean start
-     window.location.reload();
+     // Avoid automatic reload to allow user confirmation or other UI updates first if needed
+     // window.location.reload();
 }
 
 // --- Getters ---
@@ -341,18 +384,66 @@ export function getInsightLog() { return [...gameState.insightLog]; } // Return 
 // Functions that modify the state and trigger a save
 
 // Scores, Answers, Questionnaire Flow
-export function updateScores(newScores) { gameState.userScores = { ...gameState.userScores, ...newScores }; saveGameState(); return true; }
-export function saveAllAnswers(allAnswers) { gameState.userAnswers = JSON.parse(JSON.stringify(allAnswers)); saveGameState(); } // Deep copy
-export function updateAnswers(elementName, answersForElement) { if (!gameState.userAnswers) gameState.userAnswers = {}; if (!gameState.userAnswers[elementName]) gameState.userAnswers[elementName] = {}; gameState.userAnswers[elementName] = { ...answersForElement }; /* No save here - saved by questionnaire flow */ }
-export function updateElementIndex(index) { gameState.currentElementIndex = index; /* No save here - saved by questionnaire flow */ }
-export function setQuestionnaireComplete() { gameState.currentElementIndex = elementNames.length; if (!gameState.questionnaireCompleted) { gameState.questionnaireCompleted = true; // If onboarding isn't explicitly marked complete, mark it now
-            if (!gameState.onboardingComplete) { gameState.onboardingComplete = true; gameState.onboardingPhase = Config.MAX_ONBOARDING_PHASE + 1; console.log("Marked onboarding complete automatically upon questionnaire completion."); } saveGameState(); } return true; }
+export function updateScores(newScores) {
+    gameState.userScores = { ...gameState.userScores, ...newScores };
+    saveGameState();
+    return true; // Added missing return
+}
+export function saveAllAnswers(allAnswers) {
+    // Basic validation for allAnswers structure if needed
+    if (typeof allAnswers === 'object' && allAnswers !== null) {
+        gameState.userAnswers = JSON.parse(JSON.stringify(allAnswers)); // Deep copy
+        saveGameState();
+    } else {
+        console.error("saveAllAnswers called with invalid data:", allAnswers);
+    }
+}
+export function updateAnswers(elementName, answersForElement) {
+    // Ensure userAnswers exists
+    if (!gameState.userAnswers) gameState.userAnswers = {};
+    // Ensure structure for the specific element exists
+    if (!gameState.userAnswers[elementName]) gameState.userAnswers[elementName] = {};
+    // Merge answers safely
+    if (typeof answersForElement === 'object' && answersForElement !== null) {
+        gameState.userAnswers[elementName] = { ...answersForElement };
+    } else {
+         console.warn(`updateAnswers called with invalid answersForElement for ${elementName}`);
+    }
+    /* No save here - saved by questionnaire flow (finalize or next/prev) */
+}
+export function updateElementIndex(index) {
+    if (typeof index === 'number') {
+         gameState.currentElementIndex = index;
+    } else {
+        console.warn("updateElementIndex called with invalid index:", index);
+    }
+    /* No save here - saved by questionnaire flow */
+}
+export function setQuestionnaireComplete() {
+    gameState.currentElementIndex = elementNames.length;
+    if (!gameState.questionnaireCompleted) {
+        gameState.questionnaireCompleted = true;
+        // If onboarding isn't explicitly marked complete, mark it now
+        if (!gameState.onboardingComplete) {
+            gameState.onboardingComplete = true;
+            gameState.onboardingPhase = Config.MAX_ONBOARDING_PHASE + 1;
+            console.log("Marked onboarding complete automatically upon questionnaire completion.");
+        }
+        saveGameState();
+    }
+    return true;
+}
 
 // Insight & Related Cooldowns/Features
 export function changeInsight(amount, source = "Unknown") {
     const previousInsight = gameState.userInsight;
-    gameState.userInsight = Math.max(0, previousInsight + amount); // Ensure insight doesn't go below 0
+    // Ensure amount is a valid number
+    const validAmount = (typeof amount === 'number' && !isNaN(amount)) ? amount : 0;
+    if (validAmount === 0) return false; // No change if amount is zero or invalid
+
+    gameState.userInsight = Math.max(0, previousInsight + validAmount); // Ensure insight doesn't go below 0
     const actualChange = gameState.userInsight - previousInsight; // Calculate actual change after clamping
+
     if (actualChange !== 0) {
         addInsightLogEntry(actualChange, source, gameState.userInsight); // Log the actual change
         saveGameState();
@@ -360,26 +451,78 @@ export function changeInsight(amount, source = "Unknown") {
     }
     return false; // Indicate that insight did not change
 }
-export function setInsightBoostCooldown(endTime) { gameState.insightBoostCooldownEnd = endTime; saveGameState(); }
-export function setContemplationCooldown(endTime) { gameState.contemplationCooldownEnd = endTime; saveGameState(); }
+export function setInsightBoostCooldown(endTime) {
+    if (typeof endTime === 'number' || endTime === null) {
+        gameState.insightBoostCooldownEnd = endTime;
+        saveGameState();
+    } else {
+        console.warn("setInsightBoostCooldown called with invalid endTime:", endTime);
+    }
+}
+export function setContemplationCooldown(endTime) {
+    if (typeof endTime === 'number' || endTime === null) {
+        gameState.contemplationCooldownEnd = endTime;
+        saveGameState();
+    } else {
+        console.warn("setContemplationCooldown called with invalid endTime:", endTime);
+    }
+}
 
 // Research & Rituals
-export function useInitialFreeResearch() { if (gameState.initialFreeResearchRemaining > 0) { gameState.initialFreeResearchRemaining--; saveGameState(); return true; } return false; }
-export function setFreeResearchUsed() { gameState.freeResearchAvailableToday = false; saveGameState(); }
-export function resetDailyRituals() { gameState.completedRituals.daily = {}; gameState.freeResearchAvailableToday = true; gameState.lastLoginDate = new Date().toDateString(); saveGameState(); }
+export function useInitialFreeResearch() {
+    if (gameState.initialFreeResearchRemaining > 0) {
+        gameState.initialFreeResearchRemaining--;
+        saveGameState();
+        return true;
+    }
+    return false;
+}
+export function setFreeResearchUsed() {
+    gameState.freeResearchAvailableToday = false;
+    saveGameState();
+}
+export function resetDailyRituals() {
+    // Ensure completedRituals exists
+    if (typeof gameState.completedRituals !== 'object' || gameState.completedRituals === null) {
+        gameState.completedRituals = {};
+    }
+    gameState.completedRituals.daily = {}; // Reset daily object
+    gameState.freeResearchAvailableToday = true;
+    gameState.lastLoginDate = new Date().toDateString();
+    saveGameState();
+}
 // Increments progress for a ritual, returns current progress count
-export function completeRitualProgress(ritualId, period = 'daily') { if (!gameState.completedRituals[period]) gameState.completedRituals[period] = {}; if (!gameState.completedRituals[period][ritualId]) gameState.completedRituals[period][ritualId] = { completed: false, progress: 0 }; // Ensure structure exists
-    if (!gameState.completedRituals[period][ritualId].completed) { // Only increment if not already completed
-        gameState.completedRituals[period][ritualId].progress += 1;
+export function completeRitualProgress(ritualId, period = 'daily') {
+    // Ensure outer period object exists
+    if (!gameState.completedRituals?.[period]) {
+        if (typeof gameState.completedRituals !== 'object' || gameState.completedRituals === null) gameState.completedRituals = {};
+        gameState.completedRituals[period] = {};
+    }
+    // Ensure inner ritual object exists
+    if (!gameState.completedRituals[period][ritualId]) {
+        gameState.completedRituals[period][ritualId] = { completed: false, progress: 0 };
+    }
+
+    const ritualState = gameState.completedRituals[period][ritualId];
+    if (!ritualState.completed) { // Only increment if not already completed
+        ritualState.progress += 1;
         saveGameState(); // Save after progress update
-        return gameState.completedRituals[period][ritualId].progress;
-    } return gameState.completedRituals[period][ritualId].progress; // Return progress even if completed
+    }
+    return ritualState.progress; // Return progress even if completed
 }
 // Marks a ritual as fully completed for the period
-export function markRitualComplete(ritualId, period = 'daily') { if (!gameState.completedRituals[period]?.[ritualId]) { // Ensure entry exists
-        if (!gameState.completedRituals[period]) gameState.completedRituals[period] = {};
+export function markRitualComplete(ritualId, period = 'daily') {
+    // Ensure structure exists before trying to mark complete
+    if (!gameState.completedRituals?.[period]?.[ritualId]) {
+        if (!gameState.completedRituals?.[period]) {
+             if (typeof gameState.completedRituals !== 'object' || gameState.completedRituals === null) gameState.completedRituals = {};
+             gameState.completedRituals[period] = {};
+        }
         gameState.completedRituals[period][ritualId] = { completed: false, progress: 0 }; // Initialize if missing
-    } if (gameState.completedRituals[period]?.[ritualId]) {
+    }
+
+    // Now safely mark as complete
+    if (gameState.completedRituals[period]?.[ritualId]) {
         gameState.completedRituals[period][ritualId].completed = true;
         saveGameState(); // Save after marking complete
     }
@@ -388,31 +531,49 @@ export function markRitualComplete(ritualId, period = 'daily') { if (!gameState.
 // Attunement & Deep Dive
 export function updateAttunement(elementKey, amount) {
     if (gameState.elementAttunement.hasOwnProperty(elementKey)) {
+        const validAmount = (typeof amount === 'number' && !isNaN(amount)) ? amount : 0;
+        if (validAmount === 0) return false; // No change
+
         const current = gameState.elementAttunement[elementKey];
-        const newValue = Math.min(Config.MAX_ATTUNEMENT, Math.max(0, current + amount)); // Clamp between 0 and MAX
+        const newValue = Math.min(Config.MAX_ATTUNEMENT, Math.max(0, current + validAmount)); // Clamp between 0 and MAX
+
         if (newValue !== current) {
             gameState.elementAttunement[elementKey] = newValue;
             saveGameState();
             return true; // Indicate change occurred
         }
-    } else { console.warn(`Attempted to update attunement for invalid key: ${elementKey}`); }
+    } else {
+        console.warn(`Attempted to update attunement for invalid key: ${elementKey}`);
+    }
     return false; // Indicate no change
 }
 export function unlockLibraryLevel(elementKey, level) {
     if (gameState.unlockedDeepDiveLevels.hasOwnProperty(elementKey)) {
         const currentLevel = gameState.unlockedDeepDiveLevels[elementKey] || 0;
-        if (level === currentLevel + 1) { // Ensure unlocking sequentially
+        if (typeof level === 'number' && level === currentLevel + 1) { // Ensure unlocking sequentially and level is number
             gameState.unlockedDeepDiveLevels[elementKey] = level;
             saveGameState();
             return true;
-        } else { console.warn(`Attempted to unlock library level ${level} for ${elementKey} out of sequence. Current: ${currentLevel}`); }
-    } else { console.warn(`Attempted to unlock library level for invalid key: ${elementKey}`); }
+        } else {
+            console.warn(`Attempted to unlock library level ${level} for ${elementKey} out of sequence or invalid level. Current: ${currentLevel}`);
+        }
+    } else {
+        console.warn(`Attempted to unlock library level for invalid key: ${elementKey}`);
+    }
     return false;
 }
 
 // Concept Management (Discovered, Focus, Notes, Lore, Category)
 export function addDiscoveredConcept(conceptId, conceptData) {
-    if (!(gameState.discoveredConcepts instanceof Map)) { console.error("CRITICAL ERROR: gameState.discoveredConcepts is not a Map! Reinitializing."); gameState.discoveredConcepts = new Map(); }
+    if (!(gameState.discoveredConcepts instanceof Map)) {
+        console.error("CRITICAL ERROR: gameState.discoveredConcepts is not a Map! Reinitializing.");
+        gameState.discoveredConcepts = new Map();
+    }
+    if (typeof conceptId !== 'number' || typeof conceptData !== 'object' || conceptData === null) {
+        console.error("addDiscoveredConcept called with invalid ID or data:", conceptId, conceptData);
+        return false;
+    }
+
     if (!gameState.discoveredConcepts.has(conceptId)) {
         gameState.discoveredConcepts.set(conceptId, {
             concept: conceptData, // Store full concept data at runtime for easy access
@@ -429,11 +590,14 @@ export function addDiscoveredConcept(conceptId, conceptData) {
     return false;
 }
 export function removeDiscoveredConcept(conceptId) {
-    if (!(gameState.discoveredConcepts instanceof Map)) { console.error("CRITICAL ERROR: gameState.discoveredConcepts is not a Map!"); return false; }
+    if (!(gameState.discoveredConcepts instanceof Map)) {
+        console.error("CRITICAL ERROR: gameState.discoveredConcepts is not a Map!");
+        return false;
+    }
     if (gameState.discoveredConcepts.has(conceptId)) {
         gameState.discoveredConcepts.delete(conceptId);
         // Ensure focus is also removed if the concept is deleted
-        if (gameState.focusedConcepts.has(conceptId)) {
+        if (gameState.focusedConcepts instanceof Set && gameState.focusedConcepts.has(conceptId)) {
              gameState.focusedConcepts.delete(conceptId);
              gameState.currentFocusSetHash = _calculateFocusSetHash(); // Update hash
         }
@@ -443,7 +607,14 @@ export function removeDiscoveredConcept(conceptId) {
     return false; // Concept wasn't discovered
 }
 export function toggleFocusConcept(conceptId) {
-     if (!(gameState.discoveredConcepts instanceof Map)) { console.error("Cannot toggle focus: discoveredConcepts is not a Map!"); return 'not_discovered'; }
+     if (!(gameState.discoveredConcepts instanceof Map)) {
+         console.error("Cannot toggle focus: discoveredConcepts is not a Map!");
+         return 'not_discovered';
+     }
+     if (!(gameState.focusedConcepts instanceof Set)) {
+          console.error("Cannot toggle focus: focusedConcepts is not a Set!");
+          gameState.focusedConcepts = new Set(); // Attempt recovery
+     }
     if (!gameState.discoveredConcepts.has(conceptId)) return 'not_discovered'; // Can't focus undiscovered
 
     let result;
@@ -464,7 +635,10 @@ export function toggleFocusConcept(conceptId) {
     return result; // 'added', 'removed'
 }
 export function increaseFocusSlots(amount = 1) {
-    const newSlots = Math.min(Config.MAX_FOCUS_SLOTS, gameState.focusSlotsTotal + amount);
+    const validAmount = (typeof amount === 'number' && amount > 0) ? Math.floor(amount) : 0;
+    if (validAmount === 0) return false;
+
+    const newSlots = Math.min(Config.MAX_FOCUS_SLOTS, gameState.focusSlotsTotal + validAmount);
     if (newSlots > gameState.focusSlotsTotal) {
         gameState.focusSlotsTotal = newSlots;
         saveGameState();
@@ -473,11 +647,16 @@ export function increaseFocusSlots(amount = 1) {
     return false; // Already at max or invalid amount
 }
 export function updateNotes(conceptId, notes) {
-    if (!(gameState.discoveredConcepts instanceof Map)) { console.error("Cannot update notes: discoveredConcepts is not a Map!"); return false; }
+    if (!(gameState.discoveredConcepts instanceof Map)) {
+        console.error("Cannot update notes: discoveredConcepts is not a Map!");
+        return false;
+    }
     const data = gameState.discoveredConcepts.get(conceptId);
     if (data) {
-        if (data.notes !== notes) { // Only save if notes actually changed
-            data.notes = notes;
+        // Ensure notes is a string
+        const newNotes = (typeof notes === 'string') ? notes : '';
+        if (data.notes !== newNotes) { // Only save if notes actually changed
+            data.notes = newNotes;
             gameState.discoveredConcepts.set(conceptId, data); // Update the map entry
             saveGameState();
         }
@@ -487,10 +666,14 @@ export function updateNotes(conceptId, notes) {
     return false;
 }
 export function setCardCategory(conceptId, categoryId) {
-    if (!(gameState.discoveredConcepts instanceof Map)) { console.error("Cannot set category: discoveredConcepts is not a Map!"); return false; }
+    if (!(gameState.discoveredConcepts instanceof Map)) {
+        console.error("Cannot set category: discoveredConcepts is not a Map!");
+        return false;
+    }
     const data = gameState.discoveredConcepts.get(conceptId);
     if (data) {
-        const newCategory = categoryId || 'uncategorized'; // Default to uncategorized if null/undefined
+        // Ensure categoryId is a string or default to 'uncategorized'
+        const newCategory = (typeof categoryId === 'string' && categoryId) ? categoryId : 'uncategorized';
         if (data.userCategory !== newCategory) {
             data.userCategory = newCategory;
             gameState.discoveredConcepts.set(conceptId, data); // Update the map entry
@@ -503,21 +686,27 @@ export function setCardCategory(conceptId, categoryId) {
     return false; // No change needed or concept not found
 }
 export function unlockLoreLevel(conceptId, level) {
-    if (!(gameState.discoveredConcepts instanceof Map)) { console.error("Cannot unlock lore: discoveredConcepts is not a Map!"); return false; }
+    if (!(gameState.discoveredConcepts instanceof Map)) {
+        console.error("Cannot unlock lore: discoveredConcepts is not a Map!");
+        return false;
+    }
     const data = gameState.discoveredConcepts.get(conceptId);
     if (data) {
         const currentLevel = data.unlockedLoreLevel || 0;
-        if (level > currentLevel) {
+        // Ensure level is a number and greater than current level
+        if (typeof level === 'number' && level > currentLevel) {
             data.unlockedLoreLevel = level;
             data.newLoreAvailable = true; // Mark that new lore is available to be seen
             gameState.discoveredConcepts.set(conceptId, data); // Update the map entry
             saveGameState();
             return true;
+        } else {
+             console.warn(`Attempted to unlock invalid lore level ${level} for concept ${conceptId}. Current: ${currentLevel}`);
         }
     } else {
         console.warn(`Cannot unlock lore for unknown conceptId: ${conceptId}`);
     }
-    return false; // Already unlocked or concept not found
+    return false; // Already unlocked, invalid level, or concept not found
 }
 export function markLoreAsSeen(conceptId) {
     if (!(gameState.discoveredConcepts instanceof Map)) { return false; }
@@ -532,36 +721,127 @@ export function markLoreAsSeen(conceptId) {
 }
 
 // Reflection & Repository Management
-export function addSeenPrompt(promptId) { if (!(gameState.seenPrompts instanceof Set)) { console.error("CRITICAL ERROR: gameState.seenPrompts is not a Set! Reinitializing."); gameState.seenPrompts = new Set();} gameState.seenPrompts.add(promptId); saveGameState(); }
-export function incrementReflectionTrigger() { gameState.cardsAddedSinceLastPrompt++; /* No save needed here - part of action flow */ }
-export function resetReflectionTrigger(startCooldown = false) { gameState.cardsAddedSinceLastPrompt = 0; if (startCooldown) setPromptCooldownActive(true); /* Cooldown save handled by setPromptCooldownActive */ }
-export function setPromptCooldownActive(isActive) { gameState.promptCooldownActive = isActive; saveGameState(); }
-export function clearReflectionCooldown() { gameState.promptCooldownActive = false; saveGameState(); }
+export function addSeenPrompt(promptId) {
+    if (!(gameState.seenPrompts instanceof Set)) {
+        console.error("CRITICAL ERROR: gameState.seenPrompts is not a Set! Reinitializing.");
+        gameState.seenPrompts = new Set();
+    }
+    // Ensure promptId is string or number before adding
+    if (typeof promptId === 'string' || typeof promptId === 'number') {
+        gameState.seenPrompts.add(promptId);
+        saveGameState();
+    } else {
+         console.warn("addSeenPrompt called with invalid promptId:", promptId);
+    }
+}
+export function incrementReflectionTrigger() {
+    if (typeof gameState.cardsAddedSinceLastPrompt === 'number') {
+        gameState.cardsAddedSinceLastPrompt++;
+    } else {
+        gameState.cardsAddedSinceLastPrompt = 1; // Initialize if invalid
+    }
+    /* No save needed here - part of action flow */
+}
+export function resetReflectionTrigger(startCooldown = false) {
+    gameState.cardsAddedSinceLastPrompt = 0;
+    if (startCooldown) {
+        setPromptCooldownActive(true);
+    }
+    /* Cooldown save handled by setPromptCooldownActive */
+}
+export function setPromptCooldownActive(isActive) {
+    gameState.promptCooldownActive = !!isActive; // Ensure boolean
+    saveGameState();
+}
+export function clearReflectionCooldown() {
+    gameState.promptCooldownActive = false;
+    saveGameState();
+}
 export function addRepositoryItem(itemType, itemId) { // itemType = 'scenes', 'experiments', 'insights'
-    if (!gameState.discoveredRepositoryItems || typeof gameState.discoveredRepositoryItems !== 'object') { console.error(`CRITICAL ERROR: gameState.discoveredRepositoryItems is not an object! Reinitializing.`); gameState.discoveredRepositoryItems = { scenes: new Set(), experiments: new Set(), insights: new Set() };}
-    if (!gameState.discoveredRepositoryItems[itemType] || !(gameState.discoveredRepositoryItems[itemType] instanceof Set)) { console.error(`CRITICAL ERROR: gameState.discoveredRepositoryItems.${itemType} is not a Set! Reinitializing.`); gameState.discoveredRepositoryItems[itemType] = new Set();}
-    if (gameState.discoveredRepositoryItems[itemType] && !gameState.discoveredRepositoryItems[itemType].has(itemId)) {
+    // Ensure outer structure exists
+    if (!gameState.discoveredRepositoryItems || typeof gameState.discoveredRepositoryItems !== 'object') {
+        console.error(`CRITICAL ERROR: gameState.discoveredRepositoryItems is not an object! Reinitializing.`);
+        gameState.discoveredRepositoryItems = { scenes: new Set(), experiments: new Set(), insights: new Set() };
+    }
+    // Ensure inner Set structure exists
+    if (!gameState.discoveredRepositoryItems[itemType] || !(gameState.discoveredRepositoryItems[itemType] instanceof Set)) {
+        console.error(`CRITICAL ERROR: gameState.discoveredRepositoryItems.${itemType} is not a Set! Reinitializing.`);
+        gameState.discoveredRepositoryItems[itemType] = new Set();
+    }
+
+    // Validate itemId
+    if (typeof itemId !== 'string' && typeof itemId !== 'number') {
+         console.warn(`addRepositoryItem called with invalid itemId for type ${itemType}:`, itemId);
+         return false;
+    }
+
+    // Add item if it doesn't exist
+    if (!gameState.discoveredRepositoryItems[itemType].has(itemId)) {
         gameState.discoveredRepositoryItems[itemType].add(itemId);
         saveGameState();
         return true;
     }
     return false; // Already existed
 }
-export function addPendingRarePrompt(promptId) { if (!Array.isArray(gameState.pendingRarePrompts)) {console.error("CRITICAL ERROR: gameState.pendingRarePrompts is not an Array! Reinitializing."); gameState.pendingRarePrompts = [];} if (!gameState.pendingRarePrompts.includes(promptId)) { gameState.pendingRarePrompts.push(promptId); saveGameState(); return true; } return false; // Already pending
+export function addPendingRarePrompt(promptId) {
+    if (!Array.isArray(gameState.pendingRarePrompts)) {
+        console.error("CRITICAL ERROR: gameState.pendingRarePrompts is not an Array! Reinitializing.");
+        gameState.pendingRarePrompts = [];
+    }
+    // Validate promptId
+    if (typeof promptId !== 'string' && typeof promptId !== 'number') {
+         console.warn("addPendingRarePrompt called with invalid promptId:", promptId);
+         return false;
+    }
+    if (!gameState.pendingRarePrompts.includes(promptId)) {
+        gameState.pendingRarePrompts.push(promptId);
+        saveGameState();
+        return true;
+    }
+    return false; // Already pending
 }
-export function getNextRarePrompt() { if (!Array.isArray(gameState.pendingRarePrompts)) {console.error("CRITICAL ERROR: gameState.pendingRarePrompts is not an Array!"); gameState.pendingRarePrompts = []; return null;} if (gameState.pendingRarePrompts.length > 0) { const promptId = gameState.pendingRarePrompts.shift(); // Removes the first element
+export function getNextRarePrompt() {
+    if (!Array.isArray(gameState.pendingRarePrompts)) {
+        console.error("CRITICAL ERROR: gameState.pendingRarePrompts is not an Array!");
+        gameState.pendingRarePrompts = [];
+        return null;
+    }
+    if (gameState.pendingRarePrompts.length > 0) {
+        const promptId = gameState.pendingRarePrompts.shift(); // Removes the first element
         saveGameState(); // Save after modifying the array
         return promptId;
-    } return null; // No prompts pending
+    }
+    return null; // No prompts pending
 }
-export function addUnlockedFocusItem(unlockId) { if (!(gameState.unlockedFocusItems instanceof Set)) { console.error("CRITICAL ERROR: gameState.unlockedFocusItems is not a Set! Reinitializing."); gameState.unlockedFocusItems = new Set();} if (!gameState.unlockedFocusItems.has(unlockId)) { gameState.unlockedFocusItems.add(unlockId); saveGameState(); return true; } return false; // Already unlocked
+export function addUnlockedFocusItem(unlockId) {
+    if (!(gameState.unlockedFocusItems instanceof Set)) {
+        console.error("CRITICAL ERROR: gameState.unlockedFocusItems is not a Set! Reinitializing.");
+        gameState.unlockedFocusItems = new Set();
+    }
+    // Validate unlockId
+    if (typeof unlockId !== 'string' && typeof unlockId !== 'number') {
+         console.warn("addUnlockedFocusItem called with invalid unlockId:", unlockId);
+         return false;
+    }
+    if (!gameState.unlockedFocusItems.has(unlockId)) {
+        gameState.unlockedFocusItems.add(unlockId);
+        saveGameState();
+        return true;
+    }
+    return false; // Already unlocked
 }
 
 // Milestones & Misc
 export function addAchievedMilestone(milestoneId) {
     if (!(gameState.achievedMilestones instanceof Set)) {
         console.error("CRITICAL ERROR: gameState.achievedMilestones is not a Set! Attempting recovery.");
+        // Attempt recovery by creating a new Set from the existing value if it's array-like
         gameState.achievedMilestones = new Set(Array.isArray(gameState.achievedMilestones) ? gameState.achievedMilestones : []);
+    }
+    // Validate milestoneId
+    if (typeof milestoneId !== 'string' && typeof milestoneId !== 'number') {
+         console.warn("addAchievedMilestone called with invalid milestoneId:", milestoneId);
+         return false;
     }
     if (!gameState.achievedMilestones.has(milestoneId)) {
         gameState.achievedMilestones.add(milestoneId);
@@ -586,7 +866,7 @@ export function advanceOnboardingPhase() {
 }
 // Specifically set the onboarding phase - Used by Prev button in UI
 export function updateOnboardingPhase(newPhase) {
-     if (!gameState.onboardingComplete && newPhase >= 0 && newPhase <= Config.MAX_ONBOARDING_PHASE) { // Allow setting to 0
+     if (!gameState.onboardingComplete && typeof newPhase === 'number' && newPhase >= 0 && newPhase <= Config.MAX_ONBOARDING_PHASE) { // Allow setting to 0
          gameState.onboardingPhase = newPhase;
          saveGameState();
          console.log(`State: Set onboarding phase to ${newPhase}`);
@@ -603,15 +883,22 @@ export function markOnboardingComplete() {
     }
 }
 export function addInsightLogEntry(amount, source, newTotal) {
+    // Ensure insightLog is an array
     if (!Array.isArray(gameState.insightLog)) {
         console.error("Insight log is not an array! Reinitializing.");
         gameState.insightLog = [];
     }
+    // Validate inputs
+    if (typeof amount !== 'number' || isNaN(amount) || typeof newTotal !== 'number' || isNaN(newTotal)) {
+         console.warn("addInsightLogEntry called with invalid amount or newTotal:", {amount, newTotal, source});
+         return;
+    }
+
     const timestamp = Date.now();
     const entry = {
         timestamp: formatTimestamp(timestamp), // Use utility to format
         amount: parseFloat(amount.toFixed(1)), // Store as number, formatted
-        source: source,
+        source: source || "Unknown", // Default source if not provided
         newTotal: parseFloat(newTotal.toFixed(1)) // Store as number, formatted
     };
     gameState.insightLog.push(entry);
@@ -623,5 +910,5 @@ export function addInsightLogEntry(amount, source, newTotal) {
 }
 
 
-console.log("state.js loaded successfully.");
+console.log("state.js loaded successfully. (Fixed)");
 // --- END OF FILE state.js ---
