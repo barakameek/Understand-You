@@ -51,7 +51,11 @@ const createInitialGameState = () => {
     });
     return initial;
 };
-
+/** Returns a Set of milestone IDs the user has achieved. */
+export function getAchievedMilestones(){
+    // return a *new* Set so callers don’t mutate internal state
+    return new Set(gameState.achievedMilestones);
+}
 let gameState = createInitialGameState();
 
 // --- Internal Helper ---
