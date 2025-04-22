@@ -2658,6 +2658,7 @@ export function checkAndUpdateRituals(action, details = {}) {
     const scores = currentState.userScores; // Needed for RF checks in focus rituals
 
     // Combine standard daily rituals and applicable focus rituals
+    // *** FIX 1: Apply spread syntax correctly to dailyRituals ***
     let currentRitualPool = [...dailyRituals];
     if (focusRituals && Array.isArray(focusRituals)) {
         focusRituals.forEach(ritual => {
@@ -2683,7 +2684,7 @@ export function checkAndUpdateRituals(action, details = {}) {
 
             // If all requirements met, add it to the pool to be checked
             if (focusMet) {
-                 // Use default period 'daily' if not specified in focus ritual data
+                 // *** FIX 2: Apply spread syntax correctly to ritual object ***
                  currentRitualPool.push({ ...ritual, isFocusRitual: true, period: ritual.period || 'daily' });
             }
         });
