@@ -170,6 +170,89 @@
         border: 1px solid transparent; /* Base border for state indication */
       }
       :root.dark .research-result-item { background-color: var(--background-medium); }
+
+      /* Help Button Styling (Near Drawer Toggle) */
+       #helpBtn {
+         position: fixed;
+         top: var(--spacing);
+         left: calc(var(--spacing) + 44px + 10px); /* Position next to drawer toggle */
+         z-index: 1090; /* Below drawer toggle */
+         width: 40px;
+         height: 40px;
+         display: flex;
+         align-items: center;
+         justify-content: center;
+         background: var(--secondary-color);
+         color: var(--primary-color);
+         border: 1px solid var(--primary-color);
+         border-radius: 50%; /* Circle */
+         font-size: 1.4rem;
+         box-shadow: var(--box-shadow);
+         cursor: pointer;
+         transition: background-color var(--transition-duration), transform 0.1s;
+         padding: 0;
+       }
+       #helpBtn:hover {
+         background-color: var(--accent-color);
+         transform: scale(1.05);
+       }
+       :root.dark #helpBtn {
+         background: var(--secondary-color);
+         color: var(--background-dark);
+         border-color: var(--accent-color);
+       }
+       :root.dark #helpBtn:hover {
+         background-color: var(--accent-color);
+       }
+       /* Adjust position if needed based on your exact layout */
+
+       /* Onboarding Popup Header */
+       .onboarding-popup .popup-header { /* Style the header inside onboarding */
+         display: flex;
+         justify-content: space-between; /* Space title and progress */
+         align-items: center;
+         border-bottom: 1px solid var(--border-color-light);
+         padding-bottom: 0.5rem;
+         margin-bottom: 1rem;
+       }
+        .onboarding-popup .popup-header h2 {
+            margin: 0; /* Remove default margin */
+            font-size: 1.2rem; /* Adjust size */
+            border: none; /* Remove default border */
+            padding: 0;
+            text-align: left;
+        }
+       .onboarding-popup .popup-header #tourProgress { /* Style the progress span */
+         font-size: 0.9em;
+         font-weight: bold;
+         background-color: var(--secondary-color);
+         color: var(--primary-color);
+         padding: 3px 8px;
+         border-radius: 10px;
+         border: 1px solid var(--primary-color);
+       }
+       :root.dark .onboarding-popup .popup-header #tourProgress {
+           background-color: var(--secondary-color);
+           color: var(--background-dark);
+           border-color: var(--accent-color);
+       }
+
+       /* Text Button Style (for skip tour button) */
+        .btn-text {
+            background: none;
+            border: none;
+            padding: 0;
+            font: inherit;
+            color: var(--text-muted-color);
+            cursor: pointer;
+            text-decoration: underline;
+        }
+        .btn-text:hover {
+            color: var(--primary-color);
+        }
+         .btn-text.small {
+             font-size: 0.9em;
+         }
     </style>
 </head>
 <body>
@@ -180,6 +263,9 @@
             aria-label="Open main menu"
             aria-expanded="false"
             aria-controls="sideDrawer">☰</button>
+
+    <!-- === Help Button === -->
+    <button id="helpBtn" class="icon-btn" title="Show quick tour"><i class="fas fa-question-circle"></i></button>
 
     <!-- === Sliding Drawer (Sidebar) === -->
     <aside id="sideDrawer" class="side-drawer" aria-hidden="true"> <!-- Start hidden -->
@@ -442,7 +528,24 @@
       <!-- Onboarding Popup -->
       <div id="onboardingOverlay" class="overlay hidden" aria-hidden="true">
         <div id="onboardingPopup" class="popup onboarding-popup hidden card" role="dialog" aria-modal="true" aria-labelledby="onboarding-heading">
-            <h2 id="onboarding-heading">Orientation</h2><div id="onboardingContent"><p>Loading orientation steps...</p></div><p class="onboarding-progress"><span id="onboardingProgress">Step ? of ?</span></p><div class="onboarding-nav"><button id="onboardingSkipButton" class="skip-button">Skip Orientation</button><div><button id="onboardingPrevButton" class="button small-button back-button btn" disabled>Previous</button><button id="onboardingNextButton" class="button small-button btn">Next</button></div></div>
+             <div class="popup-header"> <!-- Added header for title and progress -->
+                 <h2 id="onboarding-heading">Orientation</h2>
+                 <span id="tourProgress">?/?</span> <!-- Tour progress indicator -->
+             </div>
+            <div id="onboardingContent"><p>Loading orientation steps...</p></div>
+            <p class="onboarding-progress"><span id="onboardingProgress">Step ? of ?</span></p> <!-- Keep old total step count? Or remove? Keeping for now. -->
+            <div class="onboarding-nav">
+                <!-- Left side: Skip buttons -->
+                <div style="display: flex; flex-direction: column; align-items: flex-start; gap: 5px;">
+                     <button id="skipTourBtn" class="btn-text small">Skip this tour</button>
+                     <button id="onboardingSkipButton" class="btn-text small">Skip ALL orientation</button>
+                </div>
+                <!-- Right side: Nav buttons -->
+                <div>
+                     <button id="onboardingPrevButton" class="button small-button back-button btn" disabled>Previous</button>
+                     <button id="onboardingNextButton" class="button small-button btn">Next</button>
+                </div>
+            </div>
         </div>
       </div>
 
@@ -475,6 +578,32 @@
         canvas#personaScoreChartCanvas { background-color: transparent !important; }
         .hidden-by-flow { display: none; } /* Class to hide elements based on game flow (e.g., questionnaire completion) */
         .clickable { cursor: pointer; }
+
+        /* Hint bubbles */
+        .hint-bubble {
+          position: absolute;
+          z-index: 1000;
+          max-width: 210px;
+          padding: 8px 10px;
+          border-radius: 8px;
+          background: var(--background-light);
+          border: 1px solid var(--accent-color);
+          box-shadow: 0 2px 6px rgba(0,0,0,.15);
+          font-size: .85rem;
+          line-height: 1.3;
+        }
+        .hint-bubble .hint-close {
+          position: absolute;
+          top: 4px;
+          right: 6px;
+          cursor: pointer;
+          font-weight: bold;
+          font-size: .9rem;
+          color: var(--text-muted-color);
+        }
+         .hint-bubble .hint-close:hover {
+             color: var(--danger-color);
+         }
     </style>
 
 </body>
