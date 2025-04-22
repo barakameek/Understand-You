@@ -2036,36 +2036,24 @@ const cardTypeThemes = {
 };
 
 
+// Welcome Tour: Covers Welcome Screen, Questionnaire, Persona Screen basics
+const onboardingWelcomeIntro = [
+  { id: 'task01', phaseRequired: 1, title: "Step 1: Your Persona", description: "This is your <strong>Persona</strong> screen. It shows your core elemental scores (like Attraction, Interaction) based on the initial Experimentation. These scores reflect your innate tendencies.", hint: "Tap 'Persona' in the top navigation.", highlightElementId: "personaScreen" },
+  { id: 'task02', phaseRequired: 2, title: "Step 2: The Workshop", description: "Now, let's visit the <strong>Workshop</strong>. This is your lab! Here you'll manage your discovered <strong>Concepts</strong> (in the Grimoire Library) and conduct <strong>Research</strong> to find new ones.", hint: "Tap 'Workshop' in the top navigation.", highlightElementId: "workshopScreen" },
+  { id: 'task03', phaseRequired: 3, title: "Step 3: Research", description: "Under 'Research Bench', click any Element button (like <i class='fa-solid fa-magnet'></i> Attraction) to start. You have <strong>3 FREE</strong> research attempts!", hint: "Click an element button in the 'Research Bench' area.", highlightElementId: "element-research-buttons", track: { action: "conductResearch" } },
+];
+
+// Workshop Tour: Covers Research results, Grimoire, Focusing Concepts
+const onboardingWorkshopIntro = [
+  { id: 'task04', phaseRequired: 1, title: "Step 1 (Workshop): Your Grimoire", description: "Research results appear in a popup. Choose 'Keep' to add a Concept to your permanent <strong>Grimoire Library</strong> below. Selling gives you Insight <i class='fas fa-brain insight-icon'></i>, the main currency.", hint: "Click 'Keep' or 'Sell' on a discovered Concept card in the popup.", highlightElementId: "researchResultsPopup", track: { action: "addToGrimoire" } }, // Adjusted phase
+  { id: 'task05', phaseRequired: 2, title: "Step 2 (Workshop): Focus Concepts", description: "In the Grimoire Library, click the ☆ star icon on a card (or 'Mark as Focus' in its detail popup) to add it to your <strong>Persona Tapestry</strong>. Focused Concepts shape your narrative.", hint: "Find a card in the 'Grimoire Library' grid and click its star ☆ icon.", highlightElementId: "grimoire-grid-workshop", track: { action: "markFocus" } }, // Adjusted phase
+];
+
 // Repository Tour: Covers returning to Persona, Reflections, Repository screen
 const onboardingRepositoryIntro = [
-  // Task originally for Phase 6 -> NOW Phase 1
-  {
-    id: 'task06',
-    phaseRequired: 1,
-    title: "Step 1 (Repository): Weave Your Tapestry", // YOUR TITLE
-    description: "Return to the <strong>Persona</strong> screen. Notice how your 'Focused Concepts', 'Focus Themes', and 'Tapestry Narrative' have updated based on your choice!", // <<< ENSURE THIS IS CORRECT
-    hint: "Tap 'Persona' in the top navigation again.", // <<< ENSURE THIS IS CORRECT
-    highlightElementId: "personaScreen"
-  },
-  // Task originally for Phase 7 -> NOW Phase 2
-  {
-    id: 'task07',
-    phaseRequired: 2,
-    title: "Step 2 (Repository): Seek Insight", // YOUR TITLE
-    description: "Adding concepts and other actions sometimes trigger <strong>Reflections</strong> (like this tutorial!). Confirming reflections grants Insight <i class='fas fa-brain insight-icon'></i> and Attunement. You can also 'Seek Guidance' in the Workshop.", // <<< ENSURE THIS IS CORRECT
-    hint: "Reflections appear in popups like this. Confirm when ready.", // <<< ENSURE THIS IS CORRECT
-    highlightElementId: "reflectionModal",
-    track: { action: "completeReflection" }
-   },
-  // Task originally for Phase 8 -> NOW Phase 3
-  {
-    id: 'task08',
-    phaseRequired: 3,
-    title: "Step 3 (Repository): The Repository", // YOUR TITLE
-    description: "The <strong>Repository</strong> tracks Milestones, Daily Rituals, and special discoveries like Scene Blueprints or Experiments. Check back often! You're now ready to explore the Lab!", // <<< ENSURE THIS IS CORRECT
-    hint: "Tap 'Repository' in the top navigation.", // <<< ENSURE THIS IS CORRECT
-    highlightElementId: "repositoryScreen"
-   }
+  { id: 'task06', phaseRequired: 1, title: "Step 1 (Repository): Weave Your Tapestry", description: "Return to the <strong>Persona</strong> screen. Notice how your 'Focused Concepts', 'Focus Themes', and 'Tapestry Narrative' have updated based on your choice!", hint: "Tap 'Persona' in the top navigation again.", highlightElementId: "personaScreen" }, // Adjusted phase
+  { id: 'task07', phaseRequired: 2, title: "Step 2 (Repository): Seek Insight", description: "Adding concepts and other actions sometimes trigger <strong>Reflections</strong> (like this tutorial!). Confirming reflections grants Insight <i class='fas fa-brain insight-icon'></i> and Attunement. You can also 'Seek Guidance' in the Workshop.", hint: "Reflections appear in popups like this. Confirm when ready.", highlightElementId: "reflectionModal", track: { action: "completeReflection" } }, // Adjusted phase
+  { id: 'task08', phaseRequired: 3, title: "Step 3 (Repository): The Repository", description: "The <strong>Repository</strong> tracks Milestones, Daily Rituals, and special discoveries like Scene Blueprints or Experiments. Check back often! You're now ready to explore the Lab!", hint: "Tap 'Repository' in the top navigation.", highlightElementId: "repositoryScreen" } // Adjusted phase
 ];
 
 
