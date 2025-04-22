@@ -2035,18 +2035,35 @@ const cardTypeThemes = {
     "Relationship Style": "the 'structure' and context of connection – how bonds are formed, defined, and navigated – serving as the architecture of your intimate world."
 };
 
-// --- Onboarding Tasks ---
-// This section remains identical to the one provided in data2.js originally.
- const onboardingTasks = [
-    { id: 'task01', phaseRequired: 1, title: "Step 1: Your Persona", description: "This is your <strong>Persona</strong> screen. It shows your core elemental scores (like Attraction, Interaction) based on the initial Experimentation. These scores reflect your innate tendencies.", hint: "Tap 'Persona' in the top navigation.", highlightElementId: "personaScreen" },
-    { id: 'task02', phaseRequired: 2, title: "Step 2: The Workshop", description: "Now, let's visit the <strong>Workshop</strong>. This is your lab! Here you'll manage your discovered <strong>Concepts</strong> (in the Grimoire Library) and conduct <strong>Research</strong> to find new ones.", hint: "Tap 'Workshop' in the top navigation.", highlightElementId: "workshopScreen" },
-    { id: 'task03', phaseRequired: 3, title: "Step 3: Research", description: "Under 'Research Bench', click any Element button (like <i class='fa-solid fa-magnet'></i> Attraction) to start. You have <strong>3 FREE</strong> research attempts!", hint: "Click an element button in the 'Research Bench' area.", highlightElementId: "element-research-buttons" },
-    { id: 'task04', phaseRequired: 4, title: "Step 4: Your Grimoire", description: "Research results appear in a popup. Choose 'Keep' to add a Concept to your permanent <strong>Grimoire Library</strong> below. Selling gives you Insight <i class='fas fa-brain insight-icon'></i>, the main currency.", hint: "Click 'Keep' or 'Sell' on a discovered Concept card in the popup.", highlightElementId: "researchResultsPopup" },
-    { id: 'task05', phaseRequired: 5, title: "Step 5: Focus Concepts", description: "In the Grimoire Library, click the ☆ star icon on a card (or 'Mark as Focus' in its detail popup) to add it to your <strong>Persona Tapestry</strong>. Focused Concepts shape your narrative.", hint: "Find a card in the 'Grimoire Library' grid and click its star ☆ icon.", highlightElementId: "grimoire-grid-workshop" }, // Corrected highlight ID
-    { id: 'task06', phaseRequired: 6, title: "Step 6: Weave Your Tapestry", description: "Return to the <strong>Persona</strong> screen. Notice how your 'Focused Concepts', 'Focus Themes', and 'Tapestry Narrative' have updated based on your choice!", hint: "Tap 'Persona' in the top navigation again.", highlightElementId: "personaScreen" },
-    { id: 'task07', phaseRequired: 7, title: "Step 7: Seek Insight", description: "Adding concepts and other actions sometimes trigger <strong>Reflections</strong> (like this tutorial!). Confirming reflections grants Insight <i class='fas fa-brain insight-icon'></i> and Attunement. You can also 'Seek Guidance' in the Workshop.", hint: "Reflections appear in popups like this. Confirm when ready.", highlightElementId: "reflectionModal" },
-    { id: 'task08', phaseRequired: 8, title: "Step 8: The Repository", description: "The <strong>Repository</strong> tracks Milestones, Daily Rituals, and special discoveries like Scene Blueprints or Experiments. Check back often! You're now ready to explore the Lab!", hint: "Tap 'Repository' in the top navigation.", highlightElementId: "repositoryScreen" }
- ];
+
+// Welcome Tour: Covers Welcome Screen, Questionnaire, Persona Screen basics
+const onboardingWelcomeIntro = [
+  // MANUALLY COPY task objects for phases 1, 2, and 3 from your ORIGINAL onboardingTasks array here
+  // Example structure (replace with your actual tasks):
+  // { id: 'task01', phaseRequired: 1, title: "Step 1: Your Persona", description: "...", hint: "...", highlightElementId: "personaScreen" },
+  // { id: 'task02', phaseRequired: 2, title: "Step 2: The Workshop", description: "...", hint: "...", highlightElementId: "workshopScreen" },
+  // { id: 'task03', phaseRequired: 3, title: "Step 3: Research", description: "...", hint: "...", highlightElementId: "element-research-buttons", track: { action: "conductResearch" } },
+  // Ensure you copy the exact objects with all their properties (id, phaseRequired, title, description, hint, highlightElementId, track)
+];
+
+// Workshop Tour: Covers Research results, Grimoire, Focusing Concepts
+const onboardingWorkshopIntro = [
+  // MANUALLY COPY task objects for phases 4 and 5 from your ORIGINAL onboardingTasks array here
+  // Example structure (replace with your actual tasks):
+  // { id: 'task04', phaseRequired: 1, title: "Step 1 (Workshop): Your Grimoire", description: "...", hint: "...", highlightElementId: "researchResultsPopup", track: { action: "addToGrimoire" } }, // Phase adjusted to start at 1 for this tour
+  // { id: 'task05', phaseRequired: 2, title: "Step 2 (Workshop): Focus Concepts", description: "...", hint: "...", highlightElementId: "grimoire-grid-workshop", track: { action: "markFocus" } }, // Phase adjusted to start at 1 for this tour
+   // Adjust phaseRequired to start from 1 for this specific tour
+];
+
+// Repository Tour: Covers returning to Persona, Reflections, Repository screen
+const onboardingRepositoryIntro = [
+  // MANUALLY COPY task objects for phases 6, 7, and 8 from your ORIGINAL onboardingTasks array here
+  // Example structure (replace with your actual tasks):
+  // { id: 'task06', phaseRequired: 1, title: "Step 1 (Repository): Weave Your Tapestry", description: "...", hint: "...", highlightElementId: "personaScreen" }, // Phase adjusted
+  // { id: 'task07', phaseRequired: 2, title: "Step 2 (Repository): Seek Insight", description: "...", hint: "...", highlightElementId: "reflectionModal", track: { action: "completeReflection" } }, // Phase adjusted
+  // { id: 'task08', phaseRequired: 3, title: "Step 3 (Repository): The Repository", description: "...", hint: "...", highlightElementId: "repositoryScreen" } // Phase adjusted
+   // Adjust phaseRequired to start from 1 for this specific tour
+];
 
 // --- Elemental Dilemmas (Includes RF examples) ---
 // This section remains identical to the one provided in data2.js originally.
@@ -2085,7 +2102,7 @@ export {
     // Onboarding Tours (ADD THESE LINES)
     onboardingWelcomeIntro,
     onboardingWorkshopIntro,
-   
+   onboardingRepositoryIntro
 };
 
 console.log("data.js successfully merged & loaded. RoleFocus integrated, Onboarding Split! (v4.5)"); // Update version log
