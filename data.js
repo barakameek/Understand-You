@@ -2038,32 +2038,32 @@ const cardTypeThemes = {
 
 // Welcome Tour: Covers Welcome Screen, Questionnaire, Persona Screen basics
 const onboardingWelcomeIntro = [
-  // MANUALLY COPY task objects for phases 1, 2, and 3 from your ORIGINAL onboardingTasks array here
-  // Example structure (replace with your actual tasks):
-  // { id: 'task01', phaseRequired: 1, title: "Step 1: Your Persona", description: "...", hint: "...", highlightElementId: "personaScreen" },
-  // { id: 'task02', phaseRequired: 2, title: "Step 2: The Workshop", description: "...", hint: "...", highlightElementId: "workshopScreen" },
-  // { id: 'task03', phaseRequired: 3, title: "Step 3: Research", description: "...", hint: "...", highlightElementId: "element-research-buttons", track: { action: "conductResearch" } },
-  // Ensure you copy the exact objects with all their properties (id, phaseRequired, title, description, hint, highlightElementId, track)
+  // Task originally for Phase 1
+  { id: 'task01', phaseRequired: 1, title: "Step 1: Your Persona", description: "...", hint: "...", highlightElementId: "personaScreen" },
+  // Task originally for Phase 2
+  { id: 'task02', phaseRequired: 2, title: "Step 2: The Workshop", description: "...", hint: "...", highlightElementId: "workshopScreen" },
+  // Task originally for Phase 3
+  { id: 'task03', phaseRequired: 3, title: "Step 3: Research", description: "...", hint: "...", highlightElementId: "element-research-buttons", track: { action: "conductResearch" } },
 ];
 
 // Workshop Tour: Covers Research results, Grimoire, Focusing Concepts
 const onboardingWorkshopIntro = [
-  // MANUALLY COPY task objects for phases 4 and 5 from your ORIGINAL onboardingTasks array here
-  // Example structure (replace with your actual tasks):
-  // { id: 'task04', phaseRequired: 1, title: "Step 1 (Workshop): Your Grimoire", description: "...", hint: "...", highlightElementId: "researchResultsPopup", track: { action: "addToGrimoire" } }, // Phase adjusted to start at 1 for this tour
-  // { id: 'task05', phaseRequired: 2, title: "Step 2 (Workshop): Focus Concepts", description: "...", hint: "...", highlightElementId: "grimoire-grid-workshop", track: { action: "markFocus" } }, // Phase adjusted to start at 1 for this tour
-   // Adjust phaseRequired to start from 1 for this specific tour
+  // Task originally for Phase 4 -> NOW Phase 1
+  { id: 'task04', phaseRequired: 1, title: "Step 1 (Workshop): Your Grimoire", description: "...", hint: "...", highlightElementId: "researchResultsPopup", track: { action: "addToGrimoire" } },
+  // Task originally for Phase 5 -> NOW Phase 2
+  { id: 'task05', phaseRequired: 2, title: "Step 2 (Workshop): Focus Concepts", description: "...", hint: "...", highlightElementId: "grimoire-grid-workshop", track: { action: "markFocus" } },
 ];
 
 // Repository Tour: Covers returning to Persona, Reflections, Repository screen
 const onboardingRepositoryIntro = [
-  // MANUALLY COPY task objects for phases 6, 7, and 8 from your ORIGINAL onboardingTasks array here
-  // Example structure (replace with your actual tasks):
-  // { id: 'task06', phaseRequired: 1, title: "Step 1 (Repository): Weave Your Tapestry", description: "...", hint: "...", highlightElementId: "personaScreen" }, // Phase adjusted
-  // { id: 'task07', phaseRequired: 2, title: "Step 2 (Repository): Seek Insight", description: "...", hint: "...", highlightElementId: "reflectionModal", track: { action: "completeReflection" } }, // Phase adjusted
-  // { id: 'task08', phaseRequired: 3, title: "Step 3 (Repository): The Repository", description: "...", hint: "...", highlightElementId: "repositoryScreen" } // Phase adjusted
-   // Adjust phaseRequired to start from 1 for this specific tour
+  // Task originally for Phase 6 -> NOW Phase 1
+  { id: 'task06', phaseRequired: 1, title: "Step 1 (Repository): Weave Your Tapestry", description: "...", hint: "...", highlightElementId: "personaScreen" },
+  // Task originally for Phase 7 -> NOW Phase 2
+  { id: 'task07', phaseRequired: 2, title: "Step 2 (Repository): Seek Insight", description: "...", hint: "...", highlightElementId: "reflectionModal", track: { action: "completeReflection" } },
+  // Task originally for Phase 8 -> NOW Phase 3
+  { id: 'task08', phaseRequired: 3, title: "Step 3 (Repository): The Repository", description: "...", hint: "...", highlightElementId: "repositoryScreen" }
 ];
+
 
 // --- Elemental Dilemmas (Includes RF examples) ---
 // This section remains identical to the one provided in data2.js originally.
