@@ -397,13 +397,35 @@ export function showScreen(screenId) {
 }
 
 /** Toggles the side drawer open/closed */
-export function toggleDrawer() {
-    if(!sideDrawer || !drawerToggle) return;
-    const isOpen = sideDrawer.classList.toggle('open');
-    drawerToggle.setAttribute('aria-expanded', isOpen);
-    sideDrawer.setAttribute('aria-hidden', !isOpen);
-    const onboardingActive = onboardingOverlay && onboardingOverlay.classList.contains('visible');
-    if (popupOverlay && !onboardingActive) { popupOverlay.classList.toggle('hidden', !isOpen); }
+export function toggleDrawer () {
+    if (!sideDrawer || !drawerToggle) return;
+
+    /* Is the drawer about to open or close? ------------------------- */
+    const willOpen = !sideDrawer.classList.contains('open');
+
+    /* ----  OPEN  ---- */
+    if (willOpen) {
+        sideDrawer.classList.add('open');
+        drawerToggle.setAttribute('aria-expanded', 'true');
+        sideDrawer.setAttribute('aria-hidden', 'false');
+
+    /* ----  CLOSE  ---- */
+    } else {
+        /* 1  return focus to a visible element (the toggle button)   */
+        drawerToggle.focus();
+
+        /* 2  now hide the drawer for AT users                        */
+        sideDrawer.classList.remove('open');
+        drawerToggle.setAttribute('aria-expanded', 'false');
+        sideDrawer.setAttribute('aria-hidden', 'true');
+    }
+
+    /* Overlay logic stays the same ---------------------------------- */
+    const onboardingActive =
+        onboardingOverlay && onboardingOverlay.classList.contains('visible');
+    if (popupOverlay && !onboardingActive) {
+        popupOverlay.classList.toggle('hidden', willOpen === false);
+    }
 }
 
 
