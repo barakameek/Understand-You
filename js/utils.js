@@ -1,5 +1,8 @@
+// --- START OF FILE utils.js ---
+// js/utils.js - Utility Functions (Enhanced v4.8 - Fixed & Robustness)
+
 // Import elementDetails (for getElementShortName) and elementKeyToFullName (for reverse lookup)
-import { elementDetails, elementKeyToFullName } from '../data.js';
+import { elementDetails, elementKeyToFullName, elementNames } from '../data.js'; // Added elementNames import
 
 console.log("utils.js loading... (Enhanced v4.8 - Fixed & Robustness)");
 
@@ -165,7 +168,7 @@ export function getElementIcon(elementNameKey) {
 export function euclideanDistance(userScoresObj, conceptScoresObj, conceptName = 'Unknown Concept') {
      let sumOfSquares = 0;
      let validDimensions = 0;
-     const expectedDimensions = 7; // Now expecting 7 dimensions including RF
+     const expectedDimensions = elementNames.length; // Use imported elementNames length
      const expectedKeys = elementKeyToFullName ? Object.keys(elementKeyToFullName) : ['A','I','S','P','C','R','RF']; // Fallback if map isn't loaded yet
 
      if (!userScoresObj || typeof userScoresObj !== 'object' || !conceptScoresObj || typeof conceptScoresObj !== 'object') {
@@ -258,3 +261,4 @@ export function formatTimestamp(timestamp) {
 
 
 console.log("utils.js loaded successfully. (Fixed)");
+// --- END OF FILE utils.js ---
