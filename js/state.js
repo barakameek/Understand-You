@@ -1,10 +1,11 @@
-// js/state.js - Manages Application State and Persistence (Enhanced v4.1 - Fixed)
+// --- START OF FILE state.js ---
+// js/state.js - Manages Application State and Persistence (Enhanced v4.1 - Fixed + Onboarding Phase Setter)
 import * as Config from './config.js';
 // Import elementNames for structure initialization and concepts for loading enrichment
 import { elementNames, concepts } from '../data.js';
 import { formatTimestamp } from './utils.js'; // For Insight Log timestamp
 
-console.log("state.js loading... (Enhanced v4.1 - Fixed Spread Syntax & Logging)");
+console.log("state.js loading... (Enhanced v4.1 - Fixed Spread Syntax & Logging + Onboarding Setter)");
 
 // Default game state structure (now includes onboarding, insight log, and RF)
 const createInitialGameState = () => {
@@ -41,7 +42,7 @@ const createInitialGameState = () => {
         contemplationCooldownEnd: null, // timestamp | null
         insightBoostCooldownEnd: null, // timestamp | null
         // NEW STATE PROPERTIES v4
-        onboardingPhase: 0, // Current phase of the onboarding tutorial (0 = not started)
+        onboardingPhase: 0, // Current phase of the onboarding tutorial (0 = not started, 99 = skipped)
         onboardingComplete: false, // Has the user finished/skipped onboarding?
         insightLog: [], // Array<{ timestamp: string, amount: number, source: string, newTotal: number }>
     };
@@ -307,10 +308,12 @@ export function loadGameState() {
             gameState.onboardingPhase = mergeSimple('onboardingPhase', 0);
             // Handle potential old save state where onboarding wasn't tracked
             const loadedOnboardingComplete = mergeSimple('onboardingComplete', false);
-            gameState.onboardingComplete = loadedOnboardingComplete || gameState.questionnaireCompleted; // If Q done, assume onboarding done
-            if (!loadedOnboardingComplete && gameState.questionnaireCompleted) {
+            // Allow onboardingPhase=99 to mean skipped/complete
+            gameState.onboardingComplete = loadedOnboardingComplete || gameState.questionnaireCompleted || gameState.onboardingPhase === 99;
+            if (!loadedOnboardingComplete && gameState.questionnaireCompleted && gameState.onboardingPhase !== 99) {
                  console.log("Load Info: Questionnaire complete but onboarding wasn't; marking onboarding complete.");
                  gameState.onboardingPhase = Config.MAX_ONBOARDING_PHASE + 1; // Mark phase as done too
+                 gameState.onboardingComplete = true; // Ensure flag is set
             }
 
             gameState.insightLog = Array.isArray(loadedState?.insightLog) ? loadedState.insightLog : [];
@@ -378,7 +381,7 @@ export function getUnlockedLoreLevel(conceptId) { const data = gameState.discove
 export function isNewLoreAvailable(conceptId) { const data = gameState.discoveredConcepts.get(conceptId); return data?.newLoreAvailable || false; }
 // New Getters
 export function getOnboardingPhase() { return gameState.onboardingPhase; }
-export function isOnboardingComplete() { return gameState.onboardingComplete; }
+export function isOnboardingComplete() { return gameState.onboardingComplete || gameState.onboardingPhase === 99; }
 export function getInsightLog() { return [...gameState.insightLog]; } // Return a copy
 
 
@@ -426,9 +429,9 @@ export function setQuestionnaireComplete() {
     if (!gameState.questionnaireCompleted) {
         gameState.questionnaireCompleted = true;
         // If onboarding isn't explicitly marked complete, mark it now
-        if (!gameState.onboardingComplete) {
+        if (!gameState.onboardingComplete && gameState.onboardingPhase !== 99) {
             gameState.onboardingComplete = true;
-            gameState.onboardingPhase = Config.MAX_ONBOARDING_PHASE + 1;
+            gameState.onboardingPhase = Config.MAX_ONBOARDING_PHASE + 1; // Mark phase as done too (original logic)
             console.log("Marked onboarding complete automatically upon questionnaire completion.");
         }
         saveGameState();
@@ -855,21 +858,24 @@ export function addAchievedMilestone(milestoneId) {
 
 // --- New State Functions ---
 export function advanceOnboardingPhase() {
-    if (!gameState.onboardingComplete) {
+    if (!gameState.onboardingComplete && gameState.onboardingPhase !== 99) {
         gameState.onboardingPhase++;
         console.log(`State: Advanced onboarding to phase ${gameState.onboardingPhase}`);
-        if (gameState.onboardingPhase > Config.MAX_ONBOARDING_PHASE) {
-            markOnboardingComplete(); // Automatically complete if advanced beyond max
-        }
+        // Don't auto-complete here, let the UI handle the final step
+        // if (gameState.onboardingPhase > Config.MAX_ONBOARDING_PHASE) {
+        //     markOnboardingComplete(); // Automatically complete if advanced beyond max
+        // }
         saveGameState(); // Save the phase change
         return gameState.onboardingPhase;
     }
-    return gameState.onboardingPhase; // Return current phase if already complete
+    return gameState.onboardingPhase; // Return current phase if already complete/skipped
 }
-// Specifically set the onboarding phase - Used by Prev button in UI
+// Specifically set the onboarding phase - Used by Prev button in UI or to restart tours
 export function updateOnboardingPhase(newPhase) {
-     if (!gameState.onboardingComplete && typeof newPhase === 'number' && newPhase >= 0 && newPhase <= Config.MAX_ONBOARDING_PHASE) { // Allow setting to 0
+     // Allow setting phase even if 'complete' was true, to restart tours, but not if explicitly skipped (99)
+     if (typeof newPhase === 'number' && newPhase >= 0 && gameState.onboardingPhase !== 99) {
          gameState.onboardingPhase = newPhase;
+         gameState.onboardingComplete = (newPhase >= Config.MAX_ONBOARDING_PHASE + 1); // Re-evaluate complete flag
          saveGameState();
          console.log(`State: Set onboarding phase to ${newPhase}`);
          return true;
@@ -877,7 +883,7 @@ export function updateOnboardingPhase(newPhase) {
      return false;
 }
 export function markOnboardingComplete() {
-    if (!gameState.onboardingComplete) {
+    if (!gameState.onboardingComplete && gameState.onboardingPhase !== 99) {
         gameState.onboardingComplete = true;
         gameState.onboardingPhase = Config.MAX_ONBOARDING_PHASE + 1; // Ensure phase is marked above max
         console.log("State: Onboarding marked as complete.");
@@ -911,5 +917,14 @@ export function addInsightLogEntry(amount, source, newTotal) {
     // Note: Saving is handled by the calling function (e.g., changeInsight) to bundle saves
 }
 
+/** Marks onboarding phase (e.g. skip or resume) and saves */
+export function setOnboardingPhase(n){
+    if(typeof n!=='number') return;
+    gameState.onboardingPhase = n;
+    gameState.onboardingComplete = (n === 99); // 99 explicitly means skipped/complete
+    _triggerSave();
+}
 
-console.log("state.js loaded successfully. (Fixed)");
+
+console.log("state.js loaded successfully. (Fixed + Onboarding Setter)");
+// --- END OF FILE state.js ---
