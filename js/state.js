@@ -1,5 +1,3 @@
-// --- START OF FILE state.js ---
-
 // js/state.js - Manages Application State and Persistence (Enhanced v4.1 - Fixed)
 import * as Config from './config.js';
 // Import elementNames for structure initialization and concepts for loading enrichment
@@ -911,4 +909,3 @@ export function addInsightLogEntry(amount, source, newTotal) {
 
 
 console.log("state.js loaded successfully. (Fixed)");
-// --- END OF FILE state.js ---
