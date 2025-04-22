@@ -1684,8 +1684,9 @@ export function renderCard(concept, context = 'grimoire', discoveredData = null)
     const userCategory = isDiscovered ? (discoveredData?.userCategory || 'uncategorized') : 'uncategorized';
 
     // Visual Content (Image or Placeholder)
-    let visualContentHTML = '';
-    if (context === 'grimoire') { // Only show visual in Grimoire context card
+   let visualContentHTML = '';
+   /* Show the art both in the Grimoire **and** in the Research‑popup  */
+    if (context === 'grimoire' || context === 'popup-result') {
         const placeholderIconHTML = `<i class="fas fa-image card-visual-placeholder" title="Visual Placeholder"></i>`;
         if (concept.visualHandle) {
             const handle = concept.visualHandle;
