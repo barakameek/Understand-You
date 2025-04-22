@@ -1835,4 +1835,11 @@ canvas#personaScoreChartCanvas { background-color: transparent !important; } /* 
 .research-result-item .card-footer{
   padding-bottom: 48px;       /* room for the KEEP / SELL buttons  */
 }
-/* --- END OF FILE style.css --- */
+.research-result-item .card-visual{
+  aspect-ratio: 3/4;      /* keep portrait shape */
+  min-height: 120px;      /* a bit taller than default */
+  margin: 6px 8px;        /* match the card's inner padding */
+}
+.research-result-item .card-visual img{
+  object-fit: cover;
+}
