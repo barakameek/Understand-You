@@ -2,7 +2,7 @@
 
 /* =========================================================
    Persona Alchemy Lab – Merged Styles
-   (Enhanced v4.1 + UI Refresh v1.1 + Layout Fixes - Corrected)
+   (Enhanced v4.1 + UI Refresh v1.1 + Layout Fixes - Corrected + Hints)
    ========================================================= */
 
 /* ---------- 0. Design Tokens (Variables) ------------- */
@@ -584,6 +584,38 @@ h5 {
 
 .focus-button.marked { background-color: var(--accent-color); border-color: #cca300; color: #332700; }
 :root.dark .focus-button.marked { background-color: var(--accent-color); border-color: #ffecb3; }
+
+/* Text Button Style (for skip tour button) */
+.btn-text {
+    background: none;
+    border: none;
+    padding: 0;
+    font: inherit;
+    color: var(--text-muted-color);
+    cursor: pointer;
+    text-decoration: underline;
+}
+.btn-text:hover {
+    color: var(--primary-color);
+}
+:root.dark .btn-text { color: var(--text-muted-color); }
+:root.dark .btn-text:hover { color: var(--primary-color); }
+ .btn-text.small {
+     font-size: 0.9em;
+ }
+
+/* Icon Button Style (for Help button) */
+.icon-btn {
+     display: inline-flex;
+     align-items: center;
+     justify-content: center;
+     padding: 0; /* Remove padding for icon-only */
+     width: 40px; /* Fixed size */
+     height: 40px;
+     border-radius: 50%; /* Circle */
+     font-size: 1.4rem; /* Icon size */
+     /* Inherit other button styles like border, bg, color, shadow */
+}
 
 
 /* ---------- 5. Questionnaire Stepper ------------------------ */
@@ -1320,12 +1352,52 @@ h5 {
 }
 :root.dark .onboarding-popup { background: var(--background-medium); border-color: var(--primary-color); }
 
+/* Onboarding Popup Header */
+.onboarding-popup .popup-header { /* Style the header inside onboarding */
+ display: flex;
+ justify-content: space-between; /* Space title and progress */
+ align-items: center;
+ border-bottom: 1px solid var(--border-color-light);
+ padding-bottom: 0.5rem;
+ margin-bottom: 1rem;
+}
+.onboarding-popup .popup-header h2 {
+    margin: 0; /* Remove default margin */
+    font-size: 1.2rem; /* Adjust size */
+    border: none; /* Remove default border */
+    padding: 0;
+    text-align: left;
+}
+.onboarding-popup .popup-header #tourProgress { /* Style the progress span */
+ font-size: 0.9em;
+ font-weight: bold;
+ background-color: var(--secondary-color);
+ color: var(--primary-color);
+ padding: 3px 8px;
+ border-radius: 10px;
+ border: 1px solid var(--primary-color);
+}
+:root.dark .onboarding-popup .popup-header #tourProgress {
+   background-color: var(--secondary-color);
+   color: var(--background-dark);
+   border-color: var(--accent-color);
+}
+
+
 #onboardingContent { margin: 1em 0; }
 #onboardingContent p { margin-bottom: 0.5em; }
 .onboarding-progress { font-size: 0.8em; color: var(--text-muted-color); margin-top: 1em; }
 .onboarding-nav { display: flex; justify-content: space-between; align-items: center; margin-top: 1.5em; padding-top: 1rem; border-top: 1px solid var(--border-color-light); }
 .onboarding-nav .skip-button { background: none; border: none; color: var(--text-muted-color); text-decoration: underline; cursor: pointer; font-size: 0.9em; }
 .onboarding-nav .skip-button:hover { color: var(--danger-color); }
+
+/* Group skip buttons on left */
+.onboarding-nav > div:first-child {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+}
 
 .onboarding-highlight {
     position: fixed;
@@ -1858,4 +1930,26 @@ canvas#personaScoreChartCanvas { background-color: transparent !important; } /* 
 .research-result-item .card-visual img{
   object-fit: cover;
 }
+
+/* ---------- 16. Hint Bubbles (Added) ---------------------- */
+.hint-bubble{
+  position:absolute; z-index:1000;
+  max-width:210px; padding:8px 10px; border-radius:8px;
+  background:var(--background-light);
+  border:1px solid var(--accent-color); box-shadow:0 2px 6px rgba(0,0,0,.15);
+  font-size:.85rem; line-height:1.3;
+}
+:root.dark .hint-bubble { background: var(--background-dark); border-color: var(--accent-color); }
+.hint-bubble .hint-close{
+  position:absolute; top:4px; right:6px; cursor:pointer;
+  font-weight:bold; font-size:.9rem;
+  color: var(--text-muted-color);
+}
+.hint-bubble .hint-close:hover {
+    color: var(--danger-color);
+}
+:root.dark .hint-bubble .hint-close { color: var(--text-muted-color); }
+:root.dark .hint-bubble .hint-close:hover { color: var(--danger-color); }
+
+
 /* --- END OF FILE style.css --- */
