@@ -399,13 +399,24 @@ export function showScreen(screenId) {
 /** Toggles the side drawer open/closed */
 export function toggleDrawer() {
     if(!sideDrawer || !drawerToggle) return;
-    const isOpen = sideDrawer.classList.toggle('open');
-    drawerToggle.setAttribute('aria-expanded', isOpen);
-    sideDrawer.setAttribute('aria-hidden', !isOpen);
-    const onboardingActive = onboardingOverlay && onboardingOverlay.classList.contains('visible');
-    if (popupOverlay && !onboardingActive) { popupOverlay.classList.toggle('hidden', !isOpen); }
-}
+    const isOpen = sideDrawer.classList.contains('open'); // Check current state *before* toggling
 
+    
+    if (isOpen) { // If drawer is currently open and we are about to close it
+        drawerToggle.focus(); // Move focus back to the toggle button
+    }
+    
+
+    sideDrawer.classList.toggle('open'); // Now toggle the class
+    const isNowOpen = sideDrawer.classList.contains('open'); // Check state *after* toggling
+
+    drawerToggle.setAttribute('aria-expanded', isNowOpen);
+    sideDrawer.setAttribute('aria-hidden', !isNowOpen); // Set aria-hidden based on new state
+
+    const onboardingActive = onboardingOverlay && onboardingOverlay.classList.contains('visible');
+    if (popupOverlay && !onboardingActive) {
+        popupOverlay.classList.toggle('hidden', !isNowOpen);
+    }
 
 // --- Insight Display & Log ---
 export function updateInsightDisplays() {
