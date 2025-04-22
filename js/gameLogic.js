@@ -1,12 +1,12 @@
 // --- START OF FILE gameLogic.js ---
 
-// js/gameLogic.js - Application Logic (Enhanced v4.1 - RF, Onboarding, Logging - Fixed)
+// js/gameLogic.js - Application Logic (Enhanced v4.1 - RF, Onboarding, Logging - Fixed + Onboarding Split)
 
 import * as State from './state.js';
 import * as Config from './config.js';
 import * as Utils from './utils.js';
 import * as UI from './ui.js';
-// Import updated data structures (now including RoleFocus, onboardingTasks)
+// Import updated data structures (now using split onboarding tours if needed, but gameLogic doesn't directly use them)
 import {
     elementDetails, elementKeyToFullName,
     concepts, questionnaireGuided,
@@ -14,10 +14,11 @@ import {
     sceneBlueprints, alchemicalExperiments, elementalInsights, focusDrivenUnlocks,
     cardTypeKeys, elementNames, // Now 7 elements including RoleFocus ("Attraction", etc.)
     elementInteractionThemes, cardTypeThemes,
-    categoryDrivenUnlocks, grimoireShelves, elementalDilemmas, onboardingTasks // Include onboarding
+    categoryDrivenUnlocks, grimoireShelves, elementalDilemmas
+    // Removed onboardingTasks import as it's unused here
 } from '../data.js';
 
-console.log("gameLogic.js loading... (Enhanced v4.1 - RF, Onboarding, Logging - Fixed)");
+console.log("gameLogic.js loading... (Enhanced v4.1 - RF, Onboarding, Logging - Fixed + Onboarding Split)");
 
 // --- Temporary State (Cleared by UI.hidePopups calling clearPopupState) ---
 let currentlyDisplayedConceptId = null; // ID of concept in the detail popup
@@ -65,37 +66,9 @@ export function getCurrentPopupConceptId() {
      return currentlyDisplayedConceptId;
 }
 
-
-// --- Helper to Trigger Onboarding Advance Internally (Use Sparingly) ---
-// Checks if a logic-driven action *within gameLogic* should advance onboarding.
-// Prefer using triggerActionAndCheckOnboarding in main.js for UI-driven actions.
-function checkOnboardingInternal(actionName, targetPhase, conditionValue = null) {
-    const currentPhase = State.getOnboardingPhase();
-    const onboardingComplete = State.isOnboardingComplete();
-
-    if (Config.ONBOARDING_ENABLED && !onboardingComplete && currentPhase === targetPhase) {
-        const task = onboardingTasks.find(t => t.phaseRequired === currentPhase);
-        if (!task) {
-             console.warn(`Onboarding Internal Check: Task missing for phase ${currentPhase}. Cannot advance.`);
-             return;
-        }
-         // Task tracking logic depends on how `track` is defined in onboardingTasks
-         // Assuming a simple action match for now
-         let conditionMet = task.track?.action === actionName;
-         // Add value check if applicable
-         if (conditionMet && task.track?.value !== undefined) {
-              conditionMet = task.track.value === conditionValue;
-         }
-
-        if (conditionMet) {
-            console.log(`Onboarding Check (Internal): Action '${actionName}' meets criteria for phase ${targetPhase}. Advancing.`);
-            const nextPhase = State.advanceOnboardingPhase(); // Advance state
-            // UI update for the next step is usually handled by main.js or the calling function's UI update.
-            // Avoid calling UI.showOnboarding here unless absolutely necessary to prevent double calls.
-            // UI.showOnboarding(nextPhase); // Generally avoid calling this here
-        }
-    }
-}
+// --- REMOVED UNUSED FUNCTION ---
+// The checkOnboardingInternal function was here, but it wasn't being called
+// and used the old onboardingTasks array. Main.js handles onboarding checks now.
 
 
 // --- Insight & Attunement Management ---
@@ -2928,5 +2901,5 @@ function _calculateFocusSetHash() {
 }
 
 
-console.log("gameLogic.js loaded successfully. (Enhanced v4.1 - Fixed)");
+console.log("gameLogic.js loaded successfully. (Enhanced v4.1 - Fixed + Onboarding Split)");
 // --- END OF FILE gameLogic.js ---
