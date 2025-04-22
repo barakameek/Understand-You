@@ -1673,7 +1673,17 @@ export function displayGrimoire(filterParams = {}) {
             }
         });
     }
-
+const libGrid = document.getElementById('grimoire-grid-workshop');
+if (libGrid){
+    libGrid.querySelectorAll('img').forEach(img=>{
+        if (img.complete) return;               // already cached
+        img.addEventListener('load', ()=>{      // image finished
+            libGrid.style.columnGap = '1px';    // nudge the engine…
+            libGrid.offsetHeight;               // force reflow
+            libGrid.style.columnGap = '';       // restore gap
+        });
+    });
+}
     updateShelfCounts(); // Update counts after rendering cards
 }
 /** Refreshes the Grimoire display based on current filter/sort control values. */
