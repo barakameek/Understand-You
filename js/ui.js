@@ -15,7 +15,7 @@ import {
     onboardingWelcomeIntro, onboardingWorkshopIntro, onboardingRepositoryIntro,
     // Other needed data
     elementInteractionThemes, cardTypeThemes
-} from '../data.js';
+} from './data.js';
 
 console.log("ui.js loading... (Enhanced v4.10 + Drawer/Accordion/Layout Fixes - Corrected v5 + Onboarding Tours)");
 
