@@ -2856,11 +2856,11 @@ export function updateMilestoneProgress(trackType, currentValue) {
              }
          }
          // 3. Lore Level Milestones
-         else if (trackType === 'unlockLore') {
-             const loreLevel = typeof currentValue === 'number' ? currentValue : 0;
-             if (track.condition === 'anyLevel' && loreLevel >= 1) achieved = true; // Trigger on unlocking level 1 or higher
-             else if (track.condition === 'level3' && loreLevel >= 3) achieved = true;
-         }
+      else if (trackType === 'unlockLore') {
+    const loreLevel = typeof currentValue === 'number' ? currentValue : 0;
+    if (track.condition === 'anyLevel' && loreLevel >= 1) achieved = true; // ms006
+    else if (track.condition === 'level3' && loreLevel >= 3) achieved = true; // ms039
+}
 
          // --- Grant Milestone if Achieved ---
          if (achieved) {
