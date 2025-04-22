@@ -2036,32 +2036,36 @@ const cardTypeThemes = {
 };
 
 
-// Welcome Tour: Covers Welcome Screen, Questionnaire, Persona Screen basics
-const onboardingWelcomeIntro = [
-  // Task originally for Phase 1
-  { id: 'task01', phaseRequired: 1, title: "Step 1: Your Persona", description: "...", hint: "...", highlightElementId: "personaScreen" },
-  // Task originally for Phase 2
-  { id: 'task02', phaseRequired: 2, title: "Step 2: The Workshop", description: "...", hint: "...", highlightElementId: "workshopScreen" },
-  // Task originally for Phase 3
-  { id: 'task03', phaseRequired: 3, title: "Step 3: Research", description: "...", hint: "...", highlightElementId: "element-research-buttons", track: { action: "conductResearch" } },
-];
-
-// Workshop Tour: Covers Research results, Grimoire, Focusing Concepts
-const onboardingWorkshopIntro = [
-  // Task originally for Phase 4 -> NOW Phase 1
-  { id: 'task04', phaseRequired: 1, title: "Step 1 (Workshop): Your Grimoire", description: "...", hint: "...", highlightElementId: "researchResultsPopup", track: { action: "addToGrimoire" } },
-  // Task originally for Phase 5 -> NOW Phase 2
-  { id: 'task05', phaseRequired: 2, title: "Step 2 (Workshop): Focus Concepts", description: "...", hint: "...", highlightElementId: "grimoire-grid-workshop", track: { action: "markFocus" } },
-];
-
 // Repository Tour: Covers returning to Persona, Reflections, Repository screen
 const onboardingRepositoryIntro = [
   // Task originally for Phase 6 -> NOW Phase 1
-  { id: 'task06', phaseRequired: 1, title: "Step 1 (Repository): Weave Your Tapestry", description: "...", hint: "...", highlightElementId: "personaScreen" },
+  {
+    id: 'task06',
+    phaseRequired: 1,
+    title: "Step 1 (Repository): Weave Your Tapestry", // YOUR TITLE
+    description: "Return to the <strong>Persona</strong> screen. Notice how your 'Focused Concepts', 'Focus Themes', and 'Tapestry Narrative' have updated based on your choice!", // <<< ENSURE THIS IS CORRECT
+    hint: "Tap 'Persona' in the top navigation again.", // <<< ENSURE THIS IS CORRECT
+    highlightElementId: "personaScreen"
+  },
   // Task originally for Phase 7 -> NOW Phase 2
-  { id: 'task07', phaseRequired: 2, title: "Step 2 (Repository): Seek Insight", description: "...", hint: "...", highlightElementId: "reflectionModal", track: { action: "completeReflection" } },
+  {
+    id: 'task07',
+    phaseRequired: 2,
+    title: "Step 2 (Repository): Seek Insight", // YOUR TITLE
+    description: "Adding concepts and other actions sometimes trigger <strong>Reflections</strong> (like this tutorial!). Confirming reflections grants Insight <i class='fas fa-brain insight-icon'></i> and Attunement. You can also 'Seek Guidance' in the Workshop.", // <<< ENSURE THIS IS CORRECT
+    hint: "Reflections appear in popups like this. Confirm when ready.", // <<< ENSURE THIS IS CORRECT
+    highlightElementId: "reflectionModal",
+    track: { action: "completeReflection" }
+   },
   // Task originally for Phase 8 -> NOW Phase 3
-  { id: 'task08', phaseRequired: 3, title: "Step 3 (Repository): The Repository", description: "...", hint: "...", highlightElementId: "repositoryScreen" }
+  {
+    id: 'task08',
+    phaseRequired: 3,
+    title: "Step 3 (Repository): The Repository", // YOUR TITLE
+    description: "The <strong>Repository</strong> tracks Milestones, Daily Rituals, and special discoveries like Scene Blueprints or Experiments. Check back often! You're now ready to explore the Lab!", // <<< ENSURE THIS IS CORRECT
+    hint: "Tap 'Repository' in the top navigation.", // <<< ENSURE THIS IS CORRECT
+    highlightElementId: "repositoryScreen"
+   }
 ];
 
 
