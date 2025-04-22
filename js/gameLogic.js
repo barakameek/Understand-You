@@ -15,7 +15,7 @@ import {
     cardTypeKeys, elementNames, // Now 7 elements including RoleFocus ("Attraction", etc.)
     elementInteractionThemes, cardTypeThemes,
     categoryDrivenUnlocks, grimoireShelves, elementalDilemmas, onboardingTasks // Include onboarding
-} from './data.js';
+} from '../data.js';
 
 console.log("gameLogic.js loading... (Enhanced v4.1 - RF, Onboarding, Logging - Fixed)");
 
