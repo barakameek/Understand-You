@@ -1,7 +1,3 @@
-// --- START OF FILE utils.js ---
-
-// js/utils.js - Utility Functions (Enhanced for 7 Elements + v4.8 - Fixed)
-
 // Import elementDetails (for getElementShortName) and elementKeyToFullName (for reverse lookup)
 import { elementDetails, elementKeyToFullName } from '../data.js';
 
@@ -262,4 +258,3 @@ export function formatTimestamp(timestamp) {
 
 
 console.log("utils.js loaded successfully. (Fixed)");
-// --- END OF FILE utils.js ---
