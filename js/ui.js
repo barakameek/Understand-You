@@ -10,10 +10,14 @@ import {
     reflectionPrompts, elementDeepDive, dailyRituals, milestones, focusRituals,
     sceneBlueprints, alchemicalExperiments, elementalInsights, focusDrivenUnlocks,
     cardTypeKeys, elementNames,
-    grimoireShelves, elementalDilemmas, onboardingTasks
+    grimoireShelves, elementalDilemmas,
+    // Import onboarding task arrays
+    onboardingWelcomeIntro, onboardingWorkshopIntro, onboardingRepositoryIntro,
+    // Other needed data
+    elementInteractionThemes, cardTypeThemes
 } from '../data.js';
 
-console.log("ui.js loading... (Enhanced v4.10 + Drawer/Accordion/Layout Fixes - Corrected v5)");
+console.log("ui.js loading... (Enhanced v4.10 + Drawer/Accordion/Layout Fixes - Corrected v5 + Onboarding Tours)");
 
 // --- Helper Function for Image Errors ---
 function handleImageError(imgElement) {
@@ -28,7 +32,7 @@ function handleImageError(imgElement) {
         }
     }
 }
-window.handleImageError = handleImageError;
+window.handleImageError = handleImageError; // Make accessible globally if needed by onerror attribute
 
 
 // --- DOM Element References ---
@@ -49,6 +53,7 @@ const sideDrawer = getElement('sideDrawer');
 const drawerSettingsButton = getElement('drawerSettings');
 const drawerThemeToggle = getElement('drawerThemeToggle');
 const drawerGrimoireCountSpan = getElement('drawerGrimoireCount');
+const helpBtn = getElement('helpBtn'); // New Help button
 
 // Welcome Screen
 const welcomeScreen = getElement('welcomeScreen');
@@ -207,10 +212,12 @@ const confirmInfoPopupButton = getElement('confirmInfoPopupButton');
 const onboardingOverlay = getElement('onboardingOverlay');
 const onboardingPopup = getElement('onboardingPopup');
 const onboardingContent = getElement('onboardingContent');
-const onboardingProgressSpan = getElement('onboardingProgress');
+const onboardingProgressSpan = getElement('onboardingProgress'); // For tour progress 1/N
+const onboardingTitle = getElement('onboarding-heading'); // For tour title
 const onboardingPrevButton = getElement('onboardingPrevButton');
 const onboardingNextButton = getElement('onboardingNextButton');
-const onboardingSkipButton = getElement('onboardingSkipButton');
+const onboardingSkipButton = getElement('onboardingSkipButton'); // Skip ALL button
+const skipTourBtn = getElement('skipTourBtn'); // Skip CURRENT tour button
 const onboardingHighlight = getElement('onboardingHighlight');
 
 
@@ -221,6 +228,20 @@ let milestoneTimeout = null;
 let insightBoostTimeoutId = null;
 let contemplationTimeoutId = null;
 let previousScreenId = 'welcomeScreen';
+
+// --- Replicate Helper from main.js ---
+// (Needed for showOnboarding to select correct task list)
+function getTourForScreen(screenId){
+    switch(screenId){
+        case 'workshopScreen':   return onboardingWorkshopIntro;
+        case 'repositoryScreen': return onboardingRepositoryIntro;
+        // Welcome, Questionnaire, and Persona use the Welcome tour
+        case 'welcomeScreen':
+        case 'questionnaireScreen':
+        case 'personaScreen':
+        default:                 return onboardingWelcomeIntro;
+    }
+}
 
 // --- Utility UI Functions ---
 
@@ -289,7 +310,10 @@ export function hidePopups() {
             GameLogic.clearPopupState();
         }
     } else if (onboardingActive && popupOverlay) {
-         popupOverlay.classList.add('hidden');
+         // Don't hide overlay if onboarding is active, but other popups were hidden
+         // popupOverlay.classList.add('hidden'); // Original logic was here
+    } else if (!anyGeneralPopupVisible && !onboardingActive && popupOverlay) {
+         popupOverlay.classList.add('hidden'); // Ensure overlay hides if no popups and no onboarding
     }
 }
 
@@ -374,7 +398,13 @@ export function showScreen(screenId) {
                 } else { console.warn("Attempted to access Persona screen before questionnaire completion. Redirecting."); showScreen('welcomeScreen'); return; }
                 break;
             case 'workshopScreen':
-                if (isPostQuestionnaire) { displayWorkshopScreenContent(); refreshGrimoireDisplay(); }
+                if (isPostQuestionnaire) {
+                    displayWorkshopScreenContent();
+                    refreshGrimoireDisplay();
+                    // Show hint for free research button only once
+                    showHintOnce('freeResearch', '#freeResearchButtonWorkshop',
+                                 '<b>Free research!</b><br>Click once per day to draw new cards.');
+                }
                 else { console.warn("Attempted to access Workshop screen before questionnaire completion. Redirecting."); showScreen('welcomeScreen'); return; }
                 break;
             case 'repositoryScreen':
@@ -411,10 +441,10 @@ export function toggleDrawer () {
 
     /* ----  CLOSE  ---- */
     } else {
-        /* 1  return focus to a visible element (the toggle button)   */
+        /* 1  return focus to a visible element (the toggle button)   */
         drawerToggle.focus();
 
-        /* 2  now hide the drawer for AT users                        */
+        /* 2  now hide the drawer for AT users                        */
         sideDrawer.classList.remove('open');
         drawerToggle.setAttribute('aria-expanded', 'false');
         sideDrawer.setAttribute('aria-hidden', 'true');
@@ -595,7 +625,8 @@ export function initializeQuestionnaireUI() {
     displayElementQuestions(0); // Display first set of questions
     if (dynamicScoreFeedback) dynamicScoreFeedback.style.display = 'none'; // Hide feedback initially
     else { console.warn("Dynamic score feedback element not found."); }
-    document.documentElement.style.setProperty('--progress-pct', `${(1 / elementNames.length) * 100}%`); // Set initial progress
+    // Set initial progress (using Config.MAX_ONBOARDING_PHASE for total steps in Welcome tour)
+    document.documentElement.style.setProperty('--progress-pct', `${(1 / Config.MAX_ONBOARDING_PHASE) * 100}%`);
     console.log("UI: Questionnaire UI initialized.");
 }
 
@@ -1945,7 +1976,8 @@ function displayPopupRelatedConceptsTags(relatedIds) { if (!popupRelatedConcepts
 function displayPopupRecipeComparison(conceptScores, userScores) { if (!popupConceptProfile || !popupUserComparisonProfile || !popupComparisonHighlights) { console.warn("Popup recipe comparison elements missing."); return; } const renderProfile = (scores, container) => { container.innerHTML = ''; elementNames.forEach(elNameKey => { const key = Object.keys(elementKeyToFullName).find(k => elementKeyToFullName[k] === elNameKey); const score = (scores && typeof scores[key] === 'number') ? scores[key] : NaN; const name = Utils.getElementShortName(elementDetails?.[elNameKey]?.name || elNameKey); const color = Utils.getElementColor(elNameKey); const barWidth = isNaN(score) ? 0 : Math.max(0, Math.min(100, score * 10)); const scoreText = isNaN(score) ? 'N/A' : score.toFixed(1); container.innerHTML += `<div><strong>${name}:</strong> ${scoreText} <div class="score-bar-container"><div style="width: ${barWidth}%; background-color:${color};"></div></div></div>`; }); }; renderProfile(conceptScores, popupConceptProfile); renderProfile(userScores, popupUserComparisonProfile); // Highlight differences
     let highlightsHTML = ''; const expectedKeys = Object.keys(elementKeyToFullName); const scoresValid = conceptScores && typeof conceptScores === 'object' && expectedKeys.length === Object.keys(conceptScores).length && expectedKeys.every(key => conceptScores.hasOwnProperty(key) && typeof conceptScores[key] === 'number' && !isNaN(conceptScores[key])); if (!scoresValid) { highlightsHTML = "<p><em>Concept score data incomplete. Cannot compare.</em></p>"; } else { elementNames.forEach(elNameKey => { const key = Object.keys(elementKeyToFullName).find(k => elementKeyToFullName[k] === elNameKey); const cScore = conceptScores[key]; const uScore = userScores[key]; const diff = Math.abs(cScore - uScore); if (diff <= 1.5) { highlightsHTML += `<p class="match"><i class="fas fa-check"></i> ${Utils.getElementShortName(elementDetails?.[elNameKey]?.name || elNameKey)}: Close alignment.</p>`; } else if (diff >= 4.0) { highlightsHTML += `<p class="mismatch"><i class="fas fa-times"></i> ${Utils.getElementShortName(elementDetails?.[elNameKey]?.name || elNameKey)}: Significant difference.</p>`; } }); } popupComparisonHighlights.innerHTML = highlightsHTML || "<p><em>Scores seem broadly similar or differences are moderate.</em></p>"; }
 /** Displays the Lore section in the concept detail popup. */
-function displayPopupLore(conceptId, loreData, unlockedLevel) { if (!popupLoreSection || !popupLoreContent) { console.warn("Popup lore elements missing."); return; } popupLoreContent.innerHTML = ''; if (!loreData || !Array.isArray(loreData) || loreData.length === 0) { popupLoreSection.classList.add('hidden'); return; } popupLoreSection.classList.remove('hidden'); // Ensure section is visible
+export function displayPopupLore(conceptId, loreData, unlockedLevel) { // Exported now
+     if (!popupLoreSection || !popupLoreContent) { console.warn("Popup lore elements missing."); return; } popupLoreContent.innerHTML = ''; if (!loreData || !Array.isArray(loreData) || loreData.length === 0) { popupLoreSection.classList.add('hidden'); return; } popupLoreSection.classList.remove('hidden'); // Ensure section is visible
     let canUnlockMore = false; loreData.forEach(entry => { if (entry.level <= unlockedLevel) { // Display unlocked lore
             const entryDiv = document.createElement('div'); entryDiv.classList.add('lore-entry'); entryDiv.innerHTML = `<h6><i class="fas fa-scroll"></i> Level ${entry.level}</h6><p>${entry.text}</p>`; popupLoreContent.appendChild(entryDiv); } else if (entry.level === unlockedLevel + 1) { // Display next unlock button
             canUnlockMore = true; const unlockDiv = document.createElement('div'); unlockDiv.classList.add('lore-unlock'); const cost = entry.insightCost || Config.LORE_UNLOCK_COSTS[`level${entry.level}`] || 999; // Get cost, fallback
@@ -2092,39 +2124,69 @@ export function setupInitialUI() { console.log("UI: Setting up initial UI state"
 
     // Apply theme
     if (localStorage.getItem('theme') === 'dark') { document.documentElement.classList.add('dark'); } else { document.documentElement.classList.remove('dark'); }
+
+    // Wire up skip tour button listener (inside onboarding popup)
+    if (skipTourBtn) {
+        skipTourBtn.addEventListener('click', () => {
+            console.log("UI: Skip current tour button clicked.");
+            hideOnboarding(); // Hide the overlay
+            State.setOnboardingPhase(99); // Mark onboarding as skipped/complete in state
+        });
+    } else { console.warn("Skip Tour button (#skipTourBtn) not found."); }
+
+    // Wire up help button listener (in main UI)
+     if (helpBtn) {
+         helpBtn.addEventListener('click', () => {
+             const currentScreenId = document.querySelector('.screen.current')?.id || 'welcomeScreen';
+             console.log(`UI: Help button clicked on screen: ${currentScreenId}`);
+             State.setOnboardingPhase(1); // Set state to restart tour at phase 1
+             showOnboarding(1, currentScreenId); // Show phase 1 of the relevant tour
+         });
+     } else { console.warn("Help button (#helpBtn) not found."); }
 }
 
 
 // --- Onboarding UI ---
-/** Displays the onboarding popup for a specific phase. */
-export function showOnboarding(phase) {
-    if (!onboardingOverlay || !onboardingPopup || !onboardingContent || !onboardingProgressSpan || !onboardingPrevButton || !onboardingNextButton || !onboardingSkipButton || !onboardingHighlight) {
+/** Displays the onboarding popup for a specific phase and screen context. */
+export function showOnboarding(phase, currentScreenId) {
+    if (!onboardingOverlay || !onboardingPopup || !onboardingContent || !onboardingProgressSpan || !onboardingTitle || !onboardingPrevButton || !onboardingNextButton || !onboardingSkipButton || !skipTourBtn || !onboardingHighlight) {
         console.error("Onboarding UI elements missing! Cannot show onboarding. Aborting.");
-        // Attempt to gracefully disable onboarding if core elements missing
         if (typeof State !== 'undefined' && State.markOnboardingComplete) State.markOnboardingComplete();
         hideOnboarding();
         return;
     }
-    if (phase <= 0 || phase > Config.MAX_ONBOARDING_PHASE || State.isOnboardingComplete()) {
-        hideOnboarding(); // Hide if phase invalid or onboarding complete
-        return;
-    }
-
-    const task = onboardingTasks.find(t => t.phaseRequired === phase);
-    if (!task) {
-        console.warn(`Onboarding task for phase ${phase} not found. Completing onboarding.`);
-        State.markOnboardingComplete();
+    if (phase <= 0 || State.isOnboardingComplete()) { // Check if already complete/skipped
         hideOnboarding();
         return;
     }
-    console.log(`UI: Showing onboarding phase ${phase}`);
+
+    const tourTasks = getTourForScreen(currentScreenId); // Get tasks for the current screen
+    const task = tourTasks.find(t => t.phaseRequired === phase);
+
+    if (!task) {
+        console.warn(`Onboarding task for phase ${phase} on screen ${currentScreenId} not found. Hiding onboarding.`);
+        hideOnboarding();
+        return;
+    }
+    console.log(`UI: Showing onboarding phase ${phase} for tour '${currentScreenId}'`);
+
+    // Set Tour Title
+    let tourTitle = "Orientation";
+    if (currentScreenId === 'workshopScreen') tourTitle = "Workshop Tour";
+    else if (currentScreenId === 'repositoryScreen') tourTitle = "Repository Tour";
+    if (onboardingTitle) onboardingTitle.textContent = tourTitle;
+
     const taskText = task.description || task.text || 'Follow the instructions...'; // Use description first
     onboardingContent.innerHTML = `<p>${taskText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')}</p>`;
     if (task.hint) { onboardingContent.innerHTML += `<p><small><em>Hint: ${task.hint}</em></small></p>`; }
 
-    onboardingProgressSpan.textContent = `Step ${phase} of ${Config.MAX_ONBOARDING_PHASE}`;
+    // Update Progress Indicator (within the current tour)
+    const totalStepsInTour = tourTasks.length;
+    onboardingProgressSpan.textContent = `Step ${phase} of ${totalStepsInTour}`;
+
     onboardingPrevButton.disabled = (phase === 1);
-    onboardingNextButton.textContent = (phase === Config.MAX_ONBOARDING_PHASE) ? "Finish Orientation" : "Next";
+    // Update Next button text based on whether it's the last step of the *current* tour
+    onboardingNextButton.textContent = (phase === totalStepsInTour) ? "Finish Tour" : "Next";
 
     onboardingOverlay.classList.add('visible');
     onboardingOverlay.classList.remove('hidden');
@@ -2195,10 +2257,9 @@ export function toggleTheme() {
     }
 }
 
-// --- STUB FUNCTIONS NEEDED BY LOGIC ---
+// --- Element Deep Dive Display ---
 /** Displays the Element Deep Dive content within an accordion body. */
 export function displayElementDeepDive(elementKey, container) {
-    // *** START OF FIX: Replace TODO with actual implementation ***
     if (!container) {
         console.warn(`Deep dive container missing for element ${elementKey}`);
         return;
@@ -2261,11 +2322,10 @@ export function displayElementDeepDive(elementKey, container) {
         container.appendChild(levelDiv);
     });
     // Note: Event listeners for unlock buttons are handled centrally in main.js setupPersonaScreenListeners
-    // *** END OF FIX ***
 }
 
 
-/** STUB: Updates the state of the contemplation button in the Deep Dive modal. */
+/** Updates the state of the contemplation button in the Deep Dive modal. */
 export function updateContemplationButtonState() {
     const btn = document.getElementById('contemplationNode');
     if (!btn) { /*console.warn("Contemplation button not found for state update.");*/ return; } // Might not be rendered
@@ -2309,7 +2369,7 @@ export function updateContemplationButtonState() {
 }
 
 
-/** STUB: Displays the Elemental Dilemma modal. */
+/** Displays the Elemental Dilemma modal. */
 export function displayElementalDilemma(dilemmaData) {
     const situation = getElement('dilemmaSituationText'); // Define locally
     const question = getElement('dilemmaQuestionText');
@@ -2344,7 +2404,7 @@ export function displayElementalDilemma(dilemmaData) {
 }
 
 
-/** STUB: Shows the settings popup. */
+/** Shows the settings popup. */
 export function showSettings() {
      if (settingsPopup) {
          settingsPopup.classList.remove('hidden');
@@ -2359,6 +2419,37 @@ export function showSettings() {
      }
 }
 
+/**
+ * Shows a hint bubble near a target element, only once per hint ID.
+ * @param {string} id Unique ID for this hint (used for localStorage)
+ * @param {string} targetSelector CSS selector for the element to point to
+ * @param {string} html Content for the hint bubble
+ */
+export function showHintOnce(id, targetSelector, html){
+    if(localStorage.getItem('hint.'+id)) return; // Already seen
+    const target = document.querySelector(targetSelector);
+    if(!target || target.offsetParent === null) { // Don't show if target hidden
+        console.warn(`Hint target '${targetSelector}' not found or hidden.`);
+        return;
+    }
 
-console.log("ui.js loaded successfully. (Enhanced v4.10 + Drawer/Accordion/Layout Fixes - Corrected)");
+    // Close any existing hint bubbles first
+    document.querySelectorAll('.hint-bubble').forEach(b => b.remove());
+
+    const bubble = document.createElement('div');
+    bubble.className = 'hint-bubble';
+    bubble.innerHTML = html + '<span class="hint-close" title="Dismiss Hint">✕</span>';
+    document.body.append(bubble);
+
+    const r = target.getBoundingClientRect();
+    bubble.style.top  = (r.bottom + 8 + window.scrollY) + 'px';
+    bubble.style.left = (r.left   + window.scrollX) + 'px';
+
+    bubble.querySelector('.hint-close').onclick = ()=>bubble.remove();
+    localStorage.setItem('hint.'+id,'seen'); // Mark as seen
+    console.log(`UI: Showing hint bubble: ${id}`);
+}
+
+
+console.log("ui.js loaded successfully. (Enhanced v4.10 + Drawer/Accordion/Layout Fixes - Corrected + Onboarding Tours)");
 // --- END OF FILE ui.js ---
