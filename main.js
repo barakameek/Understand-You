@@ -1,27 +1,48 @@
-// js/main.js - Application Entry Point & Event Listener Setup (Enhanced v4.1 + Drawer - Fixed v2)
+// --- START OF FILE main.js ---
+// js/main.js - Application Entry Point & Event Listener Setup (Enhanced v4.1 + Drawer - Fixed v2 + Onboarding Tours)
 
  import * as UI from './js/ui.js'; // ui.js is inside js/
  import * as State from './js/state.js'; // state.js is inside js/
  import * as GameLogic from './js/gameLogic.js'; // gameLogic.js is inside js/
  import * as Utils from './js/utils.js'; // utils.js is inside js/
  import * as Config from './js/config.js'; // config.js is inside js/
- import { onboardingTasks, elementKeyToFullName } from './data.js'; // data.js is at the root (same level as main.js)
+ import {
+   onboardingWelcomeIntro, // Import specific tours
+   onboardingWorkshopIntro,
+   onboardingRepositoryIntro,
+   elementKeyToFullName, // Keep other necessary imports
+   elementDetails, // Ensure elementDetails is imported if needed by getTourForScreen (it is)
+ } from './data.js'; // data.js is at the root (same level as main.js)
 
-console.log("main.js loading... (Enhanced v4.1 + Drawer - Fixed v2)");
+console.log("main.js loading... (Enhanced v4.1 + Drawer - Fixed v2 + Onboarding Tours)");
 
 // --- Helper Function ---
 const getElement = (id) => document.getElementById(id);
 
+// --- Utility to pick the correct onboarding tour based on screen ---
+function getTourForScreen(screenId){
+    switch(screenId){
+        case 'workshopScreen':   return onboardingWorkshopIntro;
+        case 'repositoryScreen': return onboardingRepositoryIntro;
+        // Welcome, Questionnaire, and Persona use the Welcome tour
+        case 'welcomeScreen':
+        case 'questionnaireScreen':
+        case 'personaScreen':
+        default:                 return onboardingWelcomeIntro;
+    }
+}
+
 // --- Initialization ---
 function initializeApp() {
-    console.log("Initializing Persona Alchemy Lab (v4.1 - Fixed v2)...");
+    console.log("Initializing Persona Alchemy Lab (v4.1 - Fixed v2 + Tours)...");
     const loaded = State.loadGameState(); // Load state first
     UI.setupInitialUI(); // Sets initial screen visibility, theme etc. BEFORE showing content
 
     // Determine starting screen based on loaded state and onboarding status
     const currentState = State.getState();
     const onboardingPhase = currentState.onboardingPhase;
-    const onboardingComplete = currentState.onboardingComplete;
+    // Use the updated isOnboardingComplete which checks for phase 99 (skipped)
+    const onboardingComplete = State.isOnboardingComplete();
     const questionnaireComplete = currentState.questionnaireCompleted;
     const currentQuestionnaireIndex = currentState.currentElementIndex;
 
@@ -29,36 +50,51 @@ function initializeApp() {
 
     let initialScreenId = 'welcomeScreen'; // Default
 
-    if (Config.ONBOARDING_ENABLED && !onboardingComplete && onboardingPhase >= 1 && onboardingPhase <= Config.MAX_ONBOARDING_PHASE) {
-        // Resume onboarding
+    // Check if onboarding is *active* (enabled, not complete/skipped, phase > 0)
+    // MAX_ONBOARDING_PHASE is now 3 for the initial tour.
+    if (Config.ONBOARDING_ENABLED && !onboardingComplete && onboardingPhase >= 1) {
+        // Onboarding is active, determine the required screen for the current phase
         console.log(`Resuming onboarding at phase ${onboardingPhase}.`);
-        const currentTask = onboardingTasks.find(t => t.phaseRequired === onboardingPhase);
-        let requiredScreen = 'welcomeScreen'; // Default for onboarding phase
+        let requiredScreen = 'welcomeScreen'; // Default screen
+
+        // Find the appropriate tour and task for the *current* phase
+        const tasksForCurrentPhase = getTourForScreen(initialScreenId); // Start assuming welcome screen
+        const currentTask = tasksForCurrentPhase.find(t => t.phaseRequired === onboardingPhase);
 
         if (currentTask?.highlightElementId) {
             const targetElement = getElement(currentTask.highlightElementId);
             const screenElement = targetElement?.closest('.screen');
             if (screenElement?.id) {
                 requiredScreen = screenElement.id;
-                // Accessibility check
+                // Re-evaluate the correct task list if the required screen changes
+                const tasksForRequiredScreen = getTourForScreen(requiredScreen);
+                const taskForRequiredScreen = tasksForRequiredScreen.find(t => t.phaseRequired === onboardingPhase);
+
+                // Accessibility/Flow Checks
                 if (!questionnaireComplete && ['personaScreen', 'workshopScreen', 'repositoryScreen'].includes(requiredScreen)) {
                     requiredScreen = (currentQuestionnaireIndex > -1) ? 'questionnaireScreen' : 'welcomeScreen';
-                    console.warn(`Onboarding task ${currentTask.id} requires screen ${screenElement.id}, but questionnaire not complete. Forcing ${requiredScreen}.`);
+                    console.warn(`Onboarding task ${taskForRequiredScreen?.id || currentTask.id} requires screen ${screenElement.id}, but questionnaire not complete. Forcing ${requiredScreen}.`);
                 } else if (questionnaireComplete && requiredScreen === 'questionnaireScreen') {
                     requiredScreen = 'personaScreen';
-                    console.warn(`Onboarding task ${currentTask.id} requires questionnaireScreen, but questionnaire complete. Forcing personaScreen.`);
+                    console.warn(`Onboarding task ${taskForRequiredScreen?.id || currentTask.id} requires questionnaireScreen, but questionnaire complete. Forcing personaScreen.`);
                 }
             }
-        } else { // Determine screen based on phase if no specific highlight target
-             if (onboardingPhase >= 8) requiredScreen = questionnaireComplete ? 'repositoryScreen' : 'welcomeScreen';
-             else if (onboardingPhase >= 6) requiredScreen = questionnaireComplete ? 'personaScreen' : 'welcomeScreen';
-             else if (onboardingPhase >= 2) requiredScreen = questionnaireComplete ? 'workshopScreen' : 'welcomeScreen';
-             else requiredScreen = 'welcomeScreen';
+        } else {
+            // If no highlight, determine screen based on which tour the phase *belongs* to
+            // This logic might need adjustment based on how you want phase numbers to map across tours
+            // Assuming phase 1-3 = welcome/persona, 4-5 = workshop, 6-8 = repository (conceptually)
+            // Since MAX_PHASE is now 3, this section needs revision or removal if we always start at phase 1 for each tour.
+             console.log("Determining required screen based on phase number (needs review with multi-tour logic)...");
+             // Example: If phase is 4 or 5 (Workshop tour concepts), default to workshop screen if Q complete
+             if (onboardingPhase >= 4 && onboardingPhase <= 5 && questionnaireComplete) requiredScreen = 'workshopScreen';
+             else if (onboardingPhase >= 6 && questionnaireComplete) requiredScreen = 'repositoryScreen';
+             // If phase is 1-3, welcome/persona/questionnaire is okay.
+             else requiredScreen = questionnaireComplete ? 'personaScreen' : 'welcomeScreen';
         }
 
         initialScreenId = requiredScreen;
         UI.showScreen(initialScreenId); // Show context screen FIRST
-        UI.showOnboarding(onboardingPhase); // Then show onboarding overlay
+        UI.showOnboarding(onboardingPhase, initialScreenId); // Pass screen ID to potentially select correct tour length
 
     } else if (loaded && questionnaireComplete) {
         // Standard load: Questionnaire done, show Persona screen
@@ -83,8 +119,8 @@ function initializeApp() {
         console.log("No saved state or starting fresh. Showing welcome screen.");
         UI.showScreen(initialScreenId);
         if (Config.ONBOARDING_ENABLED && !onboardingComplete && onboardingPhase === 1) {
-             console.log("Starting onboarding automatically from phase 1.");
-             UI.showOnboarding(1);
+             console.log("Starting onboarding automatically from phase 1 (Welcome Tour).");
+             UI.showOnboarding(1, initialScreenId); // Show Welcome Tour Phase 1
         }
     }
 
@@ -97,7 +133,7 @@ function initializeApp() {
     setupPersonaScreenListeners();
     setupWorkshopScreenListeners();
     setupRepositoryListeners();
-    setupOnboardingListeners();
+    setupOnboardingListeners(); // Now includes the new help button listener
 
     // Initial UI updates based on loaded/initial state
     UI.updateInsightDisplays();
@@ -108,9 +144,9 @@ function initializeApp() {
 }
 
 // --- Helper to potentially advance onboarding after an action ---
-// (Keep the existing triggerActionAndCheckOnboarding function as is)
-function triggerActionAndCheckOnboarding(actionFn, actionName, targetPhase, actionValue = null) {
-    console.log(`Action Triggered: '${actionName}' (Target Phase: ${targetPhase}, Value: ${actionValue})`);
+function triggerActionAndCheckOnboarding(actionFn, actionName, targetPhase, actionValue = null, currentScreenId = null) {
+    const activeScreenId = currentScreenId || document.querySelector('.screen.current')?.id || 'welcomeScreen';
+    console.log(`Action Triggered: '${actionName}' on screen '${activeScreenId}' (Target Phase: ${targetPhase}, Value: ${actionValue})`);
 
     let actionResult = null;
     if (actionFn && typeof actionFn === 'function') {
@@ -122,35 +158,60 @@ function triggerActionAndCheckOnboarding(actionFn, actionName, targetPhase, acti
     }
 
     const currentPhase = State.getOnboardingPhase();
-    const onboardingComplete = State.isOnboardingComplete();
+    const onboardingComplete = State.isOnboardingComplete(); // Checks for 99 too
 
-    if (Config.ONBOARDING_ENABLED && !onboardingComplete && currentPhase === targetPhase) {
-        const task = onboardingTasks.find(t => t.phaseRequired === targetPhase);
+    // Check if onboarding is active for the current screen's tour
+    if (Config.ONBOARDING_ENABLED && !onboardingComplete && currentPhase >= 1) {
+        const tasks = getTourForScreen(activeScreenId); // Get tasks for the CURRENT screen
+        const task = tasks.find(t => t.phaseRequired === currentPhase); // Find the task for the current phase within this tour
+
         if (!task) {
-            console.warn(`Onboarding task definition missing for phase ${targetPhase}. Cannot check trigger conditions.`);
+            // This might happen if the user is on a screen whose tour hasn't started or is finished
+            // Or if the phase number doesn't exist in this tour's tasks.
+            console.log(`Onboarding Check: No task found for phase ${currentPhase} in the tour for screen '${activeScreenId}'. Onboarding likely inactive for this action/screen.`);
             return actionResult;
+        }
+
+        // Check if the triggered action matches the *target* phase for the *task* definition
+        // The targetPhase passed to this function indicates which phase *this action* is intended to trigger.
+        if (currentPhase !== targetPhase) {
+             console.log(`Action '${actionName}' triggered for phase ${targetPhase}, but current onboarding phase is ${currentPhase}. No advance.`);
+             return actionResult;
         }
 
         let meetsCondition = false;
         if (task.track) {
             if (task.track.action === actionName) {
                  meetsCondition = (task.track.value === undefined || task.track.value === actionValue);
-                 console.log(`Onboarding Check: Action '${actionName}' matches task action. Value check needed: ${task.track.value !== undefined}. Provided: ${actionValue}. Condition met: ${meetsCondition}`);
+                 console.log(`Onboarding Check: Action '${actionName}' matches task action for phase ${currentPhase}. Value check needed: ${task.track.value !== undefined}. Provided: ${actionValue}. Condition met: ${meetsCondition}`);
             }
         } else {
-            console.log(`Onboarding Check: No specific track conditions for phase ${targetPhase}. Assuming action '${actionName}' is the trigger.`);
+            console.log(`Onboarding Check: No specific track conditions for phase ${currentPhase}. Assuming action '${actionName}' is the trigger.`);
             meetsCondition = true;
         }
 
         if (meetsCondition) {
-             console.log(`Action '${actionName}' meets criteria for phase ${targetPhase}. Advancing onboarding.`);
+             console.log(`Action '${actionName}' meets criteria for phase ${currentPhase}. Advancing onboarding.`);
              const nextPhase = State.advanceOnboardingPhase();
-             UI.showOnboarding(nextPhase);
+             const maxPhaseForThisTour = tasks.length; // Max phase for the current tour
+
+             if (nextPhase > maxPhaseForThisTour) {
+                  console.log(`Onboarding: Tour for screen '${activeScreenId}' completed.`);
+                  // Optionally mark this specific tour as done if needed, or just hide
+                  UI.hideOnboarding();
+                  // Maybe trigger the next tour automatically?
+                  // Example: If finishing welcome tour (phase 3), maybe auto-show workshop tour phase 1?
+                  // if (activeScreenId === 'welcomeScreen' && nextPhase === 4) {
+                  //     State.setOnboardingPhase(1); // Reset phase for next tour
+                  //     UI.showScreen('workshopScreen'); // Go to the next screen
+                  //     UI.showOnboarding(1, 'workshopScreen'); // Show the workshop tour
+                  // }
+             } else {
+                  UI.showOnboarding(nextPhase, activeScreenId); // Show next step in the *current* tour
+             }
         } else {
-             console.log(`Action '${actionName}' triggered, but condition not met for phase ${targetPhase}. Onboarding not advanced.`);
+             console.log(`Action '${actionName}' triggered for phase ${currentPhase}, but condition not met. Onboarding not advanced.`);
         }
-    } else if (Config.ONBOARDING_ENABLED && !onboardingComplete && currentPhase !== targetPhase){
-         // console.log(`Action '${actionName}' triggered, but current onboarding phase (${currentPhase}) doesn't match target (${targetPhase}).`);
     }
     return actionResult;
 }
@@ -188,11 +249,13 @@ function setupGlobalEventListeners() {
             const isClickInsideOnboardingPopup = onboardingPopup?.contains(event.target);
             const isClickInsideDrawer = sideDrawerElement?.contains(event.target);
 
+            // If onboarding overlay is visible, clicking outside its popup should NOT close anything else
             if (onboardingOverlay?.classList.contains('visible') && !isClickInsideOnboardingPopup) {
                 return;
             } else if (sideDrawerElement?.classList.contains('open') && !isClickInsideDrawer) {
-                 UI.toggleDrawer();
+                 UI.toggleDrawer(); // Close drawer if clicking outside it
             } else if (!onboardingOverlay?.classList.contains('visible') && !sideDrawerElement?.classList.contains('open')) {
+                 // Only hide general popups if neither drawer nor onboarding is active
                  UI.hidePopups();
             }
         });
@@ -237,42 +300,60 @@ function setupDrawerListeners() {
     if (drawerSettingsButton) {
         drawerSettingsButton.addEventListener('click', () => {
             UI.showSettings();
-            UI.toggleDrawer();
+            UI.toggleDrawer(); // Close drawer after opening settings
         });
     }
     if (drawerThemeToggle) drawerThemeToggle.addEventListener('click', UI.toggleTheme);
+
+    // Add listener for the new help button
+    const helpBtn = getElement('helpBtn');
+    if (helpBtn) {
+        helpBtn.addEventListener('click', () => {
+            const currentScreenId = document.querySelector('.screen.current')?.id || 'welcomeScreen';
+            console.log(`Help button clicked on screen: ${currentScreenId}`);
+            State.setOnboardingPhase(1); // Restart the tour for the current screen at phase 1
+            UI.showOnboarding(1, currentScreenId); // Show phase 1 of the relevant tour
+        });
+    } else { console.warn("Help button (#helpBtn) not found."); }
 }
 
 function handleDrawerNavClick(event) {
     const button = event.target.closest('.drawer-link[data-target]');
     if (!button) return;
 
-    const targetScreen = button.dataset.target;
-    if (!targetScreen) {
+    const targetScreenId = button.dataset.target;
+    if (!targetScreenId) {
          console.warn("Drawer link clicked without target screen:", button);
          return;
     }
 
     const isPostQuestionnaire = State.getState().questionnaireCompleted;
-    const canNavigate = targetScreen === 'personaScreen' || isPostQuestionnaire;
+    // Allow navigation to welcome/persona anytime, others only post-questionnaire
+    const canNavigate = ['welcomeScreen', 'personaScreen'].includes(targetScreenId) || isPostQuestionnaire;
 
     if (canNavigate) {
-         let phaseTarget = -1;
-         if(targetScreen === 'personaScreen') phaseTarget = 6;
-         else if(targetScreen === 'workshopScreen') phaseTarget = 2;
-         else if(targetScreen === 'repositoryScreen') phaseTarget = 8;
+         // Determine which tour *might* be relevant for this screen, and reset phase to 1
+         const tour = getTourForScreen(targetScreenId);
+         const shouldRestartTour = tour && !State.isOnboardingComplete(); // Restart if tour exists and not skipped
 
-         triggerActionAndCheckOnboarding(
-             () => UI.showScreen(targetScreen),
-             'showScreen',
-             phaseTarget,
-             targetScreen
-         );
-         UI.toggleDrawer();
+         if (shouldRestartTour) {
+              State.setOnboardingPhase(1); // Set state to phase 1 for this tour
+              // The showScreen call below will trigger the actual onboarding display
+              console.log(`Navigating to ${targetScreenId}, resetting onboarding to phase 1 for its tour.`);
+         }
+
+         UI.showScreen(targetScreenId); // Show the screen first
+
+         if (shouldRestartTour) {
+             // Explicitly show onboarding after screen transition
+             UI.showOnboarding(1, targetScreenId);
+         }
+
+         UI.toggleDrawer(); // Close drawer after navigation
     } else {
         console.log("Navigation blocked: Questionnaire not complete.");
         UI.showTemporaryMessage("Complete the initial Experimentation first!", 2500);
-        UI.toggleDrawer();
+        UI.toggleDrawer(); // Close drawer even if blocked
     }
 }
 
@@ -282,30 +363,38 @@ function setupWelcomeScreenListeners() {
     const loadBtn = getElement('loadButton');
     if (startBtn) {
         startBtn.addEventListener('click', () => {
-            const currentPhase = State.getOnboardingPhase();
+            const currentState = State.getState();
             const onboardingComplete = State.isOnboardingComplete();
-            const questionnaireComplete = State.getState().questionnaireCompleted;
+            const questionnaireComplete = currentState.questionnaireCompleted;
 
-             if (!questionnaireComplete && (!Config.ONBOARDING_ENABLED || onboardingComplete || currentPhase > Config.MAX_ONBOARDING_PHASE)) {
-                 UI.initializeQuestionnaireUI();
-                 UI.showScreen('questionnaireScreen');
-             } else if (questionnaireComplete) {
+            if (!questionnaireComplete) {
+                // If onboarding is enabled AND not complete/skipped, start/resume it
+                if (Config.ONBOARDING_ENABLED && !onboardingComplete) {
+                    console.log("Starting/resuming Welcome Onboarding tour...");
+                    State.setOnboardingPhase(1); // Ensure we start at phase 1 of welcome tour
+                    UI.showOnboarding(1, 'welcomeScreen'); // Explicitly show phase 1
+                    // Don't transition screen yet, let onboarding guide
+                } else {
+                    // Onboarding disabled or already skipped/finished, go straight to questionnaire
+                    UI.initializeQuestionnaireUI();
+                    UI.showScreen('questionnaireScreen');
+                }
+            } else {
+                 // Questionnaire already done, just go to Persona
                  UI.showScreen('personaScreen');
                  UI.showTemporaryMessage("Experimentation already complete. Welcome back!", 2500);
-             } else {
-                  UI.showOnboarding(currentPhase);
-                  UI.showTemporaryMessage("Let's finish the quick orientation first!", Config.TOAST_DURATION);
-             }
+            }
         });
     } else { console.warn("Start button not found."); }
 
     if (loadBtn) {
         loadBtn.addEventListener('click', () => {
+            // Re-initialize completely after loading
             if (State.loadGameState()) {
-                 initializeApp(); // Re-run initialization
-                 UI.showTemporaryMessage("Session Loaded.", 2000);
+                initializeApp(); // This re-evaluates where the user should be, including onboarding state
+                UI.showTemporaryMessage("Session Loaded.", 2000);
             } else {
-                UI.showTemporaryMessage("Failed to load session. Starting fresh.", 3000);
+                 UI.showTemporaryMessage("Failed to load session. Starting fresh.", 3000);
                  UI.showScreen('welcomeScreen');
             }
         });
@@ -337,12 +426,15 @@ function setupQuestionnaireListeners() {
                      // If the logic completed the questionnaire and we are still on the Q screen...
                      console.log("Questionnaire complete triggered, transitioning to Persona screen from listener.");
                      // ...then trigger the screen transition.
-                     triggerActionAndCheckOnboarding(
-                          () => UI.showScreen('personaScreen'),
-                          'showScreen', // Action name for screen show
-                          -1, // No specific phase target *for showing persona* by default
-                          'personaScreen'
-                      );
+                     // No specific onboarding phase tied directly to *completing* the questionnaire
+                     // but showing Persona screen might trigger its tour if not skipped.
+                     const targetScreenId = 'personaScreen';
+                     UI.showScreen(targetScreenId);
+                     // If onboarding isn't skipped, start the Persona tour (which uses Welcome tour tasks)
+                     if (Config.ONBOARDING_ENABLED && !State.isOnboardingComplete()) {
+                         State.setOnboardingPhase(1); // Start Persona/Welcome tour at phase 1
+                         UI.showOnboarding(1, targetScreenId);
+                     }
                  }
              } else {
                  console.error("GameLogic or goToNextElement not available.");
@@ -375,14 +467,17 @@ function setupPersonaScreenListeners() {
                  const cost = parseFloat(unlockButton.dataset.cost);
                  if (elementKey && !isNaN(level) && !isNaN(cost)) {
                      if (typeof GameLogic !== 'undefined' && GameLogic.handleUnlockLibraryLevel) {
-                         triggerActionAndCheckOnboarding(() => GameLogic.handleUnlockLibraryLevel(event), 'unlockLibrary', 6 );
+                         // Unlocking library isn't tied to a specific onboarding phase in the split model
+                         GameLogic.handleUnlockLibraryLevel(event);
+                         // triggerActionAndCheckOnboarding(() => GameLogic.handleUnlockLibraryLevel(event), 'unlockLibrary', 6 ); // Old phase 6
                      } else { console.error("GameLogic or handleUnlockLibraryLevel not available."); }
                  }
             } else if (headerButton) {
                  const accordionItem = headerButton.closest('.accordion-item');
                  const elementKey = accordionItem?.dataset.elementKey;
-                 if (elementKey === 'A') { // Check if opening 'Attraction' matches phase 1 goal
-                      triggerActionAndCheckOnboarding(null, 'openElementDetails', 1, elementKey);
+                 // Opening 'Attraction' accordion was phase 1 goal in original Welcome tour
+                 if (elementKey === 'A') {
+                      triggerActionAndCheckOnboarding(null, 'openElementDetails', 1, elementKey, 'personaScreen'); // Check against Welcome tour phase 1
                  }
             }
         });
@@ -442,10 +537,11 @@ function setupPersonaScreenListeners() {
 }
 
 
-// --- Setup Workshop Screen Listeners (Keep as is) ---
+// --- Setup Workshop Screen Listeners (Keep as is, but adjust onboarding triggers) ---
 function setupWorkshopScreenListeners() {
     const workshopScreen = getElement('workshopScreen');
     if (!workshopScreen) return;
+    const screenId = workshopScreen.id; // 'workshopScreen'
 
     const researchBench = getElement('workshop-research-area');
     if (researchBench) {
@@ -454,7 +550,14 @@ function setupWorkshopScreenListeners() {
             if (buttonCard?.dataset.elementKey) {
                 const isFreeClick = buttonCard.dataset.isFree === 'true';
                  if (typeof GameLogic !== 'undefined' && GameLogic.handleResearchClick) {
-                      triggerActionAndCheckOnboarding(() => GameLogic.handleResearchClick({ currentTarget: buttonCard, isFree: isFreeClick }), 'conductResearch', 3 );
+                      // Research was step 3 in original plan, now step 1 in Workshop Tour
+                      triggerActionAndCheckOnboarding(
+                          () => GameLogic.handleResearchClick({ currentTarget: buttonCard, isFree: isFreeClick }),
+                          'conductResearch',
+                          1, // Phase 1 of Workshop Tour
+                          null,
+                          screenId
+                      );
                  } else { console.error("GameLogic or handleResearchClick not available."); }
             }
         });
@@ -465,14 +568,24 @@ function setupWorkshopScreenListeners() {
     if (freeResearchBtn) {
         freeResearchBtn.addEventListener('click', () => {
              if (typeof GameLogic !== 'undefined' && GameLogic.handleFreeResearchClick) {
-                 triggerActionAndCheckOnboarding(GameLogic.handleFreeResearchClick, 'conductResearch', 3);
+                 // Free research also fulfills Phase 1 of Workshop Tour
+                 triggerActionAndCheckOnboarding(
+                     GameLogic.handleFreeResearchClick,
+                     'conductResearch',
+                     1, // Phase 1 of Workshop Tour
+                     null,
+                     screenId
+                 );
              } else { console.error("GameLogic or handleFreeResearchClick not available."); }
         });
     } else { console.warn("Free research button not found."); }
     if (seekGuidanceBtn) {
         seekGuidanceBtn.addEventListener('click', () => {
              if (typeof GameLogic !== 'undefined' && GameLogic.triggerGuidedReflection) {
-                  triggerActionAndCheckOnboarding(GameLogic.triggerGuidedReflection, 'triggerReflection', 7);
+                  // Seeking Guidance was part of old Phase 7, now potentially later
+                  // Not currently part of a defined split tour, so no onboarding check here.
+                  GameLogic.triggerGuidedReflection();
+                  // triggerActionAndCheckOnboarding(GameLogic.triggerGuidedReflection, 'triggerReflection', 7);
              } else { console.error("GameLogic or triggerGuidedReflection not available."); }
         });
     } else { console.warn("Seek guidance button not found."); }
@@ -514,6 +627,7 @@ function setupWorkshopScreenListeners() {
             event.stopPropagation();
             const conceptId = parseInt(focusButton.dataset.conceptId);
              if (typeof GameLogic !== 'undefined' && GameLogic.handleCardFocusToggle) {
+                  // Marking focus was old Phase 5, now Phase 2 of Workshop Tour
                   triggerActionAndCheckOnboarding(() => {
                       if(GameLogic.handleCardFocusToggle(conceptId)) {
                           const isFocused = State.getFocusedConcepts().has(conceptId);
@@ -521,7 +635,7 @@ function setupWorkshopScreenListeners() {
                           focusButton.innerHTML = `<i class="fas ${isFocused ? 'fa-star' : 'fa-regular fa-star'}"></i>`;
                           focusButton.title = isFocused ? 'Remove Focus' : 'Mark as Focus';
                       }
-                  }, 'markFocus', 5);
+                  }, 'markFocus', 2, null, screenId); // Phase 2 of Workshop Tour
              } else { console.error("GameLogic or handleCardFocusToggle not available."); }
         } else if (sellButton?.dataset.conceptId) {
              event.stopPropagation();
@@ -533,6 +647,7 @@ function setupWorkshopScreenListeners() {
         }
     });
 
+    // Drag & Drop Logic (Keep as is, but adjust onboarding check for drop)
     let draggedCardId = null;
     grid.addEventListener('dragstart', (event) => {
         const card = event.target.closest('.concept-card[draggable="true"]');
@@ -579,17 +694,26 @@ function setupWorkshopScreenListeners() {
         if (shelf?.dataset.categoryId && finalCardId !== null) {
             const categoryId = shelf.dataset.categoryId;
             if (typeof GameLogic !== 'undefined' && GameLogic.handleCategorizeCard) {
-                 triggerActionAndCheckOnboarding(() => GameLogic.handleCategorizeCard(finalCardId, categoryId), 'categorizeCard', 5 );
+                 // Categorizing was part of old Phase 5, now maybe Phase 2 of Workshop Tour? Check task definitions.
+                 // Assuming categorize fulfills the 'markFocus' goal conceptually for now.
+                 triggerActionAndCheckOnboarding(
+                     () => GameLogic.handleCategorizeCard(finalCardId, categoryId),
+                     'categorizeCard', // Action name
+                     2, // Phase 2 of Workshop Tour (assuming it covers general library interaction)
+                     null,
+                     screenId
+                 );
             } else { console.error("GameLogic or handleCategorizeCard not available."); }
         } else { console.log("Drop failed: Invalid target shelf or missing card ID."); }
         draggedCardId = null;
     });
 }
 
-// --- Setup Repository Listeners (Keep as is) ---
+// --- Setup Repository Listeners (Keep as is, adjust onboarding trigger) ---
 function setupRepositoryListeners() {
     const repoContainer = getElement('repositoryScreen');
     if (!repoContainer) return;
+    const screenId = repoContainer.id; // 'repositoryScreen'
 
     repoContainer.addEventListener('click', (event) => {
         const meditateButton = event.target.closest('.button[data-scene-id]');
@@ -597,10 +721,24 @@ function setupRepositoryListeners() {
 
         if (typeof GameLogic !== 'undefined') {
              if (meditateButton && !meditateButton.disabled && GameLogic.handleMeditateScene) {
-                 triggerActionAndCheckOnboarding(() => GameLogic.handleMeditateScene(event), 'meditateScene', 8 );
+                 // Meditating on scene was part of old Phase 8, now maybe Phase 1 of Repo Tour?
+                 triggerActionAndCheckOnboarding(
+                     () => GameLogic.handleMeditateScene(event),
+                     'meditateScene',
+                     1, // Phase 1 of Repository Tour (assuming)
+                     null,
+                     screenId
+                  );
              }
              else if (experimentButton && !experimentButton.disabled && GameLogic.handleAttemptExperiment) {
-                  triggerActionAndCheckOnboarding(() => GameLogic.handleAttemptExperiment(event), 'attemptExperiment', 8 );
+                  // Attempting experiment was part of old Phase 8, now maybe Phase 1 of Repo Tour?
+                  triggerActionAndCheckOnboarding(
+                      () => GameLogic.handleAttemptExperiment(event),
+                      'attemptExperiment',
+                      1, // Phase 1 of Repository Tour (assuming)
+                      null,
+                      screenId
+                  );
              }
         } else { console.error("GameLogic not available for repository button listeners."); }
     });
@@ -618,10 +756,11 @@ function setupPopupInteractionListeners() {
     setupDilemmaPopupListeners();
 }
 
-// --- Setup Concept Detail Listeners (Keep as is) ---
+// --- Setup Concept Detail Listeners (Keep as is, adjust onboarding trigger) ---
 function setupConceptDetailPopupListeners() {
     const popup = getElement('conceptDetailPopup');
     if (!popup) { console.warn("Concept detail popup not found."); return; }
+    const screenId = document.querySelector('.screen.current')?.id || 'workshopScreen'; // Assume workshop if unknown
 
     const addBtn = getElement('addToGrimoireButton');
     const focusBtn = getElement('markAsFocusButton');
@@ -634,7 +773,14 @@ function setupConceptDetailPopupListeners() {
             if (typeof GameLogic !== 'undefined' && GameLogic.getCurrentPopupConceptId && GameLogic.addConceptToGrimoireById) {
                 const conceptId = GameLogic.getCurrentPopupConceptId();
                 if (conceptId !== null) {
-                    triggerActionAndCheckOnboarding(() => GameLogic.addConceptToGrimoireById(conceptId, addBtn), 'addToGrimoire', 4 );
+                    // Adding to grimoire was old Phase 4, now Phase 2 of Workshop Tour (Keeping Concept)
+                    triggerActionAndCheckOnboarding(
+                        () => GameLogic.addConceptToGrimoireById(conceptId, addBtn),
+                        'addToGrimoire',
+                        2, // Phase 2 of Workshop Tour
+                        null,
+                        screenId
+                    );
                 }
             } else { console.error("GameLogic functions for AddToGrimoire not available."); }
         });
@@ -643,7 +789,14 @@ function setupConceptDetailPopupListeners() {
     if (focusBtn) {
         focusBtn.addEventListener('click', () => {
              if (typeof GameLogic !== 'undefined' && GameLogic.handleToggleFocusConcept) {
-                 triggerActionAndCheckOnboarding(() => GameLogic.handleToggleFocusConcept(), 'markFocus', 5 );
+                 // Marking focus was old Phase 5, now Phase 2 of Workshop Tour
+                 triggerActionAndCheckOnboarding(
+                     () => GameLogic.handleToggleFocusConcept(),
+                     'markFocus',
+                     2, // Phase 2 of Workshop Tour
+                     null,
+                     screenId
+                 );
              } else { console.error("GameLogic function handleToggleFocusConcept not available."); }
         });
     } else { console.warn("Mark as Focus button not found in popup."); }
@@ -651,7 +804,7 @@ function setupConceptDetailPopupListeners() {
     if (saveNoteBtn) {
         saveNoteBtn.addEventListener('click', () => {
              if (typeof GameLogic !== 'undefined' && GameLogic.handleSaveNote) {
-                  GameLogic.handleSaveNote();
+                  GameLogic.handleSaveNote(); // Saving notes isn't usually an onboarding step
              } else { console.error("GameLogic function handleSaveNote not available."); }
         });
     } else { console.warn("Save Note button not found in popup."); }
@@ -661,7 +814,14 @@ function setupConceptDetailPopupListeners() {
             const button = event.target.closest('.unlock-lore-button');
             if (button?.dataset.conceptId && button.dataset.loreLevel && button.dataset.cost && !button.disabled) {
                  if (typeof GameLogic !== 'undefined' && GameLogic.handleUnlockLore) {
-                      triggerActionAndCheckOnboarding(() => GameLogic.handleUnlockLore(parseInt(button.dataset.conceptId), parseInt(button.dataset.loreLevel), parseFloat(button.dataset.cost)), 'unlockLore', 6 );
+                      // Unlocking lore was old Phase 6, now maybe Phase 1 of Repository Tour?
+                      triggerActionAndCheckOnboarding(
+                          () => GameLogic.handleUnlockLore(parseInt(button.dataset.conceptId), parseInt(button.dataset.loreLevel), parseFloat(button.dataset.cost)),
+                          'unlockLore',
+                          1, // Phase 1 of Repository Tour (assuming)
+                          null,
+                          screenId
+                      );
                  } else { console.error("GameLogic function handleUnlockLore not available."); }
             }
         });
@@ -672,17 +832,18 @@ function setupConceptDetailPopupListeners() {
             const sellButton = event.target.closest('.popup-sell-button');
             if (sellButton?.dataset.conceptId) {
                  if (typeof GameLogic !== 'undefined' && GameLogic.handleSellConcept) {
-                      GameLogic.handleSellConcept(event);
+                      GameLogic.handleSellConcept(event); // Selling isn't usually an onboarding step
                  } else { console.error("GameLogic function handleSellConcept not available."); }
             }
         });
     } else { console.warn("Popup actions container not found."); }
 }
 
-// --- Setup Research Popup Listeners (Keep as is) ---
+// --- Setup Research Popup Listeners (Keep as is, adjust onboarding trigger) ---
 function setupResearchPopupListeners() {
     const popup = getElement('researchResultsPopup');
     if (!popup) { console.warn("Research results popup not found."); return; }
+    const screenId = document.querySelector('.screen.current')?.id || 'workshopScreen'; // Assume workshop
 
     const closeBtn = getElement('closeResearchResultsPopupButton');
     const confirmBtn = getElement('confirmResearchChoicesButton');
@@ -701,10 +862,17 @@ function setupResearchPopupListeners() {
                 const conceptId = parseInt(actionButton.dataset.conceptId);
                 const action = actionButton.dataset.action;
                  if (typeof GameLogic !== 'undefined' && GameLogic.handleResearchPopupChoice) {
+                      // Choosing Keep was old Phase 4, now Phase 2 of Workshop Tour
                       if (action === 'keep') {
-                          triggerActionAndCheckOnboarding(() => GameLogic.handleResearchPopupChoice(conceptId, action), 'addToGrimoire', 4 );
+                          triggerActionAndCheckOnboarding(
+                              () => GameLogic.handleResearchPopupChoice(conceptId, action),
+                              'addToGrimoire', // Trigger action name
+                              2, // Phase 2 of Workshop Tour
+                              null,
+                              screenId
+                          );
                       } else {
-                           GameLogic.handleResearchPopupChoice(conceptId, action);
+                           GameLogic.handleResearchPopupChoice(conceptId, action); // Sell doesn't trigger onboarding
                       }
                  } else { console.error("GameLogic function handleResearchPopupChoice not available."); }
             }
@@ -712,10 +880,11 @@ function setupResearchPopupListeners() {
     } else { console.warn("Research popup content area not found."); }
 }
 
-// --- Setup Reflection Popup Listeners (Keep as is) ---
+// --- Setup Reflection Popup Listeners (Keep as is, adjust onboarding trigger) ---
 function setupReflectionPopupListeners() {
     const popup = getElement('reflectionModal');
     if (!popup) { console.warn("Reflection modal not found."); return; }
+    const screenId = document.querySelector('.screen.current')?.id || 'workshopScreen';
 
     const reflectionCheck = getElement('reflectionCheckbox');
     const confirmBtn = getElement('confirmReflectionButton');
@@ -725,7 +894,14 @@ function setupReflectionPopupListeners() {
         reflectionCheck.addEventListener('change', () => { confirmBtn.disabled = !reflectionCheck.checked; });
         confirmBtn.addEventListener('click', () => {
              if (typeof GameLogic !== 'undefined' && GameLogic.handleConfirmReflection) {
-                  triggerActionAndCheckOnboarding(() => GameLogic.handleConfirmReflection(nudgeCheck?.checked || false), 'completeReflection', 7 );
+                  // Completing reflection was old Phase 7, now maybe Phase 1 of Repository Tour?
+                  triggerActionAndCheckOnboarding(
+                      () => GameLogic.handleConfirmReflection(nudgeCheck?.checked || false),
+                      'completeReflection',
+                      1, // Phase 1 of Repository Tour (assuming)
+                      null,
+                      screenId
+                  );
              } else { console.error("GameLogic function handleConfirmReflection not available."); }
         });
     } else { console.warn("Reflection checkbox or confirm button not found."); }
@@ -792,7 +968,7 @@ function setupDilemmaPopupListeners() {
     } else { console.warn("Dilemma slider components missing."); }
 }
 
-// --- Setup Onboarding Listeners (Keep as is) ---
+// --- Setup Onboarding Listeners (Adjusted for new button logic) ---
 function setupOnboardingListeners() {
     const overlay = getElement('onboardingOverlay');
     if (!overlay) return;
@@ -800,18 +976,40 @@ function setupOnboardingListeners() {
     const nextBtn = getElement('onboardingNextButton');
     const prevBtn = getElement('onboardingPrevButton');
     const skipBtn = getElement('onboardingSkipButton');
+    const skipTourBtn = getElement('skipTourBtn'); // The new button INSIDE the popup
 
     if (nextBtn) {
         nextBtn.addEventListener('click', () => {
             const currentPhase = State.getOnboardingPhase();
-            if (currentPhase === Config.MAX_ONBOARDING_PHASE) {
-                 console.log("Onboarding: Finishing...");
-                 State.markOnboardingComplete();
+            const currentScreenId = document.querySelector('.screen.current')?.id || 'welcomeScreen';
+            const tasks = getTourForScreen(currentScreenId);
+            const maxPhaseForThisTour = tasks.length;
+
+            if (currentPhase >= maxPhaseForThisTour) {
+                 console.log(`Onboarding: Tour for screen '${currentScreenId}' completed.`);
+                 // Decide what happens next - e.g., hide, or maybe auto-trigger next tour?
                  UI.hideOnboarding();
-                 UI.showScreen(State.getState().questionnaireCompleted ? 'personaScreen' : 'welcomeScreen');
+                 // If finishing Welcome Tour (max phase = 3), maybe prompt to go to Workshop?
+                 if (currentScreenId === 'welcomeScreen' && currentPhase === 3) {
+                     // Option 1: Just hide and let user navigate
+                     // Option 2: Show temporary message
+                     UI.showTemporaryMessage("Orientation Part 1 Complete! Click Workshop in the menu.", 4000);
+                     // Option 3: Auto-navigate and start next tour (more intrusive)
+                     // State.setOnboardingPhase(1); // Reset for next tour
+                     // UI.showScreen('workshopScreen');
+                     // UI.showOnboarding(1, 'workshopScreen');
+                 } else if (currentScreenId === 'workshopScreen' && currentPhase === 2) { // Max phase for workshop is 2
+                     UI.showTemporaryMessage("Workshop Tour Complete! Explore the Repository next.", 4000);
+                 } else if (currentScreenId === 'repositoryScreen' && currentPhase === 1) { // Max phase for repo is 1 (for now)
+                      UI.showTemporaryMessage("Repository Tour Complete! You're all set.", 4000);
+                      State.markOnboardingComplete(); // Mark fully done after last tour
+                 } else {
+                      State.markOnboardingComplete(); // Default to marking complete if unsure
+                 }
+
             } else {
                  const nextPhase = State.advanceOnboardingPhase();
-                 UI.showOnboarding(nextPhase);
+                 UI.showOnboarding(nextPhase, currentScreenId); // Show next step in current tour
             }
         });
     } else { console.warn("Onboarding next button not found."); }
@@ -819,28 +1017,42 @@ function setupOnboardingListeners() {
     if (prevBtn) {
         prevBtn.addEventListener('click', () => {
             const currentPhase = State.getOnboardingPhase();
+             const currentScreenId = document.querySelector('.screen.current')?.id || 'welcomeScreen';
             if (currentPhase > 1) {
                  const prevPhase = currentPhase - 1;
-                 State.updateOnboardingPhase(prevPhase);
-                 UI.showOnboarding(prevPhase);
+                 State.updateOnboardingPhase(prevPhase); // Use the specific setter
+                 UI.showOnboarding(prevPhase, currentScreenId);
             }
         });
     } else { console.warn("Onboarding previous button not found."); }
 
+    // Skip button for the *entire* onboarding process
     if (skipBtn) {
         skipBtn.addEventListener('click', () => {
-            if (confirm("Are you sure you want to skip the rest of the orientation? You can't restart it later.")) {
-                 console.log("Onboarding: Skipping...");
-                 State.markOnboardingComplete();
+            if (confirm("Are you sure you want to skip the entire orientation? You can restart individual tours using the (?) help button.")) {
+                 console.log("Onboarding: Skipping ALL tours...");
+                 State.setOnboardingPhase(99); // Mark as skipped
                  UI.hideOnboarding();
-                  UI.showScreen(State.getState().questionnaireCompleted ? 'personaScreen' : 'welcomeScreen');
+                 // Go to appropriate screen based on questionnaire status
+                 UI.showScreen(State.getState().questionnaireCompleted ? 'personaScreen' : 'welcomeScreen');
             }
         });
-    } else { console.warn("Onboarding skip button not found."); }
+    } else { console.warn("Onboarding skip button (main) not found."); }
+
+    // Skip button for the *current* tour only
+     if (skipTourBtn) {
+         skipTourBtn.addEventListener('click', () => {
+             console.log("Onboarding: Skipping current tour...");
+             State.setOnboardingPhase(99); // Mark as skipped/complete
+             UI.hideOnboarding();
+             // User remains on the current screen
+         });
+     } else { console.warn("Skip Tour button not found in onboarding popup."); }
 }
 
 
 // --- App Start ---
 document.addEventListener('DOMContentLoaded', initializeApp);
 
-console.log("main.js loaded successfully. (Enhanced v4.1 + Drawer - Fixed v2)");
+console.log("main.js loaded successfully. (Enhanced v4.1 + Drawer - Fixed v2 + Onboarding Tours)");
+// --- END OF FILE main.js ---
