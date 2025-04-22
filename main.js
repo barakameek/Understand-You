@@ -1,5 +1,3 @@
-// --- START OF FILE main.js ---
-
 // js/main.js - Application Entry Point & Event Listener Setup (Enhanced v4.1 + Drawer - Fixed v2)
 
  import * as UI from './js/ui.js'; // ui.js is inside js/
@@ -846,4 +844,3 @@ function setupOnboardingListeners() {
 document.addEventListener('DOMContentLoaded', initializeApp);
 
 console.log("main.js loaded successfully. (Enhanced v4.1 + Drawer - Fixed v2)");
-// --- END OF FILE main.js ---
