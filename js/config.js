@@ -1,5 +1,8 @@
 // --- START OF FILE config.js ---
 
+
+// --- START OF FILE config.js ---
+
 // js/config.js - Constants and Configuration (Inner Cosmos Theme - 7 Elements + Enhancements v4.1 - Fixed)
 
 console.log("config.js loading... (Acknowledging 7 Elements + Enhancements v4.1)");
