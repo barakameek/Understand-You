@@ -2081,8 +2081,12 @@ export {
     // Unlock Mechanisms
     focusDrivenUnlocks, categoryDrivenUnlocks,
     // UI/Config Helpers
-    onboardingTasks, elementInteractionThemes, cardTypeThemes, grimoireShelves, elementalDilemmas
+    elementInteractionThemes, cardTypeThemes, grimoireShelves, elementalDilemmas,
+    // Onboarding Tours (ADD THESE LINES)
+    onboardingWelcomeIntro,
+    onboardingWorkshopIntro,
+    onboardingRepositoryIntro
 };
 
-console.log("data.js successfully merged & loaded. RoleFocus integrated, concepts updated! (v4.4)");
+console.log("data.js successfully merged & loaded. RoleFocus integrated, Onboarding Split! (v4.5)"); // Update version log
 // --- END OF FILE data.js ---
