@@ -2085,7 +2085,7 @@ export {
     // Onboarding Tours (ADD THESE LINES)
     onboardingWelcomeIntro,
     onboardingWorkshopIntro,
-    onboardingRepositoryIntro
+   
 };
 
 console.log("data.js successfully merged & loaded. RoleFocus integrated, Onboarding Split! (v4.5)"); // Update version log
