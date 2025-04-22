@@ -1811,4 +1811,28 @@ canvas#personaScoreChartCanvas { background-color: transparent !important; } /* 
      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); /* Adjust min width slightly */
      align-items: start; /* Align items to top */
  }
+/* --- Research Results Popup: responsive card sizing tweaks --- */
+#researchPopupContent{
+  /* make the columns a hair wider so the text can breathe on desktop,
+     but still collapse nicely on small screens                     */
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+}
+
+/* Wrapper tidy‑up ------------------------------------------------ */
+.research-result-item{
+  padding: 0;                 /* remove extra padding around card  */
+  border-left-width: 4px;     /* keep the state‑colour strip       */
+}
+
+/* Make the embedded card fill its cell and be shorter ------------ */
+.research-result-item .concept-card{
+  width: 100%;                /* stretch to full column width      */
+  flex-grow: 1;               /* keep it as the flex “main”        */
+  min-height: 240px;          /* shorter than Grimoire default     */
+}
+
+/* Ensure the footer text never overflows the card on narrow widths */
+.research-result-item .card-footer{
+  padding-bottom: 48px;       /* room for the KEEP / SELL buttons  */
+}
 /* --- END OF FILE style.css --- */
