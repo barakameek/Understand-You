@@ -419,7 +419,7 @@ export function toggleDrawer() {
     }
 
 // --- Insight Display & Log ---
-export function updateInsightDisplays() {
+ function updateInsightDisplays() {
     const insightValue = State.getInsight();
     const insight = insightValue.toFixed(1);
     if (userInsightDisplayPersona) {
