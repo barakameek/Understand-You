@@ -1,5 +1,4 @@
-
-
+// --- START OF FILE ui.js ---
 
 import * as State from './state.js';
 import * as Config from './config.js';
@@ -1195,7 +1194,11 @@ export function drawPersonaChart(scores) {
         // Attempt to get color from CSS variable first
         let colorVar = `--${nameKey.toLowerCase()}-color`;
         let adaptedColor = computedStyle.getPropertyValue(colorVar).trim();
-        return adaptedColor || Utils.getElementColor(nameKey); // Fallback to util function
+        // Ensure the adaptedColor is a valid hex before using, otherwise fallback
+        if (!adaptedColor || !/^#[0-9A-F]{6}$/i.test(adaptedColor)) {
+             adaptedColor = Utils.getElementColor(nameKey);
+        }
+        return adaptedColor;
     });
     const backgroundColors = borderColors.map(color => Utils.hexToRgba(color, 0.4));
 
@@ -2161,30 +2164,48 @@ export function toggleTheme() {
 }
 
 // --- STUB FUNCTIONS NEEDED BY LOGIC ---
-/** STUB: Displays the Element Deep Dive content within an accordion body. */
+/** Displays the Element Deep Dive content within an accordion body. */
 export function displayElementDeepDive(elementKey, container) {
-    if (!container) { console.warn(`Deep dive container missing for element ${elementKey}`); return; }
-    // TODO: Implement the actual rendering of deep dive levels based on unlocked state.
+    // *** START OF FIX: Replace TODO with actual implementation ***
+    if (!container) {
+        console.warn(`Deep dive container missing for element ${elementKey}`);
+        return;
+    }
     const unlockedLevel = State.getState().unlockedDeepDiveLevels[elementKey] || 0;
-    const deepDiveLevels = elementDeepDive[elementKeyToFullName[elementKey]] || [];
-    container.innerHTML = `<h6><i class="fas fa-book-open"></i> Element Insights</h6>`;
+    const elementNameKey = elementKeyToFullName[elementKey]; // Convert 'A' -> 'Attraction' etc.
+    if (!elementNameKey) {
+         console.warn(`UI displayElementDeepDive: Element name key not found for key: ${elementKey}`);
+         container.innerHTML = '<p><i>Error: Element data not found.</i></p>';
+         return;
+    }
+    const deepDiveLevels = elementDeepDive[elementNameKey] || []; // Get data using name key
+
+    container.innerHTML = `<h6><i class="fas fa-book-open"></i> Element Insights</h6>`; // Add header
+
     if (deepDiveLevels.length === 0) {
         container.innerHTML += '<p><i>No deep dive insights defined for this element.</i></p>';
         return;
     }
 
     deepDiveLevels.forEach(levelData => {
+        if (!levelData || typeof levelData.level !== 'number') {
+             console.warn(`Invalid level data found for ${elementNameKey}:`, levelData);
+             return; // Skip invalid level data
+        }
         const levelDiv = document.createElement('div');
         levelDiv.classList.add('deep-dive-level');
+
         if (levelData.level <= unlockedLevel) {
+            // Display unlocked level content
             levelDiv.classList.add('unlocked');
             levelDiv.innerHTML = `
                 <h6><i class="fas fa-lock-open"></i> Level ${levelData.level}: ${levelData.title || ''}</h6>
                 <p>${levelData.content || ''}</p>
             `;
         } else if (levelData.level === unlockedLevel + 1) {
+            // Display the next unlockable level with a button
             levelDiv.classList.add('locked');
-            const cost = levelData.insightCost || 0;
+            const cost = levelData.insightCost || Config.LORE_UNLOCK_COSTS[`level${levelData.level}`] || 999; // Use Insight cost from data, fallback if needed
             const canAfford = State.getInsight() >= cost;
             const errorMsg = canAfford ? '' : `<span class="unlock-error">Requires ${cost.toFixed(1)} Insight</span>`;
             levelDiv.innerHTML = `
@@ -2200,13 +2221,15 @@ export function displayElementDeepDive(elementKey, container) {
                 ${errorMsg}
             `;
         } else {
-            // Future locked levels (don't show button)
+            // Future locked levels (don't show button, appear greyed out)
             levelDiv.classList.add('locked');
-             levelDiv.innerHTML = `<h6><i class="fas fa-lock"></i> Level ${levelData.level} (Locked)</h6>`;
-             levelDiv.style.opacity = '0.6';
+            levelDiv.innerHTML = `<h6><i class="fas fa-lock"></i> Level ${levelData.level} (Locked)</h6>`;
+            levelDiv.style.opacity = '0.6';
         }
         container.appendChild(levelDiv);
     });
+    // Note: Event listeners for unlock buttons are handled centrally in main.js setupPersonaScreenListeners
+    // *** END OF FIX ***
 }
 
 
@@ -2239,14 +2262,16 @@ export function updateContemplationButtonState() {
         // Reset text
         const icon = btn.querySelector('i.fa-brain');
         if (icon && icon.nextSibling && icon.nextSibling.nodeType === Node.TEXT_NODE) {
-            icon.nextSibling.textContent = ` Focusing Lens (${Config.CONTEMPLATION_COST} `;
-            // Re-add insight icon inside text if needed, or adjust structure
-            // For simplicity, maybe just reset to base text?
-            // icon.nextSibling.textContent = ` Focusing Lens (${Config.CONTEMPLATION_COST} Insight)`;
-             // Or adjust innerHTML if structure is more complex:
-             const costSpan = btn.querySelector('.contemplation-cost');
-             if(costSpan) icon.nextSibling.textContent = ` Focusing Lens (${costSpan.outerHTML} <i class="fas fa-brain insight-icon"></i>)`;
-
+            // Find the span for cost and reconstruct the text content correctly
+            const costSpan = btn.querySelector('.contemplation-cost');
+            const insightIconHTML = '<i class="fas fa-brain insight-icon"></i>';
+            if (costSpan) {
+                 // Need to reconstruct the innerHTML carefully to keep elements
+                 btn.innerHTML = `<i class="fas fa-brain" aria-hidden="true"></i> Focusing Lens (${costSpan.outerHTML} ${insightIconHTML})`;
+            } else {
+                 // Fallback if span is missing
+                 btn.innerHTML = `<i class="fas fa-brain" aria-hidden="true"></i> Focusing Lens (${Config.CONTEMPLATION_COST} ${insightIconHTML})`;
+            }
         }
     }
 }
@@ -2254,7 +2279,15 @@ export function updateContemplationButtonState() {
 
 /** STUB: Displays the Elemental Dilemma modal. */
 export function displayElementalDilemma(dilemmaData) {
-    if (!dilemmaModal || !dilemmaSituationText || !dilemmaQuestionText || !dilemmaSlider || !dilemmaMinLabel || !dilemmaMaxLabel || !dilemmaValueDisplay || !dilemmaNudgeCheckbox) {
+    const situation = getElement('dilemmaSituationText'); // Define locally
+    const question = getElement('dilemmaQuestionText');
+    const slider = getElement('dilemmaSlider');
+    const minLabel = getElement('dilemmaSliderMinLabel');
+    const maxLabel = getElement('dilemmaSliderMaxLabel');
+    const valueDisplay = getElement('dilemmaSliderValueDisplay');
+    const nudgeCheck = getElement('dilemmaNudgeCheckbox');
+
+    if (!dilemmaModal || !situation || !question || !slider || !minLabel || !maxLabel || !valueDisplay || !nudgeCheck) {
         console.error("Dilemma modal elements missing!");
         return;
     }
@@ -2277,6 +2310,7 @@ export function displayElementalDilemma(dilemmaData) {
     }
     console.log(`UI: Displaying dilemma ${dilemmaData?.id}`);
 }
+
 
 /** STUB: Shows the settings popup. */
 export function showSettings() {
