@@ -505,9 +505,51 @@ export function showConceptDetailPopup(conceptId) {
 function displayPopupResonanceGauge(score) { if (!popupResonanceGaugeBar || !popupResonanceGaugeLabel || !popupResonanceGaugeText) return; const clampedScore = Math.max(0, Math.min(10, score)); const percentage = (clampedScore / 10) * 100; const scoreLabel = Utils.getScoreLabel(clampedScore); let resonanceText = "Some similarities."; let barClass = 'resonance-medium'; if (clampedScore >= 8) { resonanceText = "Strong alignment!"; barClass = 'resonance-high'; } else if (clampedScore < 4) { resonanceText = "Significant differences."; barClass = 'resonance-low'; } popupResonanceGaugeBar.style.width = `${percentage}%`; popupResonanceGaugeLabel.textContent = scoreLabel; popupResonanceGaugeText.textContent = resonanceText; popupResonanceGaugeBar.className = 'popup-resonance-gauge-bar'; popupResonanceGaugeBar.classList.add(barClass); popupResonanceGaugeLabel.className = 'popup-resonance-gauge-label'; popupResonanceGaugeLabel.classList.add(barClass); if (popupResonanceGaugeContainer) { popupResonanceGaugeContainer.setAttribute('aria-valuenow', clampedScore.toFixed(1)); popupResonanceGaugeContainer.setAttribute('aria-valuetext', `${scoreLabel}: ${resonanceText}`); } }
 function displayPopupRelatedConceptsTags(relatedIds) { if (!popupRelatedConceptsTags) return; popupRelatedConceptsTags.innerHTML = ''; if (!relatedIds || relatedIds.length === 0) { popupRelatedConceptsTags.innerHTML = '<p><i>None specified.</i></p>'; return; } const discoveredMap = State.getDiscoveredConcepts(); relatedIds.forEach(id => { const conceptData = discoveredMap.get(id)?.concept; const name = conceptData?.name || `ID ${id}`; const tagSpan = document.createElement('span'); tagSpan.classList.add('related-concept-tag'); tagSpan.textContent = name; if (conceptData) { tagSpan.title = `View details for ${name}`; tagSpan.style.cursor = 'pointer'; tagSpan.addEventListener('click', () => showConceptDetailPopup(id)); } else { tagSpan.title = `ID ${id} (Not discovered)`; tagSpan.style.opacity = '0.7'; } popupRelatedConceptsTags.appendChild(tagSpan); }); }
 function displayPopupRecipeComparison(conceptScores, userScores) { if (!popupConceptProfile || !popupUserComparisonProfile || !popupComparisonHighlights) return; const renderProfile = (scores, container) => { container.innerHTML = ''; elementNames.forEach(elNameKey => { const key = Object.keys(elementKeyToFullName).find(k => elementKeyToFullName[k] === elNameKey); const score = (scores && typeof scores[key] === 'number') ? scores[key] : NaN; const name = Utils.getElementShortName(elementDetails?.[elNameKey]?.name || elNameKey); const color = Utils.getElementColor(elNameKey); const barWidth = isNaN(score) ? 0 : Math.max(0, Math.min(100, score * 10)); const scoreText = isNaN(score) ? 'N/A' : score.toFixed(1); container.innerHTML += `<div><strong>${name}:</strong> ${scoreText} <div class="score-bar-container"><div style="width: ${barWidth}%; background-color:${color};"></div></div></div>`; }); }; renderProfile(conceptScores, popupConceptProfile); renderProfile(userScores, popupUserComparisonProfile); let highlightsHTML = ''; const expectedKeys = Object.keys(elementKeyToFullName); const scoresValid = conceptScores && typeof conceptScores === 'object' && expectedKeys.length === Object.keys(conceptScores).length && expectedKeys.every(key => conceptScores.hasOwnProperty(key) && typeof conceptScores[key] === 'number' && !isNaN(conceptScores[key])); if (!scoresValid) { highlightsHTML = "<p><em>Concept score data incomplete.</em></p>"; } else { elementNames.forEach(elNameKey => { const key = Object.keys(elementKeyToFullName).find(k => elementKeyToFullName[k] === elNameKey); const cScore = conceptScores[key]; const uScore = userScores[key]; const diff = Math.abs(cScore - uScore); if (diff <= 1.5) highlightsHTML += `<p class="match"><i class="fas fa-check"></i> ${Utils.getElementShortName(elementDetails?.[elNameKey]?.name || elNameKey)}: Close alignment.</p>`; else if (diff >= 4.0) highlightsHTML += `<p class="mismatch"><i class="fas fa-times"></i> ${Utils.getElementShortName(elementDetails?.[elNameKey]?.name || elNameKey)}: Significant difference.</p>`; }); } popupComparisonHighlights.innerHTML = highlightsHTML || "<p><em>Differences are moderate.</em></p>"; }
-function displayPopupLore(conceptId, loreData, unlockedLevel) { // <--- 'export' removed
+function displayPopupLore(conceptId, loreData, unlockedLevel) {
      if (!popupLoreSection || !popupLoreContent) { console.warn("Popup lore elements missing."); return; }
-     // ... (rest of the function code remains the same) ...
+     popupLoreContent.innerHTML = ''; // Clear previous content
+
+     if (!loreData || !Array.isArray(loreData) || loreData.length === 0) {
+         // If no lore data, hide the whole legacy section
+         popupLoreSection.classList.add('hidden');
+         return;
+     }
+
+     // If there IS lore data, ensure the section is visible
+     popupLoreSection.classList.remove('hidden');
+
+    let canUnlockMore = false;
+    loreData.forEach(entry => {
+        if (entry.level <= unlockedLevel) { // Display unlocked lore
+            const entryDiv = document.createElement('div');
+            entryDiv.classList.add('lore-entry');
+            entryDiv.innerHTML = `<h6><i class="fas fa-scroll"></i> Level ${entry.level}</h6><p>${entry.text}</p>`;
+            popupLoreContent.appendChild(entryDiv);
+        } else if (entry.level === unlockedLevel + 1) { // Display next unlock button
+            canUnlockMore = true;
+            const unlockDiv = document.createElement('div');
+            unlockDiv.classList.add('lore-unlock');
+            const cost = entry.insightCost || Config.LORE_UNLOCK_COSTS[`level${entry.level}`] || 999; // Get cost, fallback
+            const canAfford = State.getInsight() >= cost;
+            const errorMsg = canAfford ? '' : `<span class="unlock-error">Requires ${cost.toFixed(1)} Insight</span>`;
+            unlockDiv.innerHTML = `<button class="button small-button unlock-lore-button btn"
+                        data-concept-id="${conceptId}"
+                        data-lore-level="${entry.level}"
+                        data-cost="${cost}"
+                        ${canAfford ? '' : 'disabled'}
+                        title="${canAfford ? `Unlock for ${cost.toFixed(1)} Insight` : `Requires ${cost.toFixed(1)} Insight`}">
+                    Unlock Level ${entry.level} Lore (${cost.toFixed(1)} <i class="fas fa-brain insight-icon"></i>)
+                </button>${errorMsg}`;
+            popupLoreContent.appendChild(unlockDiv);
+        }
+        // Do not display buttons for levels > unlockedLevel + 1
+    });
+
+    if (!canUnlockMore && unlockedLevel >= loreData.length) {
+        popupLoreContent.innerHTML += '<p><i>All legacy lore unlocked.</i></p>';
+    }
+
+    // Mark lore as seen if it was new (This part was correct in your snippet)
      if (State.isNewLoreAvailable(conceptId)) { State.markLoreAsSeen(conceptId); }
 }
 // **NEW**: Function to display the new card unlocks in the detail popup
