@@ -61,40 +61,40 @@ export const INSIGHT_LOG_MAX_ENTRIES = 15; // How many recent Insight changes to
 // --- XP & Level System (NEW) ---
 export const XP_LEVEL_THRESHOLDS = [0, 100, 300, 700]; // Total XP needed for Level 1, 2, 3 respectively (index 0 is level 0)
 export const MAX_ELEMENT_LEVEL = 3; // Maximum level an element can reach
-export const DAILY_XP_CAP = 30; // Max XP earnable per day across all elements
+export const DAILY_XP_CAP = 300; // Max XP earnable per day across all elements
 
 // --- XP Gain Amounts (NEW - Base values, can be modified) ---
 export const XP_GAINS = {
-    RESEARCH_SUCCESS_COMMON: 1,
-    RESEARCH_SUCCESS_UNCOMMON: 2,
-    RESEARCH_SUCCESS_RARE: 4,
+    RESEARCH_SUCCESS_COMMON: 10,
+    RESEARCH_SUCCESS_UNCOMMON: 15,
+    RESEARCH_SUCCESS_RARE: 25,
     RESEARCH_FAIL: 0, // No XP for failed research unless special item found
-    RESEARCH_SPECIAL_FIND: 3, // Finding scene/insight
-    COMPLETE_REFLECTION_STANDARD: 3,
-    COMPLETE_REFLECTION_DISSONANCE: 4,
-    COMPLETE_REFLECTION_RARE: 5,
-    COMPLETE_REFLECTION_GUIDED: 2, // Lower XP as it costs Insight
-    COMPLETE_REFLECTION_SCENE: 3,
-    MARK_FOCUS: 2,
-    UNLOCK_LIBRARY_LEVEL: 5,
-    UNLOCK_LORE_LEVEL_1: 1,
-    UNLOCK_LORE_LEVEL_2: 2,
-    UNLOCK_LORE_LEVEL_3: 3,
-    COMPLETE_CONTEMPLATION: 3,
-    COMPLETE_DILEMMA: 2,
-    ATTEMPT_EXPERIMENT_SUCCESS: 6,
-    ATTEMPT_EXPERIMENT_FAIL: 1,
-    UNLOCK_FOCUS_DRIVEN: 5,
-    COMPLETE_RITUAL: 1, // Per ritual instance
-    COMPLETE_CROSSOVER_TOKEN: 20, // Specific XP reward for Crossover Token
+    RESEARCH_SPECIAL_FIND: 30, // Finding scene/insight
+    COMPLETE_REFLECTION_STANDARD: 30,
+    COMPLETE_REFLECTION_DISSONANCE: 40,
+    COMPLETE_REFLECTION_RARE: 50,
+    COMPLETE_REFLECTION_GUIDED: 20, // Lower XP as it costs Insight
+    COMPLETE_REFLECTION_SCENE: 30,
+    MARK_FOCUS: 20,
+    UNLOCK_LIBRARY_LEVEL: 50,
+    UNLOCK_LORE_LEVEL_1: 10,
+    UNLOCK_LORE_LEVEL_2: 20,
+    UNLOCK_LORE_LEVEL_3: 30,
+    COMPLETE_CONTEMPLATION: 30,
+    COMPLETE_DILEMMA: 20,
+    ATTEMPT_EXPERIMENT_SUCCESS: 60,
+    ATTEMPT_EXPERIMENT_FAIL: 10,
+    UNLOCK_FOCUS_DRIVEN: 50,
+    COMPLETE_RITUAL: 10, // Per ritual instance
+    COMPLETE_CROSSOVER_TOKEN: 50, // Specific XP reward for Crossover Token
     // Card Unlock XP (Optional - maybe better to grant on purchase action?)
-    PURCHASE_MICRO_STORY: 0,
-    PURCHASE_SCENE_SEED: 1,
-    PURCHASE_DEEP_LORE: 2,
-    PURCHASE_CROSSOVER_TOKEN: 1, // Small XP for initiating
-    PURCHASE_SECRET_SCENE: 3,
-    PURCHASE_ALT_ART: 1,
-    PURCHASE_PERK: 4,
+    PURCHASE_MICRO_STORY: 10,
+    PURCHASE_SCENE_SEED: 10,
+    PURCHASE_DEEP_LORE: 20,
+    PURCHASE_CROSSOVER_TOKEN: 10, // Small XP for initiating
+    PURCHASE_SECRET_SCENE: 30,
+    PURCHASE_ALT_ART: 10,
+    PURCHASE_PERK: 40,
 };
 
 // --- Card Unlock Costs (NEW - Base values, can be overridden in concept data) ---
