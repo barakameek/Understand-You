@@ -1743,11 +1743,12 @@ canvas#personaScoreChartCanvas { background-color: transparent !important; } /* 
 #grimoire-grid-workshop{
     /* replace multi‑column with modern grid */
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     gap: var(--spacing);
     /* remove the old column settings if they exist */
     column-count: unset;
     column-gap: unset;
+    
 }
 
 /* ensure every card fills its grid cell */
