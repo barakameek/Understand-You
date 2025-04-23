@@ -718,7 +718,7 @@ h5 {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); /* Responsive columns */
   /* grid-auto-rows: 1fr; */ /* Removed to allow natural height */
-  gap: var(--spacing);
+  gap: calc(var(--spacing) * 1.2);   /* 20 % wider gaps */
   align-items: start; /* Align items to the top */
 }
 
