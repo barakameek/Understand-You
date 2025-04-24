@@ -618,9 +618,57 @@ export function showConceptDetailPopup(conceptId) {
     conceptDetailPopup.classList.remove('hidden');
     if (popupOverlay && !(onboardingOverlay && onboardingOverlay.classList.contains('visible'))) popupOverlay.classList.remove('hidden');
 }
- function updateGrimoireButtonStatus(conceptId) { const container = conceptDetailPopup?.querySelector('.popup-actions'); const addBtn = getElement('addToGrimoireButton'); if (!container || !addBtn) return; const existingSellBtn = container.querySelector('.popup-sell-button'); if (existingSellBtn) existingSellBtn.remove(); if (State.getDiscoveredConcepts().has(conceptId)) { addBtn.classList.add('hidden'); const sellButton = document.createElement('button'); const concept = State.getDiscoveredConceptData(conceptId)?.concept; const discoveredData = State.getDiscoveredConceptData(conceptId); if (!concept) return; let discoveryValue = Config.CONCEPT_DISCOVERY_INSIGHT[concept.rarity] || Config.CONCEPT_DISCOVERY_INSIGHT.default; const baseSellValue = discoveryValue * Config.SELL_INSIGHT_FACTOR; let unlockRefund = 0; const unlockState = discoveredData?.unlocks || {}; for (const key in unlockState) { if (unlockState[key]?.unlocked && Config.UNLOCK_COSTS[key]) unlockRefund += Config.UNLOCK_COSTS[key] * Config.SELL_UNLOCK_REFUND_FACTOR; } const totalSellValue = baseSellValue + unlockRefund; sellButton.className = 'button small-button secondary-button sell-button popup-sell-button btn'; sellButton.dataset.conceptId = conceptId; sellButton.dataset.context = 'detailPopup'; sellButton.title = `Sell (${totalSellValue.toFixed(1)} Insight: ${baseSellValue.toFixed(1)} base + ${unlockRefund.toFixed(1)} refund)`; sellButton.innerHTML = `Sell <i class="fas fa-dollar-sign"></i>`; container.appendChild(sellButton); } else { addBtn.classList.remove('hidden'); } }
- function updateFocusButtonStatus(conceptId) { if (!markAsFocusButton) return; if (State.getDiscoveredConcepts().has(conceptId)) { markAsFocusButton.classList.remove('hidden'); const isFocused = State.getFocusedConcepts().has(conceptId); markAsFocusButton.classList.toggle('marked', isFocused); markAsFocusButton.innerHTML = isFocused ? 'Remove Focus <i class="fas fa-star"></i>' : 'Mark as Focus <i class="far fa-star"></i>'; const slotsFull = State.getFocusedConcepts().size >= State.getFocusSlots() && !isFocused; markAsFocusButton.disabled = slotsFull; markAsFocusButton.title = slotsFull ? `Focus Slots Full (${State.getFocusSlots()})` : (isFocused ? 'Remove from Focus' : 'Add to Focus'); } else { markAsFocusButton.classList.add('hidden'); } }
+function updateGrimoireButtonStatus(conceptId) {
+    const container = conceptDetailPopup?.querySelector('.popup-actions');
+    const addBtn = getElement('addToGrimoireButton');
+    if (!container || !addBtn) return;
+    const existingSellBtn = container.querySelector('.popup-sell-button');
+    if (existingSellBtn) existingSellBtn.remove();
 
+    if (State.getDiscoveredConcepts().has(conceptId)) {
+        addBtn.classList.add('hidden');
+        const sellButton = document.createElement('button');
+        const concept = State.getDiscoveredConceptData(conceptId)?.concept;
+        const discoveredData = State.getDiscoveredConceptData(conceptId);
+        if (!concept) return;
+
+        let discoveryValue = Config.CONCEPT_DISCOVERY_INSIGHT[concept.rarity] || Config.CONCEPT_DISCOVERY_INSIGHT.default;
+        const baseSellValue = discoveryValue * Config.SELL_INSIGHT_FACTOR;
+        let unlockRefund = 0;
+        const unlockState = discoveredData?.unlocks || {};
+        for (const key in unlockState) {
+            if (unlockState[key]?.unlocked && Config.UNLOCK_COSTS[key]) {
+                unlockRefund += Config.UNLOCK_COSTS[key] * Config.SELL_UNLOCK_REFUND_FACTOR;
+            }
+        }
+        const totalSellValue = baseSellValue + unlockRefund;
+
+        sellButton.className = 'button small-button secondary-button sell-button popup-sell-button btn';
+        sellButton.dataset.conceptId = conceptId;
+        sellButton.dataset.context = 'detailPopup';
+        sellButton.title = `Sell (${totalSellValue.toFixed(1)} Insight: ${baseSellValue.toFixed(1)} base + ${unlockRefund.toFixed(1)} refund)`;
+        sellButton.innerHTML = `Sell <i class="fas fa-dollar-sign"></i>`;
+        container.appendChild(sellButton);
+    } else {
+        addBtn.classList.remove('hidden');
+    }
+}
+
+// Internal helper - DO NOT EXPORT
+function updateFocusButtonStatus(conceptId) {
+    if (!markAsFocusButton) return;
+    if (State.getDiscoveredConcepts().has(conceptId)) {
+        markAsFocusButton.classList.remove('hidden');
+        const isFocused = State.getFocusedConcepts().has(conceptId);
+        markAsFocusButton.classList.toggle('marked', isFocused);
+        markAsFocusButton.innerHTML = isFocused ? 'Remove Focus <i class="fas fa-star"></i>' : 'Mark as Focus <i class="far fa-star"></i>';
+        const slotsFull = State.getFocusedConcepts().size >= State.getFocusSlots() && !isFocused;
+        markAsFocusButton.disabled = slotsFull;
+        markAsFocusButton.title = slotsFull ? `Focus Slots Full (${State.getFocusSlots()})` : (isFocused ? 'Remove from Focus' : 'Add to Focus');
+    } else {
+        markAsFocusButton.classList.add('hidden');
+    }
+}
 // --- Research Popup ---
 export function displayResearchResults(results) { if (!researchResultsPopup || !researchPopupContent) return; researchPopupContent.innerHTML = ''; const { concepts: foundConcepts, duplicateInsightGain } = results; if (foundConcepts.length === 0 && duplicateInsightGain <= 0) { researchPopupContent.innerHTML = '<p>No new discoveries.</p>'; } else { if (duplicateInsightGain > 0) researchPopupContent.innerHTML += `<p class="duplicate-insight-info">Gained ${duplicateInsightGain.toFixed(1)} Insight from Research Echoes!</p>`; foundConcepts.forEach(concept => { const itemDiv = document.createElement('div'); itemDiv.classList.add('research-result-item'); itemDiv.dataset.conceptId = concept.id; itemDiv.dataset.processed = "false"; const cardElement = renderCard(concept, 'popup-result'); if(cardElement) itemDiv.appendChild(cardElement); const actionsDiv = document.createElement('div'); actionsDiv.classList.add('card-actions'); actionsDiv.innerHTML = ` <button class="button tiny-button add-grimoire-button btn" data-action="keep" data-concept-id="${concept.id}" title="Keep Concept">Keep <i class="fas fa-plus"></i></button> <button class="button tiny-button sell-button btn" data-action="sell" data-concept-id="${concept.id}" title="Sell for Insight">Sell <i class="fas fa-dollar-sign"></i></button> <span class="action-feedback"></span> `; itemDiv.appendChild(actionsDiv); researchPopupContent.appendChild(itemDiv); }); } updateResearchPopupState(); researchResultsPopup.classList.remove('hidden'); if (popupOverlay && !(onboardingOverlay && onboardingOverlay.classList.contains('visible'))) popupOverlay.classList.remove('hidden'); }
 export function handleResearchPopupAction(conceptId, actionResult) { const item = researchPopupContent?.querySelector(`.research-result-item[data-concept-id="${conceptId}"]`); if (!item) return; const feedbackSpan = item.querySelector('.action-feedback'); const buttons = item.querySelectorAll('.card-actions button'); buttons.forEach(btn => btn.disabled = true); item.dataset.processed = "true"; item.dataset.choiceMade = actionResult; let feedbackText = ""; switch (actionResult) { case 'kept': feedbackText = "Kept!"; item.classList.add('kept'); break; case 'sold': feedbackText = "Sold!"; item.classList.add('sold'); break; case 'pending_dissonance': feedbackText = "Dissonance! Reflect..."; item.classList.add('pending'); break; case 'kept_after_dissonance': feedbackText = "Kept (Reflected)."; item.classList.add('kept'); break; case 'kept_after_dissonance_fail': feedbackText = "Kept (Reflect Error)"; item.classList.add('kept'); break; case 'error_adding': feedbackText = "Error adding!"; item.classList.add('error'); break; default: feedbackText = "Error."; item.classList.add('error'); break; } if (feedbackSpan) feedbackSpan.textContent = feedbackText; updateResearchPopupState(); }
