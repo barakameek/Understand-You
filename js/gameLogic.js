@@ -352,7 +352,7 @@ function updateMilestoneProgress(trackType, currentValue) {
     if (ritualCompletedThisCheck && repositoryScreen?.classList.contains('current')) {
         UI.displayDailyRituals();
     }
-} // <-- This is the end of the checkAndUpdateRituals function
+
 
 // Internal logic for triggering reflection prompts (NOT EXPORTED)
 function triggerReflectionPrompt(context = 'Standard', targetId = null, category = null) {
