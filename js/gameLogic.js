@@ -276,15 +276,123 @@ function updateMilestoneProgress(trackType, currentValue) {
 }
 
 // Internal logic for checking rituals (NOT EXPORTED)
+// --- In gameLogic.js ---
+
+// Internal logic for checking rituals (NOT EXPORTED)
 function checkAndUpdateRituals(action, details = {}) {
     let ritualCompletedThisCheck = false;
-    const currentState = State.getState(); const completedRitualsData = currentState.completedRituals || { daily: {}, weekly: {} }; const focused = currentState.focusedConcepts; const scores = currentState.userScores; let currentRitualPool = [...dailyRituals];
-    if (focusRituals && Array.isArray(focusRituals)) { focusRituals.forEach(ritual => { /* ... check focus requirements ... */ let focusMet = true; if (ritual.requiredFocusIds && Array.isArray(ritual.requiredFocusIds)) { for (const id of ritual.requiredFocusIds) if (!focused.has(id)) { focusMet = false; break; } } if (focusMet && ritual.requiredRoleFocusScore !== undefined && (scores.RF ?? 0) < ritual.requiredRoleFocusScore) focusMet = false; if (focusMet && ritual.requiredRoleFocusScoreBelow !== undefined && (scores.RF ?? 0) >= ritual.requiredRoleFocusScoreBelow) focusMet = false; if (focusMet) currentRitualPool.push({ ...ritual, isFocusRitual: true, period: ritual.period || 'daily' }); }); }
-    currentRitualPool.forEach(ritual => { /* ... check triggers and update progress/completion ... */ if (!ritual || !ritual.id || !ritual.track) return; const period = ritual.period || 'daily'; const completedPeriodData = completedRitualsData[period] || {}; const completedData = completedPeriodData[ritual.id] || { completed: false, progress: 0 }; if (completedData.completed) return; const track = ritual.track; let triggerMet = false; if (track.action === action) { triggerMet = true; if (track.contextMatch && details.contextMatch !== track.contextMatch) triggerMet = false; if (track.categoryId && details.categoryId !== track.categoryId) triggerMet = false; if (track.rarity && details.rarity !== track.rarity) triggerMet = false; if (track.conceptType && details.conceptId) { const conceptData = State.getDiscoveredConceptData(details.conceptId)?.concept; if (!conceptData || conceptData.cardType !== track.conceptType) triggerMet = false; } }
-        if (triggerMet) { const progress = State.completeRitualProgress(ritual.id, period); const requiredCount = track.count || 1; if (progress >= requiredCount) { /* ... mark complete, grant reward, grant XP, set flag ... */ State.markRitualComplete(ritual.id, period); ritualCompletedThisCheck = true; const elementKeyXP = ritual.reward?.element && elementNames.includes(elementKeyToFullName[ritual.reward.element]) ? ritual.reward.element : 'A'; grantXP('completeRitual', elementKeyXP); if (ritual.reward) { if (ritual.reward.type === 'insight') gainInsight(ritual.reward.amount || 0, `Ritual: ${ritual.description}`); else if (ritual.reward.type === 'attunement') gainAttunementForAction('ritual', ritual.reward.element || 'All', ritual.reward.amount || 0); } } }
+    const currentState = State.getState();
+    const completedRitualsData = currentState.completedRituals || { daily: {}, weekly: {} };
+    const focused = currentState.focusedConcepts;
+    const scores = currentState.userScores; // Needed for RF checks in focus rituals
+
+    // Combine standard daily rituals and applicable focus rituals
+    let currentRitualPool = [...dailyRituals]; // Start with standard daily rituals
+    if (focusRituals && Array.isArray(focusRituals)) {
+        focusRituals.forEach(ritual => {
+            // Basic validation of ritual structure
+            if (!ritual || !ritual.id) return;
+
+            // Check if requirements for this focus ritual are met
+            let focusMet = true;
+            // Check specific focused concept IDs
+            if (ritual.requiredFocusIds && Array.isArray(ritual.requiredFocusIds)) {
+                for (const id of ritual.requiredFocusIds) {
+                    if (!focused.has(id)) { focusMet = false; break; }
+                }
+            }
+            // Check RF score requirement (above)
+            if (focusMet && ritual.requiredRoleFocusScore !== undefined && (scores.RF ?? 0) < ritual.requiredRoleFocusScore) {
+                 focusMet = false;
+            }
+            // Check RF score requirement (below)
+            if (focusMet && ritual.requiredRoleFocusScoreBelow !== undefined && (scores.RF ?? 0) >= ritual.requiredRoleFocusScoreBelow) {
+                 focusMet = false;
+            }
+
+            // If all requirements met, add it to the pool to be checked
+            if (focusMet) {
+                 currentRitualPool.push({ ...ritual, isFocusRitual: true, period: ritual.period || 'daily' });
+            }
+        });
+    }
+
+    // Iterate through the combined pool of active rituals
+    currentRitualPool.forEach(ritual => {
+        // Validate ritual structure again
+        if (!ritual || !ritual.id || !ritual.track) {
+             console.warn(`Skipping invalid ritual structure:`, ritual);
+             return;
+        }
+
+        const period = ritual.period || 'daily'; // Default to daily if period missing
+        const completedPeriodData = completedRitualsData[period] || {};
+        const completedData = completedPeriodData[ritual.id] || { completed: false, progress: 0 };
+
+        if (completedData.completed) return; // Skip rituals already completed for their period
+
+        const track = ritual.track; // The trigger conditions for this ritual
+        let triggerMet = false;
+
+        // Check if the action matches the ritual's trigger action
+        if (track.action === action) {
+            triggerMet = true; // Base condition met
+
+            // Check additional details if specified in the ritual's track object
+            if (track.contextMatch && details.contextMatch !== track.contextMatch) triggerMet = false;
+            if (track.categoryId && details.categoryId !== track.categoryId) triggerMet = false;
+            if (track.rarity && details.rarity !== track.rarity) triggerMet = false;
+            // Check concept type (if conceptId is provided in details)
+            if (track.conceptType && details.conceptId) {
+                const conceptData = State.getDiscoveredConceptData(details.conceptId)?.concept;
+                if (!conceptData || conceptData.cardType !== track.conceptType) triggerMet = false;
+            }
+            // Add more detail checks here if needed (e.g., amount thresholds)
+            if (track.amountGreaterThan && typeof details.amount === 'number' && details.amount <= track.amountGreaterThan) triggerMet = false;
+            if (track.amountLessThan && typeof details.amount === 'number' && details.amount >= track.amountLessThan) triggerMet = false;
+
+        }
+
+        // If all trigger conditions are met, update progress
+        if (triggerMet) {
+             // Increment progress (returns new progress count)
+             const progress = State.completeRitualProgress(ritual.id, period); // This saves state
+             const requiredCount = track.count || 1; // How many times action needs to be done
+
+             // Check if progress meets the required count for completion
+             if (progress >= requiredCount) {
+                 console.log(`Logic: Ritual Completed: ${ritual.description}`);
+                 State.markRitualComplete(ritual.id, period); // Mark as done for the period (saves state)
+                 ritualCompletedThisCheck = true;
+
+                 // Determine element for XP gain (use reward element or default to 'A')
+                 const elementKeyXP = ritual.reward?.element && elementKeyToFullName.hasOwnProperty(ritual.reward.element)
+                                      ? ritual.reward.element
+                                      : 'A'; // Default XP to 'A' if element invalid or not specified
+                 grantXP('completeRitual', elementKeyXP); // Grant XP for completing ritual
+
+                 // Grant reward if defined
+                 if (ritual.reward) {
+                    if (ritual.reward.type === 'insight') {
+                         gainInsight(ritual.reward.amount || 0, `Ritual: ${ritual.description}`);
+                    } else if (ritual.reward.type === 'attunement') {
+                         gainAttunementForAction('ritual', ritual.reward.element || 'All', ritual.reward.amount || 0);
+                    }
+                    // Add other reward types (e.g., tokens, items)
+                 }
+             } else {
+                 // Log progress update if not yet complete (optional, can be noisy)
+                 // console.log(`Logic: Ritual Progress: ${ritual.description} (${progress}/${requiredCount})`);
+             }
+        }
     });
-    const repositoryScreen = document.getElementById('repositoryScreen'); if (ritualCompletedThisCheck && repositoryScreen?.classList.contains('current')) UI.displayDailyRituals();
-}
+
+    // If any ritual was completed, refresh the display if the Repository is visible
+    const repositoryScreen = document.getElementById('repositoryScreen');
+    if (ritualCompletedThisCheck && repositoryScreen?.classList.contains('current')) {
+        UI.displayDailyRituals();
+    }
+} // <-- This is the end of the checkAndUpdateRituals function
 
 // Internal logic for triggering reflection prompts (NOT EXPORTED)
 function triggerReflectionPrompt(context = 'Standard', targetId = null, category = null) {
