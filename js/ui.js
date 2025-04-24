@@ -640,6 +640,13 @@ function updateGrimoireButtonStatus(conceptId) {
             if (unlockState[key]?.unlocked && Config.UNLOCK_COSTS[key]) {
                 unlockRefund += Config.UNLOCK_COSTS[key] * Config.SELL_UNLOCK_REFUND_FACTOR;
             }
+            // Special refund cases (verify this logic matches original intent)
+            if (key === 'altSkin' && unlockState[key]?.selectedSkin > 0 && Config.UNLOCK_COSTS.altSkin) {
+                if(unlockState[key]?.unlocked){ unlockRefund += Config.UNLOCK_COSTS.altSkin * Config.SELL_UNLOCK_REFUND_FACTOR; }
+            }
+            if (key === 'perk' && unlockState[key]?.choice && Config.UNLOCK_COSTS.perk) {
+                if(unlockState[key]?.unlocked){ unlockRefund += Config.UNLOCK_COSTS.perk * Config.SELL_UNLOCK_REFUND_FACTOR; }
+            }
         }
         const totalSellValue = baseSellValue + unlockRefund;
 
