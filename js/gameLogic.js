@@ -275,47 +275,7 @@ function updateMilestoneProgress(trackType, currentValue) {
     }); const repositoryScreen = document.getElementById('repositoryScreen'); if (milestoneAchievedThisUpdate && repositoryScreen?.classList.contains('current')) UI.displayRepositoryContent();
 }
 
-// Internal logic for checking rituals (NOT EXPORTED)
-// --- In gameLogic.js ---
 
-// Internal logic for checking rituals (NOT EXPORTED)
-function checkAndUpdateRituals(action, details = {}) {
-    let ritualCompletedThisCheck = false;
-    const currentState = State.getState();
-    const completedRitualsData = currentState.completedRituals || { daily: {}, weekly: {} };
-    const focused = currentState.focusedConcepts;
-    const scores = currentState.userScores; // Needed for RF checks in focus rituals
-
-    // Combine standard daily rituals and applicable focus rituals
-    let currentRitualPool = [...dailyRituals]; // Start with standard daily rituals
-    if (focusRituals && Array.isArray(focusRituals)) {
-        focusRituals.forEach(ritual => {
-            // Basic validation of ritual structure
-            if (!ritual || !ritual.id) return;
-
-            // Check if requirements for this focus ritual are met
-            let focusMet = true;
-            // Check specific focused concept IDs
-            if (ritual.requiredFocusIds && Array.isArray(ritual.requiredFocusIds)) {
-                for (const id of ritual.requiredFocusIds) {
-                    if (!focused.has(id)) { focusMet = false; break; }
-                }
-            }
-            // Check RF score requirement (above)
-            if (focusMet && ritual.requiredRoleFocusScore !== undefined && (scores.RF ?? 0) < ritual.requiredRoleFocusScore) {
-                 focusMet = false;
-            }
-            // Check RF score requirement (below)
-            if (focusMet && ritual.requiredRoleFocusScoreBelow !== undefined && (scores.RF ?? 0) >= ritual.requiredRoleFocusScoreBelow) {
-                 focusMet = false;
-            }
-
-            // If all requirements met, add it to the pool to be checked
-            if (focusMet) {
-                 currentRitualPool.push({ ...ritual, isFocusRitual: true, period: ritual.period || 'daily' });
-            }
-        });
-    }
 
     // Iterate through the combined pool of active rituals
     currentRitualPool.forEach(ritual => {
