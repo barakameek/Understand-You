@@ -1952,9 +1952,6 @@ canvas#personaScoreChartCanvas { background-color: transparent !important; } /* 
     color: var(--danger-color);
 }
 
-.concept-card:hover{
-    transform: translateY(-4px) scale(1.02);   /* <-- culprit */
-}
 /* 🔧 FORCE-KILL the old waterfall layout everywhere */
 .concept-grid,
 #grimoire-grid-workshop,
