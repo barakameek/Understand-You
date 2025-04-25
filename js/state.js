@@ -1,3 +1,4 @@
+
 // --- START OF FILE state.js ---
 // js/state.js - Manages Application State and Persistence (Enhanced v4.1 + XP/Leveling v1.0)
 import * as Config from './config.js';
