@@ -56,19 +56,39 @@ export function getAffinityLevel(score) {
  * @param {string} nameOrKey - Can be short name key ("Attraction"), full descriptive name ("Attraction Focus: ..."), or single letter key ('A', 'RF').
  * @returns {string} The short display name or the original input if lookup fails.
  */
+/**
+ * Gets the short display name (e.g., "Attraction") from various possible inputs.
+ * Relies on consistent naming in data.js -> elementDetails.
+ * @param {string} nameOrKey - Can be short name key ("Attraction"), full descriptive name ("Attraction Focus: ..."), or single letter key ('A', 'RF').
+ * @returns {string} The short display name or the original input if lookup fails.
+ */
 export function getElementShortName(nameOrKey) {
     if (!nameOrKey || typeof nameOrKey !== 'string') return "Unknown";
 
     // 1. Check if it's a single letter key ('A', 'I', ..., 'RF')
     if (nameOrKey.length === 1 && nameOrKey.toUpperCase() === nameOrKey && elementKeyToFullName?.[nameOrKey]) {
         const elementNameKey = elementKeyToFullName[nameOrKey]; // e.g., "Attraction" or "RoleFocus"
-        // Use the name from elementDetails if available, split, otherwise fallback to elementNameKey
-        return elementDetails?.[elementNameKey]?.name?.split(':')[0].trim() || elementNameKey;
+
+        // --- Refactored Block (Replaces original line 36) ---
+        const detailsName = elementDetails?.[elementNameKey]?.name; // Get the full name safely
+        if (detailsName && typeof detailsName === 'string' && detailsName.includes(':')) {
+            // If name exists and contains ':', split and trim
+            return detailsName.split(':')[0].trim();
+        } else if (detailsName) {
+             // If name exists but no ':', return the name itself
+             return detailsName;
+        } else {
+            // If no name found in elementDetails, fallback to the elementNameKey
+            return elementNameKey;
+        }
+        // --- End Refactored Block ---
     }
 
     // 2. Check if it's already the short name key ("Attraction", "RoleFocus", etc.) used in elementDetails
     if (elementDetails?.[nameOrKey]?.name) {
-        return elementDetails[nameOrKey].name.split(':')[0].trim();
+        // Check if it contains ':' before splitting
+        const detailsName = elementDetails[nameOrKey].name;
+        return detailsName.includes(':') ? detailsName.split(':')[0].trim() : detailsName;
     }
 
     // 3. Check if it's a full descriptive name containing ":"
@@ -76,8 +96,7 @@ export function getElementShortName(nameOrKey) {
         return nameOrKey.split(':')[0].trim();
     }
 
-    // 4. Final fallback - maybe it's already the short name but not a key in elementDetails?
-    // Or maybe it's an invalid input. Return the input itself.
+    // 4. Final fallback
     return nameOrKey;
 }
 
