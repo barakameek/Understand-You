@@ -1952,5 +1952,21 @@ canvas#personaScoreChartCanvas { background-color: transparent !important; } /* 
 :root.dark .hint-bubble .hint-close { color: var(--text-muted-color); }
 :root.dark .hint-bubble .hint-close:hover { color: var(--danger-color); }
 
+#grimoire-grid-workshop{
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    /* 200 px ≈ the card’s min width – change if you want bigger cards */
+    gap: var(--spacing);               /* keeps equal gutters */
+}
 
+/* 2)  Every card must fill its cell, not set its own width            */
+#grimoire-grid-workshop .concept-card{
+    width: 100%;
+}
+
+/* 3)  Hover effect that *lifts* but never *resizes* the card          */
+#grimoire-grid-workshop .concept-card:hover{
+    transform: translateY(-4px);       /* remove any scale() */
+    z-index: 5;                        /* keeps it above neighbours */
+}
 /* --- END OF FILE style.css --- */
