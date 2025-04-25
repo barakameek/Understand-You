@@ -644,7 +644,7 @@ h5 {
 #elementProgressHeader .step { /* Individual step container */
   flex: 1; text-align: center; font-size: .75rem; padding-bottom: .3rem;
   position: relative; color: #7a5230; /* Muted brown */
-  font-weight: 700; white-space: nowrap; overflow: hidden;
+  font-weight: 700; white-space: nowrap; 
   text-overflow: ellipsis; z-index: 1; cursor: default;
 }
 :root.dark #elementProgressHeader .step { color: var(--text-muted-color); }
@@ -671,7 +671,7 @@ h5 {
 #progressText { color: var(--text-muted-color); font-weight: bold; font-family: var(--font-main); text-align: center; margin-bottom: 0.5em; }
 #dynamicScoreFeedback { background-color: #eee9dd; border: 1px solid var(--border-color-light); font-size: 0.9em; color: #555; padding: 6px 12px; border-radius: 4px; margin-top: 8px; }
 :root.dark #dynamicScoreFeedback { background-color: var(--background-medium); border-color: var(--border-color-light); color: var(--text-muted-color); }
-.score-bar-container { background-color: var(--border-color-light); border: 1px solid #b8a880; height: 7px; border-radius: 3px; margin-top: 4px; overflow: hidden; }
+.score-bar-container { background-color: var(--border-color-light); border: 1px solid #b8a880; height: 7px; border-radius: 3px; margin-top: 4px;  }
 :root.dark .score-bar-container { background-color: var(--border-color-dark); border-color: var(--border-color-light); }
 #feedbackScoreBar { background-color: var(--primary-color); height: 100%; transition: width 0.3s ease-out; }
 :root.dark #feedbackScoreBar { background-color: var(--primary-color); }
@@ -714,31 +714,7 @@ h5 {
 
 
 /* Concept Card Specific Styling (Original Theme + Category Border) */
-.concept-card {
-    cursor: pointer;
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    min-height: 290px;
-    overflow: hidden;
-    padding: 0; /* Padding handled internally now */
-    border: 1px solid var(--border-color-dark); /* Keep main border */
-    background: linear-gradient(160deg, #fffefa, #f5f0e1);
-    box-shadow: 0 4px 8px rgba(80, 50, 20, 0.1), inset 0 0 1px rgba(255, 255, 255, 0.5);
-    transition: all 0.25s ease-in-out;
-    border-radius: var(--border-radius); /* Apply border-radius */
-}
-/* Category Indicator */
-.concept-card::before {
-    content: '';
-    position: absolute;
-    left: 0; top: 0; bottom: 0;
-    width: 6px;
-    background-color: var(--category-uncategorized-border); /* Default */
-    border-radius: var(--border-radius) 0 0 var(--border-radius);
-    transition: background-color 0.2s ease;
-    z-index: 1; /* Ensure it's above background gradient */
-}
+
 .concept-card.category-wantToTry::before { background-color: var(--category-wantToTry-border); }
 .concept-card.category-liked::before { background-color: var(--category-liked-border); }
 .concept-card.category-dislikedLimit::before { background-color: var(--category-dislikedLimit-border); }
@@ -752,44 +728,15 @@ h5 {
 
 
 
-/* Card Internals */
-.card-header, .card-visual, .card-footer { margin-left: 6px; /* Space for category border */ position: relative; padding: 8px 12px; }
-.card-header {
-  display: grid;
-  grid-template-columns: auto 1fr auto; /* Icon | Name | Right side */
-  align-items: center;
-  padding: 5px 8px 4px 8px;
-  min-height: 55px;
-  border-bottom: 1px solid var(--border-color-light);
-  gap: 0 8px; /* Gap between columns */
-}
+
 :root.dark .card-header { border-color: var(--border-color-light); }
 
-.card-header .card-type-icon-area { font-size: 1.3em; color: var(--primary-color); flex-shrink: 0; }
+
 :root.dark .card-header .card-type-icon-area { color: var(--primary-color); }
 
-.card-header .card-name {
-    font-size: 1.0em;
-    color: var(--primary-color);
-    font-family: var(--font-heading);
-    font-weight: 700;
-    line-height: 1.2;
-    padding: 3px 0; /* Removed side padding */
-    margin-bottom: 3px;
-    text-align: center;
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
-    word-wrap: break-word;
-    overflow-wrap: break-word;
-}
+
 :root.dark .card-header .card-name { color: var(--text-color); text-shadow: none; }
 
-.card-header .card-header-right {
-    display: flex;
-    flex-direction: column; /* Stack rarity and stamps */
-    align-items: flex-end;
-    gap: 2px;
-    font-size: 0.75em;
-}
 .card-header .card-rarity { font-weight: bold; padding: 2px 5px; border-radius: 3px; text-transform: uppercase; line-height: 1.1; border: 1px solid; white-space: nowrap; }
 .card-header .rarity-indicator-common { color: #495057; border-color: #ced4da; background-color: #f8f9fa;}
 .card-header .rarity-indicator-uncommon { color: #0f5132; border-color: #badbcc; background-color: #d1e7dd;}
@@ -805,19 +752,7 @@ h5 {
 :root.dark .card-header .lore-indicator { color: var(--accent-color); }
 @keyframes pulseGlowLore { from { opacity: 0.7; transform: scale(1); } to { opacity: 1; transform: scale(1.1); } }
 
-.card-visual {
-    flex-grow: 1;
-    background-color: #ede8d8;
-    margin: 8px 12px; /* Re-added side margin */
-    border-radius: 6px;
-    min-height: 100px;
-    overflow: hidden;
-    border: 1px solid var(--border-color-light);
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
+
 :root.dark .card-visual { background-color: var(--background-dark); border-color: var(--border-color-light); }
 .card-visual .card-art-image { display: block; width: 100%; height: 100%; object-fit: cover; }
 .card-visual .card-visual-placeholder { font-size: 3.5em; color: #b8a880; opacity: 0.7; display: flex; /* Ensure placeholder shows */ align-items: center; justify-content: center;}
@@ -860,7 +795,7 @@ h5 {
     text-align: center;
     font-family: var(--font-main);
     -webkit-line-clamp: 2; /* Limit to 2 lines */
-    overflow: hidden;
+    
     text-overflow: ellipsis;
     display: -webkit-box;
     -webkit-box-orient: vertical;
@@ -899,7 +834,7 @@ h5 {
     flex-direction: column;
     justify-content: center;
     position: relative;
-    overflow: hidden;
+    
     color: var(--text-color);
     text-shadow: 0 0 3px rgba(255, 255, 255, 0.6);
 }
@@ -1002,8 +937,7 @@ h5 {
   max-height: 85dvh; /* Limit height */
   display: flex;
   flex-direction: column;
-  overflow: hidden; /* Prevent content spill */
-  z-index: 1000;
+    z-index: 1000;
   transition: opacity 0.3s, transform 0.3s;
   opacity: 1;
 }
@@ -1098,7 +1032,7 @@ h5 {
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: hidden;
+  
 }
 :root.dark .popup-visual { background-color: var(--background-dark); border-color: var(--border-color-light); }
 .popup-visual img { width: 100%; height: 100%; object-fit: cover; }
@@ -1116,7 +1050,7 @@ h5 {
 
 .popup-resonance-gauge-section { background-color: rgba(0,0,0,0.02); padding: 10px; border-radius: 4px; }
 :root.dark .popup-resonance-gauge-section { background-color: rgba(255,255,255,0.03); }
-#popupResonanceGaugeContainer { width: 100%; background-color: var(--border-color-light); border-radius: 5px; height: 18px; position: relative; overflow: hidden; border: 1px solid var(--border-color-dark); margin-top: 5px; margin-bottom: 5px; }
+#popupResonanceGaugeContainer { width: 100%; background-color: var(--border-color-light); border-radius: 5px; height: 18px; position: relative;  border: 1px solid var(--border-color-dark); margin-top: 5px; margin-bottom: 5px; }
 :root.dark #popupResonanceGaugeContainer { background-color: var(--border-color-dark); border-color: var(--border-color-light); }
 #popupResonanceGaugeBar { height: 100%; background-color: var(--accent-color); transition: width 0.5s ease-out; border-radius: 4px 0 0 4px; }
 #popupResonanceGaugeLabel { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); font-size: 0.75em; font-weight: bold; color: #fff; text-shadow: 1px 1px 1px rgba(0,0,0,0.5); white-space: nowrap; }
@@ -1186,7 +1120,7 @@ h5 {
 /* Research Results Popup */
 .research-results-popup { max-width: 850px; } /* Wider for results */
 .research-popup-content { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: var(--spacing); }
-.research-result-item { border: 1px solid var(--border-color-light); border-radius: var(--border-radius); overflow: hidden; background: var(--background-light); display: flex; flex-direction: column; }
+.research-result-item { border: 1px solid var(--border-color-light); border-radius: var(--border-radius);  background: var(--background-light); display: flex; flex-direction: column; }
 :root.dark .research-result-item { border-color: var(--border-color-dark); background: var(--background-medium); }
 .research-result-item .concept-card { box-shadow: none; border: none; min-height: unset; flex-grow: 1; margin-bottom: 0; border-radius: 0; } /* Remove card radius */
 .research-result-item .card-actions { position: static; opacity: 1; pointer-events: auto; padding: 10px; background: var(--background-medium); border-top: 1px solid var(--border-color-light); justify-content: space-around; }
@@ -1218,7 +1152,7 @@ h5 {
 .resonance-chamber-summary { padding-bottom: var(--spacing); }
 .resonance-chamber-summary h4 { text-align: center; color: var(--primary-color); }
 .focused-concepts-icons { display: flex; justify-content: center; gap: 15px; font-size: 1.8em; margin-top: 10px; flex-wrap: wrap; }
-.resonance-chamber-main { display: grid; grid-template-columns: 200px 1fr; gap: var(--spacing); padding-top: var(--spacing); overflow: hidden; /* Prevent main area from scrolling independently */ }
+.resonance-chamber-main { display: grid; grid-template-columns: 200px 1fr; gap: var(--spacing); padding-top: var(--spacing);  /* Prevent main area from scrolling independently */ }
 .aspects-navigation { display: flex; flex-direction: column; gap: 8px; }
 .aspects-navigation h4 { margin-bottom: 10px; color: var(--link-color); }
 .aspect-node { width: 100%; text-align: left; display: flex; align-items: center; gap: 8px; font-size: 0.9em; padding: 8px 10px; }
@@ -1478,7 +1412,7 @@ canvas#personaScoreChartCanvas { background-color: transparent !important; } /* 
     border: 1px solid var(--border-color-light);
     border-radius: var(--border-radius);
     margin-bottom: var(--spacing);
-    overflow: hidden; /* Contain summary background */
+     /* Contain summary background */
 }
 :root.dark .element-detail-entry { background-color: var(--background-medium); border-color: var(--border-color-light); }
 
@@ -1529,19 +1463,19 @@ canvas#personaScoreChartCanvas { background-color: transparent !important; } /* 
     font-weight: bold;
     color: var(--primary-color);
     flex-grow: 1; /* Allow header to take space */
-    overflow: hidden; /* Prevent long names breaking layout */
+     /* Prevent long names breaking layout */
 }
 :root.dark .element-summary-header { color: var(--primary-color); }
 
 .element-summary-header .element-icon-indicator { font-size: 1.1em; }
 .element-summary-header .score-label { font-size: 0.9em; color: var(--text-muted-color); font-weight: normal; white-space: nowrap; }
-.accordion-header .score-bar-container { width: 100px; height: 8px; background-color: var(--border-color-light); border-radius: 4px; overflow: hidden; margin-left: 15px; /* Add space between score and bar */ flex-shrink: 0; }
+.accordion-header .score-bar-container { width: 100px; height: 8px; background-color: var(--border-color-light); border-radius: 4px;  margin-left: 15px; /* Add space between score and bar */ flex-shrink: 0; }
 .accordion-header .score-bar-container div { height: 100%; }
 
 /* Accordion Body */
 .accordion-body {
     max-height: 0; /* Start hidden */
-    overflow: hidden;
+    
     transition: max-height 0.3s ease-out, padding 0.3s ease-out;
     padding: 0 var(--spacing); /* Remove padding when closed */
     border-top: 1px solid transparent; /* For transition */
@@ -1602,7 +1536,7 @@ canvas#personaScoreChartCanvas { background-color: transparent !important; } /* 
 .attunement-display { margin-top: 10px; font-size: 0.9em; }
 .attunement-item { display: flex; align-items: center; gap: 8px; }
 .attunement-name { font-weight: bold; white-space: nowrap; }
-.attunement-bar-container { flex-grow: 1; height: 10px; background-color: var(--border-color-light); border-radius: 5px; overflow: hidden; border: 1px solid var(--border-color-dark); }
+.attunement-bar-container { flex-grow: 1; height: 10px; background-color: var(--border-color-light); border-radius: 5px;  border: 1px solid var(--border-color-dark); }
 :root.dark .attunement-bar-container { background-color: var(--border-color-dark); border-color: var(--border-color-light); }
 .attunement-bar { height: 100%; transition: width 0.5s ease-out; border-radius: 4px 0 0 4px; }
 
@@ -1679,7 +1613,7 @@ canvas#personaScoreChartCanvas { background-color: transparent !important; } /* 
     margin-bottom: 0; /* Remove margin as gap is used */
     border-radius: var(--border-radius);
     box-shadow: var(--box-shadow);
-    overflow: hidden;
+    
     background: var(--background-medium);
     cursor: pointer;
     padding: 8px 12px;
@@ -1752,7 +1686,7 @@ canvas#personaScoreChartCanvas { background-color: transparent !important; } /* 
   height: 1px;
   margin: -1px;
   padding: 0;
-  overflow: hidden;
+  
   clip: rect(0, 0, 0, 0);
   border: 0;
 }
@@ -1765,7 +1699,7 @@ canvas#personaScoreChartCanvas { background-color: transparent !important; } /* 
 .research-result-item {
   border: 1px solid var(--border-color-light);
   border-radius: var(--border-radius);
-  overflow: hidden;
+  
   background: var(--background-light);
   display: flex;
   flex-direction: column; /* Stack card and actions */
@@ -1922,4 +1856,155 @@ canvas#personaScoreChartCanvas { background-color: transparent !important; } /* 
     transform: translateY(-4px);       /* remove any scale() */
     z-index: 5;                        /* keeps it above neighbours */
 }
+.concept-card{
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-height: 320px;                   /* enough room for everything */
+    border: 1px solid var(--border-color-light);
+    border-radius: var(--border-radius);
+    background: var(--background-light);
+    box-shadow: 0 2px 6px rgba(0,0,0,.08);
+                        /* keep children clipped */
+    transition: box-shadow .25s ease;
+}
+
+.concept-card:hover{
+    transform: translateY(-4px);         /* gentle lift */
+    box-shadow: 0 6px 16px rgba(0,0,0,.18);
+    z-index: 10;
+}
+
+/* vertical structure -------------------------------------------- */
+.concept-card > .card-header,
+.concept-card > .card-visual,
+.concept-card > .card-footer{ padding:0 12px; }
+
+.concept-card > .card-header{           /* sits at the very top */
+    padding-top: 10px;
+    padding-bottom: 6px;
+    display: grid;
+    grid-template-columns: 24px 1fr auto;
+    grid-gap: 6px;
+    align-items: start;
+    min-height: 54px;
+    border-bottom: 1px solid var(--border-color-light);
+}
+
+/* icon (column 1) */
+.card-header .card-type-icon-area{
+    font-size: 1.25rem;
+    line-height: 1;
+}
+
+/* name (column 2) */
+.card-header .card-name{
+    font-family: var(--font-heading);
+    font-size: .95rem;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+/* rarity + stamps (column 3) */
+.card-header .card-header-right{
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+}
+
+.card-header .card-rarity{
+    font-size: .65rem;
+    padding: 2px 6px;
+    border-radius: 4px;
+    text-transform: uppercase;
+}
+
+/* image block ---------------------------------------------------- */
+.concept-card > .card-visual{
+    margin: 8px 12px;
+    padding: 0;                /* remove earlier padding */
+    border-radius: 6px;
+    
+    border: 1px solid var(--border-color-light);
+    aspect-ratio: 3 / 4;       /* always portrait */
+}
+
+.card-visual img{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* description (footer) ------------------------------------------ */
+.concept-card > .card-footer{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    flex-grow: 1;
+    padding: 10px 12px 46px 12px;   /* leave room for action buttons */
+}
+
+.card-footer .card-brief-desc{
+    font-size: .82rem;
+    line-height: 1.4;
+    margin-bottom: 8px;
+    color: var(--text-color);
+}
+
+/* action buttons sit at absolute bottom inside the card ---------- */
+.card-actions{
+    position: absolute;
+    bottom: 8px;
+    left: 12px;
+    right: 12px;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    opacity: 0;
+    transition: opacity .25s ease;
+}
+
+.concept-card:hover .card-actions{
+    opacity: 1;
+}
+
+/* category strip on left ---------------------------------------- */
+.concept-card::before{
+    content:'';
+    position:absolute;
+    inset:0 0 0 0;             /* reset – then override width below */
+    width:6px;
+    background:var(--category-uncategorized-border);
+}
+.concept-card.category-wantToTry::before{background:var(--category-wantToTry-border);}
+.concept-card.category-liked::before{background:var(--category-liked-border);}
+.concept-card.category-dislikedLimit::before{background:var(--category-dislikedLimit-border);}
+.concept-card.category-coreIdentity::before{background:var(--category-coreIdentity-border);}
+
+/* push internal padding right so strip never overlaps ------------ */
+.card-header,
+.card-visual,
+.card-footer{ margin-left: 6px; }
+
+/* rarity colour tweaks (optional) -------------------------------- */
+.concept-card.rarity-uncommon{border-color:#87cefa;}
+.concept-card.rarity-rare    {border-color:#dda0dd;}
+
+/* dark-theme tweaks */
+:root.dark .concept-card{
+    background: var(--background-medium);
+    border-color: var(--border-color-light);
+}
+const elKey = concept.primaryElement;          // 'A', 'I', 'S', etc.
+const iconMap = {
+   A:'fa-heart',
+   I:'fa-arrows-rotate',
+   S:'fa-hand-sparkles',
+   P:'fa-brain',
+   C:'fa-comments',
+   R:'fa-people-group',
+   RF:'fa-compass'
+};
+iconElement.className = `fa-solid ${iconMap[elKey] || 'fa-gear'}`;
 /* --- END OF FILE style.css --- */
