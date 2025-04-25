@@ -1949,8 +1949,6 @@ canvas#personaScoreChartCanvas { background-color: transparent !important; } /* 
 .hint-bubble .hint-close:hover {
     color: var(--danger-color);
 }
-:root.dark .hint-bubble .hint-close { color: var(--text-muted-color); }
-:root.dark .hint-bubble .hint-close:hover { color: var(--danger-color); }
 
 .concept-card:hover{
     transform: translateY(-4px) scale(1.02);   /* <-- culprit */
