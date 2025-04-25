@@ -1862,8 +1862,12 @@ canvas#personaScoreChartCanvas { background-color: transparent !important; } /* 
  .research-result-item .concept-card .card-footer {
      margin-left: 0; /* Reset margin as category border is hidden */
  }
-
-
+#grimoire-grid-workshop .concept-card:hover{
+    /* lift for a bit of “pop”, but no resize */
+    transform: translateY(-4px);   /* ← remove the scale()  */
+}
+#grimoire-grid-workshop .concept-card        { z-index: 0; }
+#grimoire-grid-workshop .concept-card:hover { z-index: 5; }
 /* Style the action buttons area below the card */
 .research-result-item .card-actions {
   position: static; /* Override absolute positioning from standard card */
