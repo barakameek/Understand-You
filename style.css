@@ -1953,4 +1953,11 @@ canvas#personaScoreChartCanvas { background-color: transparent !important; } /* 
 .concept-card:hover{
     transform: translateY(-4px) scale(1.02);   /* <-- culprit */
 }
+/* 🔧 FORCE-KILL the old waterfall layout everywhere */
+.concept-grid,
+#grimoire-grid-workshop,
+.focus-concepts-grid {
+    column-count: initial !important;   /* neutralise any inline value   */
+    column-gap:    normal !important;   /* restores the gap to the grid */
+}
 /* --- END OF FILE style.css --- */
