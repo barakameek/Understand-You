@@ -760,12 +760,10 @@ h5 {
 :root.dark .concept-card.rarity-rare { background: linear-gradient(160deg, #4a4030, #5a5040); border-color: #dda0dd; }
 
 .concept-card:hover {
-    
- 
-    transform:none; box-shadow:0 6px 14px rgba(0,0,0,.18); 
-
-
-  }                                                                                                          
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 0 8px 16px rgba(80, 50, 20, 0.18), inset 0 0 1px rgba(255, 255, 255, 0.5);
+    z-index: 10;
+}
 :root.dark .concept-card:hover { box-shadow: 0 8px 16px rgba(0,0,0, 0.3), inset 0 0 1px rgba(255, 255, 255, 0.1); }
 .concept-card:hover.rarity-uncommon { box-shadow: 0 8px 16px rgba(80, 50, 20, 0.18), 0 0 9px rgba(70, 130, 180, 0.5); }
 :root.dark .concept-card:hover.rarity-uncommon { box-shadow: 0 8px 16px rgba(0,0,0, 0.3), 0 0 9px rgba(135, 206, 250, 0.5); }
@@ -1862,12 +1860,8 @@ canvas#personaScoreChartCanvas { background-color: transparent !important; } /* 
  .research-result-item .concept-card .card-footer {
      margin-left: 0; /* Reset margin as category border is hidden */
  }
-#grimoire-grid-workshop .concept-card:hover{
-    /* lift for a bit of “pop”, but no resize */
-    transform: translateY(-4px);   /* ← remove the scale()  */
-}
-#grimoire-grid-workshop .concept-card        { z-index: 0; }
-#grimoire-grid-workshop .concept-card:hover { z-index: 5; }
+
+
 /* Style the action buttons area below the card */
 .research-result-item .card-actions {
   position: static; /* Override absolute positioning from standard card */
@@ -1955,24 +1949,8 @@ canvas#personaScoreChartCanvas { background-color: transparent !important; } /* 
 .hint-bubble .hint-close:hover {
     color: var(--danger-color);
 }
+:root.dark .hint-bubble .hint-close { color: var(--text-muted-color); }
+:root.dark .hint-bubble .hint-close:hover { color: var(--danger-color); }
 
-/* 🔧 FORCE-KILL the old waterfall layout everywhere */
-.concept-grid,
-#grimoire-grid-workshop,
-.focus-concepts-grid {
-    column-count: initial !important;   /* neutralise any inline value   */
-    column-gap:    normal !important;   /* restores the gap to the grid */
-}
-.concept-grid,
-#grimoire-grid-workshop,
-.focus-concepts-grid{
-    /* wipe out any inline Masonry columns */
-    columns:      auto !important;
-    column-count: auto !important;
-    column-width: auto !important;
 
-    /* modern grid instead */
-    display: grid !important;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: var(--spacing);
-}
+/* --- END OF FILE style.css --- */
