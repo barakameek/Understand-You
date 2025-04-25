@@ -1959,4 +1959,16 @@ canvas#personaScoreChartCanvas { background-color: transparent !important; } /* 
     column-count: initial !important;   /* neutralise any inline value   */
     column-gap:    normal !important;   /* restores the gap to the grid */
 }
-/* --- END OF FILE style.css --- */
+.concept-grid,
+#grimoire-grid-workshop,
+.focus-concepts-grid{
+    /* wipe out any inline Masonry columns */
+    columns:      auto !important;
+    column-count: auto !important;
+    column-width: auto !important;
+
+    /* modern grid instead */
+    display: grid !important;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: var(--spacing);
+}
