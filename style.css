@@ -2020,5 +2020,24 @@ canvas#personaScoreChartCanvas { background-color: transparent !important; } /* 
      display: none; /* Hide quotes in popup card */
 }
 
+const microStoryHTML = concept.microStory
+    ? `<p class="card-micro-story">${Utils.escapeHtml(concept.microStory)}</p>` // <<<<--- Check this call
+    : '';
+
+// --- Assemble Card HTML ---
+cardDiv.innerHTML = `
+    <div class="card-header">
+        <span class="card-type-icon-area"><i class="${Utils.getCardTypeIcon(concept.cardType)}" title="${concept.cardType}"></i></span>
+        <span class="card-name">${Utils.escapeHtml(concept.name)}</span> {/* <<<<--- Check this call */}
+        ${cardHeaderRightHTML}
+    </div>
+    ${visualContentHTML}
+    <div class="card-footer">
+        <div class="card-affinities">${primaryElementHTML}</div>
+        <p class="card-brief-desc">${Utils.escapeHtml(concept.briefDescription || '...')}</p> {/* <<<<--- Check this call */}
+        ${microStoryHTML} {/* Microstory inserted here */}
+        ${actionButtonsHTML}
+    </div>
+`;
 
 /* --- END OF FILE style.css --- */
