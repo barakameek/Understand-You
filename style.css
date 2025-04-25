@@ -1951,6 +1951,74 @@ canvas#personaScoreChartCanvas { background-color: transparent !important; } /* 
 }
 :root.dark .hint-bubble .hint-close { color: var(--text-muted-color); }
 :root.dark .hint-bubble .hint-close:hover { color: var(--danger-color); }
+/* MicroStory Styling */
+.card-micro-story {
+    font-size: 0.85em; /* Slightly smaller than brief desc */
+    font-style: italic;
+    color: var(--text-muted-color);
+    margin-top: 8px; /* Space above */
+    margin-bottom: 5px; /* Space below, before potential actions */
+    padding: 0 8px; /* Slight horizontal padding */
+    text-align: center;
+    line-height: 1.35;
+    /* Add subtle quote marks */
+    position: relative;
+    padding-left: 1.2em; /* Space for opening quote */
+    padding-right: 1.2em; /* Space for closing quote */
+}
+.card-micro-story::before {
+    content: '“';
+    position: absolute;
+    left: 5px;
+    top: 0;
+    font-size: 1.4em;
+    line-height: 1;
+    color: var(--border-color-light);
+    font-style: normal; /* Keep quotes normal style */
+}
+.card-micro-story::after {
+    content: '”';
+    position: absolute;
+    right: 5px;
+    bottom: -5px; /* Adjust vertical position */
+    font-size: 1.4em;
+    line-height: 1;
+    color: var(--border-color-light);
+    font-style: normal;
+}
+
+:root.dark .card-micro-story {
+    color: var(--text-muted-color);
+}
+:root.dark .card-micro-story::before,
+:root.dark .card-micro-story::after {
+    color: var(--border-color-light);
+}
+
+/* Adjust footer padding/height if microStory makes it too cramped */
+.card-footer {
+    padding-bottom: 40px; /* Ensure enough space for action buttons */
+    min-height: 100px; /* Increased min-height slightly */
+    /* Remove justify-content: space-between if you want content grouped at top */
+    justify-content: flex-start; /* Align content top */
+}
+
+/* Specific adjustment for Research Popup Card Footer */
+.research-result-item .card-footer {
+    padding-bottom: 0; /* Actions are separate */
+    min-height: unset; /* Allow natural height */
+    justify-content: flex-start;
+}
+.research-result-item .card-micro-story {
+     font-size: 0.8em; /* Even smaller in popup */
+     margin-bottom: 0;
+     padding: 0 5px; /* Less padding */
+     line-height: 1.3;
+}
+.research-result-item .card-micro-story::before,
+.research-result-item .card-micro-story::after {
+     display: none; /* Hide quotes in popup card */
+}
 
 
 /* --- END OF FILE style.css --- */
