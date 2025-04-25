@@ -19,7 +19,23 @@ export function getScoreLabel(score) {
     if (score >= 2) return "Low";
     return "Very Low";
 }
-
+/**
+ * Escapes HTML special characters in a string.
+ * @param {string} unsafe - The potentially unsafe string.
+ * @returns {string} The escaped string.
+ */
+export function escapeHtml(unsafe) {
+    if (typeof unsafe !== 'string') {
+        console.warn("escapeHtml called with non-string value:", unsafe);
+        return ''; // Return empty string for non-strings
+    }
+    return unsafe
+         .replace(/&/g, "&")
+         .replace(/</g, "<")
+         .replace(/>/g, ">")
+         .replace(/"/g, """)
+         .replace(/'/g, "'");
+}
 /**
  * Returns a simple affinity level (High/Moderate) for concept cards based on Resonance score.
  * Returns null if score is below Moderate threshold.
