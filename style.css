@@ -1951,6 +1951,155 @@ canvas#personaScoreChartCanvas { background-color: transparent !important; } /* 
 }
 :root.dark .hint-bubble .hint-close { color: var(--text-muted-color); }
 :root.dark .hint-bubble .hint-close:hover { color: var(--danger-color); }
+const elKey = concept.primaryElement;          // 'A', 'I', 'S', etc.
+const iconMap = {
+   A:'fa-heart',
+   I:'fa-arrows-rotate',
+   S:'fa-hand-sparkles',
+   P:'fa-brain',
+   C:'fa-comments',
+   R:'fa-people-group',
+   RF:'fa-compass'
+};
+iconElement.className = `fa-solid ${iconMap[elKey] || 'fa-gear'}`;
+.concept-card{
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-height: 320px;                   /* enough room for everything */
+    border: 1px solid var(--border-color-light);
+    border-radius: var(--border-radius);
+    background: var(--background-light);
+    box-shadow: 0 2px 6px rgba(0,0,0,.08);
+    overflow: hidden;                    /* keep children clipped */
+    transition: box-shadow .25s ease;
+}
 
+.concept-card:hover{
+    transform: translateY(-4px);         /* gentle lift */
+    box-shadow: 0 6px 16px rgba(0,0,0,.18);
+    z-index: 10;
+}
 
+/* vertical structure -------------------------------------------- */
+.concept-card > .card-header,
+.concept-card > .card-visual,
+.concept-card > .card-footer{ padding:0 12px; }
+
+.concept-card > .card-header{           /* sits at the very top */
+    padding-top: 10px;
+    padding-bottom: 6px;
+    display: grid;
+    grid-template-columns: 24px 1fr auto;
+    grid-gap: 6px;
+    align-items: start;
+    min-height: 54px;
+    border-bottom: 1px solid var(--border-color-light);
+}
+
+/* icon (column 1) */
+.card-header .card-type-icon-area{
+    font-size: 1.25rem;
+    line-height: 1;
+}
+
+/* name (column 2) */
+.card-header .card-name{
+    font-family: var(--font-heading);
+    font-size: .95rem;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+/* rarity + stamps (column 3) */
+.card-header .card-header-right{
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+}
+
+.card-header .card-rarity{
+    font-size: .65rem;
+    padding: 2px 6px;
+    border-radius: 4px;
+    text-transform: uppercase;
+}
+
+/* image block ---------------------------------------------------- */
+.concept-card > .card-visual{
+    margin: 8px 12px;
+    padding: 0;                /* remove earlier padding */
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid var(--border-color-light);
+    aspect-ratio: 3 / 4;       /* always portrait */
+}
+
+.card-visual img{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* description (footer) ------------------------------------------ */
+.concept-card > .card-footer{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    flex-grow: 1;
+    padding: 10px 12px 46px 12px;   /* leave room for action buttons */
+}
+
+.card-footer .card-brief-desc{
+    font-size: .82rem;
+    line-height: 1.4;
+    margin-bottom: 8px;
+    color: var(--text-color);
+}
+
+/* action buttons sit at absolute bottom inside the card ---------- */
+.card-actions{
+    position: absolute;
+    bottom: 8px;
+    left: 12px;
+    right: 12px;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    opacity: 0;
+    transition: opacity .25s ease;
+}
+
+.concept-card:hover .card-actions{
+    opacity: 1;
+}
+
+/* category strip on left ---------------------------------------- */
+.concept-card::before{
+    content:'';
+    position:absolute;
+    inset:0 0 0 0;             /* reset – then override width below */
+    width:6px;
+    background:var(--category-uncategorized-border);
+}
+.concept-card.category-wantToTry::before{background:var(--category-wantToTry-border);}
+.concept-card.category-liked::before{background:var(--category-liked-border);}
+.concept-card.category-dislikedLimit::before{background:var(--category-dislikedLimit-border);}
+.concept-card.category-coreIdentity::before{background:var(--category-coreIdentity-border);}
+
+/* push internal padding right so strip never overlaps ------------ */
+.card-header,
+.card-visual,
+.card-footer{ margin-left: 6px; }
+
+/* rarity colour tweaks (optional) -------------------------------- */
+.concept-card.rarity-uncommon{border-color:#87cefa;}
+.concept-card.rarity-rare    {border-color:#dda0dd;}
+
+/* dark-theme tweaks */
+:root.dark .concept-card{
+    background: var(--background-medium);
+    border-color: var(--border-color-light);
+}
 /* --- END OF FILE style.css --- */
