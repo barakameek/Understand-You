@@ -19,23 +19,6 @@ export function getScoreLabel(score) {
     if (score >= 2) return "Low";
     return "Very Low";
 }
-/**
- * Escapes HTML special characters in a string.
- * @param {string} unsafe - The potentially unsafe string.
- * @returns {string} The escaped string.
- */
-export function escapeHtml(unsafe) { // <<<<=========== MAKE SURE 'export' IS HERE
-    if (typeof unsafe !== 'string') {
-        console.warn("escapeHtml called with non-string value:", unsafe);
-        return ''; // Return empty string for non-strings
-    }
-    return unsafe
-         .replace(/&/g, "&")
-         .replace(/</g, "<")
-         .replace(/>/g, ">")
-         .replace(/"/g, """)
-         .replace(/'/g, "'");
-}
 
 /**
  * Returns a simple affinity level (High/Moderate) for concept cards based on Resonance score.
@@ -56,39 +39,19 @@ export function getAffinityLevel(score) {
  * @param {string} nameOrKey - Can be short name key ("Attraction"), full descriptive name ("Attraction Focus: ..."), or single letter key ('A', 'RF').
  * @returns {string} The short display name or the original input if lookup fails.
  */
-/**
- * Gets the short display name (e.g., "Attraction") from various possible inputs.
- * Relies on consistent naming in data.js -> elementDetails.
- * @param {string} nameOrKey - Can be short name key ("Attraction"), full descriptive name ("Attraction Focus: ..."), or single letter key ('A', 'RF').
- * @returns {string} The short display name or the original input if lookup fails.
- */
 export function getElementShortName(nameOrKey) {
     if (!nameOrKey || typeof nameOrKey !== 'string') return "Unknown";
 
     // 1. Check if it's a single letter key ('A', 'I', ..., 'RF')
     if (nameOrKey.length === 1 && nameOrKey.toUpperCase() === nameOrKey && elementKeyToFullName?.[nameOrKey]) {
         const elementNameKey = elementKeyToFullName[nameOrKey]; // e.g., "Attraction" or "RoleFocus"
-
-        // --- Refactored Block (Replaces original line 36) ---
-        const detailsName = elementDetails?.[elementNameKey]?.name; // Get the full name safely
-        if (detailsName && typeof detailsName === 'string' && detailsName.includes(':')) {
-            // If name exists and contains ':', split and trim
-            return detailsName.split(':')[0].trim();
-        } else if (detailsName) {
-             // If name exists but no ':', return the name itself
-             return detailsName;
-        } else {
-            // If no name found in elementDetails, fallback to the elementNameKey
-            return elementNameKey;
-        }
-        // --- End Refactored Block ---
+        // Use the name from elementDetails if available, split, otherwise fallback to elementNameKey
+        return elementDetails?.[elementNameKey]?.name?.split(':')[0].trim() || elementNameKey;
     }
 
     // 2. Check if it's already the short name key ("Attraction", "RoleFocus", etc.) used in elementDetails
     if (elementDetails?.[nameOrKey]?.name) {
-        // Check if it contains ':' before splitting
-        const detailsName = elementDetails[nameOrKey].name;
-        return detailsName.includes(':') ? detailsName.split(':')[0].trim() : detailsName;
+        return elementDetails[nameOrKey].name.split(':')[0].trim();
     }
 
     // 3. Check if it's a full descriptive name containing ":"
@@ -96,7 +59,8 @@ export function getElementShortName(nameOrKey) {
         return nameOrKey.split(':')[0].trim();
     }
 
-    // 4. Final fallback
+    // 4. Final fallback - maybe it's already the short name but not a key in elementDetails?
+    // Or maybe it's an invalid input. Return the input itself.
     return nameOrKey;
 }
 
