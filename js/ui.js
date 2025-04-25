@@ -1740,13 +1740,19 @@ export function refreshGrimoireDisplay(overrideFilters = {}) {
 export function renderCard(concept, context = 'grimoire', discoveredData = null) {
     if (!concept || typeof concept.id === 'undefined') { console.warn("renderCard called with invalid concept:", concept); const eDiv = document.createElement('div'); eDiv.textContent = "Error: Invalid Concept Data"; eDiv.classList.add('concept-card', 'error'); return eDiv; }
 
-   const isDiscovered = context === 'grimoire' && !!discoveredData;
+    const cardDiv = document.createElement('div');
+    cardDiv.classList.add('concept-card', `rarity-${concept.rarity || 'common'}`);
+    cardDiv.dataset.conceptId = concept.id;
+    cardDiv.title = (context === 'grimoire') ? `View Details: ${concept.name}` : concept.name;
+
+    const isDiscovered = context === 'grimoire' && !!discoveredData;
     const isFocused = isDiscovered && State.getFocusedConcepts().has(concept.id);
     const hasNewLore = isDiscovered && (discoveredData?.newLoreAvailable || false);
     const userCategory = isDiscovered ? (discoveredData?.userCategory || 'uncategorized') : 'uncategorized';
 
-    // --- Visual Content (Image or Placeholder) ---
-    let visualContentHTML = '';
+    // Visual Content (Image or Placeholder)
+   let visualContentHTML = '';
+   /* Show the art both in the Grimoire **and** in the Research‑popup  */
     if (context === 'grimoire' || context === 'popup-result') {
         const placeholderIconHTML = `<i class="fas fa-image card-visual-placeholder" title="Visual Placeholder"></i>`;
         if (concept.visualHandle) {
@@ -1755,32 +1761,32 @@ export function renderCard(concept, context = 'grimoire', discoveredData = null)
             const imageUrl = `placeholder_art/${fileName}`;
             visualContentHTML = `
                 <img src="${imageUrl}" alt="${concept.name} Art" class="card-art-image" loading="lazy" onerror="window.handleImageError(this)">
-                <i class="fas fa-image card-visual-placeholder" style="display: none;" title="Art Placeholder (Load Failed)"></i>`;
+                <i class="fas fa-image card-visual-placeholder" style="display: none;" title="Art Placeholder (Load Failed)"></i>`; // Start placeholder hidden
         } else {
             visualContentHTML = placeholderIconHTML;
         }
         visualContentHTML = `<div class="card-visual">${visualContentHTML}</div>`;
     }
 
-    // --- Stamps (Focus, Lore) ---
+    // Stamps (Focus, Lore)
     const focusStampHTML = (context === 'grimoire' && isFocused) ? '<span class="focus-indicator" title="Focused Concept">★</span>' : '';
     const loreStampHTML = (context === 'grimoire' && hasNewLore) ? '<span class="lore-indicator" title="New Lore Unlocked!"><i class="fas fa-scroll"></i></span>' : '';
     const cardStampsHTML = `<span class="card-stamps">${focusStampHTML}${loreStampHTML}</span>`;
 
-    // --- Rarity Indicator ---
+    // Rarity Indicator
     let rarityText = concept.rarity ? concept.rarity.charAt(0).toUpperCase() + concept.rarity.slice(1) : 'Common';
     let rarityClass = `rarity-indicator-${concept.rarity || 'common'}`;
     const rarityIndicatorHTML = `<span class="card-rarity ${rarityClass}" title="Rarity: ${rarityText}">${rarityText}</span>`;
 
-    // --- Card Header Right Area ---
+    // Card Header Right Area
     const cardHeaderRightHTML = `<span class="card-header-right">${rarityIndicatorHTML}${cardStampsHTML}</span>`;
 
-    // --- Primary Element Display ---
+    // Primary Element Display
     let primaryElementHTML = '<small class="no-element">No Primary Element</small>';
     if (concept.primaryElement && elementKeyToFullName?.[concept.primaryElement]) {
-        const primaryKey = concept.primaryElement;
-        const elementNameKey = elementKeyToFullName[primaryKey];
-        const elementData = elementDetails?.[elementNameKey] || {};
+        const primaryKey = concept.primaryElement; // 'A'...'RF'
+        const elementNameKey = elementKeyToFullName[primaryKey]; // 'Attraction'...'RoleFocus'
+        const elementData = elementDetails?.[elementNameKey] || {}; // Added check for elementDetails
         const descriptiveName = elementData.name || elementNameKey;
         const color = Utils.getElementColor(elementNameKey);
         const icon = Utils.getElementIcon(elementNameKey);
@@ -1788,7 +1794,7 @@ export function renderCard(concept, context = 'grimoire', discoveredData = null)
         primaryElementHTML = `<span class="primary-element-display" style="color: ${color}; border-color: ${Utils.hexToRgba(color, 0.5)}; background-color: ${Utils.hexToRgba(color, 0.1)};" title="Primary Element: ${descriptiveName}"><i class="${icon}"></i> ${nameShort}</span>`;
     }
 
-    // --- Action Buttons (Only in Grimoire context) ---
+    // Action Buttons (Only in Grimoire context)
     let actionButtonsHTML = '';
     if (context === 'grimoire') {
         actionButtonsHTML += '<div class="card-actions">';
@@ -1814,24 +1820,17 @@ export function renderCard(concept, context = 'grimoire', discoveredData = null)
         if (!hasActions) actionButtonsHTML = ''; // Remove container if no actions
     }
 
-
-    // --- MicroStory Element --- <<<<<<<<<<<<<<<<<<< NEW >>>>>>>>>>>>>>>>>>>>>>>
-    const microStoryHTML = concept.microStory
-        ? `<p class="card-micro-story">${Utils.escapeHtml(concept.microStory)}</p>` // Use escapeHtml for safety
-        : ''; // Add empty string if no story
-
-    // --- Assemble Card HTML ---
+    // Assemble Card HTML
     cardDiv.innerHTML = `
         <div class="card-header">
             <span class="card-type-icon-area"><i class="${Utils.getCardTypeIcon(concept.cardType)}" title="${concept.cardType}"></i></span>
-            <span class="card-name">${Utils.escapeHtml(concept.name)}</span> {/* Added escapeHtml */}
+            <span class="card-name">${concept.name}</span>
             ${cardHeaderRightHTML}
         </div>
         ${visualContentHTML}
         <div class="card-footer">
             <div class="card-affinities">${primaryElementHTML}</div>
-            <p class="card-brief-desc">${Utils.escapeHtml(concept.briefDescription || '...')}</p> {/* Added escapeHtml */}
-            ${microStoryHTML} {/* <<<<<<<<<<<<<<<<< INSERTED HERE >>>>>>>>>>>>>>>>> */}
+            <p class="card-brief-desc">${concept.briefDescription || '...'}</p>
             ${actionButtonsHTML}
         </div>
     `;
@@ -1846,16 +1845,10 @@ export function renderCard(concept, context = 'grimoire', discoveredData = null)
         const footer = cardDiv.querySelector('.card-footer');
         const briefDesc = cardDiv.querySelector('.card-brief-desc');
         const affinities = cardDiv.querySelector('.card-affinities');
-        const microStoryEl = cardDiv.querySelector('.card-micro-story'); // Select the new element
         if(footer) footer.style.paddingBottom = '0px';
         if(briefDesc) {
-             briefDesc.style.display = 'block';
-             briefDesc.style.minHeight = 'calc(1.4em * 1)';
-        }
-         // Adjust microStory styling specifically for popup if needed
-        if (microStoryEl) {
-             microStoryEl.style.fontSize = '0.8em'; // Make slightly smaller in popup
-             microStoryEl.style.marginBottom = '0'; // Remove bottom margin in popup
+             briefDesc.style.display = 'block'; // Ensure brief desc is block
+             briefDesc.style.minHeight = 'calc(1.4em * 1)'; // Adjust min height if needed
         }
         if(affinities) affinities.style.marginBottom = '5px';
     }
