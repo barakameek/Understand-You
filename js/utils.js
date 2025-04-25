@@ -1,10 +1,10 @@
 // --- START OF FILE utils.js ---
-// js/utils.js - Utility Functions (Enhanced v4.8 - Fixed & Robustness + XP/Leveling v1.0)
+// js/utils.js - Utility Functions (Enhanced v4.8 - Fixed & Robustness)
 
 // Import elementDetails (for getElementShortName) and elementKeyToFullName (for reverse lookup)
 import { elementDetails, elementKeyToFullName, elementNames } from '../data.js'; // Added elementNames import
 
-console.log("utils.js loading... (Enhanced v4.8 + XP/Leveling v1.0)");
+console.log("utils.js loading... (Enhanced v4.8 - Fixed & Robustness)");
 
 /**
  * Returns a descriptive label for a score (0-10).
@@ -43,7 +43,7 @@ export function getElementShortName(nameOrKey) {
     if (!nameOrKey || typeof nameOrKey !== 'string') return "Unknown";
 
     // 1. Check if it's a single letter key ('A', 'I', ..., 'RF')
-    if (nameOrKey.length <= 2 && nameOrKey.toUpperCase() === nameOrKey && elementKeyToFullName?.[nameOrKey]) { // Allow 'RF'
+    if (nameOrKey.length === 1 && nameOrKey.toUpperCase() === nameOrKey && elementKeyToFullName?.[nameOrKey]) {
         const elementNameKey = elementKeyToFullName[nameOrKey]; // e.g., "Attraction" or "RoleFocus"
         // Use the name from elementDetails if available, split, otherwise fallback to elementNameKey
         return elementDetails?.[elementNameKey]?.name?.split(':')[0].trim() || elementNameKey;
@@ -86,7 +86,7 @@ export function getElementColor(elementNameKey) {
      if (fallbackColors.hasOwnProperty(elementNameKey)) {
          return fallbackColors[elementNameKey];
      }
-    // console.warn(`Utils: Color not found for element key: ${elementNameKey}. Using default grey.`); // Reduce noise
+    console.warn(`Utils: Color not found for element key: ${elementNameKey}. Using default grey.`);
     return '#CCCCCC'; // Default grey
 }
 
@@ -104,12 +104,12 @@ export function hexToRgba(hex, alpha = 1) {
         localHex = localHex[0]+localHex[0]+localHex[1]+localHex[1]+localHex[2]+localHex[2];
     }
     if (localHex.length !== 6) {
-        // console.warn(`Invalid hex code provided to hexToRgba: ${hex}`); // Reduce noise
+        console.warn(`Invalid hex code provided to hexToRgba: ${hex}`);
         return `rgba(128,128,128, ${alpha})`; // Return default grey
     }
     const bigint = parseInt(localHex, 16);
     if (isNaN(bigint)) {
-        // console.warn(`Could not parse hex code to integer: ${localHex}`); // Reduce noise
+        console.warn(`Could not parse hex code to integer: ${localHex}`);
         return `rgba(128,128,128, ${alpha})`;
     }
     const r = (bigint >> 16) & 255;
@@ -132,7 +132,7 @@ export function getCardTypeIcon(cardType) {
          case "Psychological/Goal": return "fa-solid fa-brain";
          case "Relationship Style": return "fa-solid fa-heart"; // Using heart for relationship style
          default:
-             // console.warn(`Utils: Icon not found for card type: ${cardType}. Using default.`); // Reduce noise
+             console.warn(`Utils: Icon not found for card type: ${cardType}. Using default.`);
              return "fa-solid fa-question-circle";
      }
 }
@@ -153,7 +153,7 @@ export function getElementIcon(elementNameKey) {
          case "Relational": return "fa-solid fa-link";
          case "RoleFocus": return "fa-solid fa-gauge-high";
          default:
-             // console.warn(`Utils: Icon not found for element key: ${elementNameKey}. Using default atom.`); // Reduce noise
+             console.warn(`Utils: Icon not found for element key: ${elementNameKey}. Using default atom.`);
              return "fa-solid fa-atom";
      }
 }
@@ -172,7 +172,7 @@ export function euclideanDistance(userScoresObj, conceptScoresObj, conceptName =
      const expectedKeys = elementKeyToFullName ? Object.keys(elementKeyToFullName) : ['A','I','S','P','C','R','RF']; // Fallback if map isn't loaded yet
 
      if (!userScoresObj || typeof userScoresObj !== 'object' || !conceptScoresObj || typeof conceptScoresObj !== 'object') {
-         console.warn(`Invalid input objects for euclideanDistance (Concept: ${conceptName})`);
+         console.warn(`Invalid input objects for euclideanDistance (Concept: ${conceptName})`, { userScoresObj, conceptScoresObj });
          return Infinity;
      }
 
@@ -182,6 +182,7 @@ export function euclideanDistance(userScoresObj, conceptScoresObj, conceptName =
          const s2 = conceptScoresObj[key];
 
          const s1Valid = typeof s1 === 'number' && !isNaN(s1);
+         // Check if concept HAS the key AND the value is a valid number
          const s2Valid = conceptScoresObj.hasOwnProperty(key) && typeof s2 === 'number' && !isNaN(s2);
 
          if (s1Valid && s2Valid) {
@@ -189,19 +190,28 @@ export function euclideanDistance(userScoresObj, conceptScoresObj, conceptName =
              validDimensions++;
          } else {
              // Log details about the missing/invalid score
-             if (!s1Valid) console.warn(`DistCalc Warning (Concept: ${conceptName}): Invalid User Score for dimension '${key}'. Value: ${s1}.`);
-             if (!conceptScoresObj.hasOwnProperty(key)) console.warn(`DistCalc Warning (Concept: ${conceptName}): Missing Concept Score for dimension '${key}'.`);
-             else if (!s2Valid) console.warn(`DistCalc Warning (Concept: ${conceptName}): Invalid Concept Score for dimension '${key}'. Value: ${s2}.`);
+             if (!s1Valid) {
+                 console.warn(`DistCalc Warning (Concept: ${conceptName}): Invalid User Score for dimension '${key}'. Value: ${s1}.`);
+             }
+             if (!conceptScoresObj.hasOwnProperty(key)) {
+                 console.warn(`DistCalc Warning (Concept: ${conceptName}): Missing Concept Score for dimension '${key}'.`);
+             } else if (!s2Valid) {
+                 console.warn(`DistCalc Warning (Concept: ${conceptName}): Invalid Concept Score for dimension '${key}'. Value: ${s2}.`);
+             }
          }
      }
 
+     // If NO valid dimensions could be compared, return Infinity
      if (validDimensions === 0) {
          console.error(`FATAL DistCalc (Concept: ${conceptName}): Could not compare any dimensions. Check data.`);
          return Infinity;
      }
+
+     // Warn if fewer dimensions were compared than expected
      if (validDimensions < expectedDimensions) {
-         console.warn(`Potentially inaccurate distance for Concept: ${conceptName}. Only ${validDimensions}/${expectedDimensions} valid dimensions compared.`);
+         console.warn(`Potentially inaccurate distance for Concept: ${conceptName}. Only ${validDimensions}/${expectedDimensions} valid dimensions compared. Check concept's elementScores in data.js.`);
      }
+
      return Math.sqrt(sumOfSquares);
 }
 
@@ -230,15 +240,18 @@ export function formatTimestamp(timestamp) {
     if (!timestamp) return "Invalid Date";
     try {
         const date = new Date(timestamp);
+        // Check if the date object is valid after conversion
         if (isNaN(date.getTime())) {
-             // console.warn("formatTimestamp received invalid date/timestamp:", timestamp); // Reduce noise
+             console.warn("formatTimestamp received invalid date/timestamp:", timestamp);
              return "Invalid Date";
         }
+
         const year = date.getFullYear();
-        const month = (date.getMonth() + 1).toString().padStart(2, '0');
+        const month = (date.getMonth() + 1).toString().padStart(2, '0'); // Months are 0-indexed
         const day = date.getDate().toString().padStart(2, '0');
         const hours = date.getHours().toString().padStart(2, '0');
         const minutes = date.getMinutes().toString().padStart(2, '0');
+
         return `${year}-${month}-${day} ${hours}:${minutes}`;
     } catch (e) {
         console.error("Error formatting timestamp:", timestamp, e);
@@ -246,16 +259,6 @@ export function formatTimestamp(timestamp) {
     }
 }
 
-// ** NEW: Get Element Level Name **
-export function getElementLevelName(level) {
-    switch (level) {
-        case 0: return "Unawakened";
-        case 1: return "Adept";
-        case 2: return "Ascendant";
-        case 3: return "Mastery";
-        default: return `Level ${level}`;
-    }
-}
 
-console.log("utils.js loaded successfully. (XP/Leveling v1.0)");
+console.log("utils.js loaded successfully. (Fixed)");
 // --- END OF FILE utils.js ---
