@@ -760,9 +760,8 @@ h5 {
 :root.dark .concept-card.rarity-rare { background: linear-gradient(160deg, #4a4030, #5a5040); border-color: #dda0dd; }
 
 .concept-card:hover {
-    transform: translateY(-4px) scale(1.02);
-    box-shadow: 0 8px 16px rgba(80, 50, 20, 0.18), inset 0 0 1px rgba(255, 255, 255, 0.5);
-    z-index: 10;
+    
+ 
     transform:none; box-shadow:0 6px 14px rgba(0,0,0,.18); 
 
 
