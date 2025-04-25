@@ -711,16 +711,7 @@ h5 {
     box-shadow: var(--box-shadow), 0 4px 14px rgba(0,0,0,.1);
 }
 
-/* Generic Grid Layout (Used by Grimoire, Focus Shelf, etc.) */
-.concept-grid,
-#grimoire-grid-workshop, /* Updated ID */
-.focus-concepts-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); /* Responsive columns */
-  /* grid-auto-rows: 1fr; */ /* Removed to allow natural height */
-  gap: calc(var(--spacing) * 1.2);   /* 20 % wider gaps */
-  align-items: start; /* Align items to the top */
-}
+
 
 /* Concept Card Specific Styling (Original Theme + Category Border) */
 .concept-card {
@@ -759,16 +750,7 @@ h5 {
 .concept-card.rarity-rare { background: linear-gradient(160deg, #fff8dc, #ffecb3); border-color: #dda0dd; box-shadow: 0 4px 8px rgba(80, 50, 20, 0.1), 0 0 8px var(--highlight-glow); }
 :root.dark .concept-card.rarity-rare { background: linear-gradient(160deg, #4a4030, #5a5040); border-color: #dda0dd; }
 
-.concept-card:hover {
-    transform: translateY(-4px) scale(1.02);
-    box-shadow: 0 8px 16px rgba(80, 50, 20, 0.18), inset 0 0 1px rgba(255, 255, 255, 0.5);
-    z-index: 10;
-}
-:root.dark .concept-card:hover { box-shadow: 0 8px 16px rgba(0,0,0, 0.3), inset 0 0 1px rgba(255, 255, 255, 0.1); }
-.concept-card:hover.rarity-uncommon { box-shadow: 0 8px 16px rgba(80, 50, 20, 0.18), 0 0 9px rgba(70, 130, 180, 0.5); }
-:root.dark .concept-card:hover.rarity-uncommon { box-shadow: 0 8px 16px rgba(0,0,0, 0.3), 0 0 9px rgba(135, 206, 250, 0.5); }
-.concept-card:hover.rarity-rare { box-shadow: 0 8px 16px rgba(80, 50, 20, 0.18), 0 0 14px var(--highlight-glow); }
-:root.dark .concept-card:hover.rarity-rare { box-shadow: 0 8px 16px rgba(0,0,0, 0.3), 0 0 14px var(--highlight-glow); }
+
 
 /* Card Internals */
 .card-header, .card-visual, .card-footer { margin-left: 6px; /* Space for category border */ position: relative; padding: 8px 12px; }
@@ -901,10 +883,6 @@ h5 {
     pointer-events: none; /* Not interactive until hovered */
     padding-top: 4px; /* Space above buttons */
 }
-.concept-card:hover .card-actions {
-    opacity: 1; /* Show on hover */
-    pointer-events: auto;
-}
 
 /* Focus Item Styling (In Tapestry) */
 .focus-concept-item {
@@ -990,19 +968,7 @@ h5 {
     background-color: rgba(44, 42, 40, 0.65); /* Lighten dark overlay on hover */
 }
 
-.focus-concepts-grid .focus-placeholder {
-    font-style: italic;
-    color: var(--text-muted-color);
-    padding: var(--spacing);
-    text-align: center;
-    border: 2px dashed var(--border-color-light);
-    border-radius: var(--border-radius);
-    min-height: 75px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    grid-column: 1 / -1; /* Ensure placeholder spans grid if needed */
-}
+
 :root.dark .focus-concepts-grid .focus-placeholder { border-color: var(--border-color-light); }
 
 
@@ -1739,22 +1705,9 @@ canvas#personaScoreChartCanvas { background-color: transparent !important; } /* 
 .grimoire-shelf.drag-over { border-style: dashed; border-width: 2px; background-color: rgba(255, 215, 0, 0.1); border-color: var(--accent-color); }
 .concept-card.dragging { opacity: 0.5; transform: scale(0.95); }
 
-/* --- Grimoire Library: stop card overlap -------------------------- */
-#grimoire-grid-workshop{
-    /* replace multi‑column with modern grid */
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: var(--spacing);
-    /* remove the old column settings if they exist */
-    column-count: unset;
-    column-gap: unset;
-    
-}
 
-/* ensure every card fills its grid cell */
-#grimoire-grid-workshop .concept-card{
-    width: 100%;
-}
+
+
 
 /* ---------- 13. Reduced Motion Override ------------------ */
 @media (prefers-reduced-motion: reduce) {
