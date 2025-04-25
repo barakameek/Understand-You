@@ -422,18 +422,6 @@ h5 {
   gap: calc(var(--spacing) * 1.5); /* Slightly larger gap */
 }
 
-/* Workshop Screen Layout moved to inline styles in HTML head for now */
-/* But the selectors are here for reference / potential migration */
-/* #workshopScreen { display: grid; ... } */
-/* .panel { ... } */
-/* .research-bench { ... } */
-/* .research-chips { ... } */
-/* .daily-actions { ... } */
-/* .grimoire-library { ... } */
-/* .library-header { ... } */
-/* .workshop-insight-display { ... } */
-/* .library-controls { ... } */
-/* #grimoire-grid-workshop { ... } */
 
 
 .repository-layout {
@@ -711,16 +699,7 @@ h5 {
     box-shadow: var(--box-shadow), 0 4px 14px rgba(0,0,0,.1);
 }
 
-/* Generic Grid Layout (Used by Grimoire, Focus Shelf, etc.) */
-.concept-grid,
-#grimoire-grid-workshop, /* Updated ID */
-.focus-concepts-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); /* Responsive columns */
-  /* grid-auto-rows: 1fr; */ /* Removed to allow natural height */
-  gap: calc(var(--spacing) * 1.2);   /* 20 % wider gaps */
-  align-items: start; /* Align items to the top */
-}
+
 
 /* Concept Card Specific Styling (Original Theme + Category Border) */
 .concept-card {
