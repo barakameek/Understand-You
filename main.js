@@ -1056,3 +1056,15 @@ document.addEventListener('DOMContentLoaded', initializeApp);
 
 console.log("main.js loaded successfully. (Enhanced v4.1 + Drawer - Fixed v2 + Onboarding Tours)");
 // --- END OF FILE main.js ---
+// Onboarding behaviour (Iris)
+document.addEventListener('DOMContentLoaded', function(){
+  try{
+    const modal = document.getElementById('onboardingModal');
+    if(!modal) return;
+    const seen = localStorage.getItem('iu_onboarding_seen');
+    if(!seen){ modal.classList.remove('hidden'); }
+    document.getElementById('onboardingClose').addEventListener('click', ()=>{ modal.classList.add('hidden'); localStorage.setItem('iu_onboarding_seen','1'); });
+    document.getElementById('skipTourBtn').addEventListener('click', ()=>{ modal.classList.add('hidden'); localStorage.setItem('iu_onboarding_seen','1'); });
+    document.getElementById('startTourBtn').addEventListener('click', ()=>{ modal.classList.add('hidden'); localStorage.setItem('iu_onboarding_seen','1'); /* TODO: start interactive tour */ alert('Starting a friendly tour... 🌿'); });
+  }catch(e){ console.warn('Onboarding init failed', e); }
+});

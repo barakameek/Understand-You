@@ -2099,3 +2099,9 @@ iconElement.className = `fa-solid ${iconMap[elKey] || 'fa-gear'}`;
     z-index: 5;                        /* keeps it above neighbours */
 }
 /* --- END OF FILE style.css --- */
+/* Onboarding modal styles */
+.modal { position: fixed; inset: 0; display:flex; align-items:center; justify-content:center; background: rgba(0,0,0,0.45); z-index:2000; }
+.modal.hidden{ display:none; }
+.modal-content{ background: var(--background-light); color: var(--text-color); padding:1.25rem; border-radius:12px; width: min(720px, 94%); box-shadow: var(--box-shadow); position:relative; }
+.modal-close{ position:absolute; right:10px; top:8px; background:none; border:none; font-size:1.4rem; cursor:pointer; }
+.modal-actions{ display:flex; gap:0.5rem; margin-top:1rem; }
