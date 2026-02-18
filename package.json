@@ -1,0 +1,14 @@
+{
+  "name": "understand-you",
+  "version": "0.1.0",
+  "description": "Persona Alchemy Lab - client-side persona mapping app",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx http-server -c-1 . -p 8080",
+    "lint": "echo 'no linter configured'",
+    "format": "echo 'no formatter configured'"
+  },
+  "author": "Mr Fox",
+  "license": "MIT",
+  "devDependencies": {}
+}
