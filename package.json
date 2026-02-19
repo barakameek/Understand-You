@@ -1,0 +1,13 @@
+{
+  "name": "understand-you",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "vite web_src",
+    "build": "vite build web_src --outDir dist",
+    "preview": "vite preview --root web_src --port 5173"
+  },
+  "devDependencies": {
+    "vite": "^5.0.0"
+  }
+}
